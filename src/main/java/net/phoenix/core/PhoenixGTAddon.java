@@ -7,6 +7,7 @@ import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.phoenix.core.common.data.PhoenixMachineRecipes;
 import net.phoenix.core.common.data.materials.PhoenixElements;
+import net.phoenix.core.common.registry.PhoenixRegistration;
 
 import java.util.function.Consumer;
 
@@ -16,7 +17,7 @@ public class PhoenixGTAddon implements IGTAddon {
 
     @Override
     public GTRegistrate getRegistrate() {
-        return PhoenixCore.EXAMPLE_REGISTRATE;
+        return PhoenixRegistration.REGISTRATE;
     }
 
     @Override
