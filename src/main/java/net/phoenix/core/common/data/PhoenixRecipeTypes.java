@@ -6,6 +6,9 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.common.data.GTSoundEntries;
 
 import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture;
+import net.minecraft.client.gui.Gui;
+
+import java.awt.*;
 
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.*;
 
@@ -20,6 +23,9 @@ public class PhoenixRecipeTypes {
     public static GTRecipeType SWARM_NURTURING;
     public static GTRecipeType APIS_PROGENITOR;
     public static GTRecipeType SIMULATED_COLONY;
+
+    public static GTRecipeType DIMENSIONAL_ANCHORING;
+    public static GTRecipeType AETHERIAL_FABRICATION;
 
     public static void init() {
         // 2. Inicialize o INFINITY_FORGE como antes.
@@ -70,6 +76,22 @@ public class PhoenixRecipeTypes {
         // Simulated Colony
         SIMULATED_COLONY = register("simulated_colony", MULTIBLOCK)
                 .setMaxIOSize(3, 1, 1, 0)
+                .setEUIO(IO.IN)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.ARC);
+
+        //Dimensional Anchoring
+        DIMENSIONAL_ANCHORING = register("dimensional_anchoring", MULTIBLOCK)
+                .setMaxIOSize(3, 30, 1, 0)
+                .setEUIO(IO.IN)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.ARC);
+
+        //Aetherial Fabrication
+        AETHERIAL_FABRICATION = register("aetherial_fabrication", MULTIBLOCK)
+                .setMaxIOSize(3, 25, 1, 0)
                 .setEUIO(IO.IN)
                 .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)

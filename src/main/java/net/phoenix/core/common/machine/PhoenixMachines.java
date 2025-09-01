@@ -30,6 +30,7 @@ import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import net.phoenix.core.common.machine.multiblock.CreativeEnergyMultiMachine;
 import net.phoenix.core.common.machine.multiblock.electric.BeeMultiblocks;
 import net.phoenix.core.common.machine.multiblock.electric.CoilMultis;
+import net.phoenix.core.common.machine.multiblock.electric.DimensionalRiftExtractor;
 import net.phoenix.core.common.machine.multiblock.electric.alchemical.AlchemicalImbuer;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.common.machine.multiblock.steam.LargeSteamCompressor;
@@ -353,5 +354,6 @@ public class PhoenixMachines {
         }
         BeeMultiblocks.init();
         CoilMultis.init();
+        DimensionalRiftExtractor.init();
     }
 }
