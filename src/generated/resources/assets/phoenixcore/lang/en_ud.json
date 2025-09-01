@@ -4,9 +4,8 @@
   "block.phoenixcore.akashic_coil_block": "ןıoƆ uoıʇɐʇndɯoƆϛ§",
   "block.phoenixcore.akashic_zeronium_casing": "buısɐƆ ɯnıuoɹǝZ ɔıɥsɐʞⱯϛ§",
   "block.phoenixcore.blazing_cleaning_maintenance_hatch": "ɥɔʇɐH ǝɔuɐuǝʇuıɐW buıuɐǝןƆ buızɐןᗺ",
-  "block.phoenixcore.blazing_filter_casing": "buısɐƆ ɹǝʇןıℲ buızɐןᗺ",
-  "block.phoenixcore.high_yield_photon_emission_regulator": "ɹoʇɐןnbǝɹ‾uoıssıɯǝ‾uoʇoɥd‾pןǝıʎ‾ɥbıɥ˙ǝɹoɔxıuǝoɥd˙ʞɔoןq",
-  "block.phoenixcore.large_steam_compressor": "ɹossǝɹdɯoƆ ɯɐǝʇS ǝbɹɐꞀ",
+  "block.phoenixcore.dance": "ǝɔuɐp",
+  "block.phoenixcore.high_yield_photon_emission_regulator": ")ⱯƆԀH( ɹoʇɐןnbǝᴚ uoıssıɯƎ uoʇoɥԀ pןǝıʎ-ɥbıH",
   "block.phoenixcore.perfected_logic": "buısɐƆ ɔıboꞀ pǝʇɔǝɟɹǝԀϛ§",
   "block.phoenixcore.phoenix_computation_component": "ʇuǝuodɯoƆ uoıʇɐʇndɯoƆ xıuǝoɥԀ",
   "block.phoenixcore.phoenix_enriched_neutronium_casing": "buısɐƆ ɯnıuoɹʇnǝN pǝɥɔıɹuƎ xıuǝoɥԀϛ§",
@@ -17,9 +16,5 @@
   "block.phoenixcore.true_heat_stable_coil_block": "ʞɔoןᗺ ןıoƆ ǝןqɐʇS ʇɐǝH ǝnɹ⟘",
   "block.phoenixcore.true_phoenix_infused_casing": "buısɐƆ pǝsnɟuI xıuǝoɥԀ ǝnɹ⟘ɔ§",
   "block.phoenixcore.twisted_computer_casing": "buısɐƆ ɹǝʇndɯoƆ pǝʇsıʍ⟘ϛ§",
-  "item.phoenixcore.basic_fuel_rod": "poᴚ ןǝnℲ ɔısɐᗺ",
-  "material.phoenixcore.eighty_five_percent_pure_nevvonian_steel": "ןǝǝʇS uɐıuoʌʌǝN ǝɹnԀ ʇuǝɔɹǝԀ ǝʌıℲ ʎʇɥbıƎ",
-  "material.phoenixcore.extremely_modified_space_grade_steel": "ןǝǝʇS ǝpɐɹ⅁ ǝɔɐdS pǝıɟıpoW ʎןǝɯǝɹʇxƎ",
-  "material.phoenixcore.phoenix_enriched_tritanium": "ɯnıuɐʇıɹ⟘ pǝɥɔıɹuƎ xıuǝoɥԀ",
-  "material.phoenixcore.quantum_coolant": "ʇuɐןooƆ ɯnʇuɐnὉ"
+  "item.phoenixcore.basic_fuel_rod": "poᴚ ןǝnℲ ɔısɐᗺ"
 }
