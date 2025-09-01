@@ -21,12 +21,14 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.fml.ModList;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.machine.multiblock.CosmicDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import net.phoenix.core.common.machine.multiblock.CreativeEnergyMultiMachine;
+import net.phoenix.core.common.machine.multiblock.electric.alchemical.AlchemicalImbuer;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.common.machine.multiblock.steam.LargeSteamCompressor;
 import net.phoenix.core.configs.PhoenixConfigs;
@@ -344,5 +346,8 @@ public class PhoenixMachines {
 
     public static void init() {
         LargeSteamCompressor.init();
+        if (ModList.get().isLoaded("ars_nouveau")) {
+            AlchemicalImbuer.init();
+        }
     }
 }

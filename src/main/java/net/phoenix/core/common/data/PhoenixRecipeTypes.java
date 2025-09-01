@@ -13,6 +13,8 @@ public class PhoenixRecipeTypes {
 
     // 1. Declare os campos para ambos os tipos de receita.
     public static GTRecipeType PLEASE;// <-- NOVO CAMPO ADICIONADO
+    public static GTRecipeType SOURCE_IMBUMENT;
+    public static GTRecipeType SOURCE_EXTRACTION;
 
     public static void init() {
         // 2. Inicialize o INFINITY_FORGE como antes.
@@ -22,5 +24,21 @@ public class PhoenixRecipeTypes {
                 .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
                 .setSound(GTSoundEntries.FORGE_HAMMER)
                 .setEUIO(IO.IN);
+
+        // Source Imbument
+        SOURCE_IMBUMENT = register("source_imbument", MULTIBLOCK)
+                .setMaxIOSize(3, 1, 1, 1)
+                .setEUIO(IO.IN)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.CHEMICAL);
+
+        // Source Extraction
+        SOURCE_EXTRACTION = register("source_extraction", MULTIBLOCK)
+                .setMaxIOSize(3, 1, 1, 1)
+                .setEUIO(IO.IN)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.CHEMICAL);
     }
 }

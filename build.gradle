@@ -6,7 +6,6 @@ plugins {
     id 'com.diffplug.spotless' version '7.0.2'
 }
 
-def generatedResources = file("src/generated")
 
 sourceSets {
     main.resources {
@@ -124,7 +123,7 @@ legacyForge {
 
         data {
             data()
-
+            sourceSet = sourceSets.main
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             programArguments.addAll('--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath())
@@ -150,11 +149,7 @@ jar {
     ])
 }
 
-mixin {
-    // MixinGradle Settings
-    add sourceSets.main, 'mixins.phoenixcore.refmap.json'
-    config 'phoenixcore.mixins.json'
-}
+
 apply from: "$rootDir/gradle/scripts/spotless.gradle"
 
 dependencies {
@@ -184,9 +179,18 @@ dependencies {
     //Steam Super Systems
     modImplementation("curse.maven:steam-super-systems-1338670:6950081")
 
+    //Ars Nouveau
+    modRuntimeOnly("curse.maven:ars-nouveau-401955:6688854")
+    //Curios for Ars Nouveau
+    modRuntimeOnly("curse.maven:curios-309927:6418456")
+
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
+}
+mixin {
+    add sourceSets.main, "mixins.${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
 }
 
 tasks.named('processResources', ProcessResources).configure {
