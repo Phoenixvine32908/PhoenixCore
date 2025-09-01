@@ -18,10 +18,8 @@ public interface PhoenixRecipeSchema {
     @Accessors(chain = true, fluent = true)
     class PhoenixRecipeJS extends GTRecipeSchema.GTRecipeJS {
 
-        // The method should use the new RecipeComponent
-        public PhoenixRecipeJS blazing_cleanroom(BlazingCleanroom cleanroomType) {
-            addCondition(new CleanroomCondition(cleanroomType));
-            return this;
+        public GTRecipeJS cleanroom(BlazingCleanroom cleanroomType) {
+            return addCondition(new CleanroomCondition(cleanroomType));
         }
     }
 

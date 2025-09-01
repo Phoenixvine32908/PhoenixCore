@@ -3,8 +3,6 @@ package net.phoenix.core.common.machine;
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.RotationState;
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -251,7 +249,7 @@ public class PhoenixMachines {
                                     .or(blocks(GTResearchMachines.HPCA_EMPTY_COMPONENT.get()))
                                     .or(blocks(GTResearchMachines.HPCA_COMPUTATION_COMPONENT.get())))
                             .where('H', blocks(GCYMBlocks.CASING_HIGH_TEMPERATURE_SMELTING.get()))
-                            .where('F', blocks(ChemicalHelper.getBlock(TagPrefix.block, GTMaterials.Steel)))
+                            .where('I', blocks(COMPUTER_CASING.get()))
                             .where('J', blocks(FUSION_GLASS.get()))
                             .where('K', blocks(PhoenixBlocks.AKASHIC_COIL_BLOCK.get()))
                             .where('L', blocks(PhoenixResearchMachines.ACTIVE_PHOENIX_COOLER_COMPONENT.get())

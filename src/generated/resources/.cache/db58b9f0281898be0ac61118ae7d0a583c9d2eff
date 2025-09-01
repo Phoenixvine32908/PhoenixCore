@@ -1,4 +1,4 @@
-// 1.20.1	2025-08-23T11:06:30.0170723	Registrate Provider for phoenixcore [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.20.1	2025-09-01T07:26:30.6730423	Registrate Provider for phoenixcore [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 a38e2283a4f04692f28f398e0e225ecd68387db7 assets/phoenixcore/blockstates/active_phoenix_cooling_component.json
 481ee5184427e2bac3d42903147d3d65e30de95f assets/phoenixcore/blockstates/advanced_phoenix_computation_component.json
 04e10eb17e051cb44b5bc168df83acc7572d2b22 assets/phoenixcore/blockstates/akashic_coil_block.json
@@ -16,8 +16,8 @@ c124b73a3cc1bac5e8cecc06a9c65e730a628253 assets/phoenixcore/blockstates/phoenix_
 b4142063f8798e375f3a8d1ed61b56d721bad8ce assets/phoenixcore/blockstates/true_heat_stable_coil_block.json
 a68e897f26a3aa9384a4ad4da6b3fd1f730e0880 assets/phoenixcore/blockstates/true_phoenix_infused_casing.json
 8b16af3df77c663bf56d60cec3fc248ba58d6952 assets/phoenixcore/blockstates/twisted_computer_casing.json
-e43d87978bc1d499a517cb8931f4745bba5b9d7d assets/phoenixcore/lang/en_ud.json
-33c1f1b4e4c5f01f1a1d262f2bc49bfa4dc9bf80 assets/phoenixcore/lang/en_us.json
+1c9da061bfc559ac940736bfb14fff247adb3732 assets/phoenixcore/lang/en_ud.json
+31840dae4ac0872deef4e1127895382b3cff4468 assets/phoenixcore/lang/en_us.json
 9c5d7e2d3c461044d77c4492764411cb10da7c94 assets/phoenixcore/models/block/active_phoenix_cooling_component_base.json
 9c5d7e2d3c461044d77c4492764411cb10da7c94 assets/phoenixcore/models/block/advanced_phoenix_computation_component_base.json
 23d10779ebc606c9a3f725feb11e4fbd7220e507 assets/phoenixcore/models/block/akashic_coil_block.json
@@ -25,7 +25,7 @@ f93e42b7eb95ad09a5814bd26d4cdd7f2cbbdb21 assets/phoenixcore/models/block/akashic
 add605a6e11c1616d86d9589d4daa51a31743fae assets/phoenixcore/models/block/machine/active_phoenix_cooling_component.json
 3b7e7a4cd11eaf17579623bce46239f812922b20 assets/phoenixcore/models/block/machine/advanced_phoenix_computation_component.json
 9c8fd8c4ba9d54a1a6a4b7f6ca1d8fec02cb0855 assets/phoenixcore/models/block/machine/blazing_cleaning_maintenance_hatch.json
-f1394a5468d6f7b6ff324e8f639f138681e4aa14 assets/phoenixcore/models/block/machine/dance.json
+f69211b92764e505fdaaa3669141a3a58fbc8215 assets/phoenixcore/models/block/machine/dance.json
 f881318b4e4c372e1092fedd874da8c98b2ee9e4 assets/phoenixcore/models/block/machine/high_yield_photon_emission_regulator.json
 d3aeccd3c9e83f1db32d3670b34961d0312b2b8d assets/phoenixcore/models/block/machine/phoenix_computation_component.json
 5d3f9e90fd8810466108246b2e96322e0b4f02e1 assets/phoenixcore/models/block/machine/phoenix_heat_sink_component.json

@@ -61,12 +61,17 @@ public class ArtificialStarRender extends DynamicRender<WorkableElectricMultiblo
         float tick = (machine.getOffsetTimer() + partialTick);
 
         // Lógica de posicionamento (sem alterações)
-        double x = 0.5, y = 36.5, z = 0.5;
+        // Center of the multiblock
+        double x = 0.5;
+        double y = 2.5; // a little above the controller block
+        double z = 0.5;
+
+        // Offset in front of the facing direction by 5 blocks
         switch (machine.getFrontFacing()) {
-            case NORTH -> z = 39.5;
-            case SOUTH -> z = -38.5;
-            case WEST -> x = 39.5;
-            case EAST -> x = -38.5;
+            case NORTH -> z -= 5.0;
+            case SOUTH -> z += 5.0;
+            case WEST -> x -= 5.0;
+            case EAST -> x += 5.0;
         }
 
         poseStack.pushPose();
