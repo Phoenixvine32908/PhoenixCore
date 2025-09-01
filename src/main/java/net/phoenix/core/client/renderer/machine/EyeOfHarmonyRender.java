@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -29,12 +29,12 @@ public class EyeOfHarmonyRender extends DynamicRender<WorkableElectricMultiblock
     public static final DynamicRenderType<WorkableElectricMultiblockMachine, EyeOfHarmonyRender> TYPE = new DynamicRenderType<>(
             EyeOfHarmonyRender.CODEC);
 
-    public static final ResourceLocation SPACE_SHELL_MODEL_RL = phoenixcore.id("obj/space");
-    public static final ResourceLocation STAR_MODEL_RL = phoenixcore.id("obj/star");
+    public static final ResourceLocation SPACE_SHELL_MODEL_RL = PhoenixCore.id("obj/space");
+    public static final ResourceLocation STAR_MODEL_RL = PhoenixCore.id("obj/star");
     public static final List<ResourceLocation> ORBIT_OBJECTS_RL = List.of(
-            phoenixcore.id("obj/the_nether"),
-            phoenixcore.id("obj/overworld"),
-            phoenixcore.id("obj/the_end"));
+            PhoenixCore.id("obj/the_nether"),
+            PhoenixCore.id("obj/overworld"),
+            PhoenixCore.id("obj/the_end"));
 
     private static BakedModel spaceShellModel, starModel, overworldModel, netherModel, endModel;
     private static final List<BakedModel> orbitModels = new java.util.ArrayList<>();

@@ -11,8 +11,8 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
-import net.phoenix.core.phoenixcore;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -57,7 +57,7 @@ public class PhoenixCoilBlock extends ActiveBlock {
     public enum CoilType implements StringRepresentable, ICoilType {
 
         COIL_TRUE_HEAT_STABLE("true_heat_stable", 1, 1, 1, 1, PhoenixMaterials.PHOENIX_ENRICHED_TRITANIUM,
-                phoenixcore.id("block/true_heat_stable_coil_block"));
+                PhoenixCore.id("block/true_heat_stable_coil_block"));
 
         @NotNull
         @Getter

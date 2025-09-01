@@ -5,7 +5,7 @@ import net.phoenix.core.common.registry.PhoenixRegistration;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
 
-import static net.phoenix.core.phoenixcore.PHOENIX_CREATIVE_TAB;
+import static net.phoenix.core.PhoenixCore.PHOENIX_CREATIVE_TAB;
 
 public class PhoenixItems {
 
