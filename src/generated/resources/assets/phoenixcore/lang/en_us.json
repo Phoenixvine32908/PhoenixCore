@@ -1,5 +1,6 @@
 {
   "block.phoenixcore.active_phoenix_cooling_component": "Active Phoenix Cooling Component",
+  "block.phoenixcore.advanced_cracking_unit": "Advanced Cracking Unit",
   "block.phoenixcore.advanced_phoenix_computation_component": "Advanced Phoenix Computation Component",
   "block.phoenixcore.akashic_coil_block": "§5Computation Coil",
   "block.phoenixcore.akashic_zeronium_casing": "§5Akashic Zeronium Casing",
@@ -8,6 +9,7 @@
   "block.phoenixcore.blazing_cleaning_maintenance_hatch": "Blazing Cleaning Maintenance Hatch",
   "block.phoenixcore.blazing_filter_casing": "Blazing Filter Casing",
   "block.phoenixcore.comb_decanter": "Comb Decanter",
+  "block.phoenixcore.emberwake_alloy_hearth": "Emberwake Alloy Hearth",
   "block.phoenixcore.high_yield_photon_emission_regulator": "block.phoenixcore.high_yield_photon_emission_regulator",
   "block.phoenixcore.large_steam_compressor": "Large Steam Compressor",
   "block.phoenixcore.perfected_logic": "§5Perfected Logic Casing",
@@ -18,6 +20,7 @@
   "block.phoenixcore.phoenix_heat_sink_component": "Phoenix Heat Sink Component",
   "block.phoenixcore.simulated_colony": "Simulated Colony",
   "block.phoenixcore.space_time_cooled_eternity_casing": "§5Space Time Cooled Eternity Casing",
+  "block.phoenixcore.superheated_pyrolyzing_oven": "Superheated Pyrolyzing Oven",
   "block.phoenixcore.swarm_nurturer": "Swarm Nurturer",
   "block.phoenixcore.true_heat_stable_coil_block": "True Heat Stable Coil Block",
   "block.phoenixcore.true_phoenix_infused_casing": "§cTrue Phoenix Infused Casing",
