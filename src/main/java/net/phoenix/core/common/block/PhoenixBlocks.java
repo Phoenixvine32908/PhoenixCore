@@ -13,8 +13,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.configs.PhoenixConfigs;
-import net.phoenix.core.phoenixcore;
 
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiFunction;
@@ -34,7 +34,7 @@ public class PhoenixBlocks {
                 .initialProperties(() -> Blocks.IRON_BLOCK)
                 .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false))
                 .blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(),
-                        prov.models().cubeAll(ctx.getName(), phoenixcore.id("block/" + texture))))
+                        prov.models().cubeAll(ctx.getName(), PhoenixCore.id("block/" + texture))))
                 .lang(name)
                 .item(func)
                 .build()

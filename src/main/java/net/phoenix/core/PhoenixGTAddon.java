@@ -16,7 +16,7 @@ public class PhoenixGTAddon implements IGTAddon {
 
     @Override
     public GTRegistrate getRegistrate() {
-        return phoenixcore.EXAMPLE_REGISTRATE;
+        return PhoenixCore.EXAMPLE_REGISTRATE;
     }
 
     @Override
@@ -24,7 +24,7 @@ public class PhoenixGTAddon implements IGTAddon {
 
     @Override
     public String addonModId() {
-        return phoenixcore.MOD_ID;
+        return PhoenixCore.MOD_ID;
     }
 
     @Override

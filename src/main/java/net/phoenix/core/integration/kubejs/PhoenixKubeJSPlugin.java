@@ -2,6 +2,7 @@ package net.phoenix.core.integration.kubejs;
 
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
@@ -10,7 +11,6 @@ import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import net.phoenix.core.integration.kubejs.recipe.PhoenixRecipeSchema;
-import net.phoenix.core.phoenixcore;
 
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
@@ -56,6 +56,6 @@ public class PhoenixKubeJSPlugin extends KubeJSPlugin {
         event.add("PhoenixItems", PhoenixItems.class);
         event.add("PhoenixRecipeTypes", PhoenixRecipeTypes.class);
 
-        event.add("PhoenixCore", phoenixcore.class);
+        event.add("PhoenixCore", PhoenixCore.class);
     }
 }

@@ -7,19 +7,19 @@ import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.machine.ArtificialStarRender;
 import net.phoenix.core.client.renderer.machine.EyeOfHarmonyRender;
-import net.phoenix.core.phoenixcore;
 
-@Mod.EventBusSubscriber(modid = phoenixcore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = PhoenixCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class PhoenixClient {
 
     private PhoenixClient() {}
 
     public static void init(IEventBus modBus) {
         modBus.register(PhoenixClient.class);
-        DynamicRenderManager.register(phoenixcore.id("eye_of_harmony"), EyeOfHarmonyRender.TYPE);
-        DynamicRenderManager.register(phoenixcore.id("artificial_star"), ArtificialStarRender.TYPE);
+        DynamicRenderManager.register(PhoenixCore.id("eye_of_harmony"), EyeOfHarmonyRender.TYPE);
+        DynamicRenderManager.register(PhoenixCore.id("artificial_star"), ArtificialStarRender.TYPE);
     }
 
     @SubscribeEvent

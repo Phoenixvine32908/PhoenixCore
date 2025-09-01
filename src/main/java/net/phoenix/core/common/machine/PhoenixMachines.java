@@ -23,6 +23,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.level.block.Block;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.machine.multiblock.CosmicDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
@@ -30,7 +31,6 @@ import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import net.phoenix.core.common.machine.multiblock.CreativeEnergyMultiMachine;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
-import net.phoenix.core.phoenixcore;
 
 import java.util.Locale;
 import java.util.function.BiFunction;
@@ -49,7 +49,7 @@ public class PhoenixMachines {
     public static MachineDefinition BLAZING_CLEANING_MAINTENANCE_HATCH = null;
     public static MachineDefinition HIGH_YEILD_PHOTON_EMISSION_REGULATER = null;
     static {
-        REGISTRATE.creativeModeTab(() -> phoenixcore.PHOENIX_CREATIVE_TAB);
+        REGISTRATE.creativeModeTab(() -> PhoenixCore.PHOENIX_CREATIVE_TAB);
     }
 
     static {
@@ -70,7 +70,7 @@ public class PhoenixMachines {
                     .tier(UHV)
 
                     .overlayTieredHullModel(
-                            phoenixcore.id("block/machine/part/overlay_maintenance_blazing_cleaning"))
+                            PhoenixCore.id("block/machine/part/overlay_maintenance_blazing_cleaning"))
                     // Tier can always be changed later
                     .register();
         }
@@ -164,7 +164,7 @@ public class PhoenixMachines {
                             .build())
                     .model(
                             createWorkableCasingMachineModel(
-                                    phoenixcore.id("block/akashic_coil_block"),
+                                    PhoenixCore.id("block/akashic_coil_block"),
                                     GTCEu.id("block/multiblock/generator/large_gas_turbine"))
                                     .andThen(d -> d
                                             .addDynamicRenderer(CosmicDynamicRenderHelpers::getArtificialStarRender)))

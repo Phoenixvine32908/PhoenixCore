@@ -37,18 +37,18 @@ import com.tterrag.registrate.util.entry.RegistryEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(phoenixcore.MOD_ID)
-public class phoenixcore {
+@Mod(PhoenixCore.MOD_ID)
+public class PhoenixCore {
 
     public static final String MOD_ID = "phoenixcore";
     public static final Logger LOGGER = LogManager.getLogger();
-    public static GTRegistrate EXAMPLE_REGISTRATE = GTRegistrate.create(phoenixcore.MOD_ID);
+    public static GTRegistrate EXAMPLE_REGISTRATE = GTRegistrate.create(PhoenixCore.MOD_ID);
     public static RegistryEntry<CreativeModeTab> PHOENIX_CREATIVE_TAB = null;
 
-    public phoenixcore() {
+    public PhoenixCore() {
         // This static init call is a common pattern to ensure your Registrate instance
         // is initialized at the correct time.
-        phoenixcore.init();
+        PhoenixCore.init();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -119,7 +119,7 @@ public class phoenixcore {
      * @param event
      */
     private void addMaterialRegistries(MaterialRegistryEvent event) {
-        GTCEuAPI.materialManager.createRegistry(phoenixcore.MOD_ID);
+        GTCEuAPI.materialManager.createRegistry(PhoenixCore.MOD_ID);
     }
 
     /**
