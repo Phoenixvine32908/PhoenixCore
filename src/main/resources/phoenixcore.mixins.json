@@ -5,7 +5,8 @@
   "minVersion": "0.8",
   "mixins": [
     "DataAccessHatchMixin",
-    "NotifiableEnergyContainerMixin"
+    "NotifiableEnergyContainerMixin",
+    "OpticalDataHatchMixin"
   ],
   "client": [
   ],
