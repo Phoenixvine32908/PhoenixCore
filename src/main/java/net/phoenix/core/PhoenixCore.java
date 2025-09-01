@@ -42,7 +42,6 @@ public class PhoenixCore {
 
     public static final String MOD_ID = "phoenixcore";
     public static final Logger LOGGER = LogManager.getLogger();
-    public static GTRegistrate EXAMPLE_REGISTRATE = GTRegistrate.create(PhoenixCore.MOD_ID);
     public static RegistryEntry<CreativeModeTab> PHOENIX_CREATIVE_TAB = null;
 
     public PhoenixCore() {
