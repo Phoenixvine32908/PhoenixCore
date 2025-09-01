@@ -16,6 +16,11 @@ public class PhoenixRecipeTypes {
     public static GTRecipeType SOURCE_IMBUMENT;
     public static GTRecipeType SOURCE_EXTRACTION;
 
+    public static GTRecipeType COMB_DECANTING;
+    public static GTRecipeType SWARM_NURTURING;
+    public static GTRecipeType APIS_PROGENITOR;
+    public static GTRecipeType SIMULATED_COLONY;
+
     public static void init() {
         // 2. Inicialize o INFINITY_FORGE como antes.
         PLEASE = register("please", MULTIBLOCK)
@@ -40,5 +45,34 @@ public class PhoenixRecipeTypes {
                 .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
                 .setSound(GTSoundEntries.CHEMICAL);
+
+        // Comb Decanting
+        COMB_DECANTING = register("comb_decanting", MULTIBLOCK)
+                .setMaxIOSize(1, 2, 0, 2)
+                .setEUIO(IO.IN)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.ARC);
+        // Swarm Nurturing
+        SWARM_NURTURING = register("swarm_nurturing", MULTIBLOCK)
+                .setMaxIOSize(2, 1, 0, 0)
+                .setEUIO(IO.IN)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.ARC);
+        // Apis Progenitor
+        APIS_PROGENITOR = register("apis_progenitor", MULTIBLOCK)
+                .setMaxIOSize(2, 1, 0, 0)
+                .setEUIO(IO.IN)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.ARC);
+        // Simulated Colony
+        SIMULATED_COLONY = register("simulated_colony", MULTIBLOCK)
+                .setMaxIOSize(3, 1, 1, 0)
+                .setEUIO(IO.IN)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.ARC);
     }
 }
