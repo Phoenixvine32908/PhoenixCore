@@ -182,7 +182,7 @@ dependencies {
     modImplementation("dev.ftb.mods:ftb-teams-forge:${ftbteams_version}")
 
     //Steam Super Systems
-    implementation fg.deobf("curse.maven:steam-super-systems-1338670:6950081")
+    modImplementation("curse.maven:steam-super-systems-1338670:6950081")
 
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.24'
