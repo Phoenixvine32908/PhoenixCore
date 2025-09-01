@@ -30,6 +30,7 @@ import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import net.phoenix.core.common.machine.multiblock.CreativeEnergyMultiMachine;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
+import net.phoenix.core.common.machine.multiblock.steam.LargeSteamCompressor;
 import net.phoenix.core.configs.PhoenixConfigs;
 
 import java.util.Locale;
@@ -343,5 +344,7 @@ public class PhoenixMachines {
         }
     }
 
-    public static void init() {}
+    public static void init() {
+        LargeSteamCompressor.init();
+    }
 }
