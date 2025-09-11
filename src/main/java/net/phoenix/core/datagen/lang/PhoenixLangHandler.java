@@ -7,6 +7,7 @@ public class PhoenixLangHandler {
     public static void init(RegistrateLangProvider provider) {
         provider.add("phoenixcore.tooltip.hyper_machine_coolant1", "%s: %sx CWU/t");
         provider.add("phoenixcore.tooltip.hyper_machine_coolant2", "%s: %sx CWU/t");
+        provider.add("phoenixcore.tooltip.hyper_machine_coolant_base", "%s: %sx CWU/t");
         provider.add("phoenixcore.tooltip.hyper_machine_coolant3", "%s: %sx CWU/t");
         provider.add("phoenixcore.tooltip.hyper_machine_purpose",
                 "An upgraded HPCA that uses %s, %s, or %s to provide cooling");
@@ -16,6 +17,8 @@ public class PhoenixLangHandler {
                 "§cExtremely Modified Space Grade Steel");
         provider.add("material.phoenixcore.eighty_five_percent_pure_nevvonian_steel",
                 "§6Eighty Five Percent Pure Nevvonian Steel");
+        provider.add("material.phoenixcore.phoenix_enriched_naquadah",
+                "§6Phoenix Enriched Naquadah");
         provider.add("phoenixcore.tooltip.hyper_machine_1", "Each Coolant provides a boost:");
     }
 

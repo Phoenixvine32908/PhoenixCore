@@ -16,8 +16,8 @@
       "model": {
         "parent": "phoenixcore:block/advanced_phoenix_computation_component_base",
         "textures": {
-          "overlay": "gtceu:block/machine/part/hpca/computation/advanced_phoenix_computation_component_active",
-          "overlay_emissive": "gtceu:block/machine/part/hpca/computation/advanced_phoenix_computation_component_active_emissive"
+          "overlay": "gtceu:block/machine/part/hpca/computation/advanced_phoenix_computation_component",
+          "overlay_emissive": "gtceu:block/void"
         }
       }
     },

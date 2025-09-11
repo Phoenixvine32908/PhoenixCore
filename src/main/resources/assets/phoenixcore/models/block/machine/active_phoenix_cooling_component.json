@@ -16,8 +16,8 @@
       "model": {
         "parent": "phoenixcore:block/active_phoenix_cooling_component_base",
         "textures": {
-          "overlay": "gtceu:block/overlay/machine/hpca/cooling/advanced_active_cooler_active",
-          "overlay_emissive": "gtceu:block/overlay/machine/hpca/cooling/advanced_active_cooler_active_emissive"
+          "overlay": "gtceu:block/overlay/machine/hpca/cooling/advanced_active_cooler",
+          "overlay_emissive": "gtceu:block/void"
         }
       }
     },

@@ -39,6 +39,7 @@ import com.tterrag.registrate.util.entry.RegistryEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@SuppressWarnings("all")
 @Mod(phoenixcore.MOD_ID)
 public class phoenixcore {
 

@@ -70,6 +70,25 @@ public class PhoenixBlocks {
     public static BlockEntry<Block> TWISTED_COMPUTER_CASING = registerSimpleBlock(
             "§5Twisted Computer Casing", "twisted_computer_casing",
             "twisted_computer_casing", BlockItem::new);
+    public static BlockEntry<Block> STABLE_LOGIC_CASING = registerSimpleBlock(
+            "§cStable Logic Casing", "stable_logic_casing",
+            "stable_logic", BlockItem::new);
+    public static BlockEntry<Block> RELIABLE_NAQUADAH_ALLOY_MACHINE_CASING = registerSimpleBlock(
+            "§cReliable Naquadah Alloy Machine Casing", "reliable_naquadah_alloy_machine_casing",
+            "reliable_naquadah_alloy_machine_casing", BlockItem::new);
+    public static BlockEntry<Block> SUPER_STABLE_FUSION_CASING = registerSimpleBlock(
+            "§cPhoenix Fusion Casing", "super_stable_fusion_casing",
+            "super_stable_fusion_casing", BlockItem::new);
+    public static BlockEntry<Block> BLAZING_CORE_STABILIZER = registerSimpleBlock(
+            "§cBlazing Core Stabilizer", "blazing_core_stabilizer",
+            "blazing_core_stabilizer", BlockItem::new);
+    public static BlockEntry<Block> GLITCHED_ENTROPY_CASING = registerSimpleBlock(
+            "§aGlitched Entropy Casing", "glitched_entropy_casing",
+            "glitched_entropy_casing", BlockItem::new);
+    public static BlockEntry<Block> PHOENIX_HEART_CASING = registerSimpleBlock(
+            "§cPhoenix Heart Casing", "phoenix_heart_casing",
+            "phoenix_heart_casing", BlockItem::new);
+
     static {
         if (PhoenixConfigs.INSTANCE.features.blazingCleanroomEnabled) {
             final BlockEntry<Block> BLAZING_CLEANROOM_FILTER_CASING = createCleanroomFilters(
