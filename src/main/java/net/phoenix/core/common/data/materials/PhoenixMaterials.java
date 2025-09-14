@@ -3,10 +3,15 @@ package net.phoenix.core.common.data.materials;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
+import com.gregtechceu.gtceu.api.item.tool.GTToolType;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.phoenix.core.phoenixcore;
 
 import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
+import static net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH;
 
 public class PhoenixMaterials {
 
@@ -15,6 +20,7 @@ public class PhoenixMaterials {
     public static Material EightyFivePercentPureNevvonianSteel;
     public static Material PHOENIX_ENRICHED_TRITANIUM;
     public static Material PHOENIX_ENRICHED_NAQUADAH;
+    public static Material ALUMINFROST;
 
     public static void register() {
         EightyFivePercentPureNevvonianSteel = new Material.Builder(
@@ -24,6 +30,9 @@ public class PhoenixMaterials {
                 .flags(PhoenixMaterialFlags.GENERATE_NANITES)
                 .formula("APNS")
                 .secondaryColor(593856)
+                .toolStats(ToolProperty.Builder.of(7.0F, 6.0F, 2560, 3)
+                        .types(GTToolType.AXE, GTToolType.DRILL_EV)
+                        .unbreakable().enchantability(21).enchantment(SILK_TOUCH, 1).build())
                 .iconSet(PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL)
                 .buildAndRegister();
         PHOENIX_ENRICHED_TRITANIUM = new Material.Builder(
@@ -47,6 +56,11 @@ public class PhoenixMaterials {
     }
 
     public static void modifyMaterials() {
-        Iron.addFlags(PhoenixMaterialFlags.GENERATE_NANITES);
+        if (GTMaterials.Iron.hasProperty(PropertyKey.TOOL)) {
+            GTMaterials.Iron.removeProperty(PropertyKey.TOOL);
+        }
+        GTMaterials.Iron.setProperty(PropertyKey.TOOL,
+                (ToolProperty.Builder.of(16, 40, 8192, 6, GTToolType.AXE).magnetic()
+                        .unbreakable().build()));
     }
 }
