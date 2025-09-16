@@ -23,6 +23,10 @@ public class PhoenixMaterials {
     public static Material ALUMINFROST;
 
     public static void register() {
+        QuantumCoolant = new Material.Builder(
+                phoenixcore.id("quantum_coolant"))
+                .plasma()
+                .buildAndRegister();
         EightyFivePercentPureNevvonianSteel = new Material.Builder(
                 phoenixcore.id("eighty_five_percent_pure_nevvonian_steel"))
                 .ingot()
@@ -56,10 +60,10 @@ public class PhoenixMaterials {
     }
 
     public static void modifyMaterials() {
-        if (GTMaterials.Iron.hasProperty(PropertyKey.TOOL)) {
-            GTMaterials.Iron.removeProperty(PropertyKey.TOOL);
+        if (GTMaterials.TungstenCarbide.hasProperty(PropertyKey.TOOL)) {
+            GTMaterials.TungstenCarbide.removeProperty(PropertyKey.TOOL);
         }
-        GTMaterials.Iron.setProperty(PropertyKey.TOOL,
+        TungstenCarbide.setProperty(PropertyKey.TOOL,
                 (ToolProperty.Builder.of(16, 40, 8192, 6, GTToolType.AXE).magnetic()
                         .unbreakable().build()));
     }

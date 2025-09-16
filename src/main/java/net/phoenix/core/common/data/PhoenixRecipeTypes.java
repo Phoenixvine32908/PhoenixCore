@@ -15,7 +15,6 @@ public class PhoenixRecipeTypes {
     public static GTRecipeType PLEASE;// <-- NOVO CAMPO ADICIONADO
 
     public static void init() {
-        // 2. Inicialize o INFINITY_FORGE como antes.
         PLEASE = register("please", MULTIBLOCK)
                 .setMaxIOSize(16, 1, 8, 4)
                 .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)

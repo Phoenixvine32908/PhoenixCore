@@ -25,15 +25,15 @@ public class PhoenixMachineRecipes {
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {
             ASSEMBLY_LINE_RECIPES.recipeBuilder("dance")
                     .inputItems(GTMultiMachines.ACTIVE_TRANSFORMER)
-                    .inputItems(TagPrefix.plate, GTMaterials.Neutronium, 32)
-                    .inputItems(SENSOR.get(GTValues.UV), 8)
-                    .inputItems(EMITTER.get(GTValues.UV), 8)
-                    .inputItems(FIELD_GENERATOR.get(GTValues.UV), 4)
+                    .inputItems(TagPrefix.plate, Neutronium, 32)
+                    .inputItems(SENSOR.get(UV), 8)
+                    .inputItems(EMITTER.get(UV), 8)
+                    .inputItems(FIELD_GENERATOR.get(UV), 4)
                     .inputItems(CustomTags.UHV_CIRCUITS, 2)
-                    .inputItems(TagPrefix.pipeLargeFluid, GTMaterials.Neutronium, 4)
-                    .inputItems(CABLE_QUAD.get(GTValues.UV), 8)
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(GTValues.L * 32))
-                    .EUt(GTValues.VA[LV]).duration(40)
+                    .inputItems(TagPrefix.pipeLargeFluid, Neutronium, 4)
+                    .inputItems(CABLE_QUAD.get(UV), 8)
+                    .inputFluids(SolderingAlloy.getFluid(L * 32))
+                    .EUt(VA[LV]).duration(40)
                     .duration(1200)
                     .outputItems(PhoenixMachines.DANCE)
                     .stationResearch(b -> b
@@ -47,6 +47,12 @@ public class PhoenixMachineRecipes {
             PhoenixRecipeTypes.PLEASE.recipeBuilder("modify")
                     .inputFluids(Neutronium.getFluid(1))
                     .duration(1200)
+                    .save(provider);
+            PhoenixRecipeTypes.PLEASE.recipeBuilder("plasma_test")
+                    .inputFluids(Acetone.getFluid(L * 16))
+                    .inputFluids(Water.getFluid(L * 16))
+                    .duration(600)
+                    .outputItems(PhoenixMachines.DANCE)
                     .save(provider);
         }
     }

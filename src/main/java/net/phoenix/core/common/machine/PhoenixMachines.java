@@ -96,7 +96,6 @@ public class PhoenixMachines {
 
     static {
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {
-            // 2. Mova toda a lógica de registro para dentro do método init()
             DANCE = REGISTRATE
                     .multiblock("phoenix_infuser", CreativeEnergyMultiMachine::new)
                     .langValue("&Phoenix Infuser")

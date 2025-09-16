@@ -185,7 +185,11 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
-
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor 0, 'seconds'
+    }
+}
 tasks.named('processResources', ProcessResources).configure {
     var properties = [
             "mod_license": mod_license,
