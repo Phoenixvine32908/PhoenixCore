@@ -20,6 +20,7 @@ public class PhoenixRecipeTypes {
                 .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
                 .setSound(GTSoundEntries.FORGE_HAMMER)
+
                 .setEUIO(IO.IN);
     }
 }

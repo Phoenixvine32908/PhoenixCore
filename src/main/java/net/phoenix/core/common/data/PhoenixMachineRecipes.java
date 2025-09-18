@@ -2,11 +2,13 @@ package net.phoenix.core.common.data;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
+import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTMultiMachines;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.phoenix.core.common.data.recipeConditions.PlasmaTempCondition;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.configs.PhoenixConfigs;
 
@@ -28,6 +30,7 @@ public class PhoenixMachineRecipes {
                     .inputItems(TagPrefix.plate, Neutronium, 32)
                     .inputItems(SENSOR.get(UV), 8)
                     .inputItems(EMITTER.get(UV), 8)
+                    .addCondition(PlasmaTempCondition.of("phoenixcore:quantum_coolant_plasma"))
                     .inputItems(FIELD_GENERATOR.get(UV), 4)
                     .inputItems(CustomTags.UHV_CIRCUITS, 2)
                     .inputItems(TagPrefix.pipeLargeFluid, Neutronium, 4)
@@ -49,9 +52,11 @@ public class PhoenixMachineRecipes {
                     .duration(1200)
                     .save(provider);
             PhoenixRecipeTypes.PLEASE.recipeBuilder("plasma_test")
-                    .inputFluids(Acetone.getFluid(L * 16))
+                    .inputFluids(Argon.getFluid(FluidStorageKeys.PLASMA, 100))
                     .inputFluids(Water.getFluid(L * 16))
+                    .addCondition(PlasmaTempCondition.of("phoenixcore:quantum_coolant_plasma"))
                     .duration(600)
+                    .EUt(ZPM * 2)
                     .outputItems(PhoenixMachines.DANCE)
                     .save(provider);
         }

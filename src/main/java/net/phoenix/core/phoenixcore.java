@@ -49,46 +49,33 @@ import org.apache.logging.log4j.Logger;
 @Mod(phoenixcore.MOD_ID)
 public class phoenixcore {
 
-    public static Fluid plasma(Material material) {
-        return material.getFluid(FluidStorageKeys.PLASMA, 1).getFluid();
-    }
-
     public static final String MOD_ID = "phoenixcore";
     public static final Logger LOGGER = LogManager.getLogger();
-    public static GTRegistrate EXAMPLE_REGISTRATE = GTRegistrate.create(phoenixcore.MOD_ID);
+    public static GTRegistrate EXAMPLE_REGISTRATE = GTRegistrate.create(MOD_ID);
     public static RegistryEntry<CreativeModeTab> PHOENIX_CREATIVE_TAB = null;
 
     public phoenixcore() {
-        phoenixcore.init();
+        init();
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
         modEventBus.addGenericListener(RecipeConditionType.class, this::registerConditions);
-        modEventBus.addListener(this::addMaterialRegistries);
-        modEventBus.addListener(this::addMaterials);
-        modEventBus.addListener(this::modifyMaterials);
-
         modEventBus.addGenericListener(GTRecipeType.class, this::registerRecipeTypes);
         modEventBus.addGenericListener(SoundEntry.class, this::registerSounds);
         modEventBus.addGenericListener(MachineDefinition.class, this::registerMachines);
 
         modEventBus.addListener(this::addCreative);
+        modEventBus.addListener(this::addMaterialRegistries);
+        modEventBus.addListener(this::addMaterials);
+        modEventBus.addListener(this::modifyMaterials);
+
         if (Platform.isClient()) {
             PhoenixClient.init(modEventBus);
         }
 
         MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    public static RecipeConditionType<PlasmaTempCondition> PLASMA_TEMP_CONDITION;
-
-    public void registerConditions(GTCEuAPI.RegisterEvent<String, RecipeConditionType<?>> event) {
-        PLASMA_TEMP_CONDITION = GTRegistries.RECIPE_CONDITIONS.register("plasma_temp_condition",
-                new RecipeConditionType<>(
-                        PlasmaTempCondition::new, // Now valid due to added no-arg constructor
-                        PlasmaTempCondition.CODEC));
     }
 
     public static void init() {
@@ -100,10 +87,12 @@ public class phoenixcore {
         PhoenixDatagen.init();
     }
 
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            // Add items to creative tab if needed
-        }
+    // ✅ Correct registration of PlasmaTempCondition.TYPE
+    public void registerConditions(GTCEuAPI.RegisterEvent<String, RecipeConditionType<?>> event) {
+        PlasmaTempCondition.TYPE = GTRegistries.RECIPE_CONDITIONS.register("plasma_temp_condition",
+                new RecipeConditionType<>(
+                        PlasmaTempCondition::new,
+                        PlasmaTempCondition.CODEC));
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -117,12 +106,14 @@ public class phoenixcore {
         LOGGER.info("Hey, we're on Minecraft version {}!", Minecraft.getInstance().getLaunchedVersion());
     }
 
-    public static ResourceLocation id(String path) {
-        return new ResourceLocation(MOD_ID, path);
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            // Add items to creative tab if needed
+        }
     }
 
     private void addMaterialRegistries(MaterialRegistryEvent event) {
-        GTCEuAPI.materialManager.createRegistry(phoenixcore.MOD_ID);
+        GTCEuAPI.materialManager.createRegistry(MOD_ID);
     }
 
     private void addMaterials(MaterialEvent event) {
@@ -144,5 +135,15 @@ public class phoenixcore {
     private void registerMachines(GTCEuAPI.RegisterEvent<ResourceLocation, MachineDefinition> event) {
         PhoenixMachines.init();
         PhoenixResearchMachines.init();
+    }
+
+    // Utility method for consistent ResourceLocation creation
+    public static ResourceLocation id(String path) {
+        return new ResourceLocation(MOD_ID, path);
+    }
+
+    // Optional helper for plasma fluid lookup
+    public static Fluid plasma(Material material) {
+        return material.getFluid(FluidStorageKeys.PLASMA, 1).getFluid();
     }
 }

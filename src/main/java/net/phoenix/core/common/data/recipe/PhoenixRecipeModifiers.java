@@ -2,6 +2,7 @@ package net.phoenix.core.common.data.recipe;
 
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.WorkableTieredMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
@@ -9,9 +10,9 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
@@ -26,7 +27,7 @@ public class PhoenixRecipeModifiers {
     private static final int plasmaToConsume = 100;
 
     private static boolean isFluidHeatedPlasma(FluidStack fluid) {
-        return fluid.getFluid().equals(Fluids.WATER);
+        return fluid.getFluid().equals(GTMaterials.Argon.getFluid(FluidStorageKeys.PLASMA));
     }
 
     public static @NotNull ModifierFunction heatDrawnSpeedBoost(MetaMachine machine, GTRecipe recipe) {

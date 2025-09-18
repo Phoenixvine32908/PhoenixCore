@@ -3,11 +3,10 @@ package net.phoenix.core.common.data.materials;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
-import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
-import com.gregtechceu.gtceu.common.data.GTMaterials;
 
+import net.phoenix.core.common.data.PhoenixMaterialRegistry;
 import net.phoenix.core.phoenixcore;
 
 import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
@@ -23,10 +22,23 @@ public class PhoenixMaterials {
     public static Material ALUMINFROST;
 
     public static void register() {
+        ALUMINFROST = new Material.Builder(
+                phoenixcore.id("aluminfrost"))
+                .color(0xadd8e6).secondaryColor(0xc0c0c0).iconSet(MaterialIconSet.DULL)
+                .toolStats(ToolProperty.Builder.of(1.8F, 1.7F, 700, 3)
+                        .types(
+                                GTToolType.SWORD,
+                                GTToolType.PICKAXE,
+                                GTToolType.SHOVEL)
+                        .unbreakable()
+                        .enchantment(SILK_TOUCH, 1)
+                        .build())
+                .buildAndRegister();
         QuantumCoolant = new Material.Builder(
                 phoenixcore.id("quantum_coolant"))
                 .plasma()
                 .buildAndRegister();
+        PhoenixMaterialRegistry.register(QuantumCoolant);
         EightyFivePercentPureNevvonianSteel = new Material.Builder(
                 phoenixcore.id("eighty_five_percent_pure_nevvonian_steel"))
                 .ingot()
@@ -34,9 +46,8 @@ public class PhoenixMaterials {
                 .flags(PhoenixMaterialFlags.GENERATE_NANITES)
                 .formula("APNS")
                 .secondaryColor(593856)
-                .toolStats(ToolProperty.Builder.of(7.0F, 6.0F, 2560, 3)
-                        .types(GTToolType.AXE, GTToolType.DRILL_EV)
-                        .unbreakable().enchantability(21).enchantment(SILK_TOUCH, 1).build())
+                .toolStats(new ToolProperty(12.0F, 7.0F, 3072, 6,
+                        new GTToolType[] { GTToolType.DRILL_LV, GTToolType.MINING_HAMMER }))
                 .iconSet(PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL)
                 .buildAndRegister();
         PHOENIX_ENRICHED_TRITANIUM = new Material.Builder(
@@ -59,12 +70,5 @@ public class PhoenixMaterials {
                 .buildAndRegister();
     }
 
-    public static void modifyMaterials() {
-        if (GTMaterials.TungstenCarbide.hasProperty(PropertyKey.TOOL)) {
-            GTMaterials.TungstenCarbide.removeProperty(PropertyKey.TOOL);
-        }
-        TungstenCarbide.setProperty(PropertyKey.TOOL,
-                (ToolProperty.Builder.of(16, 40, 8192, 6, GTToolType.AXE).magnetic()
-                        .unbreakable().build()));
-    }
+    public static void modifyMaterials() {}
 }

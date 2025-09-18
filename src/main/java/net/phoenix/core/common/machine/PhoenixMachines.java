@@ -670,8 +670,10 @@ public class PhoenixMachines {
                                     blocks(PhoenixBlocks.PHOENIX_ENRICHED_TRITANIUM_CASING.get())
                                             .setMinGlobalLimited(575).setPreviewCount(1200)
                                             .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
+                                            .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2)
+                                                    .setMinGlobalLimited(1))
                                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
-                                            .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
+                                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                                             .or(autoAbilities(true, false, true)))
                             .where('C',
                                     blocks(ChemicalHelper.getBlock(TagPrefix.frameGt,
