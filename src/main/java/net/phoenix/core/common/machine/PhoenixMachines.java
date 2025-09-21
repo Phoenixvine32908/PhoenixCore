@@ -16,6 +16,7 @@ import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
+import com.gregtechceu.gtceu.common.machine.multiblock.generator.LargeTurbineMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
 
@@ -31,6 +32,7 @@ import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.recipe.PhoenixRecipeModifiers;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import net.phoenix.core.common.machine.multiblock.CreativeEnergyMultiMachine;
+import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.phoenixcore;
@@ -93,16 +95,43 @@ public class PhoenixMachines {
         }
         return definitions;
     }
-
+    public static final MultiblockMachineDefinition HYPER_GAS_TURBINE = REGISTRATE
+            .multiblock("hyper_gas_turbine", (holder) -> new LargeTurbineMachine(holder, 4))
+            .rotationState(RotationState.NON_Y_AXIS)
+            .recipeType(GTRecipeTypes.GAS_TURBINE_FUELS)
+            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT_SUBTICK, GTRecipeModifiers.BATCH_MODE, LargeTurbineMachine::recipeModifier)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("BBBBBBB", "BBBCBBB", "BBBDBBB", "BBBCBBB", "BBBBBBB")
+                    .aisle("BBBCBBB", "BBCACBB", "BBCFCBB", "BBCACBB", "BBBCBBB")
+                    .aisle("BBCCCBB", "BCAAACB", "BCAFACB", "BCAFACB", "BBCCCBB")
+                    .aisle("BCCCCCB", "CAAFAAC", "CFFFFFC", "CAFFFAC", "BCCECCB")
+                    .aisle("BBCCCBB", "BCAAACB", "BCAFACB", "BCAFACB", "BBCCCBB")
+                    .aisle("BBBCBBB", "BBCACBB", "BBCFCBB", "BBCACBB", "BBBCBBB")
+                    .aisle("BBBBBBB", "BBBCBBB", "BBBGBBB", "BBBCBBB", "BBBBBBB")
+                    .where("A", Predicates.air())
+                    .where("B", Predicates.any())
+                    .where("C", Predicates.blocks(CASING_STAINLESS_TURBINE.get())
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes()))
+                            .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                    .where("D", Predicates.ability(PartAbility.MUFFLER).setExactLimit(1))
+                    .where("E", Predicates.ability(PartAbility.ROTOR_HOLDER).setExactLimit(1))
+                    .where('F',
+                            blocks(ChemicalHelper.getBlock(TagPrefix.frameGt,
+                                    GTMaterials.StainlessSteel)))
+                    .where("G", Predicates.controller(Predicates.blocks(definition.get())))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/mechanic/machine_casing_turbine_stainless_steel"),
+                    GTCEu.id("block/multiblock/generator/large_gas_turbine"))
+            .register();
     static {
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {
             DANCE = REGISTRATE
-                    .multiblock("phoenix_infuser", CreativeEnergyMultiMachine::new)
-                    .langValue("&Phoenix Infuser")
+                    .multiblock("phoenix_infuser", HighPressurePlasmaArcFurnaceMachine::new)
+                    .langValue("§cPhoenix Infuser")
                     .rotationState(RotationState.NON_Y_AXIS)
                     .recipeType(PhoenixRecipeTypes.PLEASE) // Agora isso não será mais nulo
-                    .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, PhoenixRecipeModifiers.HEAT_DRAWN,
-                            GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK))
+                    .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH,
+                            GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK), HighPressurePlasmaArcFurnaceMachine::recipeModifier)
                     .pattern(definition -> FactoryBlockPattern.start()
                             .aisle("BBAAAAAAAAAAAAAAAAAAAAAAAAAAAAABB", "BBBAAAAAAAAAAAAAAAAAAAAAAAAAAABBB",
                                     "ABBBAAAAAAAAAAAAAAAAAAAAAAAAABBBA", "AABBBAAAAAAAAAAACAAAAAAAAAAABBBAA",
@@ -690,18 +719,18 @@ public class PhoenixMachines {
                                             PhoenixMaterials.PHOENIX_ENRICHED_NAQUADAH)))
                             .where('L', blocks(PhoenixBlocks.SUPER_STABLE_FUSION_CASING.get())
                                     .or(blocks(ForgeRegistries.BLOCKS
-                                            .getValue(new ResourceLocation("kubejs", "phoenix_gaze_panel")))))
+                                            .getValue(ResourceLocation.fromNamespaceAndPath("kubejs", "phoenix_gaze_panel")))))
                             .where('M', blocks(PhoenixBlocks.BLAZING_CORE_STABILIZER.get()))
                             .where("N",
                                     blocks(ForgeRegistries.BLOCKS.getValue(
-                                            new ResourceLocation("draconicevolution", "awakened_draconium_block"))))
+                                            ResourceLocation.fromNamespaceAndPath("draconicevolution", "awakened_draconium_block"))))
                             .where("O",
                                     blocks(ForgeRegistries.BLOCKS
-                                            .getValue(new ResourceLocation("expatternprovider", "fishbig"))))
+                                            .getValue(ResourceLocation.fromNamespaceAndPath("expatternprovider", "fishbig"))))
                             .where('P', blocks(PhoenixBlocks.GLITCHED_ENTROPY_CASING.get()))
                             .where("Q",
                                     blocks(ForgeRegistries.BLOCKS
-                                            .getValue(new ResourceLocation("ae2", "creative_energy_cell"))))
+                                            .getValue(ResourceLocation.fromNamespaceAndPath("ae2", "creative_energy_cell"))))
                             .where('R', blocks(PhoenixBlocks.PHOENIX_HEART_CASING.get()))
                             .where('S', controller(blocks(definition.getBlock())))
                             .build())

@@ -24,6 +24,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -86,7 +87,7 @@ public class phoenixcore {
         PhoenixMaterialFlags.init();
         PhoenixDatagen.init();
     }
-
+    @SubscribeEvent
     // ✅ Correct registration of PlasmaTempCondition.TYPE
     public void registerConditions(GTCEuAPI.RegisterEvent<String, RecipeConditionType<?>> event) {
         PlasmaTempCondition.TYPE = GTRegistries.RECIPE_CONDITIONS.register("plasma_temp_condition",

@@ -5,8 +5,11 @@ import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.WorkableTieredMachine;
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
+import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
@@ -31,7 +34,7 @@ public class PhoenixRecipeModifiers {
     }
 
     public static @NotNull ModifierFunction heatDrawnSpeedBoost(MetaMachine machine, GTRecipe recipe) {
-        if (!(machine instanceof WorkableTieredMachine workableMachine)) return ModifierFunction.IDENTITY;
+        if (!(machine instanceof WorkableElectricMultiblockMachine workableMachine)) return ModifierFunction.IDENTITY;
 
         List<Fluid> recipeFluids = new ArrayList();
 
@@ -53,14 +56,18 @@ public class PhoenixRecipeModifiers {
                 var fluidStack = fluidTank.getFluidInTank(i);
                 if (recipeFluids.contains(fluidStack.getFluid())) continue;
                 if (isFluidHeatedPlasma(fluidStack)) {
-                    int drained = fluidTank.drainInternal(plasmaToConsume, IFluidHandler.FluidAction.SIMULATE)
-                            .getAmount();
-                    if (drained == plasmaToConsume) {
-                        fluidTank.drainInternal(plasmaToConsume, IFluidHandler.FluidAction.EXECUTE);
-                        return ModifierFunction.builder()
-                                .durationMultiplier(0.8)
-                                .eutMultiplier(0.8)
-                                .build();
+                    FluidStack drained = fluidTank.drainInternal(plasmaToConsume, IFluidHandler.FluidAction.SIMULATE);
+                    if (drained.getAmount() == plasmaToConsume) {
+                        return (newRecipe) -> {
+                            GTRecipe modifiedRecipe = ModifierFunction.builder()
+                                    .durationMultiplier(0.8)
+                                    .eutMultiplier(0.8)
+                                    .build().apply(newRecipe.copy());
+                            var inputFluids = modifiedRecipe.inputs.getOrDefault(FluidRecipeCapability.CAP, new ArrayList<>());
+                            inputFluids.add(new Content(FluidIngredient.of(drained), ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0));
+                            modifiedRecipe.inputs.put(FluidRecipeCapability.CAP, inputFluids);
+                            return modifiedRecipe;
+                        };
                     }
                 }
             }

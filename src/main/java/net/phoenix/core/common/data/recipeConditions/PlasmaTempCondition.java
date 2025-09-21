@@ -1,23 +1,25 @@
 package net.phoenix.core.common.data.recipeConditions;
 
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
 import com.gregtechceu.gtceu.api.recipe.condition.RecipeConditionType;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
-
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.common.data.PhoenixMaterialRegistry;
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
@@ -54,11 +56,8 @@ public class PlasmaTempCondition extends RecipeCondition {
     public static PlasmaTempCondition of(@NotNull Fluid fluid) {
         ResourceLocation id = ForgeRegistries.FLUIDS.getKey(fluid);
         if (id == null) throw new IllegalArgumentException("Fluid has no registry ID: " + fluid);
-
-        Material material = PhoenixMaterialRegistry.getMaterial(fluid);
-        String name = material != null ? I18n.get(material.getDefaultTranslation()) : id.getPath().replace('_', ' ');
-
-        return new PlasmaTempCondition(false, id.toString(), name);
+        // Data generator safe - only stores the ID
+        return new PlasmaTempCondition(false, id.toString(), "");
     }
 
     public static PlasmaTempCondition of(@NotNull Material material) {
@@ -70,13 +69,8 @@ public class PlasmaTempCondition extends RecipeCondition {
     }
 
     public static PlasmaTempCondition of(@NotNull String fluidId) {
-        Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluidId));
-        Material material = fluid != null ? PhoenixMaterialRegistry.getMaterial(fluid) : null;
-
-        String name = material != null ? I18n.get(material.getDefaultTranslation()) :
-                new ResourceLocation(fluidId).getPath().replace('_', ' ');
-
-        return new PlasmaTempCondition(false, fluidId, name);
+        // Data generator safe - only stores the ID
+        return new PlasmaTempCondition(false, fluidId, "");
     }
 
     public Fluid getFluid() {
@@ -87,15 +81,14 @@ public class PlasmaTempCondition extends RecipeCondition {
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public Component getTooltips() {
         Fluid fluid = getFluid();
         if (fluid != null) {
             Material material = PhoenixMaterialRegistry.getMaterial(fluid);
-
             String localizedName = material != null ? I18n.get(material.getDefaultTranslation()) :
                     new ResourceLocation(fluidString).getPath().replace('_', ' ');
 
-            // Capitalize first letters if fallback name is used
             if (material == null) {
                 localizedName = Arrays.stream(localizedName.split(" "))
                         .map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1))
@@ -106,10 +99,8 @@ public class PlasmaTempCondition extends RecipeCondition {
 
             Component nameComponent = Component.literal(localizedName)
                     .withStyle(style -> style.withColor(TextColor.fromRgb(color)));
-
             return Component.translatable("phoenixcore.tooltip.requires_plasma", nameComponent);
         }
-
         return Component.literal("Requires an unknown plasma fluid.");
     }
 
@@ -117,19 +108,19 @@ public class PlasmaTempCondition extends RecipeCondition {
     protected boolean testCondition(@NotNull GTRecipe recipe, @NotNull RecipeLogic recipeLogic) {
         Fluid requiredFluid = getFluid();
         if (requiredFluid == null) return false;
-
-        return recipeLogic.getMachine().getTraits().stream()
-                .filter(trait -> trait instanceof NotifiableFluidTank)
-                .map(trait -> (NotifiableFluidTank) trait)
-                .anyMatch(tank -> {
-                    for (int i = 0; i < tank.getTanks(); i++) {
-                        FluidStack stack = tank.getFluidInTank(i);
-                        if (!stack.isEmpty() && stack.getFluid().equals(requiredFluid)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+        var machine = recipeLogic.getMachine();
+        if(!(machine instanceof WorkableElectricMultiblockMachine controller)) return false;
+        var fluidHandlers = controller.getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP);
+        for (var fluidHandler : fluidHandlers) {
+            if (!(fluidHandler instanceof NotifiableFluidTank fluidTank)) continue;
+            for (int i = 0; i < fluidTank.getTanks(); i++) {
+                var fluidStack = fluidTank.getFluidInTank(i);
+                if (!fluidStack.isEmpty() && fluidStack.getFluid().isSame(requiredFluid)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -146,9 +137,4 @@ public class PlasmaTempCondition extends RecipeCondition {
     }
 
     public static RecipeConditionType<PlasmaTempCondition> TYPE;
-
-    public static void register() {
-        TYPE = GTRegistries.RECIPE_CONDITIONS.register("plasma_temp_condition",
-                new RecipeConditionType<>(PlasmaTempCondition::new, PlasmaTempCondition.CODEC));
-    }
 }

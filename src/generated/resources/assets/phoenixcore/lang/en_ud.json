@@ -8,6 +8,7 @@
   "block.phoenixcore.blazing_filter_casing": "buısɐƆ ɹǝʇןıℲ buızɐןᗺ",
   "block.phoenixcore.glitched_entropy_casing": "buısɐƆ ʎdoɹʇuƎ pǝɥɔʇıן⅁ɐ§",
   "block.phoenixcore.high_yield_photon_emission_regulator": "ɹoʇɐןnbǝɹ‾uoıssıɯǝ‾uoʇoɥd‾pןǝıʎ‾ɥbıɥ˙ǝɹoɔxıuǝoɥd˙ʞɔoןq",
+  "block.phoenixcore.hyper_gas_turbine": "ǝuıqɹn⟘ sɐ⅁ ɹǝdʎH",
   "block.phoenixcore.perfected_logic": "buısɐƆ ɔıboꞀ pǝʇɔǝɟɹǝԀϛ§",
   "block.phoenixcore.phoenix_computation_component": "ʇuǝuodɯoƆ uoıʇɐʇndɯoƆ xıuǝoɥԀ",
   "block.phoenixcore.phoenix_enriched_neutronium_casing": "buısɐƆ ɯnıuoɹʇnǝN pǝɥɔıɹuƎ xıuǝoɥԀϛ§",
@@ -15,7 +16,7 @@
   "block.phoenixcore.phoenix_gaze_panel": "ןǝuɐԀ ǝzɐ⅁ xıuǝoɥԀɔ§",
   "block.phoenixcore.phoenix_heart_casing": "buısɐƆ ʇɹɐǝH xıuǝoɥԀɔ§",
   "block.phoenixcore.phoenix_heat_sink_component": "ʇuǝuodɯoƆ ʞuıS ʇɐǝH xıuǝoɥԀ",
-  "block.phoenixcore.phoenix_infuser": "ɹǝsnɟuI xıuǝoɥԀ&",
+  "block.phoenixcore.phoenix_infuser": "ɹǝsnɟuI xıuǝoɥԀɔ§",
   "block.phoenixcore.reliable_naquadah_alloy_machine_casing": "buısɐƆ ǝuıɥɔɐW ʎoןןⱯ ɥɐpɐnbɐN ǝןqɐıןǝᴚɔ§",
   "block.phoenixcore.space_time_cooled_eternity_casing": "buısɐƆ ʎʇıuɹǝʇƎ pǝןooƆ ǝɯı⟘ ǝɔɐdSϛ§",
   "block.phoenixcore.stable_logic_casing": "buısɐƆ ɔıboꞀ ǝןqɐʇSɔ§",
@@ -35,6 +36,6 @@
   "phoenixcore.tooltip.hyper_machine_coolant3": "ʇ/∩MƆ x%s :%s",
   "phoenixcore.tooltip.hyper_machine_coolant_base": "ʇ/∩MƆ x%s :%s",
   "phoenixcore.tooltip.hyper_machine_purpose": "buıןooɔ ǝpıʌoɹd oʇ %s ɹo '%s '%s sǝsn ʇɐɥʇ ⱯƆԀH pǝpɐɹbdn uⱯ",
-  "phoenixcore.tooltip.requires_plasma": "%s :sǝɹınbǝᴚ",
+  "phoenixcore.tooltip.requires_plasma": "%s :spǝǝN",
   "tagprefix.nanites": "sǝʇıuɐN %s"
 }
