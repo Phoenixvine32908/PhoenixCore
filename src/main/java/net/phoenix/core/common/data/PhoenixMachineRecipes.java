@@ -8,7 +8,7 @@ import com.gregtechceu.gtceu.common.data.machines.GTMultiMachines;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
 import net.minecraft.data.recipes.FinishedRecipe;
-import net.phoenix.core.common.data.recipeConditions.PlasmaTempCondition;
+import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.configs.PhoenixConfigs;
 
@@ -30,13 +30,13 @@ public class PhoenixMachineRecipes {
                     .inputItems(TagPrefix.plate, Neutronium, 32)
                     .inputItems(SENSOR.get(UV), 8)
                     .inputItems(EMITTER.get(UV), 8)
-                    .addCondition(PlasmaTempCondition.of("phoenixcore:quantum_coolant_plasma"))
+                    .addCondition(FluidInHatchCondition.of("phoenixcore:quantum_coolant_plasma"))
                     .inputItems(FIELD_GENERATOR.get(UV), 4)
                     .inputItems(CustomTags.UHV_CIRCUITS, 2)
                     .inputItems(TagPrefix.pipeLargeFluid, Neutronium, 4)
                     .inputItems(CABLE_QUAD.get(UV), 8)
                     .inputFluids(SolderingAlloy.getFluid(L * 32))
-                    .EUt(VA[LV]).duration(40)
+                    .EUt(VA[LV]).duration(400)
                     .duration(1200)
                     .outputItems(PhoenixMachines.DANCE)
                     .stationResearch(b -> b
@@ -45,17 +45,20 @@ public class PhoenixMachineRecipes {
             PhoenixRecipeTypes.PLEASE.recipeBuilder("please")
                     .inputFluids(GTMaterials.SolderingAlloy.getFluid(GTValues.L * 32))
                     .duration(1200)
+                    .EUt(VA[LV]).duration(400)
                     .inputFluids(Acetone.getFluid(GTValues.L * 32))
                     .save(provider);
             PhoenixRecipeTypes.PLEASE.recipeBuilder("modify")
                     .inputFluids(Neutronium.getFluid(1))
                     .duration(1200)
+                    .EUt(VA[LV]).duration(400)
                     .save(provider);
             PhoenixRecipeTypes.PLEASE.recipeBuilder("plasma_test")
                     .inputFluids(Argon.getFluid(FluidStorageKeys.PLASMA, 100))
                     .inputFluids(Water.getFluid(L * 16))
-                    .addCondition(PlasmaTempCondition.of("phoenixcore:quantum_coolant_plasma"))
+                    .addCondition(FluidInHatchCondition.of("phoenixcore:quantum_coolant_plasma"))
                     .duration(600)
+                    .EUt(VA[LV]).duration(400)
                     .EUt(ZPM * 2)
                     .outputItems(PhoenixMachines.DANCE)
                     .save(provider);

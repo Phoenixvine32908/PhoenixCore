@@ -21,10 +21,11 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -35,7 +36,7 @@ import net.phoenix.core.common.data.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
-import net.phoenix.core.common.data.recipeConditions.PlasmaTempCondition;
+import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.PhoenixResearchMachines;
 import net.phoenix.core.common.registry.PhoenixRegistration;
@@ -72,6 +73,7 @@ public class phoenixcore {
         modEventBus.addListener(this::addMaterials);
         modEventBus.addListener(this::modifyMaterials);
 
+        // This check is the most important part of the fix!
         if (Platform.isClient()) {
             PhoenixClient.init(modEventBus);
         }
@@ -87,13 +89,12 @@ public class phoenixcore {
         PhoenixMaterialFlags.init();
         PhoenixDatagen.init();
     }
-    @SubscribeEvent
-    // ✅ Correct registration of PlasmaTempCondition.TYPE
+
     public void registerConditions(GTCEuAPI.RegisterEvent<String, RecipeConditionType<?>> event) {
-        PlasmaTempCondition.TYPE = GTRegistries.RECIPE_CONDITIONS.register("plasma_temp_condition",
+        FluidInHatchCondition.TYPE = GTRegistries.RECIPE_CONDITIONS.register("plasma_temp_condition",
                 new RecipeConditionType<>(
-                        PlasmaTempCondition::new,
-                        PlasmaTempCondition.CODEC));
+                        FluidInHatchCondition::new,
+                        FluidInHatchCondition.CODEC));
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -103,6 +104,8 @@ public class phoenixcore {
         });
     }
 
+    // Now correctly annotated to ensure it only runs on the client.
+    @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("Hey, we're on Minecraft version {}!", Minecraft.getInstance().getLaunchedVersion());
     }

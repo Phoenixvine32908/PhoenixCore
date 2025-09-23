@@ -7,8 +7,8 @@
   "block.phoenixcore.blazing_core_stabilizer": "§cBlazing Core Stabilizer",
   "block.phoenixcore.blazing_filter_casing": "Blazing Filter Casing",
   "block.phoenixcore.glitched_entropy_casing": "§aGlitched Entropy Casing",
-  "block.phoenixcore.high_yield_photon_emission_regulator": "block.phoenixcore.high_yield_photon_emission_regulator",
-  "block.phoenixcore.hyper_gas_turbine": "Hyper Gas Turbine",
+  "block.phoenixcore.high_yield_photon_emission_regulator": "§dHigh Yield Photon Emission Regulator (HPCA)",
+  "block.phoenixcore.honey_crystallization_chamber": "Honey Crystallization Chamber",
   "block.phoenixcore.perfected_logic": "§5Perfected Logic Casing",
   "block.phoenixcore.phoenix_computation_component": "Phoenix Computation Component",
   "block.phoenixcore.phoenix_enriched_neutronium_casing": "§5Phoenix Enriched Neutronium Casing",
@@ -24,6 +24,9 @@
   "block.phoenixcore.true_heat_stable_coil_block": "True Heat Stable Coil Block",
   "block.phoenixcore.true_phoenix_infused_casing": "§cTrue Phoenix Infused Casing",
   "block.phoenixcore.twisted_computer_casing": "§5Twisted Computer Casing",
+  "block.phoenixcore.uhv_plasma_input_hatch": "§4UHV Plasma Input Hatch",
+  "block.phoenixcore.uv_plasma_input_hatch": "§3UV Plasma Input Hatch",
+  "block.phoenixcore.zpm_plasma_input_hatch": "§cZPM Plasma Input Hatch",
   "item.phoenixcore.basic_fuel_rod": "Basic Fuel Rod",
   "material.phoenixcore.eighty_five_percent_pure_nevvonian_steel": "§6Eighty Five Percent Pure Nevvonian Steel",
   "material.phoenixcore.extremely_modified_space_grade_steel": "§cExtremely Modified Space Grade Steel",
@@ -36,6 +39,6 @@
   "phoenixcore.tooltip.hyper_machine_coolant3": "%s: %sx CWU/t",
   "phoenixcore.tooltip.hyper_machine_coolant_base": "%s: %sx CWU/t",
   "phoenixcore.tooltip.hyper_machine_purpose": "An upgraded HPCA that uses %s, %s, or %s to provide cooling",
-  "phoenixcore.tooltip.requires_plasma": "Needs: %s",
+  "phoenixcore.tooltip.requires_fluid": "Needs: %s",
   "tagprefix.nanites": "%s Nanites"
 }

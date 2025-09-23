@@ -5,7 +5,7 @@ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
-import net.phoenix.core.common.data.recipeConditions.PlasmaTempCondition;
+import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 
 import lombok.experimental.Accessors;
 
@@ -32,6 +32,6 @@ public class PhoenixRecipeBuilder extends GTRecipeBuilder {
      */
     public PhoenixRecipeBuilder plasmaTemp(ResourceLocation plasmaFluidId) {
         return (PhoenixRecipeBuilder) this.addCondition(
-                PlasmaTempCondition.of(plasmaFluidId.toString()));
+                FluidInHatchCondition.of(plasmaFluidId.toString()));
     }
 }

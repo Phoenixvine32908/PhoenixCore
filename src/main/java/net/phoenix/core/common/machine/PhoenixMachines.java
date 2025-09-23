@@ -2,6 +2,7 @@ package net.phoenix.core.common.machine;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.data.RotationState;
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
@@ -13,27 +14,31 @@ import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
+import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
-import com.gregtechceu.gtceu.common.machine.multiblock.generator.LargeTurbineMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.FluidHatchPartMachine;
+import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
+import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.phoenix.core.api.machine.PhoenixPartAbility;
 import net.phoenix.core.client.renderer.machine.multiblock.CosmicDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
-import net.phoenix.core.common.data.recipe.PhoenixRecipeModifiers;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
-import net.phoenix.core.common.machine.multiblock.CreativeEnergyMultiMachine;
 import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
+import net.phoenix.core.common.machine.multiblock.electric.HoneyCrystallizationChamberMachine;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
+import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.phoenixcore;
 
@@ -41,15 +46,20 @@ import java.util.Locale;
 import java.util.function.BiFunction;
 
 import static com.gregtechceu.gtceu.api.GTValues.*;
+import static com.gregtechceu.gtceu.api.capability.recipe.IO.IN;
+import static com.gregtechceu.gtceu.api.capability.recipe.IO.OUT;
+import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties.IS_FORMED;
 import static com.gregtechceu.gtceu.api.pattern.Predicates.*;
 import static com.gregtechceu.gtceu.common.data.GTBlocks.*;
-import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.createWorkableCasingMachineModel;
+import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 import static net.phoenix.core.configs.PhoenixConfigs.INSTANCE;
 
 @SuppressWarnings("all")
 public class PhoenixMachines {
 
+    public static final String OVERLAY_PLASMA_HATCH_TEX = "overlay_plasma_hatch_input";
+    public static final String OVERLAY_PLASMA_HATCH_HALF_PX_TEX = "overlay_plasma_hatch_half_px_out";
     public static MultiblockMachineDefinition DANCE = null;
     public static MachineDefinition BLAZING_CLEANING_MAINTENANCE_HATCH = null;
     public static MachineDefinition HIGH_YEILD_PHOTON_EMISSION_REGULATER = null;
@@ -81,6 +91,107 @@ public class PhoenixMachines {
         }
     }
 
+    public final static MachineDefinition[] PLASMA_INPUT_HATCH = registerPlasmaHatches(
+            "plasma_input_hatch", "Plasma Input Hatch", "fluid_hatch.import",
+            IN, PlasmaHatchPartMachine.INITIAL_TANK_CAPACITY_1X, 1, new int[] { 7, 8, 9 },
+            PhoenixPartAbility.PLASMA_INPUT);
+
+    public static MachineDefinition[] registerPlasmaHatches(String name, String displayName, String tooltip,
+                                                            IO io, int initialCapacity, int slots,
+                                                            int[] tiers, PartAbility... abilities) {
+        return registerPlasmaHatches(GTRegistration.REGISTRATE, name, displayName, tooltip, io, initialCapacity, slots,
+                tiers,
+                abilities);
+    }
+
+    public static MachineDefinition[] registerPlasmaHatches(GTRegistrate registrate, String name, String displayName,
+                                                            String tooltip,
+                                                            IO io, int initialCapacity, int slots,
+                                                            int[] tiers, PartAbility... abilities) {
+        final String pipeOverlay;
+        if (slots >= 9) {
+            pipeOverlay = "overlay_pipe_9x";
+        } else if (slots >= 4) {
+            pipeOverlay = "overlay_pipe_4x";
+        } else {
+            pipeOverlay = null;
+        }
+        final String ioOverlay = io == OUT ? "overlay_pipe_out_emissive" : "overlay_pipe_in_emissive";
+        final String emissiveOverlay = slots > 4 ? OVERLAY_PLASMA_HATCH_HALF_PX_TEX : OVERLAY_PLASMA_HATCH_TEX;
+        return registerTieredMachines(name,
+                (holder, tier) -> new FluidHatchPartMachine(holder, tier, io, initialCapacity, slots),
+                (tier, builder) -> {
+                    builder.langValue(VNF[tier] + ' ' + displayName)
+                            .rotationState(RotationState.ALL)
+                            .colorOverlayTieredHullModel(ioOverlay, pipeOverlay, emissiveOverlay)
+                            .abilities(abilities)
+                            .modelProperty(IS_FORMED, false)
+                            .tooltips(Component.translatable("gtceu.machine." + tooltip + ".tooltip"))
+                            .allowCoverOnFront(true);
+
+                    if (slots == 1) {
+                        builder.tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity",
+                                FormattingUtil
+                                        .formatNumbers(FluidHatchPartMachine.getTankCapacity(initialCapacity, tier))));
+                    } else {
+                        builder.tooltips(Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity_mult",
+                                slots, FormattingUtil
+                                        .formatNumbers(FluidHatchPartMachine.getTankCapacity(initialCapacity, tier))));
+                    }
+                    return builder.register();
+                },
+                tiers);
+    }
+
+    public static final MultiblockMachineDefinition HONEY_CRYSTALLIZATION_CHAMBER = REGISTRATE
+            .multiblock("honey_crystallization_chamber", HoneyCrystallizationChamberMachine::new)
+            .langValue("Honey Crystallization Chamber")
+            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT, GTRecipeModifiers.PARALLEL_HATCH,
+                    HoneyCrystallizationChamberMachine::recipeModifier)
+            .rotationState(RotationState.NON_Y_AXIS)
+            .recipeType(GTRecipeTypes.AIR_SCRUBBER_RECIPES)
+            .appearanceBlock(CASING_STAINLESS_CLEAN)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAABAAAAA",
+                            "AAAAABAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "ACCCCCCCCCA", "AAAAAAAAAAA")
+                    .aisle("AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAABAAAAA", "AAAADDDAAAA", "AAAADDDAAAA", "AAAAABAAAAA",
+                            "AAAAAAAAAAA", "ACCCCCCCCCA", "AAEAAAAAEAA", "AAEAAAAAEAA", "AAEAABAAEAA")
+                    .aisle("AAEFFFFFEAA", "AAFFGGGFFAA", "AAFFGGGFFAA", "AAAFFFFFAAA", "AAAAABAAAAA", "ACCCCCCCCCA",
+                            "AAAAAAAAAAA", "AAAAAAAAAAA", "AAABABABAAA", "AAFFFFFFFAA", "AAFGGGGGFAA")
+                    .aisle("AAFGGGGGFAA", "AAFFFFFFFAA", "AAAAABAAAAA", "ACCCCCCCCCA", "AAAAABAAAAA", "AAAAABAAAAA",
+                            "AAAABBBAAAA", "AAFFGGGFFAA", "ADGGGGGGGDA", "ADGGGGGGGDA", "AAFFFGFFFAA")
+                    .aisle("AAAAABAAAAA", "ACCCCCCCCCA", "AAAABCBAAAA", "AAAABCBAAAA", "AABBBBBBBAA", "ABFGGBGGFBA",
+                            "BDGGGBGGGDB", "BDGGGBGGGDB", "ABFFGBGFFBA", "AABBBBBBBAA", "ACCCCCCCCCA")
+                    .aisle("AAAAABAAAAA", "AAAAABAAAAA", "AAAABBBAAAA", "AAFFGGGFFAA", "ADGGGGGGGDA", "ADGGGGGGGDA",
+                            "AAFFFGFFFAA", "AAAAABAAAAA", "ACCCCCCCCCA", "AAAAAAAAAAA", "AAAAAAAAAAA")
+                    .aisle("AAABABABAAA", "AAFFFFFFFAA", "AAFGGGGGFAA", "AAFGGGGGFAA", "AAFFFFFFFAA", "AAAAABAAAAA",
+                            "ACCCCCCCCCA", "AAEAAAAAEAA", "AAEAAAAAEAA", "AAEAABAAEAA", "AAEFFFFFEAA")
+                    .aisle("AAFFGGGFFAA", "AAFFGGGFFAA", "AAAFFFFFAAA", "AAAAABAAAAA", "ACCCCCCCCCA", "AAAAAAAAAAA",
+                            "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAABBBAAAA", "AAABDHDBAAA", "AAABDDDBAAA")
+                    .aisle("AAAABBBAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA",
+                            "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA")
+                    .where("A", Predicates.any())
+                    .where("B",
+                            blocks(ForgeRegistries.BLOCKS
+                                    .getValue(ResourceLocation.fromNamespaceAndPath("gtceu",
+                                            "steel_frame"))))
+                    .where('C', blocks(CASING_BRONZE_BRICKS.get()))
+                    .where('D', blocks(CASING_LAMINATED_GLASS.get()))
+                    .where('E', blocks(CASING_STEEL_SOLID.get()))
+                    .where("F", blocks(CASING_STAINLESS_CLEAN.get())
+                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
+                            .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2)
+                                    .setMinGlobalLimited(1))
+                            .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
+                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
+                            .or(autoAbilities(true, false, true)))
+                    .where("G", Predicates.air())
+                    .where('H', controller(blocks(definition.getBlock())))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_clean_stainless_steel"),
+                    GTCEu.id("block/multiblock/generator/large_gas_turbine"))
+            .register();
+
     public static MachineDefinition[] registerTieredMachines(String name,
                                                              BiFunction<IMachineBlockEntity, Integer, MetaMachine> factory,
                                                              BiFunction<Integer, MachineBuilder<MachineDefinition>, MachineDefinition> builder,
@@ -95,34 +206,7 @@ public class PhoenixMachines {
         }
         return definitions;
     }
-    public static final MultiblockMachineDefinition HYPER_GAS_TURBINE = REGISTRATE
-            .multiblock("hyper_gas_turbine", (holder) -> new LargeTurbineMachine(holder, 4))
-            .rotationState(RotationState.NON_Y_AXIS)
-            .recipeType(GTRecipeTypes.GAS_TURBINE_FUELS)
-            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT_SUBTICK, GTRecipeModifiers.BATCH_MODE, LargeTurbineMachine::recipeModifier)
-            .pattern(definition -> FactoryBlockPattern.start()
-                    .aisle("BBBBBBB", "BBBCBBB", "BBBDBBB", "BBBCBBB", "BBBBBBB")
-                    .aisle("BBBCBBB", "BBCACBB", "BBCFCBB", "BBCACBB", "BBBCBBB")
-                    .aisle("BBCCCBB", "BCAAACB", "BCAFACB", "BCAFACB", "BBCCCBB")
-                    .aisle("BCCCCCB", "CAAFAAC", "CFFFFFC", "CAFFFAC", "BCCECCB")
-                    .aisle("BBCCCBB", "BCAAACB", "BCAFACB", "BCAFACB", "BBCCCBB")
-                    .aisle("BBBCBBB", "BBCACBB", "BBCFCBB", "BBCACBB", "BBBCBBB")
-                    .aisle("BBBBBBB", "BBBCBBB", "BBBGBBB", "BBBCBBB", "BBBBBBB")
-                    .where("A", Predicates.air())
-                    .where("B", Predicates.any())
-                    .where("C", Predicates.blocks(CASING_STAINLESS_TURBINE.get())
-                            .or(Predicates.autoAbilities(definition.getRecipeTypes()))
-                            .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
-                    .where("D", Predicates.ability(PartAbility.MUFFLER).setExactLimit(1))
-                    .where("E", Predicates.ability(PartAbility.ROTOR_HOLDER).setExactLimit(1))
-                    .where('F',
-                            blocks(ChemicalHelper.getBlock(TagPrefix.frameGt,
-                                    GTMaterials.StainlessSteel)))
-                    .where("G", Predicates.controller(Predicates.blocks(definition.get())))
-                    .build())
-            .workableCasingModel(GTCEu.id("block/casings/mechanic/machine_casing_turbine_stainless_steel"),
-                    GTCEu.id("block/multiblock/generator/large_gas_turbine"))
-            .register();
+
     static {
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {
             DANCE = REGISTRATE
@@ -131,7 +215,8 @@ public class PhoenixMachines {
                     .rotationState(RotationState.NON_Y_AXIS)
                     .recipeType(PhoenixRecipeTypes.PLEASE) // Agora isso não será mais nulo
                     .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH,
-                            GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK), HighPressurePlasmaArcFurnaceMachine::recipeModifier)
+                            GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK),
+                            HighPressurePlasmaArcFurnaceMachine::recipeModifier)
                     .pattern(definition -> FactoryBlockPattern.start()
                             .aisle("BBAAAAAAAAAAAAAAAAAAAAAAAAAAAAABB", "BBBAAAAAAAAAAAAAAAAAAAAAAAAAAABBB",
                                     "ABBBAAAAAAAAAAAAAAAAAAAAAAAAABBBA", "AABBBAAAAAAAAAAACAAAAAAAAAAABBBAA",
@@ -719,18 +804,22 @@ public class PhoenixMachines {
                                             PhoenixMaterials.PHOENIX_ENRICHED_NAQUADAH)))
                             .where('L', blocks(PhoenixBlocks.SUPER_STABLE_FUSION_CASING.get())
                                     .or(blocks(ForgeRegistries.BLOCKS
-                                            .getValue(ResourceLocation.fromNamespaceAndPath("kubejs", "phoenix_gaze_panel")))))
+                                            .getValue(ResourceLocation.fromNamespaceAndPath("kubejs",
+                                                    "phoenix_gaze_panel")))))
                             .where('M', blocks(PhoenixBlocks.BLAZING_CORE_STABILIZER.get()))
                             .where("N",
                                     blocks(ForgeRegistries.BLOCKS.getValue(
-                                            ResourceLocation.fromNamespaceAndPath("draconicevolution", "awakened_draconium_block"))))
+                                            ResourceLocation.fromNamespaceAndPath("draconicevolution",
+                                                    "awakened_draconium_block"))))
                             .where("O",
                                     blocks(ForgeRegistries.BLOCKS
-                                            .getValue(ResourceLocation.fromNamespaceAndPath("expatternprovider", "fishbig"))))
+                                            .getValue(ResourceLocation.fromNamespaceAndPath("expatternprovider",
+                                                    "fishbig"))))
                             .where('P', blocks(PhoenixBlocks.GLITCHED_ENTROPY_CASING.get()))
                             .where("Q",
                                     blocks(ForgeRegistries.BLOCKS
-                                            .getValue(ResourceLocation.fromNamespaceAndPath("ae2", "creative_energy_cell"))))
+                                            .getValue(ResourceLocation.fromNamespaceAndPath("ae2",
+                                                    "creative_energy_cell"))))
                             .where('R', blocks(PhoenixBlocks.PHOENIX_HEART_CASING.get()))
                             .where('S', controller(blocks(definition.getBlock())))
                             .build())
@@ -745,15 +834,13 @@ public class PhoenixMachines {
                     .register();
         }
     }
-    Component myColoredText = Component.translatable("block.phoenixcore.high_yield_photon_emission_regulator")
-            .withStyle(style -> style.withColor(TextColor.fromRgb(0xFF00FF)));
 
     static {
         if (PhoenixConfigs.INSTANCE.features.PHPCAEnabled) {
             // 2. Mova toda a lógica de registro para dentro do método init()
             HIGH_YEILD_PHOTON_EMISSION_REGULATER = REGISTRATE
                     .multiblock("high_yield_photon_emission_regulator", PhoenixHPCAMachine::new)
-                    .langValue("block.phoenixcore.high_yield_photon_emission_regulator")
+                    .langValue("§dHigh Yield Photon Emission Regulator (HPCA)")
                     .tooltips(Component.translatable("phoenixcore.tooltip.hyper_machine_purpose",
                             GTMaterials.get(INSTANCE.features.ActiveCoolerCoolantBase).getLocalizedName()
                                     .withStyle(style -> style.withColor(TextColor.fromRgb(GTMaterials

@@ -9,7 +9,7 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
 import com.gregtechceu.gtceu.api.recipe.condition.RecipeConditionType;
-import com.gregtechceu.gtceu.api.registry.GTRegistries;
+
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
@@ -20,6 +20,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.common.data.PhoenixMaterialRegistry;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
@@ -31,14 +32,14 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-public class PlasmaTempCondition extends RecipeCondition {
+public class FluidInHatchCondition extends RecipeCondition {
 
-    public static final Codec<PlasmaTempCondition> CODEC = RecordCodecBuilder.create(instance -> RecipeCondition
+    public static final Codec<FluidInHatchCondition> CODEC = RecordCodecBuilder.create(instance -> RecipeCondition
             .isReverse(instance).and(
-                    Codec.STRING.fieldOf("fluidString").forGetter(PlasmaTempCondition::getFluidString))
+                    Codec.STRING.fieldOf("fluidString").forGetter(FluidInHatchCondition::getFluidString))
             .and(
-                    Codec.STRING.fieldOf("displayName").forGetter(PlasmaTempCondition::getDisplayName))
-            .apply(instance, PlasmaTempCondition::new));
+                    Codec.STRING.fieldOf("displayName").forGetter(FluidInHatchCondition::getDisplayName))
+            .apply(instance, FluidInHatchCondition::new));
 
     @Getter
     private @NotNull String fluidString = "";
@@ -47,20 +48,20 @@ public class PlasmaTempCondition extends RecipeCondition {
 
     private @Nullable Fluid cachedFluid = null;
 
-    public PlasmaTempCondition(boolean isReverse, @NotNull String fluidString, @NotNull String displayName) {
+    public FluidInHatchCondition(boolean isReverse, @NotNull String fluidString, @NotNull String displayName) {
         super(isReverse);
         this.fluidString = fluidString;
         this.displayName = displayName;
     }
 
-    public static PlasmaTempCondition of(@NotNull Fluid fluid) {
+    public static FluidInHatchCondition of(@NotNull Fluid fluid) {
         ResourceLocation id = ForgeRegistries.FLUIDS.getKey(fluid);
         if (id == null) throw new IllegalArgumentException("Fluid has no registry ID: " + fluid);
         // Data generator safe - only stores the ID
-        return new PlasmaTempCondition(false, id.toString(), "");
+        return new FluidInHatchCondition(false, id.toString(), "");
     }
 
-    public static PlasmaTempCondition of(@NotNull Material material) {
+    public static FluidInHatchCondition of(@NotNull Material material) {
         Fluid fluid = material.getFluid();
         if (fluid == null || fluid == Fluids.EMPTY) {
             throw new IllegalArgumentException("Material " + material + " does not have a valid plasma fluid.");
@@ -68,9 +69,9 @@ public class PlasmaTempCondition extends RecipeCondition {
         return of(fluid);
     }
 
-    public static PlasmaTempCondition of(@NotNull String fluidId) {
+    public static FluidInHatchCondition of(@NotNull String fluidId) {
         // Data generator safe - only stores the ID
-        return new PlasmaTempCondition(false, fluidId, "");
+        return new FluidInHatchCondition(false, fluidId, "");
     }
 
     public Fluid getFluid() {
@@ -99,9 +100,9 @@ public class PlasmaTempCondition extends RecipeCondition {
 
             Component nameComponent = Component.literal(localizedName)
                     .withStyle(style -> style.withColor(TextColor.fromRgb(color)));
-            return Component.translatable("phoenixcore.tooltip.requires_plasma", nameComponent);
+            return Component.translatable("phoenixcore.tooltip.requires_fluid", nameComponent);
         }
-        return Component.literal("Requires an unknown plasma fluid.");
+        return Component.literal("Requires an unknown fluid.");
     }
 
     @Override
@@ -109,7 +110,7 @@ public class PlasmaTempCondition extends RecipeCondition {
         Fluid requiredFluid = getFluid();
         if (requiredFluid == null) return false;
         var machine = recipeLogic.getMachine();
-        if(!(machine instanceof WorkableElectricMultiblockMachine controller)) return false;
+        if (!(machine instanceof WorkableElectricMultiblockMachine controller)) return false;
         var fluidHandlers = controller.getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP);
         for (var fluidHandler : fluidHandlers) {
             if (!(fluidHandler instanceof NotifiableFluidTank fluidTank)) continue;
@@ -125,16 +126,16 @@ public class PlasmaTempCondition extends RecipeCondition {
 
     @Override
     public RecipeCondition createTemplate() {
-        return new PlasmaTempCondition();
+        return new FluidInHatchCondition();
     }
 
     @Override
     public RecipeConditionType<?> getType() {
         if (TYPE == null) {
-            throw new IllegalStateException("PlasmaTempCondition.TYPE not registered yet!");
+            throw new IllegalStateException("FluidInHatchCondition.TYPE not registered yet!");
         }
         return TYPE;
     }
 
-    public static RecipeConditionType<PlasmaTempCondition> TYPE;
+    public static RecipeConditionType<FluidInHatchCondition> TYPE;
 }

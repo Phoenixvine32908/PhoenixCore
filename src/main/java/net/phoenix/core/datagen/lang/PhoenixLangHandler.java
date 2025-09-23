@@ -11,7 +11,7 @@ public class PhoenixLangHandler {
         provider.add("phoenixcore.tooltip.hyper_machine_coolant3", "%s: %sx CWU/t");
         provider.add("phoenixcore.tooltip.hyper_machine_purpose",
                 "An upgraded HPCA that uses %s, %s, or %s to provide cooling");
-        provider.add("phoenixcore.tooltip.requires_plasma", "Needs: %s");
+        provider.add("phoenixcore.tooltip.requires_fluid", "Needs: %s");
         provider.add("tagprefix.nanites", "%s Nanites");
         provider.add("material.phoenixcore.phoenix_enriched_tritanium", "§cPhoenix Enriched Tritanium");
         provider.add("material.phoenixcore.extremely_modified_space_grade_steel",

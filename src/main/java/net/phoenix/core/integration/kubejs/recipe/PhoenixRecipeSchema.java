@@ -3,7 +3,7 @@ package net.phoenix.core.integration.kubejs.recipe;
 import com.gregtechceu.gtceu.common.recipe.condition.CleanroomCondition;
 import com.gregtechceu.gtceu.integration.kjs.recipe.GTRecipeSchema;
 
-import net.phoenix.core.common.data.recipeConditions.PlasmaTempCondition;
+import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
@@ -23,12 +23,11 @@ public interface PhoenixRecipeSchema {
             return addCondition(new CleanroomCondition(cleanroomType));
         }
 
-        public GTRecipeSchema.GTRecipeJS plasmaTemp(int tier) {
-            return this.addCondition(new PlasmaTempCondition());
+        public GTRecipeJS fluidInHatch(String fluidId) {
+            return addCondition(FluidInHatchCondition.of(fluidId));
         }
     }
 
-    // Now, create a new schema that is an extension of the GTRecipeSchema
     RecipeSchema SCHEMA = new RecipeSchema(PhoenixRecipeJS.class, PhoenixRecipeJS::new,
             DURATION, DATA, CONDITIONS,
             ALL_INPUTS, ALL_TICK_INPUTS, ALL_OUTPUTS, ALL_TICK_OUTPUTS,

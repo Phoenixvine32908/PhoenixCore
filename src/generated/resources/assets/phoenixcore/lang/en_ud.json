@@ -7,8 +7,8 @@
   "block.phoenixcore.blazing_core_stabilizer": "ɹǝzıןıqɐʇS ǝɹoƆ buızɐןᗺɔ§",
   "block.phoenixcore.blazing_filter_casing": "buısɐƆ ɹǝʇןıℲ buızɐןᗺ",
   "block.phoenixcore.glitched_entropy_casing": "buısɐƆ ʎdoɹʇuƎ pǝɥɔʇıן⅁ɐ§",
-  "block.phoenixcore.high_yield_photon_emission_regulator": "ɹoʇɐןnbǝɹ‾uoıssıɯǝ‾uoʇoɥd‾pןǝıʎ‾ɥbıɥ˙ǝɹoɔxıuǝoɥd˙ʞɔoןq",
-  "block.phoenixcore.hyper_gas_turbine": "ǝuıqɹn⟘ sɐ⅁ ɹǝdʎH",
+  "block.phoenixcore.high_yield_photon_emission_regulator": ")ⱯƆԀH( ɹoʇɐןnbǝᴚ uoıssıɯƎ uoʇoɥԀ pןǝıʎ ɥbıHp§",
+  "block.phoenixcore.honey_crystallization_chamber": "ɹǝqɯɐɥƆ uoıʇɐzıןןɐʇsʎɹƆ ʎǝuoH",
   "block.phoenixcore.perfected_logic": "buısɐƆ ɔıboꞀ pǝʇɔǝɟɹǝԀϛ§",
   "block.phoenixcore.phoenix_computation_component": "ʇuǝuodɯoƆ uoıʇɐʇndɯoƆ xıuǝoɥԀ",
   "block.phoenixcore.phoenix_enriched_neutronium_casing": "buısɐƆ ɯnıuoɹʇnǝN pǝɥɔıɹuƎ xıuǝoɥԀϛ§",
@@ -24,6 +24,9 @@
   "block.phoenixcore.true_heat_stable_coil_block": "ʞɔoןᗺ ןıoƆ ǝןqɐʇS ʇɐǝH ǝnɹ⟘",
   "block.phoenixcore.true_phoenix_infused_casing": "buısɐƆ pǝsnɟuI xıuǝoɥԀ ǝnɹ⟘ɔ§",
   "block.phoenixcore.twisted_computer_casing": "buısɐƆ ɹǝʇndɯoƆ pǝʇsıʍ⟘ϛ§",
+  "block.phoenixcore.uhv_plasma_input_hatch": "ɥɔʇɐH ʇnduI ɐɯsɐןԀ ΛH∩ㄣ§",
+  "block.phoenixcore.uv_plasma_input_hatch": "ɥɔʇɐH ʇnduI ɐɯsɐןԀ Λ∩Ɛ§",
+  "block.phoenixcore.zpm_plasma_input_hatch": "ɥɔʇɐH ʇnduI ɐɯsɐןԀ WԀZɔ§",
   "item.phoenixcore.basic_fuel_rod": "poᴚ ןǝnℲ ɔısɐᗺ",
   "material.phoenixcore.eighty_five_percent_pure_nevvonian_steel": "ןǝǝʇS uɐıuoʌʌǝN ǝɹnԀ ʇuǝɔɹǝԀ ǝʌıℲ ʎʇɥbıƎ9§",
   "material.phoenixcore.extremely_modified_space_grade_steel": "ןǝǝʇS ǝpɐɹ⅁ ǝɔɐdS pǝıɟıpoW ʎןǝɯǝɹʇxƎɔ§",
@@ -36,6 +39,6 @@
   "phoenixcore.tooltip.hyper_machine_coolant3": "ʇ/∩MƆ x%s :%s",
   "phoenixcore.tooltip.hyper_machine_coolant_base": "ʇ/∩MƆ x%s :%s",
   "phoenixcore.tooltip.hyper_machine_purpose": "buıןooɔ ǝpıʌoɹd oʇ %s ɹo '%s '%s sǝsn ʇɐɥʇ ⱯƆԀH pǝpɐɹbdn uⱯ",
-  "phoenixcore.tooltip.requires_plasma": "%s :spǝǝN",
+  "phoenixcore.tooltip.requires_fluid": "%s :spǝǝN",
   "tagprefix.nanites": "sǝʇıuɐN %s"
 }
