@@ -16,6 +16,7 @@ import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
+import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderHelper;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
@@ -119,7 +120,7 @@ public class PhoenixMachines {
         final String ioOverlay = io == OUT ? "overlay_pipe_out_emissive" : "overlay_pipe_in_emissive";
         final String emissiveOverlay = slots > 4 ? OVERLAY_PLASMA_HATCH_HALF_PX_TEX : OVERLAY_PLASMA_HATCH_TEX;
         return registerTieredMachines(name,
-                (holder, tier) -> new FluidHatchPartMachine(holder, tier, io, initialCapacity, slots),
+                (holder, tier) -> new PlasmaHatchPartMachine(holder, tier, io, initialCapacity, slots),
                 (tier, builder) -> {
                     builder.langValue(VNF[tier] + ' ' + displayName)
                             .rotationState(RotationState.ALL)
@@ -152,44 +153,49 @@ public class PhoenixMachines {
             .recipeType(GTRecipeTypes.AIR_SCRUBBER_RECIPES)
             .appearanceBlock(CASING_STAINLESS_CLEAN)
             .pattern(definition -> FactoryBlockPattern.start()
-                    .aisle("AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAABAAAAA",
-                            "AAAAABAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "ACCCCCCCCCA", "AAAAAAAAAAA")
-                    .aisle("AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAABAAAAA", "AAAADDDAAAA", "AAAADDDAAAA", "AAAAABAAAAA",
-                            "AAAAAAAAAAA", "ACCCCCCCCCA", "AAEAAAAAEAA", "AAEAAAAAEAA", "AAEAABAAEAA")
-                    .aisle("AAEFFFFFEAA", "AAFFGGGFFAA", "AAFFGGGFFAA", "AAAFFFFFAAA", "AAAAABAAAAA", "ACCCCCCCCCA",
-                            "AAAAAAAAAAA", "AAAAAAAAAAA", "AAABABABAAA", "AAFFFFFFFAA", "AAFGGGGGFAA")
-                    .aisle("AAFGGGGGFAA", "AAFFFFFFFAA", "AAAAABAAAAA", "ACCCCCCCCCA", "AAAAABAAAAA", "AAAAABAAAAA",
-                            "AAAABBBAAAA", "AAFFGGGFFAA", "ADGGGGGGGDA", "ADGGGGGGGDA", "AAFFFGFFFAA")
-                    .aisle("AAAAABAAAAA", "ACCCCCCCCCA", "AAAABCBAAAA", "AAAABCBAAAA", "AABBBBBBBAA", "ABFGGBGGFBA",
-                            "BDGGGBGGGDB", "BDGGGBGGGDB", "ABFFGBGFFBA", "AABBBBBBBAA", "ACCCCCCCCCA")
-                    .aisle("AAAAABAAAAA", "AAAAABAAAAA", "AAAABBBAAAA", "AAFFGGGFFAA", "ADGGGGGGGDA", "ADGGGGGGGDA",
-                            "AAFFFGFFFAA", "AAAAABAAAAA", "ACCCCCCCCCA", "AAAAAAAAAAA", "AAAAAAAAAAA")
-                    .aisle("AAABABABAAA", "AAFFFFFFFAA", "AAFGGGGGFAA", "AAFGGGGGFAA", "AAFFFFFFFAA", "AAAAABAAAAA",
-                            "ACCCCCCCCCA", "AAEAAAAAEAA", "AAEAAAAAEAA", "AAEAABAAEAA", "AAEFFFFFEAA")
-                    .aisle("AAFFGGGFFAA", "AAFFGGGFFAA", "AAAFFFFFAAA", "AAAAABAAAAA", "ACCCCCCCCCA", "AAAAAAAAAAA",
-                            "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAABBBAAAA", "AAABDHDBAAA", "AAABDDDBAAA")
-                    .aisle("AAAABBBAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA",
-                            "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA", "AAAAAAAAAAA")
-                    .where("A", Predicates.any())
-                    .where("B",
+                    .aisle("BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBCBBBBB",
+                            "BBBBBCBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB")
+                    .aisle("BDDDDDDDDDB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBCBBBBB", "BBBBEEEBBBB",
+                            "BBBBEEEBBBB", "BBBBBCBBBBB", "BBBBBBBBBBB")
+                    .aisle("BDDDDDDDDDB", "BBFBBBBBFBB", "BBFBBBBBFBB", "BBFBBCBBFBB", "BBFGGGGGFBB", "BBGGAAAGGBB",
+                            "BBGGAAAGGBB", "BBBGGGGGBBB", "BBBBBCBBBBB")
+                    .aisle("BDDDDDDDDDB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBCBCBCBBB", "BBGGGGGGGBB", "BBGAAAAAGBB",
+                            "BBGAAAAAGBB", "BBGGGGGGGBB", "BBBBBCBBBBB")
+                    .aisle("BDDDDDDDDDB", "BBBBBCBBBBB", "BBBBBCBBBBB", "BBBBCCCBBBB", "BBGGAAAGGBB", "BEAAAAAAAEB",
+                            "BEAAAAAAAEB", "BBGGGAGGGBB", "BBBBBCBBBBB")
+                    .aisle("BDDDDDDDDDB", "BBBBCDCBBBB", "BBBBCDCBBBB", "BBCCCCCCCBB", "BCGAACAAGCB", "CEAAACAAAEC",
+                            "CEAAACAAAEC", "BCGGACAGGCB", "BBCCCCCCCBB")
+                    .aisle("BDDDDDDDDDB", "BBBBBCBBBBB", "BBBBBCBBBBB", "BBBBCCCBBBB", "BBGGAAAGGBB", "BEAAAAAAAEB",
+                            "BEAAAAAAAEB", "BBGGGAGGGBB", "BBBBBCBBBBB")
+                    .aisle("BDDDDDDDDDB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBCBCBCBBB", "BBGGGGGGGBB", "BBGAAAAAGBB",
+                            "BBGAAAAAGBB", "BBGGGGGGGBB", "BBBBBCBBBBB")
+                    .aisle("BDDDDDDDDDB", "BBFBBBBBFBB", "BBFBBBBBFBB", "BBFBBCBBFBB", "BBFGGGGGFBB", "BBGGAAAGGBB",
+                            "BBGGAAAGGBB", "BBBGGGGGBBB", "BBBBBCBBBBB")
+                    .aisle("BDDDDDDDDDB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBCCCBBBB", "BBBCEHECBBB",
+                            "BBBCEEECBBB", "BBBBCCCBBBB", "BBBBBBBBBBB")
+                    .aisle("BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB",
+                            "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB")
+                    .where("A", Predicates.air())
+                    .where("B", Predicates.any())
+                    .where("C",
                             blocks(ForgeRegistries.BLOCKS
                                     .getValue(ResourceLocation.fromNamespaceAndPath("gtceu",
                                             "steel_frame"))))
-                    .where('C', blocks(CASING_BRONZE_BRICKS.get()))
-                    .where('D', blocks(CASING_LAMINATED_GLASS.get()))
-                    .where('E', blocks(CASING_STEEL_SOLID.get()))
-                    .where("F", blocks(CASING_STAINLESS_CLEAN.get())
+                    .where('D', blocks(CASING_BRONZE_BRICKS.get()))
+                    .where('E', blocks(CASING_LAMINATED_GLASS.get()))
+                    .where('F', blocks(CASING_STEEL_SOLID.get()))
+                    .where("G", blocks(CASING_STAINLESS_CLEAN.get())
                             .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2)
                                     .setMinGlobalLimited(1))
                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                             .or(autoAbilities(true, false, true)))
-                    .where("G", Predicates.air())
                     .where('H', controller(blocks(definition.getBlock())))
                     .build())
             .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_clean_stainless_steel"),
                     GTCEu.id("block/multiblock/generator/large_gas_turbine"))
+                            .andThen(b -> b.addDynamicRenderer(DynamicRenderHelper::makeRecipeFluidAreaRender))
             .register();
 
     public static MachineDefinition[] registerTieredMachines(String name,

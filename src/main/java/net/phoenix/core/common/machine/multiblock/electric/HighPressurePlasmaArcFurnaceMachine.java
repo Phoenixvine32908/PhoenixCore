@@ -50,14 +50,13 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
     // --- Plasma registry with per-plasma configs ---
     private static final Map<net.minecraft.world.level.material.Fluid, PlasmaBoost> PLASMA_BOOSTS = new HashMap<>();
     static {
-        // Here, the amount and ticks are set for a periodic consumption rate
-        // Example: 100 mB every 2 seconds (40 ticks)
+
         PLASMA_BOOSTS.put(GTMaterials.Helium.getFluid(FluidStorageKeys.PLASMA),
                 new PlasmaBoost("Helium Plasma", 0.9, 0.8, 1, 40));
-        // Example: 200 mB every 1 second (20 ticks)
+
         PLASMA_BOOSTS.put(GTMaterials.Iron.getFluid(FluidStorageKeys.PLASMA),
                 new PlasmaBoost("Iron Plasma", 0.7, 0.85, 200, 20));
-        // Example: 50 mB every 0.5 seconds (10 ticks)
+
         PLASMA_BOOSTS.put(GTMaterials.Nickel.getFluid(FluidStorageKeys.PLASMA),
                 new PlasmaBoost("Nickel Plasma", 0.6, 0.9, 50, 10));
     }
@@ -84,10 +83,22 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
 
     @Override
     public boolean onWorking() {
-        // Only perform the plasma check and consumption on the correct tick.
-        if (this.consumptionTimer % (activeBoost == null ? 1 : activeBoost.ticksPerConsumption()) == 0) {
+        if (this.isPlasmaBoosted && this.activeBoost != null) {
+            net.minecraft.world.level.material.Fluid currentFluid = null;
+            for (Map.Entry<net.minecraft.world.level.material.Fluid, PlasmaBoost> entry : PLASMA_BOOSTS.entrySet()) {
+                if (entry.getValue().equals(this.activeBoost)) {
+                    currentFluid = entry.getKey();
+                    break;
+                }
+            }
 
-            // On the check tick, reset the boost state
+            if (currentFluid == null ||
+                    !RecipeHelper.matchRecipe(this, getPlasmaRecipe(this.activeBoost, currentFluid)).isSuccess()) {
+                return false;
+            }
+        }
+
+        if (this.consumptionTimer % (activeBoost == null ? 1 : activeBoost.ticksPerConsumption()) == 0) {
             isPlasmaBoosted = false;
             activeBoost = null;
 
@@ -106,10 +117,8 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
             }
         }
 
-        // The call to super.onWorking() now uses the current, persistent state
         boolean value = super.onWorking();
 
-        // Increment the timer and reset it to prevent overflow
         this.consumptionTimer++;
         if (this.consumptionTimer > 72000) this.consumptionTimer = 0;
 
