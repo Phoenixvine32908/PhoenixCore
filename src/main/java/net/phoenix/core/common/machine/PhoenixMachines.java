@@ -193,9 +193,14 @@ public class PhoenixMachines {
                             .or(autoAbilities(true, false, true)))
                     .where('H', controller(blocks(definition.getBlock())))
                     .build())
-            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_clean_stainless_steel"),
-                    GTCEu.id("block/multiblock/generator/large_gas_turbine"))
-                            .andThen(b -> b.addDynamicRenderer(DynamicRenderHelper::makeRecipeFluidAreaRender))
+            .model(
+                    createWorkableCasingMachineModel(
+                            phoenixcore.id("block/phoenix_enriched_tritanium_casing"),
+                            GTCEu.id("block/multiblock/fusion_reactor"))
+                            .andThen(d -> d
+                                    .addDynamicRenderer(
+                                            CosmicDynamicRenderHelpers::getPlasmaArcFurnaceRenderer)))
+            .hasBER(true)
             .register();
 
     public static MachineDefinition[] registerTieredMachines(String name,
