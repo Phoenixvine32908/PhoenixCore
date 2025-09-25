@@ -41,6 +41,8 @@
   "material.phoenixcore.phoenix_enriched_naquadah": "§6Phoenix Enriched Naquadah",
   "material.phoenixcore.phoenix_enriched_tritanium": "§cPhoenix Enriched Tritanium",
   "material.phoenixcore.quantum_coolant": "§bQuantum Coolant",
+  "config.jade.plugin_phoenixcore.source_hatch_info": "Source Hatch Info",
+  "phoenixcore.jade.source_hatch_info": "Current Source in Hatch: %s/%s.",
   "phoenixcore.tooltip.hyper_machine_1": "Each Coolant provides a boost:",
   "phoenixcore.tooltip.hyper_machine_coolant1": "%s: %sx CWU/t",
   "phoenixcore.tooltip.hyper_machine_coolant2": "%s: %sx CWU/t",

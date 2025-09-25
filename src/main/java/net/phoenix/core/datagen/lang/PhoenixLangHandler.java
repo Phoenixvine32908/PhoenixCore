@@ -5,6 +5,7 @@ import com.tterrag.registrate.providers.RegistrateLangProvider;
 public class PhoenixLangHandler {
 
     public static void init(RegistrateLangProvider provider) {
+        provider.add("phoenixcore.jade.source_hatch_info", "Current Source in Hatch: %s.");
         provider.add("phoenixcore.tooltip.hyper_machine_coolant1", "%s: %sx CWU/t");
         provider.add("phoenixcore.tooltip.hyper_machine_coolant2", "%s: %sx CWU/t");
         provider.add("phoenixcore.tooltip.hyper_machine_coolant_base", "%s: %sx CWU/t");
@@ -23,6 +24,7 @@ public class PhoenixLangHandler {
         provider.add("material.phoenixcore.phoenix_enriched_naquadah",
                 "§6Phoenix Enriched Naquadah");
         provider.add("phoenixcore.tooltip.hyper_machine_1", "Each Coolant provides a boost:");
+
     }
 
     protected static String getSubKey(String key, int index) {

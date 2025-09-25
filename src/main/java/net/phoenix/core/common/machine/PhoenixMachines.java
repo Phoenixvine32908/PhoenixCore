@@ -53,7 +53,6 @@ import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelPropertie
 import static com.gregtechceu.gtceu.api.pattern.Predicates.*;
 import static com.gregtechceu.gtceu.common.data.GTBlocks.*;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
-import static net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine.getSourceCapacity;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 import static net.phoenix.core.configs.PhoenixConfigs.INSTANCE;
 
@@ -106,7 +105,7 @@ public class PhoenixMachines {
                                                             IO io, int initialCapacity,
                                                             int[] tiers, PartAbility... abilities) {
         return registerTieredMachines(name,
-                (holder, tier) -> new SourceHatchPartMachine(holder, io, getSourceCapacity(tier, initialCapacity)),
+                (holder, tier) -> new SourceHatchPartMachine(holder, tier, io),
                 (tier, builder) -> {
                     builder.langValue(GTValues.VNF[tier] + ' ' + displayName)
                             .rotationState(RotationState.ALL)
@@ -117,7 +116,7 @@ public class PhoenixMachines {
                             .tooltips(Component.translatable("gtceu.machine." + tooltip + ".tooltip"))
                             .allowCoverOnFront(true)
                             .tooltips(Component.translatable("phoenixcore.universal.tooltip.source_capacity",
-                                    FormattingUtil.formatNumbers(getSourceCapacity(tier, initialCapacity))));
+                                    FormattingUtil.formatNumbers(initialCapacity)));
                     return builder.register();
                 },
                 tiers);

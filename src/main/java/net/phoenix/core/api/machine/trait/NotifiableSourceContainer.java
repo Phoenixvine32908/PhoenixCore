@@ -3,18 +3,18 @@ package net.phoenix.core.api.machine.trait;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import net.phoenix.core.api.capability.SourceRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableRecipeHandlerTrait;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-
-import net.phoenix.core.api.capability.SourceRecipeCapability;
-
 import org.jetbrains.annotations.NotNull;
 import org.openjdk.nashorn.internal.objects.annotations.Getter;
 
 import java.util.Collections;
 import java.util.List;
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 
-public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Integer> {
+
+public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Integer> implements ISourceTile {
 
     private final IO handlerIO;
     private int storedSource;
@@ -90,5 +90,67 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
     @Getter
     public int getMaxCapacity() {
         return maxCapacity;
+    }
+
+    //
+    // Ars Nouveau ISourceTile implementation for 1.20.1
+    //
+
+    @Override
+    public int getTransferRate() {
+        return 1000;
+    }
+
+    @Override
+    public boolean canAcceptSource() {
+        return this.handlerIO == IO.IN;
+    }
+
+    public boolean canProvideSource() {
+        return this.handlerIO == IO.OUT;
+    }
+
+    @Override
+    public int getSource() {
+        return this.storedSource;
+    }
+
+    @Override
+    public int getMaxSource() {
+        return this.maxCapacity;
+    }
+
+    @Override
+    public void setMaxSource(int max) {
+        // This is a placeholder as maxCapacity is final in your class.
+        // You can leave it empty or add logic to update if it were not final.
+    }
+
+    @Override
+    public int setSource(int source) {
+        this.setStoredSource(source);
+        return this.storedSource;
+    }
+
+    @Override
+    public int addSource(int source) {
+        if (this.handlerIO != IO.IN || !canAcceptSource()) {
+            return 0;
+        }
+        int inserted = Math.min(source, this.maxCapacity - this.storedSource);
+        this.storedSource += inserted;
+        this.notifyListeners();
+        return inserted;
+    }
+
+    @Override
+    public int removeSource(int source) {
+        if (this.handlerIO != IO.OUT || !canProvideSource()) {
+            return 0;
+        }
+        int extracted = Math.min(source, this.storedSource);
+        this.storedSource -= extracted;
+        this.notifyListeners();
+        return extracted;
     }
 }
