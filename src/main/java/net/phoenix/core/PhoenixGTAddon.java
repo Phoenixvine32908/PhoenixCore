@@ -16,7 +16,7 @@ public class PhoenixGTAddon implements IGTAddon {
 
     @Override
     public GTRegistrate getRegistrate() {
-        return phoenixcore.EXAMPLE_REGISTRATE;
+        return phoenixcore.PHOENIX_REGISTRATE;
     }
 
     @Override

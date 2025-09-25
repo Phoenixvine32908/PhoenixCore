@@ -16,7 +16,6 @@ import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
-import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderHelper;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
@@ -40,6 +39,7 @@ import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArc
 import net.phoenix.core.common.machine.multiblock.electric.HoneyCrystallizationChamberMachine;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
+import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.phoenixcore;
 
@@ -53,6 +53,7 @@ import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelPropertie
 import static com.gregtechceu.gtceu.api.pattern.Predicates.*;
 import static com.gregtechceu.gtceu.common.data.GTBlocks.*;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
+import static net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine.getSourceCapacity;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 import static net.phoenix.core.configs.PhoenixConfigs.INSTANCE;
 
@@ -90,6 +91,36 @@ public class PhoenixMachines {
                     // Tier can always be changed later
                     .register();
         }
+    }
+    public final static MachineDefinition[] SOURCE_INPUT_HATCH = registerSourceHatches(
+            "source_input_hatch", "Source Input Hatch", "source_hatch.import",
+            IO.IN, 5000, new int[] { GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV },
+            PhoenixPartAbility.SOURCE_INPUT);
+
+    public final static MachineDefinition[] SOURCE_OUTPUT_HATCH = registerSourceHatches(
+            "source_output_hatch", "Source Output Hatch", "source_hatch.export",
+            IO.OUT, 5000, new int[] { GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV },
+            PhoenixPartAbility.SOURCE_OUTPUT);
+
+    public static MachineDefinition[] registerSourceHatches(String name, String displayName, String tooltip,
+                                                            IO io, int initialCapacity,
+                                                            int[] tiers, PartAbility... abilities) {
+        return registerTieredMachines(name,
+                (holder, tier) -> new SourceHatchPartMachine(holder, io, getSourceCapacity(tier, initialCapacity)),
+                (tier, builder) -> {
+                    builder.langValue(GTValues.VNF[tier] + ' ' + displayName)
+                            .rotationState(RotationState.ALL)
+                            .colorOverlayTieredHullModel(
+                                    "overlay_pipe_" + (io == IO.OUT ? "out" : "in") + "_emissive",
+                                    "overlay_pipe_in_emissive", "overlay_pipe_in_emissive")
+                            .modelProperty(IS_FORMED, false)
+                            .tooltips(Component.translatable("gtceu.machine." + tooltip + ".tooltip"))
+                            .allowCoverOnFront(true)
+                            .tooltips(Component.translatable("phoenixcore.universal.tooltip.source_capacity",
+                                    FormattingUtil.formatNumbers(getSourceCapacity(tier, initialCapacity))));
+                    return builder.register();
+                },
+                tiers);
     }
 
     public final static MachineDefinition[] PLASMA_INPUT_HATCH = registerPlasmaHatches(
@@ -795,6 +826,8 @@ public class PhoenixMachines {
                                     blocks(PhoenixBlocks.PHOENIX_ENRICHED_TRITANIUM_CASING.get())
                                             .setMinGlobalLimited(575).setPreviewCount(1200)
                                             .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
+                                            .or(Predicates.abilities(PhoenixPartAbility.PLASMA_INPUT)
+                                                    .setPreviewCount(1))
                                             .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2)
                                                     .setMinGlobalLimited(1))
                                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))

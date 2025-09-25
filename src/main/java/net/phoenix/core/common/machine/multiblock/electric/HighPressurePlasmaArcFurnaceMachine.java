@@ -1,12 +1,12 @@
 package net.phoenix.core.common.machine.multiblock.electric;
 
-import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
@@ -17,6 +17,8 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,13 +30,44 @@ import java.util.Map;
 /**
  * High-Pressure Plasma Arc Furnace:
  * - Runs normally without plasma.
- * - If supported plasma is present, consumes it as a catalyst
+ * - If supported plasma is present in plasma input hatch, consumes it as a catalyst
  * and boosts recipe duration/EUt accordingly.
  */
 public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultiblockMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             HighPressurePlasmaArcFurnaceMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
+
+    private boolean hasPlasmaInHatch(net.minecraft.world.level.material.Fluid fluid, int requiredAmount) {
+        return getParts().stream()
+                .filter(PlasmaHatchPartMachine.class::isInstance)
+                .map(PlasmaHatchPartMachine.class::cast)
+                .flatMap(hatch -> hatch.getRecipeHandlers().stream())
+                .flatMap(handler -> handler.getCapability(FluidRecipeCapability.CAP).stream())
+                .map(cap -> (NotifiableFluidTank) cap) // <-- cast here
+                .anyMatch(
+                        tank -> !tank.isEmpty() && ((FluidStack) tank.getContents().get(0)).getFluid().isSame(fluid) &&
+                                ((FluidStack) tank.getContents().get(0)).getAmount() >= requiredAmount);
+    }
+
+    private boolean tryConsumePlasmaFromHatch(net.minecraft.world.level.material.Fluid fluid, int consumeAmount) {
+        for (var hatch : getParts().stream()
+                .filter(PlasmaHatchPartMachine.class::isInstance)
+                .map(PlasmaHatchPartMachine.class::cast)
+                .toList()) {
+
+            var tank = (NotifiableFluidTank) hatch.getRecipeHandlers().get(0)
+                    .getCapability(FluidRecipeCapability.CAP).get(0);
+
+            if (!tank.isEmpty() && ((FluidStack) tank.getContents().get(0)).getFluid().isSame(fluid) &&
+                    ((FluidStack) tank.getContents().get(0)).getAmount() >= consumeAmount) {
+
+                tank.drain(consumeAmount, IFluidHandler.FluidAction.EXECUTE);
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * PlasmaBoost config:
@@ -83,21 +116,22 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
 
     @Override
     public boolean onWorking() {
+        // If already boosted, making sure hatch still contains valid plasma
         if (this.isPlasmaBoosted && this.activeBoost != null) {
             net.minecraft.world.level.material.Fluid currentFluid = null;
-            for (Map.Entry<net.minecraft.world.level.material.Fluid, PlasmaBoost> entry : PLASMA_BOOSTS.entrySet()) {
+            for (var entry : PLASMA_BOOSTS.entrySet()) {
                 if (entry.getValue().equals(this.activeBoost)) {
                     currentFluid = entry.getKey();
                     break;
                 }
             }
 
-            if (currentFluid == null ||
-                    !RecipeHelper.matchRecipe(this, getPlasmaRecipe(this.activeBoost, currentFluid)).isSuccess()) {
-                return false;
+            if (currentFluid == null || !hasPlasmaInHatch(currentFluid, this.activeBoost.consumeAmount())) {
+                return false; // stop if boost plasma missing
             }
         }
 
+        // Every "ticksPerConsumption", try to consume plasma from plasma hatches
         if (this.consumptionTimer % (activeBoost == null ? 1 : activeBoost.ticksPerConsumption()) == 0) {
             isPlasmaBoosted = false;
             activeBoost = null;
@@ -105,11 +139,8 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
             for (var entry : PLASMA_BOOSTS.entrySet()) {
                 var fluid = entry.getKey();
                 var boost = entry.getValue();
-                var plasmaRecipe = getPlasmaRecipe(boost, fluid);
 
-                if (RecipeHelper.matchRecipe(this, plasmaRecipe).isSuccess() &&
-                        RecipeHelper.handleRecipeIO(this, plasmaRecipe, IO.IN, this.recipeLogic.getChanceCaches())
-                                .isSuccess()) {
+                if (tryConsumePlasmaFromHatch(fluid, boost.consumeAmount())) {
                     isPlasmaBoosted = true;
                     activeBoost = boost;
                     break;
@@ -157,6 +188,7 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
         }
     }
 
+    @NotNull
     @Override
     public ManagedFieldHolder getFieldHolder() {
         return MANAGED_FIELD_HOLDER;

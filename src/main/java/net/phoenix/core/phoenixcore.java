@@ -53,7 +53,7 @@ public class phoenixcore {
 
     public static final String MOD_ID = "phoenixcore";
     public static final Logger LOGGER = LogManager.getLogger();
-    public static GTRegistrate EXAMPLE_REGISTRATE = GTRegistrate.create(MOD_ID);
+    public static GTRegistrate PHOENIX_REGISTRATE = GTRegistrate.create(MOD_ID);
     public static RegistryEntry<CreativeModeTab> PHOENIX_CREATIVE_TAB = null;
 
     public phoenixcore() {
@@ -73,7 +73,6 @@ public class phoenixcore {
         modEventBus.addListener(this::addMaterials);
         modEventBus.addListener(this::modifyMaterials);
 
-        // This check is the most important part of the fix!
         if (Platform.isClient()) {
             PhoenixClient.init(modEventBus);
         }

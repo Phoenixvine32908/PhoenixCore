@@ -10,6 +10,7 @@ def generatedResources = file("src/generated")
 
 sourceSets {
     main.resources {
+        srcDir 'src/main/resources'
         srcDir 'src/generated/resources'
     }
 }
@@ -22,6 +23,10 @@ repositories {
         content {
             includeGroup 'com.gregtechceu.gtceu'
         }
+    }
+    maven {
+        // 'Ars'
+        url 'https://maven.blamejared.com'
     }
 
     maven {
@@ -66,6 +71,14 @@ repositories {
     }
     maven {
         url = "https://thedarkcolour.github.io/KotlinForForge/"
+    }
+    maven {
+        // 'Curios'
+        url "https://maven.blamejared.com"
+    }
+    maven {
+        // Geckolib
+        url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
     }
     maven {
         name = "ftbMavenReleases"
@@ -171,6 +184,9 @@ dependencies {
     modCompileOnly("curse.maven:jade-324717:5390389")
 
     // GregTech and dependencies
+    modImplementation "software.bernie.geckolib:geckolib-neoforge-1.20.1:${geckolib_version}"
+    modImplementation "top.theillusivec4.curios:curios-forge:${curios_version}"
+    modImplementation "com.hollingsworth.ars_nouveau:ars_nouveau-${minecraft_version}:${ars_nouveau_version}"
     modImplementation("com.gregtechceu.gtceu:gtceu-${minecraft_version}:${gtceu_version}:slim") { transitive = false }
     modImplementation("com.lowdragmc.ldlib:ldlib-forge-${minecraft_version}:${ldlib_version}") { transitive = false }
     modImplementation("com.tterrag.registrate:Registrate:${registrate_version}")
@@ -180,6 +196,7 @@ dependencies {
     modRuntimeOnly("dev.architectury:architectury-forge:${architectury_version}")
     modImplementation("dev.ftb.mods:ftb-library-forge:${ftblibrary_version}")
     modImplementation("dev.ftb.mods:ftb-teams-forge:${ftbteams_version}")
+
 
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.24'
