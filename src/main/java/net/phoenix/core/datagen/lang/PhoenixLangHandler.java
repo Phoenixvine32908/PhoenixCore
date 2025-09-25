@@ -24,7 +24,6 @@ public class PhoenixLangHandler {
         provider.add("material.phoenixcore.phoenix_enriched_naquadah",
                 "§6Phoenix Enriched Naquadah");
         provider.add("phoenixcore.tooltip.hyper_machine_1", "Each Coolant provides a boost:");
-
     }
 
     protected static String getSubKey(String key, int index) {

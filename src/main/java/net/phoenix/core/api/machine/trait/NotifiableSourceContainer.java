@@ -3,16 +3,17 @@ package net.phoenix.core.api.machine.trait;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import net.phoenix.core.api.capability.SourceRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableRecipeHandlerTrait;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+
+import net.phoenix.core.api.capability.SourceRecipeCapability;
+
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import org.jetbrains.annotations.NotNull;
 import org.openjdk.nashorn.internal.objects.annotations.Getter;
 
 import java.util.Collections;
 import java.util.List;
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
-
 
 public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Integer> implements ISourceTile {
 

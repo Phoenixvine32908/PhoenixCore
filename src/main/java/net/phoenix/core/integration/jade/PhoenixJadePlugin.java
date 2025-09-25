@@ -1,8 +1,8 @@
 package net.phoenix.core.integration.jade;
 
-import net.phoenix.core.integration.jade.provider.SourceHatchProvider;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.phoenix.core.integration.jade.provider.SourceHatchProvider;
 
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;

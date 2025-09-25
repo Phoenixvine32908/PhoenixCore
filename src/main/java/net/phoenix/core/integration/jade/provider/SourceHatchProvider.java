@@ -1,15 +1,15 @@
 package net.phoenix.core.integration.jade.provider;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
-import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
-import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-
+import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
+import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.phoenixcore;
+
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
