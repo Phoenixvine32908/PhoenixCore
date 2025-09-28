@@ -6,6 +6,8 @@ import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
 
+
+import net.phoenix.core.api.item.tool.PhoenixToolType;
 import net.phoenix.core.common.data.PhoenixMaterialRegistry;
 import net.phoenix.core.phoenixcore;
 
@@ -47,7 +49,7 @@ public class PhoenixMaterials {
                 .formula("APNS")
                 .secondaryColor(593856)
                 .toolStats(new ToolProperty(12.0F, 7.0F, 3072, 6,
-                        new GTToolType[] { GTToolType.DRILL_LV, GTToolType.MINING_HAMMER }))
+                        new GTToolType[] { PhoenixToolType.DRILL_LuV, GTToolType.MINING_HAMMER }))
                 .iconSet(PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL)
                 .buildAndRegister();
         PHOENIX_ENRICHED_TRITANIUM = new Material.Builder(
@@ -61,6 +63,7 @@ public class PhoenixMaterials {
                 .buildAndRegister();
         PHOENIX_ENRICHED_NAQUADAH = new Material.Builder(
                 phoenixcore.id("phoenix_enriched_naquadah"))
+                .langValue("")
                 .ingot()
                 .color(0xFFA500)
                 .secondaryColor(0x000000)

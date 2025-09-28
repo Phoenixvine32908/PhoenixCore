@@ -7,10 +7,10 @@ import java.util.List;
 
 public class MapSourceIngredient extends AbstractMapIngredient {
 
-    public final int sourceAmount;
+    public final Integer source;
 
-    public MapSourceIngredient(int sourceAmount) {
-        this.sourceAmount = sourceAmount;
+    public MapSourceIngredient(Integer source) {
+        this.source = source;
     }
 
     @Override
@@ -25,10 +25,10 @@ public class MapSourceIngredient extends AbstractMapIngredient {
 
     @Override
     public String toString() {
-        return "MapSourceIngredient{amount=" + sourceAmount + '}';
+        return "MapSourceIngredient{" + "source=" + source + '}';
     }
 
-    public static List<AbstractMapIngredient> convertToMapIngredient(int source) {
+    public static List<AbstractMapIngredient> convertToMapIngredient(Integer source) {
         return Collections.singletonList(new MapSourceIngredient(source));
     }
 }

@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
+import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
 import net.phoenix.core.phoenixcore;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -22,7 +23,7 @@ import com.mojang.serialization.Codec;
 import org.joml.Quaternionf;
 
 import java.util.List;
-
+@SuppressWarnings("all")
 public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultiblockMachine, PlasmaArcFurnaceRender> {
 
     public static final PlasmaArcFurnaceRender INSTANCE = new PlasmaArcFurnaceRender();
@@ -59,17 +60,16 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
     @Override
     public void render(WorkableElectricMultiblockMachine machine, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        if (!machine.isFormed() || !machine.getRecipeLogic().isActive()) {
+        if (!(machine instanceof HighPressurePlasmaArcFurnaceMachine furnace)) return;
+        if (!furnace.isFormed() || !furnace.isActive() || !furnace.isShieldActive()) {
             return;
         }
 
         float tick = (machine.getOffsetTimer() + partialTick);
-        // Center of the multiblock
         double x = 0.5;
-        double y = 2.5; // a little above the controller block
+        double y = 2.5;
         double z = 0.5;
 
-        // Offset in front of the facing direction by 5 blocks
         switch (machine.getFrontFacing()) {
             case NORTH -> z -= 20.0;
             case SOUTH -> z += 20.0;
@@ -79,10 +79,7 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
 
         poseStack.pushPose();
         poseStack.translate(x, y, z);
-
-        // Render the sphere and rings
         renderCelestialObject(tick, poseStack, buffer, packedOverlay);
-
         poseStack.popPose();
     }
 

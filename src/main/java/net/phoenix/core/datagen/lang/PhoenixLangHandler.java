@@ -5,6 +5,14 @@ import com.tterrag.registrate.providers.RegistrateLangProvider;
 public class PhoenixLangHandler {
 
     public static void init(RegistrateLangProvider provider) {
+        provider.add("config.jade.plugin_phoenixcore.source_hatch_info", "Source Stored: %s");
+        provider.add("gui.phoenixcore.source_hatch.source", "Source Stored: %s");
+        provider.add("gui.phoenixcore.source_hatch.label.import", "Source Input Hatch");
+        provider.add("gui.phoenixcore.source_hatch.label.export", "Source Output Hatch");
+        provider.add("tooltip.phoenixcore.source_hatch.consumption", "§cMax Source Consumption§f:§6 %s");
+        provider.add("tooltip.phoenixcore.source_hatch.capacity", "§cMax Source capacity§f:§6 %s");
+        provider.add("phoenixcore.recipe.source_in", "Source Input: %s");
+        provider.add("phoenixcore.recipe.source_out", "Source Output: %s");
         provider.add("phoenixcore.jade.source_hatch_info", "Current Source in Hatch: %s.");
         provider.add("phoenixcore.tooltip.hyper_machine_coolant1", "%s: %sx CWU/t");
         provider.add("phoenixcore.tooltip.hyper_machine_coolant2", "%s: %sx CWU/t");

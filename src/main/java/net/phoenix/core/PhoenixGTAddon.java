@@ -2,9 +2,14 @@ package net.phoenix.core;
 
 import com.gregtechceu.gtceu.api.addon.GTAddon;
 import com.gregtechceu.gtceu.api.addon.IGTAddon;
+import com.gregtechceu.gtceu.api.addon.events.KJSRecipeKeyEvent;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 
+import com.gregtechceu.gtceu.integration.kjs.recipe.components.ContentJS;
+import com.mojang.datafixers.util.Pair;
+import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
 import net.phoenix.core.common.data.PhoenixMachineRecipes;
 import net.phoenix.core.common.data.materials.PhoenixElements;
 
@@ -13,6 +18,12 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 @GTAddon
 public class PhoenixGTAddon implements IGTAddon {
+
+    // Corrected lines: Declare and initialize SOURCE_IN and SOURCE_OUT
+    public static final ContentJS<Integer> SOURCE_IN = new ContentJS<>(NumberComponent.ANY_INT,
+            PhoenixRecipeCapabilities.SOURCE, false);
+    public static final ContentJS<Integer> SOURCE_OUT = new ContentJS<>(NumberComponent.ANY_INT,
+            PhoenixRecipeCapabilities.SOURCE, true);
 
     @Override
     public GTRegistrate getRegistrate() {
@@ -43,17 +54,8 @@ public class PhoenixGTAddon implements IGTAddon {
         PhoenixElements.init();
     }
 
-    // If you have custom ingredient types, uncomment this & change to match your capability.
-    // KubeJS WILL REMOVE YOUR RECIPES IF THESE ARE NOT REGISTERED.
-    /*
-     * public static final ContentJS<Double> PRESSURE_IN = new ContentJS<>(NumberComponent.ANY_DOUBLE,
-     * GregitasRecipeCapabilities.PRESSURE, false);
-     * public static final ContentJS<Double> PRESSURE_OUT = new ContentJS<>(NumberComponent.ANY_DOUBLE,
-     * GregitasRecipeCapabilities.PRESSURE, true);
-     *
-     * @Override
-     * public void registerRecipeKeys(KJSRecipeKeyEvent event) {
-     * event.registerKey(CustomRecipeCapabilities.PRESSURE, Pair.of(PRESSURE_IN, PRESSURE_OUT));
-     * }
-     */
+    @Override
+    public void registerRecipeKeys(KJSRecipeKeyEvent event) {
+        event.registerKey(PhoenixRecipeCapabilities.SOURCE, Pair.of(SOURCE_IN, SOURCE_OUT));
+    }
 }

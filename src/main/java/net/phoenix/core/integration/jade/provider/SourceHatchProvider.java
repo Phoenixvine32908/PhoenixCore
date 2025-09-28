@@ -2,11 +2,11 @@ package net.phoenix.core.integration.jade.provider;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.phoenixcore;
 
@@ -34,9 +34,11 @@ public class SourceHatchProvider implements IBlockComponentProvider, IServerData
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
         if (blockAccessor.getBlockEntity() instanceof MetaMachineBlockEntity blockEntity) {
             if (blockEntity.getMetaMachine() instanceof SourceHatchPartMachine sourceHatch) {
-                NotifiableSourceContainer sourceContainer = sourceHatch.getSourceContainer();
-                compoundTag.putInt("sourceStored", sourceContainer.getStoredSource());
-                compoundTag.putInt("sourceCapacity", sourceContainer.getMaxCapacity());
+                // Corrected: The variable type must be ISourceTile
+                ISourceTile sourceContainer = sourceHatch.getSourceContainer();
+
+                compoundTag.putInt("sourceStored", sourceContainer.getSource());
+                compoundTag.putInt("sourceCapacity", sourceContainer.getMaxSource());
             }
         }
     }

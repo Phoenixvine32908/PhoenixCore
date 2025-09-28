@@ -2,6 +2,7 @@ package net.phoenix.core.common.machine;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.data.RotationState;
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
@@ -11,6 +12,7 @@ import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
+import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
@@ -20,6 +22,7 @@ import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.FluidHatchPartMachine;
+import com.gregtechceu.gtceu.common.machine.multiblock.primitive.PrimitiveBlastFurnaceMachine;
 import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
@@ -52,7 +55,10 @@ import static com.gregtechceu.gtceu.api.capability.recipe.IO.OUT;
 import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties.IS_FORMED;
 import static com.gregtechceu.gtceu.api.pattern.Predicates.*;
 import static com.gregtechceu.gtceu.common.data.GTBlocks.*;
+import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.ELECTRIC_TIERS;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
+import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_INPUT;
+import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_OUTPUT;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 import static net.phoenix.core.configs.PhoenixConfigs.INSTANCE;
 
@@ -90,35 +96,49 @@ public class PhoenixMachines {
                     // Tier can always be changed later
                     .register();
         }
-    }
-    public final static MachineDefinition[] SOURCE_INPUT_HATCH = registerSourceHatches(
-            "source_input_hatch", "Source Input Hatch", "source_hatch.import",
-            IO.IN, 5000, new int[] { GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV },
-            PhoenixPartAbility.SOURCE_INPUT);
+    }    public static final MultiblockMachineDefinition SOURCE_TESTER = REGISTRATE.multiblock("source_tester",
+                    PrimitiveBlastFurnaceMachine::new)
+            .rotationState(RotationState.NON_Y_AXIS)                                                    
+            .recipeType(PhoenixRecipeTypes.SOURCE_TESTER_RECIPES)
+            .appearanceBlock(GTBlocks.CASING_PRIMITIVE_BRICKS)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("S", "C", "I")
+                    .where("C", controller(blocks(definition.getBlock())))
+                    .where("S", abilities(SOURCE_INPUT).or(abilities(SOURCE_OUTPUT)))
+                    .where("I", abilities(PartAbility.EXPORT_ITEMS).or(abilities(PartAbility.IMPORT_ITEMS)))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_inert_ptfe"),
+                    GTCEu.id("block/multiblock/coke_oven"))
+            .register();
 
-    public final static MachineDefinition[] SOURCE_OUTPUT_HATCH = registerSourceHatches(
-            "source_output_hatch", "Source Output Hatch", "source_hatch.export",
-            IO.OUT, 5000, new int[] { GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV },
-            PhoenixPartAbility.SOURCE_OUTPUT);
 
-    public static MachineDefinition[] registerSourceHatches(String name, String displayName, String tooltip,
-                                                            IO io, int initialCapacity,
-                                                            int[] tiers, PartAbility... abilities) {
+    public static final MachineDefinition[] SOURCE_IMPORT_HATCH = registerSourceHatch(
+            "source_input_hatch", "Source Input Hatch",
+            IO.IN, ELECTRIC_TIERS, SOURCE_INPUT);
+    public static final MachineDefinition[] SOURCE_EXPORT_HATCH = registerSourceHatch(
+            "source_output_hatch", "Source Output Hatch",
+            IO.OUT, ELECTRIC_TIERS, SOURCE_OUTPUT);
+
+    private static MachineDefinition[] registerSourceHatch(String name, String displayName, IO io,
+                                                           int[] tiers, PartAbility... abilities) {
         return registerTieredMachines(name,
-                (holder, tier) -> new SourceHatchPartMachine(holder, tier, io),
-                (tier, builder) -> {
-                    builder.langValue(GTValues.VNF[tier] + ' ' + displayName)
-                            .rotationState(RotationState.ALL)
-                            .colorOverlayTieredHullModel(
-                                    "overlay_pipe_" + (io == IO.OUT ? "out" : "in") + "_emissive",
-                                    "overlay_pipe_in_emissive", "overlay_pipe_in_emissive")
-                            .modelProperty(IS_FORMED, false)
-                            .tooltips(Component.translatable("gtceu.machine." + tooltip + ".tooltip"))
-                            .allowCoverOnFront(true)
-                            .tooltips(Component.translatable("phoenixcore.universal.tooltip.source_capacity",
-                                    FormattingUtil.formatNumbers(initialCapacity)));
-                    return builder.register();
-                },
+                (holder, tier) -> new SourceHatchPartMachine((MetaMachineBlockEntity) holder, tier, io),
+                (tier, builder) -> builder
+                        .langValue(GTValues.VNF[tier] + ' ' + displayName)
+                        .abilities(abilities)
+                        .rotationState(RotationState.ALL)
+                        .modelProperty(GTMachineModelProperties.IS_FORMED, false)
+                        .overlayTieredHullModel("source_hatch")
+                        .tooltipBuilder((item, tooltip) -> {
+                            if (io == IO.IN) {
+                                tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.capacity",
+                                        SourceHatchPartMachine.getMaxCapacity(tier)));
+                                tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.consumption",
+                                        SourceHatchPartMachine.getMaxConsumption(tier)));
+                            } else
+                                tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.capacity",
+                                        SourceHatchPartMachine.getMaxCapacity(tier)));
+                        }).register(),
                 tiers);
     }
 
@@ -830,7 +850,9 @@ public class PhoenixMachines {
                                             .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2)
                                                     .setMinGlobalLimited(1))
                                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
-                                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
+                                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1)
+                                                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
+                                            )
                                             .or(autoAbilities(true, false, true)))
                             .where('C',
                                     blocks(ChemicalHelper.getBlock(TagPrefix.frameGt,
