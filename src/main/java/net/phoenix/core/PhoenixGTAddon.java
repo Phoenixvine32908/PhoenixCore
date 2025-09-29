@@ -4,14 +4,15 @@ import com.gregtechceu.gtceu.api.addon.GTAddon;
 import com.gregtechceu.gtceu.api.addon.IGTAddon;
 import com.gregtechceu.gtceu.api.addon.events.KJSRecipeKeyEvent;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
-
 import com.gregtechceu.gtceu.integration.kjs.recipe.components.ContentJS;
-import com.mojang.datafixers.util.Pair;
-import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
+
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
 import net.phoenix.core.common.data.PhoenixMachineRecipes;
 import net.phoenix.core.common.data.materials.PhoenixElements;
+
+import com.mojang.datafixers.util.Pair;
+import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
 
 import java.util.function.Consumer;
 

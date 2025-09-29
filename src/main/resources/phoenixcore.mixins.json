@@ -6,8 +6,7 @@
   "mixins": [
     "NotifiableEnergyContainerMixin",
     "OpticalDataHatchMixin",
-    "DataAccessHatchMixin",
-    "GTToolTypeMixin"
+    "DataAccessHatchMixin"
   ],
   "client": [
   ],

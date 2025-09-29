@@ -1,13 +1,14 @@
 package net.phoenix.core.common.blockentity;
 
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredIOPartMachine;
 
+import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
+
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import com.hollingsworth.arsnouveau.api.source.SourceManager;
 import com.hollingsworth.arsnouveau.api.source.SourceProvider;
-import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
 
 public class SourceHatchBlockEntity extends TieredIOPartMachine implements ISourceTile {
 
@@ -70,8 +71,6 @@ public class SourceHatchBlockEntity extends TieredIOPartMachine implements ISour
             );
         }
     }
-
-
 
     // --- Helpers ---
     public static int getMaxCapacity(int tier) {

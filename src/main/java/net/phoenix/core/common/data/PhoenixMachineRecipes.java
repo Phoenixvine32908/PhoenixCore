@@ -8,7 +8,6 @@ import com.gregtechceu.gtceu.common.data.machines.GTMultiMachines;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
 import net.minecraft.data.recipes.FinishedRecipe;
-import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.configs.PhoenixConfigs;

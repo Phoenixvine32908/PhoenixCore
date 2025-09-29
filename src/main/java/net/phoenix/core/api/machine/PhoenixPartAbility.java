@@ -11,4 +11,5 @@ public class PhoenixPartAbility extends PartAbility {
     public static final PartAbility PLASMA_INPUT = new PartAbility("input_plasma");
     public static final PartAbility SOURCE_INPUT = new PartAbility("input_source");
     public static final PartAbility SOURCE_OUTPUT = new PartAbility("output_source");
+    public static final PartAbility BONK_HATCH = new PartAbility("bonk_hatch");
 }

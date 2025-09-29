@@ -10,8 +10,9 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import net.phoenix.core.api.capability.SourceRecipeCapability;
+
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;

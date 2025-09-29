@@ -22,7 +22,6 @@ import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.FluidHatchPartMachine;
-import com.gregtechceu.gtceu.common.machine.multiblock.primitive.PrimitiveBlastFurnaceMachine;
 import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
@@ -96,21 +95,7 @@ public class PhoenixMachines {
                     // Tier can always be changed later
                     .register();
         }
-    }    public static final MultiblockMachineDefinition SOURCE_TESTER = REGISTRATE.multiblock("source_tester",
-                    PrimitiveBlastFurnaceMachine::new)
-            .rotationState(RotationState.NON_Y_AXIS)                                                    
-            .recipeType(PhoenixRecipeTypes.SOURCE_TESTER_RECIPES)
-            .appearanceBlock(GTBlocks.CASING_PRIMITIVE_BRICKS)
-            .pattern(definition -> FactoryBlockPattern.start()
-                    .aisle("S", "C", "I")
-                    .where("C", controller(blocks(definition.getBlock())))
-                    .where("S", abilities(SOURCE_INPUT).or(abilities(SOURCE_OUTPUT)))
-                    .where("I", abilities(PartAbility.EXPORT_ITEMS).or(abilities(PartAbility.IMPORT_ITEMS)))
-                    .build())
-            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_inert_ptfe"),
-                    GTCEu.id("block/multiblock/coke_oven"))
-            .register();
-
+    }
 
     public static final MachineDefinition[] SOURCE_IMPORT_HATCH = registerSourceHatch(
             "source_input_hatch", "Source Input Hatch",
@@ -851,8 +836,8 @@ public class PhoenixMachines {
                                                     .setMinGlobalLimited(1))
                                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
                                             .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1)
-                                                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
-                                            )
+                                                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS)
+                                                            .setPreviewCount(1)))
                                             .or(autoAbilities(true, false, true)))
                             .where('C',
                                     blocks(ChemicalHelper.getBlock(TagPrefix.frameGt,
@@ -902,7 +887,6 @@ public class PhoenixMachines {
 
     static {
         if (PhoenixConfigs.INSTANCE.features.PHPCAEnabled) {
-            // 2. Mova toda a lógica de registro para dentro do método init()
             HIGH_YEILD_PHOTON_EMISSION_REGULATER = REGISTRATE
                     .multiblock("high_yield_photon_emission_regulator", PhoenixHPCAMachine::new)
                     .langValue("§dHigh Yield Photon Emission Regulator (HPCA)")

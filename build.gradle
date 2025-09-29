@@ -182,6 +182,8 @@ dependencies {
     modRuntimeOnly("dev.emi:emi-forge:${emi_version}+${minecraft_version}")
     modRuntimeOnly("curse.maven:jade-324717:5390389")
     modCompileOnly("curse.maven:jade-324717:5390389")
+    modCompileOnly "appeng:appliedenergistics2-forge:15.0.20"
+    modRuntimeOnly "appeng:appliedenergistics2-forge:15.0.20"
 
     // GregTech and dependencies
     modImplementation "software.bernie.geckolib:geckolib-neoforge-1.20.1:${geckolib_version}"

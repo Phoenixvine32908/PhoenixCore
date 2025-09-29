@@ -6,16 +6,14 @@ import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 
-import com.hollingsworth.arsnouveau.ArsNouveau;
-import com.hollingsworth.arsnouveau.api.source.ISpecialSourceProvider;
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
-import com.hollingsworth.arsnouveau.api.source.SourceManager;
-
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
+
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
+import com.hollingsworth.arsnouveau.api.source.ISpecialSourceProvider;
+import com.hollingsworth.arsnouveau.api.source.SourceManager;
+import lombok.Getter;
 
 public class SourceHatchPartMachine extends MetaMachine implements ISpecialSourceProvider {
 
@@ -37,7 +35,6 @@ public class SourceHatchPartMachine extends MetaMachine implements ISpecialSourc
         this.level = tileEntity.getLevel();
         this.tileEntity = tileEntity;
     }
-
 
     public static int getMaxCapacity(int tier) {
         return (int) (GTValues.V[tier] * 100);
