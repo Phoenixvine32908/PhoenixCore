@@ -4,7 +4,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
-import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler; // <-- New Import
+import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
@@ -19,8 +19,6 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
-import lombok.Getter;
-import lombok.Setter; // <-- New Import for Setters
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -29,6 +27,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,9 +76,9 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
     private static final ItemStack ACTIVATE_ITEM_1 = new ItemStack(Items.GOLD_INGOT, 1);
     private static final ItemStack ACTIVATE_ITEM_2 = new ItemStack(Items.IRON_INGOT, 1);
     private static final FluidStack ACTIVATE_FLUID_1 = new FluidStack(GTMaterials.SodiumPotassium.getFluid(), 1000);
-    private static final FluidStack ACTIVATE_FLUID_2 = new FluidStack(net.minecraft.world.level.material.Fluids.WATER, 1000);
+    private static final FluidStack ACTIVATE_FLUID_2 = new FluidStack(GTMaterials.Steel.getFluid(), 1000);
 
-    // -------------------- Plasma Boost Fields (Original) --------------------
+    // -------------------- Plasma Boost Fields (Original) --------------------Document Recipe Logic
     private boolean hasPlasmaInHatch(net.minecraft.world.level.material.Fluid fluid, int requiredAmount) {
         return getParts().stream()
                 .filter(PlasmaHatchPartMachine.class::isInstance)
@@ -125,7 +125,6 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
         // Stop the shield ticker when structure breaks
         shieldTickHandler.updateSubscription();
     }
-
 
     @Override
     public boolean beforeWorking(@Nullable GTRecipe recipe) {
@@ -224,7 +223,6 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
             return;
         }
 
-
         if (shieldTimer++ % 20 != 0) {
             return;
         }
@@ -236,19 +234,25 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
      * Attempts to consume materials from input hatches and sets the shield to active.
      */
     public boolean tryActivateShield() {
-        // 1. Check if all resources are present (simulate consumption)
         boolean hasItems = checkItems(ACTIVATE_ITEM_1, ACTIVATE_ITEM_2);
         boolean hasFluids = checkFluids(ACTIVATE_FLUID_1, ACTIVATE_FLUID_2);
 
         if (hasItems && hasFluids) {
-            // 2. If present, actually consume them.
+            // Log 1: Resources were found
+            System.out.println("Shield: Resources detected. Attempting to consume...");
+
             boolean itemsConsumed = consumeItems(ACTIVATE_ITEM_1, ACTIVATE_ITEM_2);
             boolean fluidsConsumed = consumeFluids(ACTIVATE_FLUID_1, ACTIVATE_FLUID_2);
 
             if (itemsConsumed && fluidsConsumed) {
+                System.out.println("Shield: SUCCESS! Resources consumed. Activating shield.");
                 setShieldActive(true);
                 setShieldHealth(SHIELD_MAX_HEALTH);
                 return true;
+            } else {
+                // Log 2: Resource consumption failed!
+                System.out.println(
+                        "Shield: FAILURE! ItemsConsumed: " + itemsConsumed + ", FluidsConsumed: " + fluidsConsumed);
             }
         }
         return false;
@@ -350,7 +354,7 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
         return true;
     }
 
-    // -------------------- Plasma Fields & UI  --------------------
+    // -------------------- Plasma Fields & UI --------------------
     private boolean tryConsumePlasmaFromHatch(net.minecraft.world.level.material.Fluid fluid, int consumeAmount) {
         for (var hatch : getParts().stream()
                 .filter(PlasmaHatchPartMachine.class::isInstance)
@@ -371,8 +375,7 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
     }
 
     private record PlasmaBoost(String name, double durationMultiplier, double eutMultiplier, int consumeAmount,
-                               int ticksPerConsumption) {
-    }
+                               int ticksPerConsumption) {}
 
     private static final Map<net.minecraft.world.level.material.Fluid, PlasmaBoost> PLASMA_BOOSTS = new HashMap<>();
 
@@ -387,8 +390,7 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
                 new PlasmaBoost("Nickel Plasma", 0.6, 0.9, 50, 10));
     }
 
-
-// In HighPressurePlasmaArcFurnaceMachine.java
+    // In HighPressurePlasmaArcFurnaceMachine.java
 
     @Override
     public void addDisplayText(List<Component> textList) {
@@ -419,10 +421,12 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
             if (isShieldActive()) { // <-- NEW CHECK
                 if (isPlasmaBoosted && activeBoost != null) {
                     textList.add(Component.literal("§b" + activeBoost.name + " Boost Active!§r"));
-                    textList.add(Component.literal(" - " + (int) (activeBoost.durationMultiplier * 100) + "% duration"));
+                    textList.add(
+                            Component.literal(" - " + (int) (activeBoost.durationMultiplier * 100) + "% duration"));
                     textList.add(Component.literal(" - " + (int) (activeBoost.eutMultiplier * 100) + "% EUt"));
                     textList.add(Component.literal(
-                            " - " + activeBoost.consumeAmount + " mB every " + activeBoost.ticksPerConsumption + " ticks"));
+                            " - " + activeBoost.consumeAmount + " mB every " + activeBoost.ticksPerConsumption +
+                                    " ticks"));
                 } else {
                     textList.add(Component.literal("§7No Plasma Catalyst§r"));
                 }

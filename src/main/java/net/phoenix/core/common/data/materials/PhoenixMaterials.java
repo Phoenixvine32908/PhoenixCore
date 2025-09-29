@@ -1,11 +1,12 @@
 package net.phoenix.core.common.data.materials;
 
+import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
-
 
 import net.phoenix.core.api.item.tool.PhoenixToolType;
 import net.phoenix.core.common.data.PhoenixMaterialRegistry;
@@ -49,7 +50,7 @@ public class PhoenixMaterials {
                 .formula("APNS")
                 .secondaryColor(593856)
                 .toolStats(new ToolProperty(12.0F, 7.0F, 3072, 6,
-                        new GTToolType[] { PhoenixToolType.DRILL_LuV, GTToolType.MINING_HAMMER }))
+                        new GTToolType[] { PhoenixToolType.DRILL_LUV, GTToolType.MINING_HAMMER }))
                 .iconSet(PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL)
                 .buildAndRegister();
         PHOENIX_ENRICHED_TRITANIUM = new Material.Builder(
@@ -73,5 +74,21 @@ public class PhoenixMaterials {
                 .buildAndRegister();
     }
 
-    public static void modifyMaterials() {}
+    public static void modifyMaterials() {
+        for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
+            ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);
+
+            if (toolProperty != null && toolProperty.hasType(GTToolType.SCREWDRIVER)) {
+                toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_MV);
+                toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_EV);
+            }
+        }
+        for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
+            ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);
+
+            if (toolProperty != null && toolProperty.hasType(GTToolType.DRILL_EV)) {
+                toolProperty.addTypes(PhoenixToolType.DRILL_LUV);
+            }
+        }
+    }
 }

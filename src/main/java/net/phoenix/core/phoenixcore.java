@@ -33,6 +33,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.phoenix.core.api.recipe.lookup.MapSourceIngredient;
 import net.phoenix.core.client.PhoenixClient;
+import net.phoenix.core.common.PhoenixGTItems;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
@@ -60,7 +61,6 @@ public class phoenixcore {
 
     public phoenixcore() {
         init();
-
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         modEventBus.addListener(this::commonSetup);
@@ -85,6 +85,7 @@ public class phoenixcore {
     public static void init() {
         PhoenixConfigs.init();
         PhoenixRegistration.REGISTRATE.registerRegistrate();
+        PhoenixGTItems.init();
         PhoenixBlocks.init();
         PhoenixItems.init();
         PhoenixMaterialFlags.init();

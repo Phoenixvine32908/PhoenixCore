@@ -22,6 +22,9 @@ public class PhoenixLangHandler {
                 "An upgraded HPCA that uses %s, %s, or %s to provide cooling");
         provider.add("phoenixcore.tooltip.requires_fluid", "Needs: %s");
         provider.add("tagprefix.nanites", "%s Nanites");
+        provider.add("item.gtceu.tool.ev_screwdriver", "%s Screwdriver (EV)");
+        provider.add("item.gtceu.tool.luv_drill", "%s Drill (LuV}");
+        provider.add("item.gtceu.tool.mv_screwdriver", "%s Screwdriver (MV)");
         provider.add("material.phoenixcore.phoenix_enriched_tritanium", "§cPhoenix Enriched Tritanium");
         provider.add("material.phoenixcore.extremely_modified_space_grade_steel",
                 "§cExtremely Modified Space Grade Steel");

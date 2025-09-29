@@ -23,6 +23,7 @@ import com.mojang.serialization.Codec;
 import org.joml.Quaternionf;
 
 import java.util.List;
+
 @SuppressWarnings("all")
 public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultiblockMachine, PlasmaArcFurnaceRender> {
 

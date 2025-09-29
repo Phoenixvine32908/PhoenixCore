@@ -2,7 +2,6 @@ package net.phoenix.core.integration.jade.provider;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -10,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.phoenixcore;
 
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
