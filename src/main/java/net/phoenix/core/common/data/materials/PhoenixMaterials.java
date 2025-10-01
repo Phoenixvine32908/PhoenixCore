@@ -28,11 +28,14 @@ public class PhoenixMaterials {
         ALUMINFROST = new Material.Builder(
                 phoenixcore.id("aluminfrost"))
                 .color(0xadd8e6).secondaryColor(0xc0c0c0).iconSet(MaterialIconSet.DULL)
+            .flags(MaterialFlags.GENERATE_PLATE)
                 .toolStats(ToolProperty.Builder.of(1.8F, 1.7F, 700, 3)
                         .types(
                                 GTToolType.SWORD,
                                 GTToolType.PICKAXE,
-                                GTToolType.SHOVEL)
+                                GTToolType.SHOVEL,
+                                GTToolType.DRILL_LV,
+                                PhoenixToolType.DRILL_LUV)
                         .unbreakable()
                         .enchantment(SILK_TOUCH, 1)
                         .build())
@@ -86,7 +89,7 @@ public class PhoenixMaterials {
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
             ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);
 
-            if (toolProperty != null && toolProperty.hasType(GTToolType.DRILL_EV)) {
+            if (toolProperty != null && toolProperty.hasType(GTToolType.DRILL_LV)) {
                 toolProperty.addTypes(PhoenixToolType.DRILL_LUV);
             }
         }
