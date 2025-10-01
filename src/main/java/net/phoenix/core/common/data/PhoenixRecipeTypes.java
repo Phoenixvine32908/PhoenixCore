@@ -18,7 +18,7 @@ public class PhoenixRecipeTypes {
 
     public static void init() {
         PLEASE = register("please", MULTIBLOCK)
-                .setMaxIOSize(16, 1, 8, 4)
+                .setMaxIOSize(4, 1, 8, 4)
                 .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
                 .setSound(GTSoundEntries.FORGE_HAMMER)

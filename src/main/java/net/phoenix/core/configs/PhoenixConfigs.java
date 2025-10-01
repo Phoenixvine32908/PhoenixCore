@@ -44,6 +44,9 @@ public class PhoenixConfigs {
         @Configurable.Comment({
                 "Whether the Custom Phoenix HPCA multiblock is enabled" })
         public boolean PHPCAEnabled = true;
+        @Configurable
+        @Configurable.Comment({ "Whether recipes for the machines are enabled" })
+        public boolean recipesEnabled = true;
 
         // COMPUTATION
 

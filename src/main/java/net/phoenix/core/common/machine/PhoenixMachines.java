@@ -18,6 +18,7 @@ import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
+import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderHelper;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
@@ -232,9 +233,7 @@ public class PhoenixMachines {
                     createWorkableCasingMachineModel(
                             phoenixcore.id("block/phoenix_enriched_tritanium_casing"),
                             GTCEu.id("block/multiblock/fusion_reactor"))
-                            .andThen(d -> d
-                                    .addDynamicRenderer(
-                                            CosmicDynamicRenderHelpers::getPlasmaArcFurnaceRenderer)))
+                            .andThen(b -> b.addDynamicRenderer(DynamicRenderHelper::makeRecipeFluidAreaRender)))
             .hasBER(true)
             .register();
 

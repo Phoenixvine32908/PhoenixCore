@@ -13,18 +13,16 @@ import net.phoenix.core.common.data.materials.PhoenixElements;
 
 import com.mojang.datafixers.util.Pair;
 import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
+import net.phoenix.core.common.machine.multiblock.Microverse;
+import net.phoenix.core.integration.kubejs.recipe.MicroverseComponent;
 
+import java.awt.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 @GTAddon
 public class PhoenixGTAddon implements IGTAddon {
 
-    // Corrected lines: Declare and initialize SOURCE_IN and SOURCE_OUT
-    public static final ContentJS<Integer> SOURCE_IN = new ContentJS<>(NumberComponent.ANY_INT,
-            PhoenixRecipeCapabilities.SOURCE, false);
-    public static final ContentJS<Integer> SOURCE_OUT = new ContentJS<>(NumberComponent.ANY_INT,
-            PhoenixRecipeCapabilities.SOURCE, true);
 
     @Override
     public GTRegistrate getRegistrate() {
@@ -56,7 +54,17 @@ public class PhoenixGTAddon implements IGTAddon {
     }
 
     @Override
+    public void registerRecipeCapabilities() {
+        PhoenixRecipeCapabilities.init();
+    }
+
+
+    public static final MicroverseComponent MICROVERSE_COMPONENT = new MicroverseComponent();
+    public static final ContentJS<Microverse> MICROVERSE_IN = new ContentJS<>(MICROVERSE_COMPONENT,
+            PhoenixRecipeCapabilities.MICROVERSE, true);
+
+    @Override
     public void registerRecipeKeys(KJSRecipeKeyEvent event) {
-        event.registerKey(PhoenixRecipeCapabilities.SOURCE, Pair.of(SOURCE_IN, SOURCE_OUT));
+        event.registerKey(PhoenixRecipeCapabilities.MICROVERSE, Pair.of(MICROVERSE_IN, null));
     }
 }
