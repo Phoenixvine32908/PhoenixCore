@@ -9,9 +9,9 @@ import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 
 import net.minecraft.client.resources.language.I18n;
+import net.phoenix.core.common.machine.multiblock.Microverse;
 
 import com.mojang.serialization.Codec;
-import net.phoenix.core.common.machine.multiblock.Microverse;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.List;

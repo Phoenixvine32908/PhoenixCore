@@ -3,12 +3,11 @@ package net.phoenix.core.common.data;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
 import com.gregtechceu.gtceu.api.item.component.ElectricStats;
+
 import net.minecraft.world.item.Item;
-import net.phoenix.core.common.registry.PhoenixRegistration;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
 
-import static com.gregtechceu.gtceu.common.data.GTItems.attach;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 import static net.phoenix.core.phoenixcore.PHOENIX_CREATIVE_TAB;
 
@@ -30,7 +29,6 @@ public class PhoenixItems {
                         .texture("layer0", prov.modLoc("item/" + ctx.getName()));
             })
             .register();
-
 
     public static void init() {}
 }

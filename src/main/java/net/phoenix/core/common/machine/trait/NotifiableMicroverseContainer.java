@@ -5,14 +5,17 @@ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableRecipeHandlerTrait;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+
 import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
 import net.phoenix.core.common.machine.multiblock.Microverse;
 import net.phoenix.core.common.machine.multiblock.electric.MicroverseProjectorMachine;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class NotifiableMicroverseContainer extends NotifiableRecipeHandlerTrait<Microverse> {
+
     public NotifiableMicroverseContainer(MetaMachine machine) {
         super(machine);
     }

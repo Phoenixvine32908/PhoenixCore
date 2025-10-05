@@ -1,13 +1,13 @@
 package net.phoenix.core.integration.jade.provider;
 
-
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
-import net.phoenix.core.common.machine.multiblock.Shield; // Import Shield to access ShieldTypes
-import net.phoenix.core.phoenixcore; // Assuming your mod's main class has the ID helper
+import net.phoenix.core.phoenixcore;
 
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -16,7 +16,8 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
 // Implement both interfaces
-public class HighPressurePlasmaArcFurnaceProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public class HighPressurePlasmaArcFurnaceProvider implements IBlockComponentProvider,
+                                                  IServerDataProvider<BlockAccessor> {
 
     // Unique ID for the provider
     public static final ResourceLocation UID = phoenixcore.id("plasma_furnace_info");
@@ -24,7 +25,6 @@ public class HighPressurePlasmaArcFurnaceProvider implements IBlockComponentProv
     // --- Client Side: Display the data ---
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-
         // ... (Existing code for machine check)
         CompoundTag data = accessor.getServerData();
         Shield.ShieldTypes shieldType = null;
@@ -38,8 +38,7 @@ public class HighPressurePlasmaArcFurnaceProvider implements IBlockComponentProv
             if (shieldType != null) {
                 tooltip.add(Component.translatable(
                         "jade.phoenixcore.shield_state",
-                        Component.translatable(shieldType.langKey)
-                ));
+                        Component.translatable(shieldType.langKey)));
             }
         }
 
@@ -70,27 +69,26 @@ public class HighPressurePlasmaArcFurnaceProvider implements IBlockComponentProv
 
                 tooltip.add(Component.translatable(
                         "jade.phoenixcore.plasma_boost_active",
-                        Component.literal("§b" + boostName)
-                ));
+                        Component.literal("§b" + boostName)));
 
                 tooltip.add(Component.translatable(
                         "jade.phoenixcore.plasma_boost_duration",
-                        (int) (durationMultiplier * 100) + "%"
-                ).withStyle(style -> style.withColor(0x00FFFF)));
+                        (int) (durationMultiplier * 100) + "%").withStyle(style -> style.withColor(0x00FFFF)));
 
             } else {
                 // Display if no boost is active/fueled
-                tooltip.add(Component.translatable("jade.phoenixcore.no_plasma_boost").withStyle(style -> style.withColor(0x777777)));
+                tooltip.add(Component.translatable("jade.phoenixcore.no_plasma_boost")
+                        .withStyle(style -> style.withColor(0x777777)));
             }
         }
     }
-
 
     // --- Server Side: Collect and sync the data ---
     @Override
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
         if (blockAccessor.getBlockEntity() instanceof MetaMachineBlockEntity meta_machine_be &&
-                meta_machine_be.getMetaMachine() instanceof HighPressurePlasmaArcFurnaceMachine machine && machine.isFormed()) {
+                meta_machine_be.getMetaMachine() instanceof HighPressurePlasmaArcFurnaceMachine machine &&
+                machine.isFormed()) {
 
             // 1. Shield State, Health, and Cooldown (The data needed for client display)
             compoundTag.putInt("shieldKey", machine.getShieldType().key);
@@ -113,6 +111,7 @@ public class HighPressurePlasmaArcFurnaceProvider implements IBlockComponentProv
             }
         }
     }
+
     @Override
     public ResourceLocation getUid() {
         return UID;

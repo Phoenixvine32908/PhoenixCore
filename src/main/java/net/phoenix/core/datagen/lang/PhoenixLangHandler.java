@@ -11,6 +11,8 @@ public class PhoenixLangHandler {
         provider.add("shield.phoenixcore.type.inactive", "Inactive");
         provider.add("shield.phoenixcore.type.decayed", "Decayed");
         // --------------------------------------------------
+        provider.add("emi_info.phoenixcore.shield_heal", "Shield Health Restored: +%s");
+        provider.add("emi_info.phoenixcore.shield_damage", "Shield Damage Applied: -%s");
 
         provider.add("config.jade.plugin_phoenixcore.source_hatch_info", "Source Stored: %s");
         provider.add("gui.phoenixcore.source_hatch.source", "Source Stored: %s");
@@ -55,6 +57,20 @@ public class PhoenixLangHandler {
         provider.add("jade.phoenixcore.plasma_boost_active", "Plasma Boost: %s Active");
         provider.add("jade.phoenixcore.plasma_boost_duration", "Duration Multiplier: %s");
         provider.add("jade.phoenixcore.no_plasma_boost", "No Plasma Catalyst");
+        multiLang(provider, "tooltip.phoenixcore.shield_stability_hatch",
+                "Outputs shield stability",
+                "as a redstone signal.");
+        multiLang(provider, "gtceu.placeholder_info.shieldStability",
+                "Returns the stability of the shield.",
+                "Note that not having a shield projected may result in nonsense values of integrity.",
+                "Usage:",
+                "  {shieldStability} -> shield integrity: (integrity, in percent)");
+    }
+
+    protected static void multiLang(RegistrateLangProvider provider, String key, String... values) {
+        for (var i = 0; i < values.length; i++) {
+            provider.add(getSubKey(key, i), values[i]);
+        }
     }
 
     protected static String getSubKey(String key, int index) {

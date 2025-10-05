@@ -4,13 +4,14 @@ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.IContentSerializer;
+
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
-import com.mojang.serialization.Codec;
+
 import net.minecraft.client.resources.language.I18n;
-// Only one import is needed
-import net.phoenix.core.common.machine.multiblock.Shield;
-import net.phoenix.core.common.machine.multiblock.Shield.ShieldTypes; // <-- **Crucial: Import the inner enum**
+import net.phoenix.core.common.machine.multiblock.Shield.ShieldTypes;
+
+import com.mojang.serialization.Codec;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.List;
@@ -40,15 +41,34 @@ public class ShieldRecipeCapability extends RecipeCapability<ShieldTypes> {
     @Override
     public void addXEIInfo(WidgetGroup group, int xOffset, GTRecipe recipe, List<Content> contents, boolean perTick,
                            boolean isInput, MutableInt yOffset) {
-        // Cast the content to the correct enum type: ShieldTypes
-        ShieldTypes shieldType = (ShieldTypes) contents.get(0).getContent();
-        group.addWidget(
-                new LabelWidget(xOffset + 3, yOffset.addAndGet(10),
-                        // Access the langKey directly from the enum instance
-                        I18n.get("emi_info.phoenixcore.required_shield", I18n.get(shieldType.langKey))));
+        // 1. Display Required Shield State (from the .input() call)
+        // Only shows up if this is an INPUT requirement.
+        if (isInput) {
+            ShieldTypes shieldType = (ShieldTypes) contents.get(0).getContent();
+            group.addWidget(
+                    new LabelWidget(xOffset + 3, yOffset.addAndGet(10),
+                            I18n.get("emi_info.phoenixcore.required_shield", I18n.get(shieldType.langKey))));
+        }
 
-        // You might want to remove the super call if you only want to display your custom info
-        // super.addXEIInfo(group, xOffset, recipe, contents, perTick, isInput, yOffset);
+        // 2. Display Shield Health Change (from the .addData() call)
+        // The heal amount is stored in the generic recipe data map.
+        if (recipe.data.contains("shield_health_change")) {
+            int healthChange = recipe.data.getInt("shield_health_change");
+
+            // This is the core logic: Display the amount being added (or subtracted)
+            if (healthChange != 0) {
+                // Determine color and language key based on positive (heal) or negative (damage)
+                String langKey = healthChange > 0 ? "emi_info.phoenixcore.shield_heal" :
+                        "emi_info.phoenixcore.shield_damage";
+                String colorCode = healthChange > 0 ? "§a" : "§c"; // Green for heal, Red for damage
+                int amount = Math.abs(healthChange);
+
+                group.addWidget(
+                        new LabelWidget(xOffset + 3, yOffset.addAndGet(10),
+                                // Displays something like: "Shield Health Restored: +§a500"
+                                I18n.get(langKey, colorCode + amount)));
+            }
+        }
     }
 
     // Updated inner class to work with ShieldTypes
@@ -70,7 +90,7 @@ public class ShieldRecipeCapability extends RecipeCapability<ShieldTypes> {
         @Override
         public ShieldTypes defaultValue() { // <-- Use ShieldTypes
             // Must return an actual enum instance, e.g., ShieldTypes.NORMAL
-        return ShieldTypes.INACTIVE; // Assuming NORMAL is the default/fallback
+            return ShieldTypes.INACTIVE; // Assuming NORMAL is the default/fallback
         }
 
         @Override

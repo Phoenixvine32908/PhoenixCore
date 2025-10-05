@@ -2,6 +2,7 @@ package net.phoenix.core.integration.kubejs;
 
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
+import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
@@ -9,6 +10,9 @@ import net.phoenix.core.common.data.materials.PhoenixElements;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
+import net.phoenix.core.common.machine.multiblock.CreativeEnergyMultiMachine;
+import net.phoenix.core.common.machine.multiblock.Shield;
+import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.integration.kubejs.recipe.PhoenixRecipeSchema;
 import net.phoenix.core.phoenixcore;
 
@@ -47,15 +51,19 @@ public class PhoenixKubeJSPlugin extends KubeJSPlugin {
     @Override
     public void registerBindings(BindingsEvent event) {
         super.registerBindings(event);
+        event.add("ShieldType", Shield.ShieldTypes.class);
         event.add("PhoenixMaterials", PhoenixMaterials.class);
+        event.add("PhoenixConfigs", PhoenixConfigs.class);
         event.add("BlazingCleanroom", BlazingCleanroom.class);
         event.add("PhoenixElements", PhoenixElements.class);
         event.add("PhoenixBlocks", PhoenixBlocks.class);
         event.add("PhoenixMachines", PhoenixMachines.class);
         event.add("PhoenixResearchMachines", PhoenixMachines.class);
+        event.add("CreativeEnergyMultiMachine", CreativeEnergyMultiMachine.class);
         event.add("PhoenixItems", PhoenixItems.class);
         event.add("PhoenixRecipeTypes", PhoenixRecipeTypes.class);
 
+        event.add("PhoenixDynamicRenderHelpers", PhoenixDynamicRenderHelpers.class);
         event.add("PhoenixCore", phoenixcore.class);
     }
 }

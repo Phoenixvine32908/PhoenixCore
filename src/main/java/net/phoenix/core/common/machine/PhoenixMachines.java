@@ -33,7 +33,7 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.api.machine.PhoenixPartAbility;
-import net.phoenix.core.client.renderer.machine.multiblock.CosmicDynamicRenderHelpers;
+import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
@@ -41,9 +41,12 @@ import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
 import net.phoenix.core.common.machine.multiblock.electric.HoneyCrystallizationChamberMachine;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
+import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
 import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
+import net.phoenix.core.common.machine.multiblock.part.special.ShieldSensorHatchPartMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
+import net.phoenix.core.datagen.models.PhoenixMachineModels;
 import net.phoenix.core.phoenixcore;
 
 import java.util.Locale;
@@ -251,6 +254,19 @@ public class PhoenixMachines {
         }
         return definitions;
     }
+
+    public static MachineDefinition SHIELD_INTEGRITY_SENSOR_HATCH = REGISTRATE
+            .machine("shield_stability_sensor_hatch", ShieldSensorHatchPartMachine::new)
+            .langValue("Shield Stability Sensor Hatch")
+            .rotationState(RotationState.ALL)
+            .tooltips(Component.translatable("tooltip.phoenixcore.shield_stability_hatch.0"),
+                    Component.translatable("tooltip.phoenixcore.shield_stability_hatch.1"))
+            .tier(GTValues.HV)
+            .modelProperty(ShieldRenderProperty.TYPE, ShieldRenderProperty.NORMAL)
+            .modelProperty(IS_FORMED, false)
+            .model(PhoenixMachineModels.createOverlayFillLevelCasingMachineModel("stability_hatch",
+                    "casings/microverse"))
+            .register();
 
     static {
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {
@@ -878,7 +894,7 @@ public class PhoenixMachines {
                                     GTCEu.id("block/multiblock/fusion_reactor"))
                                     .andThen(d -> d
                                             .addDynamicRenderer(
-                                                    CosmicDynamicRenderHelpers::getPlasmaArcFurnaceRenderer)))
+                                                    PhoenixDynamicRenderHelpers::getPlasmaArcFurnaceRenderer)))
                     .hasBER(true)
                     .register();
         }

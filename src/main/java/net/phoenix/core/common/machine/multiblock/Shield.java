@@ -23,7 +23,8 @@ public class Shield {
         @Getter
         public final int key;
 
-        ShieldTypes(int key, int decayRate, boolean isActive, int shieldCooldownTicks, int shieldTimer, int shieldCooldown, int shieldHealth, String langKey) {
+        ShieldTypes(int key, int decayRate, boolean isActive, int shieldCooldownTicks, int shieldTimer,
+                    int shieldCooldown, int shieldHealth, String langKey) {
             this.shieldHealth = shieldHealth;
             this.shieldTimer = shieldTimer;
             this.shieldCooldown = shieldCooldown;

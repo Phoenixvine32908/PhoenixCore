@@ -33,10 +33,10 @@ import static net.phoenix.core.configs.PhoenixConfigs.*;
 ////////////////////////////////////////////
 public class PhoenixResearchMachines {
 
-   public static MachineDefinition PHOENIX_COMPUTATION_COMPONENT = null;
-   public static MachineDefinition ADVANCED_PHOENIX_COMPUTATION_COMPONENT = null;
-   public static MachineDefinition PHOENIX_COOLER_COMPONENT = null;
-   public static MachineDefinition ACTIVE_PHOENIX_COOLER_COMPONENT = null;
+    public static MachineDefinition PHOENIX_COMPUTATION_COMPONENT = null;
+    public static MachineDefinition ADVANCED_PHOENIX_COMPUTATION_COMPONENT = null;
+    public static MachineDefinition PHOENIX_COOLER_COMPONENT = null;
+    public static MachineDefinition ACTIVE_PHOENIX_COOLER_COMPONENT = null;
     //////////////////////////////////////
     // *********** HPCA ***********//
     //////////////////////////////////////

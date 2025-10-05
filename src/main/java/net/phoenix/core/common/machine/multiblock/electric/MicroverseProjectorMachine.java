@@ -28,7 +28,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.common.machine.multiblock.Microverse;
 import net.phoenix.core.common.machine.trait.NotifiableMicroverseContainer;
 
-
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import lombok.Setter;
@@ -161,16 +160,15 @@ public class MicroverseProjectorMachine extends WorkableElectricMultiblockMachin
 
             microverseIntegrity = Math.min(Math.max(microverseIntegrity - decayRate, 0), MICROVERSE_MAX_INTEGRITY);
             if (microverseIntegrity == 0 && microverse != Microverse.NONE) {
-                    var contents = (Ingredient) activeRecipe.getInputContents(ItemRecipeCapability.CAP).get(0)
-                            .getContent();
-                    List<Ingredient> left = List.of(contents);
-                    for (var outputBus : outputBuses) {
-                        left = outputBus.handleRecipe(IO.OUT, activeRecipe, left, false);
-                        if (left == null) {
-                            break;
-                        }
+                var contents = (Ingredient) activeRecipe.getInputContents(ItemRecipeCapability.CAP).get(0)
+                        .getContent();
+                List<Ingredient> left = List.of(contents);
+                for (var outputBus : outputBuses) {
+                    left = outputBus.handleRecipe(IO.OUT, activeRecipe, left, false);
+                    if (left == null) {
+                        break;
                     }
-
+                }
 
                 if (microverse == Microverse.SHATTERED) {
                     microverseIntegrity = MICROVERSE_MAX_INTEGRITY >> 1; // start at half integrity

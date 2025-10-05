@@ -16,14 +16,13 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
-import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.phoenix.core.common.machine.multiblock.Shield;
+import net.phoenix.core.common.machine.multiblock.ShieldedMachine;
 import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
-import net.phoenix.core.common.machine.trait.NotifiableShieldContainer; // NEW IMPORT
-
+import net.phoenix.core.common.machine.trait.NotifiableShieldContainer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,7 @@ import java.util.Map;
  * High-Pressure Plasma Arc Furnace with Shield System
  */
 @SuppressWarnings("all")
-public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultiblockMachine {
+public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultiblockMachine implements ShieldedMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             HighPressurePlasmaArcFurnaceMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
@@ -45,16 +44,20 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
     private static final int DECAY_TICK_RATE = 20;
 
     // -------------------- SHIELD FIELDS (NEW) --------------------
-    @Persisted @DescSynced
+    @Persisted
+    @DescSynced
     private Shield.ShieldTypes shieldType = Shield.ShieldTypes.INACTIVE;
 
-    @Persisted @DescSynced
+    @Persisted
+    @DescSynced
     private int shieldHealth = 0;
 
-    @Persisted @DescSynced
+    @Persisted
+    @DescSynced
     private int shieldCooldownTimer = 0;
 
-    @Persisted @DescSynced
+    @Persisted
+    @DescSynced
     private int shieldDecayTimer = DECAY_TICK_RATE; // NEW: Timer for decay
 
     private final ConditionalSubscriptionHandler shieldHandler;
@@ -186,7 +189,6 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
             updateShield(activeRecipe.data.getInt("updated_shield_key"), true);
         }
     }
-
 
     @Override
     public boolean onWorking() {
@@ -331,6 +333,7 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
             }
         }
     }
+
     public int getShieldHealth() {
         return this.shieldHealth;
     }

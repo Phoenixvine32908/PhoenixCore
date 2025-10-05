@@ -13,8 +13,8 @@ import com.gregtechceu.gtceu.api.recipe.lookup.ingredient.MapIngredientTypeManag
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.sound.SoundEntry;
-
 import com.gregtechceu.gtceu.common.data.GTCreativeModeTabs;
+
 import com.lowdragmc.lowdraglib.Platform;
 
 import net.minecraft.client.Minecraft;
@@ -61,10 +61,13 @@ public class phoenixcore {
     public static final String MOD_ID = "phoenixcore";
     public static final Logger LOGGER = LogManager.getLogger();
     public static GTRegistrate PHOENIX_REGISTRATE = GTRegistrate.create(MOD_ID);
-    public static RegistryEntry<CreativeModeTab> PHOENIX_CREATIVE_TAB = REGISTRATE.defaultCreativeTab(phoenixcore.MOD_ID,
+    public static RegistryEntry<CreativeModeTab> PHOENIX_CREATIVE_TAB = REGISTRATE
+            .defaultCreativeTab(phoenixcore.MOD_ID,
                     builder -> builder
-                            .displayItems(new GTCreativeModeTabs.RegistrateDisplayItemsGenerator(phoenixcore.MOD_ID, REGISTRATE))
-                            .title(REGISTRATE.addLang("itemGroup", phoenixcore.id("creative_tab"), "PhoenixCore (CoreMod)"))
+                            .displayItems(new GTCreativeModeTabs.RegistrateDisplayItemsGenerator(phoenixcore.MOD_ID,
+                                    REGISTRATE))
+                            .title(REGISTRATE.addLang("itemGroup", phoenixcore.id("creative_tab"),
+                                    "PhoenixCore (CoreMod)"))
                             .icon(PhoenixMachines.HIGH_YEILD_PHOTON_EMISSION_REGULATER::asStack)
                             .build())
             .register();

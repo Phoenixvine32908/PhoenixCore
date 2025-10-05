@@ -12,7 +12,6 @@ import com.gregtechceu.gtceu.data.recipe.CustomTags;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.PhoenixMachines;
-import net.phoenix.core.common.machine.PhoenixResearchMachines;
 import net.phoenix.core.configs.PhoenixConfigs;
 
 import java.util.function.Consumer;
@@ -137,26 +136,25 @@ public class PhoenixMachineRecipes {
                 .EUt(VA[UV]) // Ultra-Voltage (1M EUt/t)
                 .duration(1000) // 50 seconds
                 .save(provider);
-            PhoenixRecipeTypes.PLEASE.recipeBuilder("please")
-                    .inputFluids(GTMaterials.SolderingAlloy.getFluid(GTValues.L * 32))
-                    .duration(1200)
-                    .EUt(VA[LV]).duration(400)
-                    .inputFluids(Acetone.getFluid(GTValues.L * 32))
-                    .save(provider);
-            PhoenixRecipeTypes.PLEASE.recipeBuilder("modify")
-                    .inputFluids(Neutronium.getFluid(1))
-                    .duration(1200)
-                    .EUt(VA[LV]).duration(400)
-                    .save(provider);
-            PhoenixRecipeTypes.PLEASE.recipeBuilder("plasma_test")
-                    .inputFluids(Argon.getFluid(FluidStorageKeys.PLASMA, 100))
-                    .inputFluids(Water.getFluid(L * 16))
-                    .addCondition(FluidInHatchCondition.of("phoenixcore:quantum_coolant_plasma"))
-                    .duration(600)
-                    .EUt(VA[LV]).duration(400)
-                    .EUt(ZPM * 2)
-                    .outputItems(PhoenixMachines.DANCE)
-                    .save(provider);
-
+        PhoenixRecipeTypes.PLEASE.recipeBuilder("please")
+                .inputFluids(GTMaterials.SolderingAlloy.getFluid(GTValues.L * 32))
+                .duration(1200)
+                .EUt(VA[LV]).duration(400)
+                .inputFluids(Acetone.getFluid(GTValues.L * 32))
+                .save(provider);
+        PhoenixRecipeTypes.PLEASE.recipeBuilder("modify")
+                .inputFluids(Neutronium.getFluid(1))
+                .duration(1200)
+                .EUt(VA[LV]).duration(400)
+                .save(provider);
+        PhoenixRecipeTypes.PLEASE.recipeBuilder("plasma_test")
+                .inputFluids(Argon.getFluid(FluidStorageKeys.PLASMA, 100))
+                .inputFluids(Water.getFluid(L * 16))
+                .addCondition(FluidInHatchCondition.of("phoenixcore:quantum_coolant_plasma"))
+                .duration(600)
+                .EUt(VA[LV]).duration(400)
+                .EUt(ZPM * 2)
+                .outputItems(PhoenixMachines.DANCE)
+                .save(provider);
     }
 }

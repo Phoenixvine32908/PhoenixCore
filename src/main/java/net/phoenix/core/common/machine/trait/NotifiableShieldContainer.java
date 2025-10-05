@@ -5,15 +5,18 @@ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableRecipeHandlerTrait;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+
 import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
-import net.phoenix.core.common.machine.multiblock.Shield.ShieldTypes; // <-- Import the enum
+import net.phoenix.core.common.machine.multiblock.Shield.ShieldTypes;
 import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 // FIX HERE: Use the inner enum ShieldTypes as the generic type
 public class NotifiableShieldContainer extends NotifiableRecipeHandlerTrait<ShieldTypes> {
+
     public NotifiableShieldContainer(MetaMachine machine) {
         super(machine);
     }

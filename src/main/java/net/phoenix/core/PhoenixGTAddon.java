@@ -9,12 +9,12 @@ import com.gregtechceu.gtceu.integration.kjs.recipe.components.ContentJS;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
 import net.phoenix.core.common.data.PhoenixMachineRecipes;
+import net.phoenix.core.common.data.PhoenixToolRecipes;
 import net.phoenix.core.common.data.materials.PhoenixElements;
+import net.phoenix.core.common.machine.multiblock.Shield;
+import net.phoenix.core.integration.kubejs.recipe.ShieldComponent;
 
 import com.mojang.datafixers.util.Pair;
-import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
-import net.phoenix.core.common.machine.multiblock.Microverse;
-import net.phoenix.core.integration.kubejs.recipe.MicroverseComponent;
 
 import java.awt.*;
 import java.util.function.Consumer;
@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 @GTAddon
 public class PhoenixGTAddon implements IGTAddon {
-
 
     @Override
     public GTRegistrate getRegistrate() {
@@ -45,6 +44,7 @@ public class PhoenixGTAddon implements IGTAddon {
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
         PhoenixMachineRecipes.init(provider);
+        PhoenixToolRecipes.init(provider);
     }
 
     @Override
@@ -53,18 +53,24 @@ public class PhoenixGTAddon implements IGTAddon {
         PhoenixElements.init();
     }
 
-    @Override
-    public void registerRecipeCapabilities() {
-        PhoenixRecipeCapabilities.init();
-    }
-
-
-    public static final MicroverseComponent MICROVERSE_COMPONENT = new MicroverseComponent();
-    public static final ContentJS<Microverse> MICROVERSE_IN = new ContentJS<>(MICROVERSE_COMPONENT,
-            PhoenixRecipeCapabilities.MICROVERSE, true);
+    // Add these fields, adapted from MoniLabsGTAddon:
+    public static final ShieldComponent SHIELD_COMPONENT = new ShieldComponent();
+    public static final ContentJS<Shield.ShieldTypes> SHIELD_IN = new ContentJS<>(SHIELD_COMPONENT,
+            // SHIELDTYPES is from your capability class: PhoenixRecipeCapabilities
+            PhoenixRecipeCapabilities.SHIELDTYPES,
+            true // True means "is an input capability"
+    );
 
     @Override
     public void registerRecipeKeys(KJSRecipeKeyEvent event) {
-        event.registerKey(PhoenixRecipeCapabilities.MICROVERSE, Pair.of(MICROVERSE_IN, null));
+        // ... (existing registrations)
+
+        // Register your shield capability key
+        event.registerKey(PhoenixRecipeCapabilities.SHIELDTYPES, Pair.of(SHIELD_IN, null));
+    }
+
+    @Override
+    public void registerRecipeCapabilities() {
+        PhoenixRecipeCapabilities.init();
     }
 }

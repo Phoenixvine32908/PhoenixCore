@@ -69,7 +69,7 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
         // 1. The machine is formed.
         // 2. The machine is currently active (running a recipe).
         // 3. The shield state is NORMAL (the active state).
-        if (!furnace.isFormed() || !furnace.isActive() || furnace.getShieldType() != Shield.ShieldTypes.NORMAL) {
+        if (!furnace.isFormed() || furnace.getShieldType() != Shield.ShieldTypes.NORMAL) {
             return;
         }
         // --------------------------------

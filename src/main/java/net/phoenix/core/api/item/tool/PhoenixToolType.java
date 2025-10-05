@@ -13,11 +13,8 @@ import com.gregtechceu.gtceu.data.recipe.CustomTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.monster.Spider;
-import net.phoenix.core.common.data.recipe.generated.PhoenixToolRecipeHelper;
-
 
 public final class PhoenixToolType {
-
 
     public static final GTToolType SCREWDRIVER_MV = GTToolType.builder("mv_screwdriver")
             .idFormat("mv_%s_screwdriver")

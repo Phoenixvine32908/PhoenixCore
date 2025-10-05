@@ -1,8 +1,8 @@
 // In your PhoenixJadePlugin.java
-
 package net.phoenix.core.integration.jade;
 
-import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity; // Import needed for targeting
+import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.phoenix.core.integration.jade.provider.HighPressurePlasmaArcFurnaceProvider;
@@ -23,7 +23,8 @@ public class PhoenixJadePlugin implements IWailaPlugin {
 
         // Plasma Arc Furnace: Server-side data sync
         // Targets MetaMachineBlockEntity for precision, using the general method.
-        registration.registerBlockDataProvider(new HighPressurePlasmaArcFurnaceProvider(), MetaMachineBlockEntity.class);
+        registration.registerBlockDataProvider(new HighPressurePlasmaArcFurnaceProvider(),
+                MetaMachineBlockEntity.class);
     }
 
     @Override
@@ -33,6 +34,7 @@ public class PhoenixJadePlugin implements IWailaPlugin {
 
         // FIX: Register the Plasma Furnace provider for the client-side component
         // by targeting the generic Block.class to satisfy the method signature.
-        registration.registerBlockComponent(new HighPressurePlasmaArcFurnaceProvider(), net.minecraft.world.level.block.Block.class);
+        registration.registerBlockComponent(new HighPressurePlasmaArcFurnaceProvider(),
+                net.minecraft.world.level.block.Block.class);
     }
 }

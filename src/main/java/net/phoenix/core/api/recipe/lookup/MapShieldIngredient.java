@@ -1,7 +1,8 @@
 package net.phoenix.core.api.recipe.lookup;
 
 import com.gregtechceu.gtceu.api.recipe.lookup.ingredient.AbstractMapIngredient;
-import net.phoenix.core.common.machine.multiblock.Shield.ShieldTypes; // <-- Import the enum
+
+import net.phoenix.core.common.machine.multiblock.Shield.ShieldTypes;
 
 import java.util.List;
 

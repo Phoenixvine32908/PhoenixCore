@@ -1,7 +1,7 @@
 package net.phoenix.core.api.capability;
 
-import com.gregtechceu.gtceu.api.capability.recipe.BlockStateRecipeCapability;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
+
 @SuppressWarnings("all")
 public class PhoenixRecipeCapabilities {
 
@@ -10,6 +10,6 @@ public class PhoenixRecipeCapabilities {
 
     public static void init() {
         GTRegistries.RECIPE_CAPABILITIES.register(MICROVERSE.name, MICROVERSE);
-    GTRegistries.RECIPE_CAPABILITIES.register(SHIELDTYPES.name, SHIELDTYPES);
+        GTRegistries.RECIPE_CAPABILITIES.register(SHIELDTYPES.name, SHIELDTYPES);
     }
 }
