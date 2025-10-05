@@ -53,21 +53,9 @@ public class PhoenixGTAddon implements IGTAddon {
         PhoenixElements.init();
     }
 
-    // Add these fields, adapted from MoniLabsGTAddon:
-    public static final ShieldComponent SHIELD_COMPONENT = new ShieldComponent();
-    public static final ContentJS<Shield.ShieldTypes> SHIELD_IN = new ContentJS<>(SHIELD_COMPONENT,
-            // SHIELDTYPES is from your capability class: PhoenixRecipeCapabilities
-            PhoenixRecipeCapabilities.SHIELDTYPES,
-            true // True means "is an input capability"
-    );
 
-    @Override
-    public void registerRecipeKeys(KJSRecipeKeyEvent event) {
-        // ... (existing registrations)
 
-        // Register your shield capability key
-        event.registerKey(PhoenixRecipeCapabilities.SHIELDTYPES, Pair.of(SHIELD_IN, null));
-    }
+
 
     @Override
     public void registerRecipeCapabilities() {
