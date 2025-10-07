@@ -13,7 +13,7 @@ import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.*;
 
 public class PhoenixRecipeTypes {
 
-    public static GTRecipeType SOURCE_TESTER_RECIPES;
+    public static GTRecipeType HONEY_CHAMBER_RECIPES;
     public static GTRecipeType PLEASE;
 
     public static void init() {
@@ -23,10 +23,11 @@ public class PhoenixRecipeTypes {
                 .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
                 .setSound(GTSoundEntries.FORGE_HAMMER)
                 .setEUIO(IO.IN);
-        final GTRecipeType SOURCE_TESTER_RECIPES = register("source_tester", MULTIBLOCK)
-                .setMaxSize(IO.IN, SourceRecipeCapability.CAP, 1)
-                .setMaxSize(IO.OUT, SourceRecipeCapability.CAP, 1)
-                .setMaxIOSize(1, 1, 0, 0)
-                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT);
+        HONEY_CHAMBER_RECIPES = register("honey_chamber", MULTIBLOCK)
+                .setMaxIOSize(4, 4, 4, 4)
+                .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.FORGE_HAMMER)
+                .setEUIO(IO.IN);
     }
 }

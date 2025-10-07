@@ -189,7 +189,7 @@ public class PhoenixMachines {
             .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT, GTRecipeModifiers.PARALLEL_HATCH,
                     HoneyCrystallizationChamberMachine::recipeModifier)
             .rotationState(RotationState.NON_Y_AXIS)
-            .recipeType(GTRecipeTypes.AIR_SCRUBBER_RECIPES)
+            .recipeType(PhoenixRecipeTypes.HONEY_CHAMBER_RECIPES)
             .appearanceBlock(CASING_STAINLESS_CLEAN)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBCBBBBB",

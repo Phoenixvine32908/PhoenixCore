@@ -136,6 +136,7 @@ public class PhoenixMachineRecipes {
                 .EUt(VA[UV]) // Ultra-Voltage (1M EUt/t)
                 .duration(1000) // 50 seconds
                 .save(provider);
+
         PhoenixRecipeTypes.PLEASE.recipeBuilder("please")
                 .inputFluids(GTMaterials.SolderingAlloy.getFluid(GTValues.L * 32))
                 .duration(1200)
@@ -156,5 +157,13 @@ public class PhoenixMachineRecipes {
                 .EUt(ZPM * 2)
                 .outputItems(PhoenixMachines.DANCE)
                 .save(provider);
+        PhoenixRecipeTypes.HONEY_CHAMBER_RECIPES.recipeBuilder("honey_chamber_test")
+                .inputFluids(Water.getFluid(16))
+                .duration(600)
+                .EUt(VA[LV]).duration(400)
+                .EUt(ZPM * 2)
+                .outputFluids(SodiumPotassium.getFluid(16))
+                .save(provider);
+
     }
 }
