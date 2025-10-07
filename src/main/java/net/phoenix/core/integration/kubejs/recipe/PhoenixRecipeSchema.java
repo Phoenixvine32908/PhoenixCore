@@ -1,10 +1,9 @@
 package net.phoenix.core.integration.kubejs.recipe;
 
-import com.gregtechceu.gtceu.common.recipe.condition.CleanroomCondition;
 import com.gregtechceu.gtceu.integration.kjs.recipe.GTRecipeSchema;
 
-import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
-import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
+import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
+import net.phoenix.core.common.machine.multiblock.Shield;
 
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import lombok.experimental.Accessors;
@@ -13,18 +12,29 @@ import static com.gregtechceu.gtceu.integration.kjs.recipe.GTRecipeSchema.*;
 
 public interface PhoenixRecipeSchema {
 
-    // Define a new RecipeComponent for your BlazingCleanroom
-
     @SuppressWarnings({ "unused", "UnusedReturnValue" })
     @Accessors(chain = true, fluent = true)
     class PhoenixRecipeJS extends GTRecipeSchema.GTRecipeJS {
 
-        public GTRecipeJS cleanroom(BlazingCleanroom cleanroomType) {
-            return addCondition(new CleanroomCondition(cleanroomType));
+        // ... (existing cleanroom and fluidInHatch methods) ...
+
+        public GTRecipeSchema.GTRecipeJS requiredShieldState(String stateName) {
+            Shield.ShieldTypes requiredType = Shield.ShieldTypes.valueOf(stateName.toUpperCase());
+
+            // FIX: Use the capability object directly.
+            // Argument 1: The RecipeCapability object (SHIELDTYPES)
+            // Argument 2: The value (requiredType)
+            this.input(PhoenixRecipeCapabilities.SHIELDTYPES, requiredType);
+            return this;
         }
 
-        public GTRecipeJS fluidInHatch(String fluidId) {
-            return addCondition(FluidInHatchCondition.of(fluidId));
+        /**
+         * Adds shield health damage (positive number) or repair (negative number)
+         * to be applied after the recipe runs.
+         */
+        public GTRecipeSchema.GTRecipeJS shieldHealthChange(int healthChange) {
+            this.addData("shield_health_change", healthChange);
+            return this;
         }
     }
 

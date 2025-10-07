@@ -86,17 +86,28 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
     @NotNull
     @Override
     public Set<BlockPos> saveOffsets() {
-        // Example: a 3-block tall honey column behind the controller
         Direction up = RelativeDirection.UP.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
         Direction back = getFrontFacing().getOpposite();
-
         BlockPos pos = getPos();
-        BlockPos center = pos.relative(back);
 
         Set<BlockPos> offsets = new HashSet<>();
-        for (int i = 0; i < 3; i++) {
-            offsets.add(center.relative(up, i).subtract(pos));
+
+        // Example: 4 separate honey tanks at different corners
+        BlockPos center = pos.relative(back);
+
+        // Each region could be a small stack or cluster
+        List<BlockPos> basePositions = List.of(
+                center.offset(-2, 0, -1),
+                center.offset(2, 0, -1),
+                center.offset(-2, 0, 1),
+                center.offset(2, 0, 1));
+
+        for (BlockPos base : basePositions) {
+            for (int i = 0; i < 2; i++) { // each is 2 blocks tall
+                offsets.add(base.relative(up, i).subtract(pos));
+            }
         }
+
         return offsets;
     }
 

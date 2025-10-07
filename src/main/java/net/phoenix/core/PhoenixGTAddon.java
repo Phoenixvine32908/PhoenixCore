@@ -6,25 +6,22 @@ import com.gregtechceu.gtceu.api.addon.events.KJSRecipeKeyEvent;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.integration.kjs.recipe.components.ContentJS;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
 import net.phoenix.core.common.data.PhoenixMachineRecipes;
+import net.phoenix.core.common.data.PhoenixToolRecipes;
 import net.phoenix.core.common.data.materials.PhoenixElements;
+import net.phoenix.core.common.machine.multiblock.Shield;
+import net.phoenix.core.integration.kubejs.recipe.ShieldComponent;
 
-import com.mojang.datafixers.util.Pair;
-import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
 
+import java.awt.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 @GTAddon
 public class PhoenixGTAddon implements IGTAddon {
-
-    // Corrected lines: Declare and initialize SOURCE_IN and SOURCE_OUT
-    public static final ContentJS<Integer> SOURCE_IN = new ContentJS<>(NumberComponent.ANY_INT,
-            PhoenixRecipeCapabilities.SOURCE, false);
-    public static final ContentJS<Integer> SOURCE_OUT = new ContentJS<>(NumberComponent.ANY_INT,
-            PhoenixRecipeCapabilities.SOURCE, true);
 
     @Override
     public GTRegistrate getRegistrate() {
@@ -47,6 +44,7 @@ public class PhoenixGTAddon implements IGTAddon {
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
         PhoenixMachineRecipes.init(provider);
+        PhoenixToolRecipes.init(provider);
     }
 
     @Override
@@ -55,8 +53,25 @@ public class PhoenixGTAddon implements IGTAddon {
         PhoenixElements.init();
     }
 
+
+    public static final ShieldComponent SHIELD_COMPONENT = new ShieldComponent();
+    public static final ContentJS<Shield.ShieldTypes> SHIELD_IN = new ContentJS<>(SHIELD_COMPONENT,
+            // SHIELDTYPES is from your capability class: PhoenixRecipeCapabilities
+            PhoenixRecipeCapabilities.SHIELDTYPES,
+            true // True means "is an input capability"
+    );
+
     @Override
     public void registerRecipeKeys(KJSRecipeKeyEvent event) {
-        event.registerKey(PhoenixRecipeCapabilities.SOURCE, Pair.of(SOURCE_IN, SOURCE_OUT));
+        // ... (existing registrations)
+
+        // Register your shield capability key
+        event.registerKey(PhoenixRecipeCapabilities.SHIELDTYPES, Pair.of(SHIELD_IN, null));
+    }
+
+
+    @Override
+    public void registerRecipeCapabilities() {
+        PhoenixRecipeCapabilities.init();
     }
 }

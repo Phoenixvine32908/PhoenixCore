@@ -6,7 +6,7 @@ import net.phoenix.core.client.renderer.machine.ArtificialStarRender;
 import net.phoenix.core.client.renderer.machine.EyeOfHarmonyRender;
 import net.phoenix.core.client.renderer.machine.PlasmaArcFurnaceRender;
 
-public class CosmicDynamicRenderHelpers {
+public class PhoenixDynamicRenderHelpers {
 
     public static DynamicRender<?, ?> getEyeOfHarmonyRender() {
         return EyeOfHarmonyRender.INSTANCE;

@@ -2,11 +2,14 @@ package net.phoenix.core.api.capability;
 
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
+@SuppressWarnings("all")
 public class PhoenixRecipeCapabilities {
 
-    public static final SourceRecipeCapability SOURCE = SourceRecipeCapability.CAP;
+    public static final MicroverseRecipeCapability MICROVERSE = MicroverseRecipeCapability.CAP;
+    public static final ShieldRecipeCapability SHIELDTYPES = ShieldRecipeCapability.CAP;
 
     public static void init() {
-        GTRegistries.RECIPE_CAPABILITIES.register(SOURCE.name, SOURCE);
+        GTRegistries.RECIPE_CAPABILITIES.register(MICROVERSE.name, MICROVERSE);
+        GTRegistries.RECIPE_CAPABILITIES.register(SHIELDTYPES.name, SHIELDTYPES);
     }
 }

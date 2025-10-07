@@ -13,6 +13,7 @@ import com.gregtechceu.gtceu.api.recipe.lookup.ingredient.MapIngredientTypeManag
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.sound.SoundEntry;
+import com.gregtechceu.gtceu.common.data.GTCreativeModeTabs;
 
 import com.lowdragmc.lowdraglib.Platform;
 
@@ -20,20 +21,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.phoenix.core.api.recipe.lookup.MapSourceIngredient;
+import net.phoenix.core.api.recipe.lookup.MapMicroverseIngredient;
+import net.phoenix.core.api.recipe.lookup.MapShieldIngredient;
 import net.phoenix.core.client.PhoenixClient;
-import net.phoenix.core.common.PhoenixGTItems;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
@@ -42,13 +43,16 @@ import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.PhoenixResearchMachines;
-import net.phoenix.core.common.registry.PhoenixRegistration;
+import net.phoenix.core.common.machine.multiblock.Microverse;
+import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.PhoenixDatagen;
 
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 
 @SuppressWarnings("all")
 @Mod(phoenixcore.MOD_ID)
@@ -57,7 +61,16 @@ public class phoenixcore {
     public static final String MOD_ID = "phoenixcore";
     public static final Logger LOGGER = LogManager.getLogger();
     public static GTRegistrate PHOENIX_REGISTRATE = GTRegistrate.create(MOD_ID);
-    public static RegistryEntry<CreativeModeTab> PHOENIX_CREATIVE_TAB = null;
+    public static RegistryEntry<CreativeModeTab> PHOENIX_CREATIVE_TAB = REGISTRATE
+            .defaultCreativeTab(phoenixcore.MOD_ID,
+                    builder -> builder
+                            .displayItems(new GTCreativeModeTabs.RegistrateDisplayItemsGenerator(phoenixcore.MOD_ID,
+                                    REGISTRATE))
+                            .title(REGISTRATE.addLang("itemGroup", phoenixcore.id("creative_tab"),
+                                    "PhoenixCore (CoreMod)"))
+                            .icon(PhoenixMachines.HIGH_YEILD_PHOTON_EMISSION_REGULATER::asStack)
+                            .build())
+            .register();
 
     public phoenixcore() {
         init();
@@ -84,8 +97,7 @@ public class phoenixcore {
 
     public static void init() {
         PhoenixConfigs.init();
-        PhoenixRegistration.REGISTRATE.registerRegistrate();
-        PhoenixGTItems.init();
+        REGISTRATE.registerRegistrate();
         PhoenixBlocks.init();
         PhoenixItems.init();
         PhoenixMaterialFlags.init();
@@ -99,12 +111,16 @@ public class phoenixcore {
                         FluidInHatchCondition.CODEC));
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        MapIngredientTypeManager.registerMapIngredient(Integer.class, MapSourceIngredient::convertToMapIngredient);
-        event.enqueueWork(() -> {
-            LOGGER.info("Hello from common setup! This is *after* registries are done.");
-            LOGGER.info("Look, I found a {}!", Items.DIAMOND);
-        });
+    @SubscribeEvent
+    public void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(
+                () -> {
+                    // Assuming Microverse.class is correct for its type
+                    MapIngredientTypeManager.registerMapIngredient(Microverse.class, MapMicroverseIngredient::from);
+
+                    // FIX HERE: Use the inner enum class, Shield.ShieldTypes.class
+                    MapIngredientTypeManager.registerMapIngredient(Shield.ShieldTypes.class, MapShieldIngredient::from);
+                });
     }
 
     // Now correctly annotated to ensure it only runs on the client.

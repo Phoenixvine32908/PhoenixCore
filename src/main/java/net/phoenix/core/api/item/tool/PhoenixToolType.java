@@ -14,9 +14,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.monster.Spider;
 
-
 public final class PhoenixToolType {
-
 
     public static final GTToolType SCREWDRIVER_MV = GTToolType.builder("mv_screwdriver")
             .idFormat("mv_%s_screwdriver")
@@ -56,7 +54,7 @@ public final class PhoenixToolType {
             .harvestTag(BlockTags.MINEABLE_WITH_HOE)
             .toolStats(b -> b.blockBreaking().aoe(5, 5, 10) // <--- THIS IS THE KEY CHANGE
                     .attackDamage(1.0F).attackSpeed(-3.2F).durabilityMultiplier(8.0F)
-                    .brokenStack(ToolHelper.SUPPLY_POWER_UNIT_IV) // You'll need to define this new constant
+                    .brokenStack(PhoenixToolHelper.SUPPLY_POWER_UNIT_LUV)
                     .behaviors(AOEConfigUIBehavior.INSTANCE, TorchPlaceBehavior.INSTANCE))
             .sound(GTSoundEntries.DRILL_TOOL, true)
             .electric(GTValues.LuV) // Use the next tier constant

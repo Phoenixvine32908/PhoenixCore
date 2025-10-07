@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
+import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
 import net.phoenix.core.phoenixcore;
 
@@ -62,9 +63,16 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
     public void render(WorkableElectricMultiblockMachine machine, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
         if (!(machine instanceof HighPressurePlasmaArcFurnaceMachine furnace)) return;
-        if (!furnace.isFormed() || !furnace.isActive() || !furnace.isShieldActive()) {
+
+        // --- NEW CONDITION ADDED HERE ---
+        // The render should only happen if:
+        // 1. The machine is formed.
+        // 2. The machine is currently active (running a recipe).
+        // 3. The shield state is NORMAL (the active state).
+        if (!furnace.isFormed() || furnace.getShieldType() != Shield.ShieldTypes.NORMAL) {
             return;
         }
+        // --------------------------------
 
         float tick = (machine.getOffsetTimer() + partialTick);
         double x = 0.5;
