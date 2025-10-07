@@ -14,7 +14,6 @@ import net.phoenix.core.common.data.materials.PhoenixElements;
 import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.integration.kubejs.recipe.ShieldComponent;
 
-import com.mojang.datafixers.util.Pair;
 
 import java.awt.*;
 import java.util.function.Consumer;
