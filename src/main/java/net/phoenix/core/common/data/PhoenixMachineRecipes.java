@@ -164,6 +164,5 @@ public class PhoenixMachineRecipes {
                 .EUt(ZPM * 2)
                 .outputFluids(SodiumPotassium.getFluid(16))
                 .save(provider);
-
     }
 }
