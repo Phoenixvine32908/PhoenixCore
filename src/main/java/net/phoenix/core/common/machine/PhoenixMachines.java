@@ -234,8 +234,8 @@ public class PhoenixMachines {
                     .build())
             .model(
                     createWorkableCasingMachineModel(
-                            phoenixcore.id("block/phoenix_enriched_tritanium_casing"),
-                            GTCEu.id("block/multiblock/fusion_reactor"))
+                            GTCEu.id("block/casings/solid/machine_casing_clean_stainless_steel"),
+                            GTCEu.id("block/multiblock/implosion_compressor"))
                             .andThen(b -> b.addDynamicRenderer(DynamicRenderHelper::makeRecipeFluidAreaRender)))
             .hasBER(true)
             .register();
