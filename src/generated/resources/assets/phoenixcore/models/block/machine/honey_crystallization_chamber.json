@@ -12,16 +12,16 @@
   "loader": "gtceu:machine",
   "machine": "phoenixcore:honey_crystallization_chamber",
   "texture_overrides": {
-    "all": "phoenixcore:block/phoenix_enriched_tritanium_casing"
+    "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel"
   },
   "variants": {
     "is_formed=false,recipe_logic_status=idle": {
       "model": {
         "parent": "gtceu:block/machine/template/cube_all/sided",
         "textures": {
-          "all": "phoenixcore:block/phoenix_enriched_tritanium_casing",
-          "overlay_front": "gtceu:block/multiblock/fusion_reactor/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/fusion_reactor/overlay_front_emissive"
+          "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel",
+          "overlay_front": "gtceu:block/multiblock/implosion_compressor/overlay_front",
+          "overlay_front_emissive": "gtceu:block/multiblock/implosion_compressor/overlay_front_emissive"
         }
       }
     },
@@ -29,9 +29,9 @@
       "model": {
         "parent": "gtceu:block/machine/template/cube_all/sided",
         "textures": {
-          "all": "phoenixcore:block/phoenix_enriched_tritanium_casing",
-          "overlay_front": "gtceu:block/multiblock/fusion_reactor/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/fusion_reactor/overlay_front_emissive"
+          "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel",
+          "overlay_front": "gtceu:block/multiblock/implosion_compressor/overlay_front_paused",
+          "overlay_front_emissive": "gtceu:block/multiblock/implosion_compressor/overlay_front_paused_emissive"
         }
       }
     },
@@ -39,9 +39,9 @@
       "model": {
         "parent": "gtceu:block/machine/template/cube_all/sided",
         "textures": {
-          "all": "phoenixcore:block/phoenix_enriched_tritanium_casing",
-          "overlay_front": "gtceu:block/multiblock/fusion_reactor/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/fusion_reactor/overlay_front_active_emissive"
+          "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel",
+          "overlay_front": "gtceu:block/multiblock/implosion_compressor/overlay_front_active",
+          "overlay_front_emissive": "gtceu:block/multiblock/implosion_compressor/overlay_front_active_emissive"
         }
       }
     },
@@ -49,9 +49,9 @@
       "model": {
         "parent": "gtceu:block/machine/template/cube_all/sided",
         "textures": {
-          "all": "phoenixcore:block/phoenix_enriched_tritanium_casing",
-          "overlay_front": "gtceu:block/multiblock/fusion_reactor/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/fusion_reactor/overlay_front_active_emissive"
+          "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel",
+          "overlay_front": "gtceu:block/multiblock/implosion_compressor/overlay_front_active",
+          "overlay_front_emissive": "gtceu:block/multiblock/implosion_compressor/overlay_front_active_emissive"
         }
       }
     },
@@ -59,9 +59,9 @@
       "model": {
         "parent": "gtceu:block/machine/template/cube_all/sided",
         "textures": {
-          "all": "phoenixcore:block/phoenix_enriched_tritanium_casing",
-          "overlay_front": "gtceu:block/multiblock/fusion_reactor/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/fusion_reactor/overlay_front_emissive"
+          "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel",
+          "overlay_front": "gtceu:block/multiblock/implosion_compressor/overlay_front",
+          "overlay_front_emissive": "gtceu:block/multiblock/implosion_compressor/overlay_front_emissive"
         }
       }
     },
@@ -69,9 +69,9 @@
       "model": {
         "parent": "gtceu:block/machine/template/cube_all/sided",
         "textures": {
-          "all": "phoenixcore:block/phoenix_enriched_tritanium_casing",
-          "overlay_front": "gtceu:block/multiblock/fusion_reactor/overlay_front",
-          "overlay_front_emissive": "gtceu:block/multiblock/fusion_reactor/overlay_front_emissive"
+          "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel",
+          "overlay_front": "gtceu:block/multiblock/implosion_compressor/overlay_front_paused",
+          "overlay_front_emissive": "gtceu:block/multiblock/implosion_compressor/overlay_front_paused_emissive"
         }
       }
     },
@@ -79,9 +79,9 @@
       "model": {
         "parent": "gtceu:block/machine/template/cube_all/sided",
         "textures": {
-          "all": "phoenixcore:block/phoenix_enriched_tritanium_casing",
-          "overlay_front": "gtceu:block/multiblock/fusion_reactor/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/fusion_reactor/overlay_front_active_emissive"
+          "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel",
+          "overlay_front": "gtceu:block/multiblock/implosion_compressor/overlay_front_active",
+          "overlay_front_emissive": "gtceu:block/multiblock/implosion_compressor/overlay_front_active_emissive"
         }
       }
     },
@@ -89,9 +89,9 @@
       "model": {
         "parent": "gtceu:block/machine/template/cube_all/sided",
         "textures": {
-          "all": "phoenixcore:block/phoenix_enriched_tritanium_casing",
-          "overlay_front": "gtceu:block/multiblock/fusion_reactor/overlay_front_active",
-          "overlay_front_emissive": "gtceu:block/multiblock/fusion_reactor/overlay_front_active_emissive"
+          "all": "gtceu:block/casings/solid/machine_casing_clean_stainless_steel",
+          "overlay_front": "gtceu:block/multiblock/implosion_compressor/overlay_front_active",
+          "overlay_front_emissive": "gtceu:block/multiblock/implosion_compressor/overlay_front_active_emissive"
         }
       }
     }

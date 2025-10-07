@@ -88,23 +88,42 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
     public Set<BlockPos> saveOffsets() {
         Direction up = RelativeDirection.UP.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
         Direction back = getFrontFacing().getOpposite();
-        BlockPos pos = getPos();
+        Direction right = RelativeDirection.RIGHT.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
+
+        BlockPos pos = getPos(); // Controller position
 
         Set<BlockPos> offsets = new HashSet<>();
 
-        // Example: 4 separate honey tanks at different corners
-        BlockPos center = pos.relative(back);
+        // 1. Define a STARTING POINT (e.g., the front-left-bottom corner of the render area)
 
-        // Each region could be a small stack or cluster
-        List<BlockPos> basePositions = List.of(
-                center.offset(-2, 0, -1),
-                center.offset(2, 0, -1),
-                center.offset(-2, 0, 1),
-                center.offset(2, 0, 1));
+        // Start 2 blocks down (relative(up, -2))
+        // Start 3 blocks back (relative(back, 3))
+        // Start 2 blocks to the left (relative(right.getOpposite(), 2))
+        BlockPos startPos = pos
+                .relative(up, -1)
+                .relative(back, 3)
+                .relative(right.getOpposite(), 2);
 
-        for (BlockPos base : basePositions) {
-            for (int i = 0; i < 2; i++) { // each is 2 blocks tall
-                offsets.add(base.relative(up, i).subtract(pos));
+        // 2. Loop to build the 5x5x1 volume
+        int width = 5;  // 5 blocks wide (X axis relative to the machine)
+        int depth = 5;  // 5 blocks deep (Z axis relative to the machine)
+        int height = 1; // 1 block high (Y axis)
+
+        // Use loop counters (dx, dz, dy) to step away from the starting point
+        for (int dx = 0; dx < width; dx++) {
+            for (int dz = 0; dz < depth; dz++) {
+                for (int dy = 0; dy < height; dy++) {
+
+                    // Calculate the position relative to the startPos
+                    BlockPos currentPos = startPos.offset(
+                            right.getStepX() * dx + back.getStepX() * dz,
+                            up.getStepY() * dy,
+                            right.getStepZ() * dx + back.getStepZ() * dz
+                    );
+
+                    // 3. Add the relative position (offset) to the set
+                    offsets.add(currentPos.subtract(pos));
+                }
             }
         }
 
