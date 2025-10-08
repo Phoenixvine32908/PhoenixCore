@@ -74,6 +74,7 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
+        fluidBlockOffsets = saveOffsets();
         IFluidRenderMulti.super.onStructureFormed();
     }
 
