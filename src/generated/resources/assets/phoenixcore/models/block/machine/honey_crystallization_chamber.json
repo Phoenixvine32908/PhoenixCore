@@ -2,11 +2,7 @@
   "parent": "minecraft:block/block",
   "dynamic_renders": [
     {
-      "type": "gtceu:fluid_area",
-      "block_light": 15,
-      "offset_face": -0.125,
-      "overwrite_light": true,
-      "sky_light": 15
+      "type": "phoenixcore:custom_fluid"
     }
   ],
   "loader": "gtceu:machine",

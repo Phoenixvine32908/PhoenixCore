@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.phoenix.core.client.renderer.machine.ArtificialStarRender;
+import net.phoenix.core.client.renderer.machine.CustomFluidRender;
 import net.phoenix.core.client.renderer.machine.EyeOfHarmonyRender;
 import net.phoenix.core.client.renderer.machine.PlasmaArcFurnaceRender;
 import net.phoenix.core.common.block.PhoenixBlocks;
@@ -27,6 +28,7 @@ public class PhoenixClient {
         DynamicRenderManager.register(phoenixcore.id("eye_of_harmony"), EyeOfHarmonyRender.TYPE);
         DynamicRenderManager.register(phoenixcore.id("artificial_star"), ArtificialStarRender.TYPE);
         DynamicRenderManager.register(phoenixcore.id("plasma_arc_furnace"), PlasmaArcFurnaceRender.TYPE);
+        DynamicRenderManager.register(phoenixcore.id("custom_fluid"), CustomFluidRender.TYPE);
     }
 
     @SubscribeEvent

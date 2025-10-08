@@ -7,8 +7,6 @@ import com.gregtechceu.gtceu.common.data.GTSoundEntries;
 
 import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture;
 
-import net.phoenix.core.api.capability.SourceRecipeCapability;
-
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.*;
 
 public class PhoenixRecipeTypes {

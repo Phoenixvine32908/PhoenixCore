@@ -74,6 +74,7 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
+        fluidBlockOffsets = saveOffsets();
         IFluidRenderMulti.super.onStructureFormed();
     }
 
@@ -118,8 +119,7 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
                     BlockPos currentPos = startPos.offset(
                             right.getStepX() * dx + back.getStepX() * dz,
                             up.getStepY() * dy,
-                            right.getStepZ() * dx + back.getStepZ() * dz
-                    );
+                            right.getStepZ() * dx + back.getStepZ() * dz);
 
                     // 3. Add the relative position (offset) to the set
                     offsets.add(currentPos.subtract(pos));
