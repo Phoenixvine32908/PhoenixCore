@@ -20,7 +20,13 @@ public class PhoenixItems {
             .lang("LuV Power Unit")
             .properties(p -> p.stacksTo(8))
             .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/power_unit_luv")))
-            .onRegister((c) -> c.attachComponents(ElectricStats.createElectricItem(25600000L, GTValues.LuV)))
+            .onRegister((c) -> c.attachComponents(ElectricStats.createElectricItem(102400000L, GTValues.LuV)))
+            .register();
+    public static ItemEntry<ComponentItem> POWER_UNIT_ZPM = REGISTRATE.item("zpm_power_unit", ComponentItem::create)
+            .lang("ZPM Power Unit")
+            .properties(p -> p.stacksTo(8))
+            .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/power_unit_zpm")))
+            .onRegister((c) -> c.attachComponents(ElectricStats.createElectricItem(409600000L, GTValues.ZPM)))
             .register();
     public static ItemEntry<Item> basic_fuel_rod = REGISTRATE
             .item("basic_fuel_rod", Item::new)

@@ -81,17 +81,53 @@ public class PhoenixMaterials {
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
             ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);
 
-            if (toolProperty != null && toolProperty.hasType(GTToolType.SCREWDRIVER)) {
+            if (toolProperty != null && toolProperty.hasType(GTToolType.SCREWDRIVER_LV)) {
                 toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_MV);
+                toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_HV);
                 toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_EV);
+                toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_IV);
+                toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_LuV);
+                toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_ZPM);
             }
-        }
-        for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
-            ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);
+
+            if (toolProperty != null && toolProperty.hasType(GTToolType.BUZZSAW)) {
+                toolProperty.addTypes(PhoenixToolType.BUZZSAW_MV);
+                toolProperty.addTypes(PhoenixToolType.BUZZSAW_HV);
+                toolProperty.addTypes(PhoenixToolType.BUZZSAW_EV);
+                toolProperty.addTypes(PhoenixToolType.BUZZSAW_IV);
+                toolProperty.addTypes(PhoenixToolType.BUZZSAW_LuV);
+                toolProperty.addTypes(PhoenixToolType.BUZZSAW_ZPM);
+            }
+
+            if (toolProperty != null && toolProperty.hasType(GTToolType.CHAINSAW_LV)) {
+                toolProperty.addTypes(PhoenixToolType.CHAINSAW_MV);
+                toolProperty.addTypes(PhoenixToolType.CHAINSAW_HV);
+                toolProperty.addTypes(PhoenixToolType.CHAINSAW_EV);
+                toolProperty.addTypes(PhoenixToolType.CHAINSAW_IV);
+                toolProperty.addTypes(PhoenixToolType.CHAINSAW_LuV);
+                toolProperty.addTypes(PhoenixToolType.CHAINSAW_ZPM);
+            }
+            
+            if (toolProperty != null && toolProperty.hasType(GTToolType.WIRE_CUTTER_LV)) {
+                toolProperty.addTypes(PhoenixToolType.WIRE_CUTTER_MV);
+                toolProperty.addTypes(PhoenixToolType.WIRE_CUTTER_EV);
+                toolProperty.addTypes(PhoenixToolType.WIRE_CUTTER_LuV);
+                toolProperty.addTypes(PhoenixToolType.WIRE_CUTTER_ZPM);
+            }
+
+            if (toolProperty != null && toolProperty.hasType(GTToolType.WRENCH_LV)) {
+                toolProperty.addTypes(PhoenixToolType.WRENCH_MV);
+                toolProperty.addTypes(PhoenixToolType.WRENCH_EV);
+                toolProperty.addTypes(PhoenixToolType.WRENCH_LuV);
+                toolProperty.addTypes(PhoenixToolType.WRENCH_ZPM);
+            }
 
             if (toolProperty != null && toolProperty.hasType(GTToolType.DRILL_LV)) {
-                toolProperty.addTypes(PhoenixToolType.DRILL_LUV);
+                toolProperty.addTypes(PhoenixToolType.DRILL_LUV, PhoenixToolType.DRILL_ZPM);
             }
+
         }
+
+
     }
 }

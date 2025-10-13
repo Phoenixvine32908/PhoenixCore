@@ -62,7 +62,7 @@ public final class PhoenixToolRecipes {
         batteryItems.put(GTValues.LuV, List.of(
                 GTItems.ENERGY_LAPOTRONIC_ORB_CLUSTER));
 
-        // Register your LuV Power Unit
+
         powerUnitItems.put(GTValues.LuV, PhoenixItems.POWER_UNIT_LUV);
     }
 

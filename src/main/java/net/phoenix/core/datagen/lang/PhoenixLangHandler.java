@@ -31,9 +31,36 @@ public class PhoenixLangHandler {
                 "An upgraded HPCA that uses %s, %s, or %s to provide cooling");
         provider.add("phoenixcore.tooltip.requires_fluid", "Needs: %s");
         provider.add("tagprefix.nanites", "%s Nanites");
-        provider.add("item.gtceu.tool.ev_screwdriver", "%s Screwdriver (EV)");
-        provider.add("item.gtceu.tool.luv_drill", "%s Drill (LuV}");
-        provider.add("item.gtceu.tool.mv_screwdriver", "%s Screwdriver (MV)");
+        provider.add("item.gtceu.tool.ev_screwdriver", "%s Electric Screwdriver (EV)");
+        provider.add("item.gtceu.tool.mv_screwdriver", "%s Electric Screwdriver (MV)");
+        provider.add("item.gtceu.tool.luv_screwdriver", "%s Electric Screwdriver (LuV)");
+        provider.add("item.gtceu.tool.zpm_screwdriver", "%s Electric Screwdriver (ZPM)");
+        provider.add("item.gtceu.tool.mv_chainsaw", "%s Chainsaw (MV)");
+        provider.add("item.gtceu.tool.hv_chainsaw", "%s Chainsaw (HV)");
+        provider.add("item.gtceu.tool.ev_chainsaw", "%s Chainsaw (EV)");
+        provider.add("item.gtceu.tool.iv_chainsaw", "%s Chainsaw (IV)");
+        provider.add("item.gtceu.tool.luv_chainsaw", "%s Chainsaw (LuV)");
+        provider.add("item.gtceu.tool.zpm_chainsaw", "%s Chainsaw (ZPM)");
+
+        provider.add("item.gtceu.tool.mv_buzzsaw", "%s Buzzsaw (MV)");
+        provider.add("item.gtceu.tool.hv_buzzsaw", "%s Buzzsaw (HV)");
+        provider.add("item.gtceu.tool.ev_buzzsaw", "%s Buzzsaw (EV)");
+        provider.add("item.gtceu.tool.iv_buzzsaw", "%s Buzzsaw (IV)");
+        provider.add("item.gtceu.tool.luv_buzzsaw", "%s Buzzsaw (LuV)");
+        provider.add("item.gtceu.tool.zpm_buzzsaw", "%s Buzzsaw (ZPM)");
+
+        provider.add("item.gtceu.tool.mv_wrench", "%s Wrench (MV)");
+        provider.add("item.gtceu.tool.ev_wrench", "%s Wrench (EV)");
+        provider.add("item.gtceu.tool.luv_wrench", "%s Wrench (LuV)");
+        provider.add("item.gtceu.tool.zpm_wrench", "%s Wrench (ZPM)");
+
+        provider.add("item.gtceu.tool.mv_wire_cutters", "%s Wire Cutters (MV)");
+        provider.add("item.gtceu.tool.ev_wire_cutters", "%s Wire Cutters (EV)");
+        provider.add("item.gtceu.tool.luv_wire_cutters", "%s Wire Cutters (LuV)");
+        provider.add("item.gtceu.tool.zpm_wire_cutters", "%s Wire Cutters (ZPM)");
+
+        provider.add("item.gtceu.tool.luv_drill", "%s Drill (LuV)");
+        provider.add("item.gtceu.tool.zpm_drill", "%s Drill (ZPM)");
         provider.add("material.phoenixcore.phoenix_enriched_tritanium", "§cPhoenix Enriched Tritanium");
         provider.add("material.phoenixcore.extremely_modified_space_grade_steel",
                 "§cExtremely Modified Space Grade Steel");
