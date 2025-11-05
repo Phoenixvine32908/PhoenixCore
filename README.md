@@ -1,7 +1,7 @@
 # CoreMod for the Phoenix Forge Technologies modpack
 # Seeks to add whacky and cool features to spicen up gameplay
 
-Contributions are welcome here and in Phoenix Forge Technologies[PFT Github][https://github.com/Phoenixvine32908/Phoenix-Forge-Technologies]
+Contributions are welcome here and in Phoenix Forge Technologies(PFT Github)[https://github.com/Phoenixvine32908/Phoenix-Forge-Technologies]
 
 Most assets and code are licensed under LPGL 3.0 as I use code/assets from other wonderful creators
 
