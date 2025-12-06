@@ -168,7 +168,7 @@ public class PhoenixMachineRecipes {
                 .inputFluids(Acetone.getFluid(16))
                 .duration(600)
                 .EUt(-LV).duration(400)
-                .addData("required_cooling", 3000)
+                .addData("required_cooling", 12000)
                 .outputFluids(SodiumPotassium.getFluid(16))
                 .save(provider);
     }
