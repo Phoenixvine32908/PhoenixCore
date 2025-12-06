@@ -27,6 +27,12 @@ public class PhoenixLangHandler {
         provider.add("phoenix.fission.summary", "Cooling Provided: %s / %s");
         provider.add("emi_info.phoenixcore.required_cooling", "Required Cooling: %s");
 
+        provider.add("jade.phoenixcore.fission_safe", "Status: SAFE");
+        provider.add("jade.phoenixcore.fission_meltdown_timer", "Meltdown in %s seconds");
+        provider.add("jade.phoenixcore.fission_no_coolant", "Coolant Tanks EMPTY");
+        provider.add("jade.phoenixcore.fission_low_cooling", "Insufficient Cooling Power");
+        provider.add("config.jade.plugin_phoenixcore.fission_machine_info", "Fission Machine Info");
+
         provider.add("phoenix.fission.status.safe_idle", "SAFE (Idle)");
         provider.add("phoenix.fission.status.safe_working", "SAFE (Working)");
         provider.add("phoenix.fission.status.danger_timer", "DANGER: Meltdown in %s seconds!");

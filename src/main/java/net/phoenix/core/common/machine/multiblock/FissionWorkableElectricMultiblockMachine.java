@@ -13,6 +13,7 @@ import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
+import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fluids.FluidStack;
@@ -43,10 +44,10 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
     private IFissionModeratorType activeModerator = FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE;
 
-    private int lastRequiredCooling = 0;
-    private int lastProvidedCooling = 0;
+    public int lastRequiredCooling = 0;
+    public int lastProvidedCooling = 0;
 
-    private boolean lastHasCoolant = true;
+    public boolean lastHasCoolant = true;
 
     public FissionWorkableElectricMultiblockMachine(IMachineBlockEntity holder) {
         super(holder);
