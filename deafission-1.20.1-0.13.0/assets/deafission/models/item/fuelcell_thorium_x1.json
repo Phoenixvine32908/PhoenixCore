@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "deafission:item/fuelcell_thorium_x1"
+  }
+}

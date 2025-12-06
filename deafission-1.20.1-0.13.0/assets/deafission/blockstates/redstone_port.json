@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "deafission:block/machine/redstone_port"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fission_loop": {
+    "sounds": [
+      {
+        "name": "deafission:fission_loop",
+        "stream": false
+      }
+    ],
+    "subtitle": "deafission.subtitles.reactor_loop"
+  }
+}

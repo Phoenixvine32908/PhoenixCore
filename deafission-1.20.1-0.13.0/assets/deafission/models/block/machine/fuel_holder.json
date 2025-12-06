@@ -1,0 +1,22 @@
+{
+  "parent": "minecraft:block/block",
+  "loader": "gtceu:machine",
+  "machine": "deafission:fuel_holder",
+  "variants": {
+    "rods=0": {
+      "model": "deafission:block/machine/fuel_holder/0"
+    },
+    "rods=1": {
+      "model": "deafission:block/machine/fuel_holder/1"
+    },
+    "rods=2": {
+      "model": "deafission:block/machine/fuel_holder/2"
+    },
+    "rods=3": {
+      "model": "deafission:block/machine/fuel_holder/3"
+    },
+    "rods=4": {
+      "model": "deafission:block/machine/fuel_holder/4"
+    }
+  }
+}

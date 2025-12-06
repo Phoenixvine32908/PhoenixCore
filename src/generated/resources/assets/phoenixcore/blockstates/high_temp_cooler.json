@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "phoenixcore:block/high_temp_cooler"
+    },
+    "active=true": {
+      "model": "phoenixcore:block/high_temp_cooler_active"
+    }
+  }
+}

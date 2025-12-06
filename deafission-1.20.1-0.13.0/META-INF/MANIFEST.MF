@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: deafission
+Specification-Vendor: Vazde
+Specification-Version: 1
+Implementation-Title: mod
+Implementation-Version: 1.20.1-0.13.0
+Implementation-Vendor: Vazde
+Implementation-Timestamp: 2025-10-23T19:47:22+0300
+

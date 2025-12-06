@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:block/block",
+  "loader": "gtceu:machine",
+  "machine": "deafission:redstone_port",
+  "variants": {
+    "": {
+      "model": "deafission:block/machine/redstone_port/default"
+    }
+  }
+}
