@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "deafission:item/fuelcell_uranium_x4"
-  }
-}
