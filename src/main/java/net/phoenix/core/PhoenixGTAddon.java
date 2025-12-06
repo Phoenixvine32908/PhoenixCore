@@ -8,9 +8,13 @@ import com.gregtechceu.gtceu.integration.kjs.recipe.components.ContentJS;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
+import net.phoenix.core.common.data.PhoenixCovers;
 import net.phoenix.core.common.data.PhoenixMachineRecipes;
 import net.phoenix.core.common.data.PhoenixToolRecipes;
+import net.phoenix.core.common.data.bees.BeeRecipeData;
 import net.phoenix.core.common.data.materials.PhoenixElements;
+import net.phoenix.core.common.data.recipe.generated.CrystalRoseAssemblerGenerator;
+import net.phoenix.core.common.data.recipe.generated.PhoenixBeeRecipeGenerator;
 import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.integration.kubejs.recipe.ShieldComponent;
 
@@ -29,7 +33,9 @@ public class PhoenixGTAddon implements IGTAddon {
     }
 
     @Override
-    public void initializeAddon() {}
+    public void initializeAddon() {
+        PhoenixCovers.init();
+    }
 
     @Override
     public String addonModId() {
@@ -44,7 +50,10 @@ public class PhoenixGTAddon implements IGTAddon {
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
         PhoenixMachineRecipes.init(provider);
+        BeeRecipeData.init();
         PhoenixToolRecipes.init(provider);
+        PhoenixBeeRecipeGenerator.loadBeeRecipes(provider);
+        CrystalRoseAssemblerGenerator.generateCrystalRoseRecipes(provider);
     }
 
     @Override

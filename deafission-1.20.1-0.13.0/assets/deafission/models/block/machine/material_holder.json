@@ -1,0 +1,13 @@
+{
+  "parent": "minecraft:block/block",
+  "loader": "gtceu:machine",
+  "machine": "deafission:material_holder",
+  "variants": {
+    "items=0": {
+      "model": "deafission:block/machine/material_holder/0"
+    },
+    "items=1": {
+      "model": "deafission:block/machine/material_holder/1"
+    }
+  }
+}

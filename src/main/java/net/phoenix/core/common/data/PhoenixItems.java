@@ -20,7 +20,13 @@ public class PhoenixItems {
             .lang("LuV Power Unit")
             .properties(p -> p.stacksTo(8))
             .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/power_unit_luv")))
-            .onRegister((c) -> c.attachComponents(ElectricStats.createElectricItem(25600000L, GTValues.LuV)))
+            .onRegister((c) -> c.attachComponents(ElectricStats.createElectricItem(102400000L, GTValues.LuV)))
+            .register();
+    public static ItemEntry<ComponentItem> POWER_UNIT_ZPM = REGISTRATE.item("zpm_power_unit", ComponentItem::create)
+            .lang("ZPM Power Unit")
+            .properties(p -> p.stacksTo(8))
+            .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/power_unit_zpm")))
+            .onRegister((c) -> c.attachComponents(ElectricStats.createElectricItem(409600000L, GTValues.ZPM)))
             .register();
     public static ItemEntry<Item> basic_fuel_rod = REGISTRATE
             .item("basic_fuel_rod", Item::new)
@@ -29,6 +35,32 @@ public class PhoenixItems {
                         .texture("layer0", prov.modLoc("item/" + ctx.getName()));
             })
             .register();
+    private static final int UHV_RELATIVE_INDEX = GTValues.UHV - PhoenixCovers.START_TIER;
+
+    /*
+     * public static ItemEntry<ComponentItem> COVER_SOLAR_PANEL_UHV = REGISTRATE
+     * .item("uhv_solar_panel", ComponentItem::create).lang("Ultra High Voltage Solar Panel")
+     * .properties(p -> p.stacksTo(64)) // Added property for stacksTo
+     * // 🚨 FIX HERE: Attach the CoverPlaceBehavior component using the lambda
+     * .onRegister((c) -> c.attachComponents(
+     * new CoverPlaceBehavior(PhoenixCovers.SOLAR_PANEL_TIERED[UHV_RELATIVE_INDEX]),
+     * new TooltipBehavior(lines -> {
+     * lines.addAll(LangHandler.getMultiLang("item.gtceu.solar_panel.tooltip"));
+     * lines.add(Component.translatable("gtceu.universal.tooltip.voltage_out", GTValues.V[GTValues.UHV],
+     * GTValues.VNF[GTValues.UHV]));
+     * })
+     * ))
+     * .register();
+     */
+    /*
+     * public static ItemEntry<ComponentItem> ENERGY_LAPOTRONIC_ORB = REGISTRATE
+     * .item("lapotronic_energy_orb", ComponentItem::create)
+     * .lang("Lapotronic Energy Orb")
+     * .model(overrideModel(GTCEu.id("battery"), 8))
+     * .onRegister(modelPredicate(GTCEu.id("battery"), ElectricStats::getStoredPredicate))
+     * .onRegister(attach(ElectricStats.createRechargeableBattery(250_000_000L, GTValues.IV)))
+     * .tag(CustomTags.IV_BATTERIES).register();
+     */
 
     public static void init() {}
 }

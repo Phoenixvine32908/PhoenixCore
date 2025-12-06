@@ -1,6 +1,10 @@
 {
   "values": [
     "phoenixcore:true_heat_stable_coil_block",
+    "phoenixcore:heat_stable_cooler",
+    "phoenixcore:high_temp_cooler",
+    "phoenixcore:graphite_moderator",
+    "phoenixcore:beryllium_moderator",
     "phoenixcore:blazing_filter_casing"
   ]
 }
