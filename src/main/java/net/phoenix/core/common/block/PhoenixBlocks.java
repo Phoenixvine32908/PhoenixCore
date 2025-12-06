@@ -12,7 +12,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.phoenix.core.PhoenixAPI;
+import net.phoenix.core.api.block.IFissionCoolerType;
+import net.phoenix.core.api.block.IFissionModeratorType;
 import net.phoenix.core.configs.PhoenixConfigs;
+import net.phoenix.core.datagen.models.PhoenixMachineModels;
 import net.phoenix.core.phoenixcore;
 
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -42,6 +46,18 @@ public class PhoenixBlocks {
 
     public static final BlockEntry<CoilBlock> COIL_TRUE_HEAT_STABLE = createCoilBlock(
             PhoenixCoilBlock.CoilType.COIL_TRUE_HEAT_STABLE);
+
+    public static final BlockEntry<FissionCoolerBlock> COOLER_TRUE_HEAT_STABLE = createCoolerBlock(
+            FissionCoolerBlock.fissionCoolerType.COOLER_TRUE_HEAT_STABLE);
+
+    public static final BlockEntry<FissionCoolerBlock> COOLER_HIGH_TEMP = createCoolerBlock(
+            FissionCoolerBlock.fissionCoolerType.COOLER_HIGH_TEMP);
+
+    public static final BlockEntry<FissionModeratorBlock> MODERATOR_GRAPHITE = createModeratorBlock(
+            FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE);
+
+    public static final BlockEntry<FissionModeratorBlock> MODERATOR_BERYLLIUM = createModeratorBlock(
+            FissionModeratorBlock.fissionModeratorType.MODERATOR_BERYLLIUM);
 
     public static BlockEntry<Block> PHOENIX_ENRICHED_TRITANIUM_CASING = registerSimpleBlock(
             "§6Extremely Heat-Stable Casing", "phoenix_enriched_tritanium_casing",
@@ -88,6 +104,15 @@ public class PhoenixBlocks {
     public static BlockEntry<Block> PHOENIX_HEART_CASING = registerSimpleBlock(
             "§cPhoenix Heart Casing", "phoenix_heart_casing",
             "phoenix_heart_casing", BlockItem::new);
+    public static BlockEntry<Block> FISSILE_HEAT_SAFE_CASING = registerSimpleBlock(
+            "§bFissile Heat Safe Casing", "fissile_heat_safe_casing",
+            "fissile_heat_safe_casing", BlockItem::new);
+    public static BlockEntry<Block> FISSILE_REACTION_SAFE_CASING = registerSimpleBlock(
+            "§bFissile Reaction Safe Casing", "fissile_reaction_safe_casing",
+            "fissile_reaction_safe_casing", BlockItem::new);
+    public static BlockEntry<Block> FISSILE_SAFE_GEARBOX_CASING = registerSimpleBlock(
+            "§bFissile Safe Gearbox", "fissile_safe_gearbox_casing",
+            "fissile_safe_gearbox", BlockItem::new);
 
     static {
         if (PhoenixConfigs.INSTANCE.features.blazingCleanroomEnabled) {
@@ -122,5 +147,37 @@ public class PhoenixBlocks {
                 .register();
         GTCEuAPI.HEATING_COILS.put(coilType, coilBlock);
         return coilBlock;
+    }
+
+    private static BlockEntry<FissionModeratorBlock> createModeratorBlock(IFissionModeratorType type) {
+        var moderator = REGISTRATE
+                .block("%s".formatted(type.getName()),
+                        p -> new FissionModeratorBlock(p, type))
+                .initialProperties(() -> Blocks.IRON_BLOCK)
+                .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false))
+                .blockstate(PhoenixMachineModels.createFissionModeratorModel(type))
+                .tag(CustomTags.MINEABLE_WITH_CONFIG_VALID_PICKAXE_WRENCH)
+                .item(BlockItem::new)
+                .build()
+                .register();
+
+        PhoenixAPI.FISSION_MODERATORS.put(type, moderator);
+        return moderator;
+    }
+
+    private static BlockEntry<FissionCoolerBlock> createCoolerBlock(IFissionCoolerType type) {
+        var cooler = REGISTRATE
+                .block("%s".formatted(type.getName()),
+                        p -> new FissionCoolerBlock(p, type))
+                .initialProperties(() -> Blocks.IRON_BLOCK)
+                .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false))
+                .blockstate(PhoenixMachineModels.createActiveCoolerModel(type))
+                .tag(CustomTags.MINEABLE_WITH_CONFIG_VALID_PICKAXE_WRENCH)
+                .item(BlockItem::new)
+                .build()
+                .register();
+
+        PhoenixAPI.FISSION_COOLERS.put(type, cooler);
+        return cooler;
     }
 }

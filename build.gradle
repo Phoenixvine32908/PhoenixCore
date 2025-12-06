@@ -1,31 +1,56 @@
+
+import net.neoforged.moddevgradle.legacyforge.tasks.RemapJar
 plugins {
+
     id "idea"
     id "eclipse"
     id "maven-publish"
     id 'net.neoforged.moddev.legacyforge' version '2.0.91'
     id 'com.diffplug.spotless' version '7.0.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+
 }
+
+
+
+configurations {
+    // Defines a new configuration called 'shadow'
+    shadow {
+        // Dependencies added to 'shadow' will also be used for compilation
+        extendsFrom implementation
+    }
+}
+
 
 def generatedResources = file("src/generated")
 
+
 sourceSets {
+
     main.resources {
+
         srcDir 'src/main/resources'
         srcDir 'src/generated/resources'
+
     }
+
 }
+
 repositories {
+
     mavenLocal()
     mavenCentral()
-    maven {
+    maven { //GTM maven
         name = 'GTCEu Maven'
         url = 'https://maven.gtceu.com'
         content {
             includeGroup 'com.gregtechceu.gtceu'
+            includeGroup 'appeng'
+
         }
     }
     maven {
-        // 'Ars'
+// 'Ars'
         url 'https://maven.blamejared.com'
     }
 
@@ -34,19 +59,18 @@ repositories {
         url "https://maven.firstdarkdev.xyz/snapshots/"
     }
     maven {
-
-        // latvian.dev Maven (KubeJS and Rhino)
+// latvian.dev Maven (KubeJS and Rhino)
         url = "https://maven.latvian.dev/releases"
     }
     maven { // Registrate
         url = "https://maven.tterrag.com/"
         content {
-            // need to be specific here due to version overlaps
+// need to be specific here due to version overlaps
             includeGroup("com.tterrag.registrate")
         }
     }
     maven {
-        // Patchouli, JEI
+// Patchouli, JEI
         name = "BlameJared"
         url = "https://maven.blamejared.com/"
     }
@@ -54,14 +78,14 @@ repositories {
         url = "https://maven.theillusivec4.top/"
     }
     maven {
-        // Curse Forge File
+// Curse Forge File
         url "https://cursemaven.com/"
         content {
             includeGroup "curse.maven"
         }
     }
     maven {
-        // EMI
+// EMI
         name = "TerraformersMC"
         url = "https://maven.terraformersmc.com/"
     }
@@ -73,32 +97,26 @@ repositories {
         url = "https://thedarkcolour.github.io/KotlinForForge/"
     }
     maven {
-        // 'Curios'
+// 'Curios'
         url "https://maven.blamejared.com"
     }
     maven {
-        // Geckolib
+// Geckolib
         url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
     }
     maven {
         name = "ftbMavenReleases"
         url = uri("https://maven.ftb.dev/releases")
     }
-    maven {
-        name "Modmaven"
-        url "https://modmaven.dev/"
-        // For Gradle 5.1 and above, limit it to just AE2
-        content {
-            includeGroup 'appeng'
-        }
-    }
 }
+
 
 version = mod_version
 group = maven_group
 base { archivesName = archives_base_name }
 java { sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17 }
 sourceSets.main.resources { srcDir 'src/generated/resources' }
+
 
 legacyForge {
     version = project.minecraft_version + '-' + project.forge_version
@@ -110,16 +128,16 @@ legacyForge {
 
     runs {
         configureEach {
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
+// Recommended logging data for a userdev environment
+// The markers can be added/remove as needed separated by commas.
+// "SCAN": For mods scan.
+// "REGISTRIES": For firing of registry events.
+// "REGISTRYDUMP": For getting the contents of all registries.
             systemProperty 'forge.logging.markers', 'REGISTRIES'
 
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+// Recommended logging level for the console
+// You can set various levels here.
+// Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             logLevel = org.slf4j.event.Level.DEBUG
             sourceSet = sourceSets.main
         }
@@ -139,7 +157,7 @@ legacyForge {
             data()
 
 
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+// Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             programArguments.addAll('--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath())
             programArguments.addAll('--existing-mod', 'gtceu')
         }
@@ -147,15 +165,16 @@ legacyForge {
 
 
     mods {
-        // define mod <-> source bindings
-        // these are used to tell the game which sources are for which mod
-        // mostly optional in a single mod project
-        // but multi mod projects should define one per mod
+// define mod <-> source bindings
+// these are used to tell the game which sources are for which mod
+// mostly optional in a single mod project
+// but multi mod projects should define one per mod
         "${mod_id}" {
             sourceSet(sourceSets.main)
         }
     }
 }
+
 
 jar {
     manifest.attributes([
@@ -164,28 +183,32 @@ jar {
 }
 
 mixin {
-    // MixinGradle Settings
+// MixinGradle Settings
     add sourceSets.main, 'mixins.phoenixcore.refmap.json'
     config 'phoenixcore.mixins.json'
 }
+
 apply from: "$rootDir/gradle/scripts/spotless.gradle"
+
 
 dependencies {
     compileOnly("org.jetbrains:annotations:26.0.1")
 
     annotationProcessor('org.spongepowered:mixin:0.8.5:processor')
 
-    // JEI, EMI, Jade
+// JEI, EMI, Jade
     modCompileOnly("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     modCompileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     modRuntimeOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
-    modRuntimeOnly("dev.emi:emi-forge:${emi_version}+${minecraft_version}")
+    modImplementation("dev.emi:emi-forge:${emi_version}+${minecraft_version}")
     modRuntimeOnly("curse.maven:jade-324717:5390389")
     modCompileOnly("curse.maven:jade-324717:5390389")
-    modCompileOnly "appeng:appliedenergistics2-forge:15.0.20"
-    modRuntimeOnly "appeng:appliedenergistics2-forge:15.0.20"
 
-    // GregTech and dependencies
+    jarJar("appeng:appliedenergistics2-forge:${ae2_version}")
+
+
+
+// GregTech and dependencies
     modImplementation "software.bernie.geckolib:geckolib-neoforge-1.20.1:${geckolib_version}"
     modImplementation "top.theillusivec4.curios:curios-forge:${curios_version}"
     modImplementation "com.hollingsworth.ars_nouveau:ars_nouveau-${minecraft_version}:${ars_nouveau_version}"
@@ -200,15 +223,18 @@ dependencies {
     modImplementation("dev.ftb.mods:ftb-teams-forge:${ftbteams_version}")
 
 
-    // lombok
+// lombok
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
 }
-configurations.all {
+
+configurations.configureEach {
     resolutionStrategy {
         cacheChangingModulesFor 0, 'seconds'
     }
 }
+
 tasks.named('processResources', ProcessResources).configure {
     var properties = [
             "mod_license": mod_license,
@@ -229,12 +255,37 @@ tasks.named('processResources', ProcessResources).configure {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-tasks.named('jar', Jar).configure { finalizedBy 'reobfJar' }
-tasks.withType(JavaCompile).configureEach {
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    // If Javadoc is generated, this must be specified in that task too.
-    options.encoding = "UTF-8"
-    options.release.set(17)
+// ----------------------------------------------------
+// FIX: Manually define the reobfuscation task for the shaded JAR
+// ----------------------------------------------------
+// --- Reobfuscate the shaded (Shadow) JAR using NeoForge's RemapJar task ---
+
+
+tasks.named('jar', Jar).configure {
+    // You should use a classifier for the un-shaded jar (e.g., 'slim')
+    archiveClassifier.set('slim')
+    // Existing manifest attributes...
+    finalizedBy 'reobfJar'
+}
+
+// Configuration for the Shadow plugin
+shadowJar {
+    // We use an empty classifier here to create an intermediate file name,
+    // which will be consumed by reobfShadowJar.
+    archiveClassifier.set('unreobf-shadow')
+    configurations = [project.configurations.shadow]
+
+    // CRITICAL: Relocate the package names
+    relocate 'appeng', "${project.maven_group}.relocated.ae2"
+
+    // This makes the reobfuscation step run immediately after shadowing
+    // The final artifact is produced by the manual task defined above
+    finalizedBy 'reobfShadowJar'
+}
+
+
+// Update the build task to depend on the final, reobfuscated, and shaded JAR
+tasks.named("build") {
+    // Ensure that the final product task is what the build relies on
+    dependsOn("spotlessApply")
 }

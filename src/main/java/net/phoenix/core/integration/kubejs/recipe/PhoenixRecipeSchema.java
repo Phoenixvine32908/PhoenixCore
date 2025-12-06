@@ -30,9 +30,6 @@ public interface PhoenixRecipeSchema {
         public GTRecipeSchema.GTRecipeJS requiredShieldState(String stateName) {
             Shield.ShieldTypes requiredType = Shield.ShieldTypes.valueOf(stateName.toUpperCase());
 
-            // FIX: Use the capability object directly.
-            // Argument 1: The RecipeCapability object (SHIELDTYPES)
-            // Argument 2: The value (requiredType)
             this.input(PhoenixRecipeCapabilities.SHIELDTYPES, requiredType);
             return this;
         }

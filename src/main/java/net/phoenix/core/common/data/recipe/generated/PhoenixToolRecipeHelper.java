@@ -37,7 +37,8 @@ public class PhoenixToolRecipeHelper {
     public static final Int2ReferenceMap<ItemEntry<? extends Item>> powerUnitItems = new Int2ReferenceArrayMap<>(
             GTValues.tiersBetween(GTValues.LV, GTValues.ZPM),
             new ItemEntry[] { GTItems.POWER_UNIT_LV, GTItems.POWER_UNIT_MV, GTItems.POWER_UNIT_HV,
-                    GTItems.POWER_UNIT_EV, GTItems.POWER_UNIT_IV, PhoenixItems.POWER_UNIT_LUV, PhoenixItems.POWER_UNIT_ZPM });
+                    GTItems.POWER_UNIT_EV, GTItems.POWER_UNIT_IV, PhoenixItems.POWER_UNIT_LUV,
+                    PhoenixItems.POWER_UNIT_ZPM });
 
     private PhoenixToolRecipeHelper() {}
 
@@ -82,9 +83,8 @@ public class PhoenixToolRecipeHelper {
                         material);
             }
 
-
             // drill
-               if (property.hasType(GTToolType.DRILL_LV)) {
+            if (property.hasType(GTToolType.DRILL_LV)) {
                 toolPrefix = TagPrefix.toolHeadDrill;
                 VanillaRecipeHelper.addShapedRecipe(provider, String.format("drill_head_%s", material.getName()),
                         ChemicalHelper.get(toolPrefix, material),
@@ -92,7 +92,8 @@ public class PhoenixToolRecipeHelper {
                         'X', plate,
                         'S', steelPlate);
 
-                addElectricToolRecipe(provider, toolPrefix, new GTToolType[] { PhoenixToolType.DRILL_LUV, PhoenixToolType.DRILL_ZPM }, material);
+                addElectricToolRecipe(provider, toolPrefix,
+                        new GTToolType[] { PhoenixToolType.DRILL_LUV, PhoenixToolType.DRILL_ZPM }, material);
             }
 
             // electric wire cutters
@@ -110,9 +111,6 @@ public class PhoenixToolRecipeHelper {
                         'R', steelRing,
                         'S', new MaterialEntry(screw, GTMaterials.Steel));
             }
-
-
-
 
             // buzzsaw
             if (property.hasType(GTToolType.BUZZSAW)) {
@@ -162,7 +160,6 @@ public class PhoenixToolRecipeHelper {
                         "fR", " h",
                         'R', new MaterialEntry(TagPrefix.rodLong, material));
             }
-
 
         }
     }

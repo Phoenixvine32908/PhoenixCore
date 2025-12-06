@@ -7,13 +7,14 @@ import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.phoenix.core.api.item.tool.PhoenixToolType;
 import net.phoenix.core.common.data.PhoenixMaterialRegistry;
+import net.phoenix.core.common.data.recipe.generated.CrystalRoseHelper;
 import net.phoenix.core.phoenixcore;
 
 import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
-import static net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH;
 
 public class PhoenixMaterials {
 
@@ -23,22 +24,13 @@ public class PhoenixMaterials {
     public static Material PHOENIX_ENRICHED_TRITANIUM;
     public static Material PHOENIX_ENRICHED_NAQUADAH;
     public static Material ALUMINFROST;
+    public static Material TEST_FLUID;
 
     public static void register() {
         ALUMINFROST = new Material.Builder(
                 phoenixcore.id("aluminfrost"))
                 .color(0xadd8e6).secondaryColor(0xc0c0c0).iconSet(MaterialIconSet.DULL)
                 .flags(MaterialFlags.GENERATE_PLATE)
-                .toolStats(ToolProperty.Builder.of(1.8F, 1.7F, 700, 3)
-                        .types(
-                                GTToolType.SWORD,
-                                GTToolType.PICKAXE,
-                                GTToolType.SHOVEL,
-                                GTToolType.DRILL_LV,
-                                PhoenixToolType.DRILL_LUV)
-                        .unbreakable()
-                        .enchantment(SILK_TOUCH, 1)
-                        .build())
                 .buildAndRegister();
         QuantumCoolant = new Material.Builder(
                 phoenixcore.id("quantum_coolant"))
@@ -61,7 +53,7 @@ public class PhoenixMaterials {
                 .ingot()
                 .color(0xFF0000)
                 .secondaryColor(0x840707)
-                .flags(MaterialFlags.GENERATE_FRAME, PhoenixMaterialFlags.GENERATE_NANITES)
+                .flags(MaterialFlags.GENERATE_FRAME, PhoenixMaterialFlags.GENERATE_CRYSTAL_ROSE)
                 .formula("PET")
                 .iconSet(PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL)
                 .buildAndRegister();
@@ -71,13 +63,31 @@ public class PhoenixMaterials {
                 .ingot()
                 .color(0xFFA500)
                 .secondaryColor(0x000000)
-                .flags(MaterialFlags.GENERATE_FRAME, PhoenixMaterialFlags.GENERATE_NANITES)
+                .flags(MaterialFlags.GENERATE_FRAME, PhoenixMaterialFlags.GENERATE_CRYSTAL_ROSE)
                 .formula("PENaq")
+                .iconSet(MaterialIconSet.SHINY)
+                .buildAndRegister();
+        TEST_FLUID = new Material.Builder(
+                phoenixcore.id("test_fluid"))
+                .langValue("test_fluid")
+                .fluid()
+                .color(0xFFA500)
                 .iconSet(MaterialIconSet.SHINY)
                 .buildAndRegister();
     }
 
     public static void modifyMaterials() {
+        CrystalRoseHelper.addCrystalRoseFlags(
+                GTMaterials.Iron,
+                GTMaterials.Copper,
+                GTMaterials.Tin,
+                GTMaterials.Silver,
+                GTMaterials.Gold,
+                GTMaterials.Aluminium,
+                GTMaterials.Nickel,
+                GTMaterials.Zinc
+        // Add any others
+        );
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
             ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);
 
@@ -107,7 +117,7 @@ public class PhoenixMaterials {
                 toolProperty.addTypes(PhoenixToolType.CHAINSAW_LuV);
                 toolProperty.addTypes(PhoenixToolType.CHAINSAW_ZPM);
             }
-            
+
             if (toolProperty != null && toolProperty.hasType(GTToolType.WIRE_CUTTER_LV)) {
                 toolProperty.addTypes(PhoenixToolType.WIRE_CUTTER_MV);
                 toolProperty.addTypes(PhoenixToolType.WIRE_CUTTER_EV);
@@ -127,7 +137,5 @@ public class PhoenixMaterials {
             }
 
         }
-
-
     }
 }

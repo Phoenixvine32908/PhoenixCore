@@ -30,15 +30,16 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.api.machine.PhoenixPartAbility;
+import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
-import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
-import net.phoenix.core.common.machine.multiblock.electric.HoneyCrystallizationChamberMachine;
+import net.phoenix.core.common.machine.multiblock.FissionWorkableElectricMultiblockMachine;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
 import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
@@ -72,6 +73,7 @@ public class PhoenixMachines {
     public static MultiblockMachineDefinition DANCE = null;
     public static MachineDefinition BLAZING_CLEANING_MAINTENANCE_HATCH = null;
     public static MachineDefinition HIGH_YEILD_PHOTON_EMISSION_REGULATER = null;
+
     static {
         REGISTRATE.creativeModeTab(() -> phoenixcore.PHOENIX_CREATIVE_TAB);
     }
@@ -182,65 +184,6 @@ public class PhoenixMachines {
                 tiers);
     }
 
-    public static final MultiblockMachineDefinition HONEY_CRYSTALLIZATION_CHAMBER = REGISTRATE
-            .multiblock("honey_crystallization_chamber", HoneyCrystallizationChamberMachine::new)
-            .langValue("Honey Crystallization Chamber")
-            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT, GTRecipeModifiers.PARALLEL_HATCH,
-                    HoneyCrystallizationChamberMachine::recipeModifier)
-            .rotationState(RotationState.NON_Y_AXIS)
-            .recipeType(PhoenixRecipeTypes.HONEY_CHAMBER_RECIPES)
-            .appearanceBlock(CASING_STAINLESS_CLEAN)
-            .pattern(definition -> FactoryBlockPattern.start()
-                    .aisle("BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBCBBBBB",
-                            "BBBBBCBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB")
-                    .aisle("BDDDDDDDDDB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBCBBBBB", "BBBBEEEBBBB",
-                            "BBBBEEEBBBB", "BBBBBCBBBBB", "BBBBBBBBBBB")
-                    .aisle("BDDDDDDDDDB", "BBFBBBBBFBB", "BBFBBBBBFBB", "BBFBBCBBFBB", "BBFGGGGGFBB", "BBGGAAAGGBB",
-                            "BBGGAAAGGBB", "BBBGGGGGBBB", "BBBBBCBBBBB")
-                    .aisle("BDDDDDDDDDB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBCBCBCBBB", "BBGGGGGGGBB", "BBGAAAAAGBB",
-                            "BBGAAAAAGBB", "BBGGGGGGGBB", "BBBBBCBBBBB")
-                    .aisle("BDDDDDDDDDB", "BBBBBCBBBBB", "BBBBBCBBBBB", "BBBBCCCBBBB", "BBGGAAAGGBB", "BEAAAAAAAEB",
-                            "BEAAAAAAAEB", "BBGGGAGGGBB", "BBBBBCBBBBB")
-                    .aisle("BDDDDDDDDDB", "BBBBCDCBBBB", "BBBBCDCBBBB", "BBCCCCCCCBB", "BCGAACAAGCB", "CEAAACAAAEC",
-                            "CEAAACAAAEC", "BCGGACAGGCB", "BBCCCCCCCBB")
-                    .aisle("BDDDDDDDDDB", "BBBBBCBBBBB", "BBBBBCBBBBB", "BBBBCCCBBBB", "BBGGAAAGGBB", "BEAAAAAAAEB",
-                            "BEAAAAAAAEB", "BBGGGAGGGBB", "BBBBBCBBBBB")
-                    .aisle("BDDDDDDDDDB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBCBCBCBBB", "BBGGGGGGGBB", "BBGAAAAAGBB",
-                            "BBGAAAAAGBB", "BBGGGGGGGBB", "BBBBBCBBBBB")
-                    .aisle("BDDDDDDDDDB", "BBFBBBBBFBB", "BBFBBBBBFBB", "BBFBBCBBFBB", "BBFGGGGGFBB", "BBGGAAAGGBB",
-                            "BBGGAAAGGBB", "BBBGGGGGBBB", "BBBBBCBBBBB")
-                    .aisle("BDDDDDDDDDB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBCCCBBBB", "BBBCEHECBBB",
-                            "BBBCEEECBBB", "BBBBCCCBBBB", "BBBBBBBBBBB")
-                    .aisle("BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB",
-                            "BBBBBBBBBBB", "BBBBBBBBBBB", "BBBBBBBBBBB")
-                    .where("A", Predicates.air())
-                    .where("B", Predicates.any())
-                    .where("C",
-                            blocks(ForgeRegistries.BLOCKS
-                                    .getValue(ResourceLocation.fromNamespaceAndPath("gtceu",
-                                            "steel_frame"))))
-                    .where('D', blocks(CASING_BRONZE_BRICKS.get()))
-                    .where('E', blocks(CASING_LAMINATED_GLASS.get()))
-                    .where('F', blocks(CASING_STEEL_SOLID.get()))
-                    .where("G", blocks(CASING_STAINLESS_CLEAN.get())
-                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
-                            .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2)
-                                    .setMinGlobalLimited(1))
-                            .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
-                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
-                            .or(autoAbilities(true, false, true)))
-                    .where('H', controller(blocks(definition.getBlock())))
-                    .build())
-            .model(
-                    createWorkableCasingMachineModel(
-                            GTCEu.id("block/casings/solid/machine_casing_clean_stainless_steel"),
-                            GTCEu.id("block/multiblock/implosion_compressor"))
-                            .andThen(d -> d
-                                    .addDynamicRenderer(
-                                            PhoenixDynamicRenderHelpers::getCustomFluidRenderer)))
-            .hasBER(true)
-            .register();
-
     public static MachineDefinition[] registerTieredMachines(String name,
                                                              BiFunction<IMachineBlockEntity, Integer, MetaMachine> factory,
                                                              BiFunction<Integer, MachineBuilder<MachineDefinition>, MachineDefinition> builder,
@@ -272,13 +215,13 @@ public class PhoenixMachines {
     static {
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {
             DANCE = REGISTRATE
-                    .multiblock("phoenix_infuser", HighPressurePlasmaArcFurnaceMachine::new)
+                    .multiblock("phoenix_infuser", FissionWorkableElectricMultiblockMachine::new)
                     .langValue("§cPhoenix Infuser")
                     .rotationState(RotationState.NON_Y_AXIS)
                     .recipeType(PhoenixRecipeTypes.PLEASE) // Agora isso não será mais nulo
                     .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH,
                             GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK),
-                            HighPressurePlasmaArcFurnaceMachine::recipeModifier)
+                            FissionWorkableElectricMultiblockMachine::recipeModifier)
                     .pattern(definition -> FactoryBlockPattern.start()
                             .aisle("BBAAAAAAAAAAAAAAAAAAAAAAAAAAAAABB", "BBBAAAAAAAAAAAAAAAAAAAAAAAAAAABBB",
                                     "ABBBAAAAAAAAAAAAAAAAAAAAAAAAABBBA", "AABBBAAAAAAAAAAACAAAAAAAAAAABBBAA",
@@ -988,85 +931,61 @@ public class PhoenixMachines {
                             .where('N', controller(blocks(definition.getBlock())))
                             .where('O', blocks(GCYMBlocks.HEAT_VENT.get()))
                             .build())
-                    /*
-                     * .shapeInfos(definition -> {
-                     * List<MultiblockShapeInfo> shapeInfo = new ArrayList<>();
-                     * .ShapeInfoBuilder builder = MultiblockShapeInfo.builder()
-                     * .aisle("SA", "CC", "CC", "OC", "AA")
-                     * .aisle("VA", "8V", "5V", "2V", "VA")
-                     * .aisle("VA", "7V", "4V", "1V", "VA")
-                     * .aisle("VA", "6V", "3V", "0V", "VA")
-                     * .aisle("AA", "EC", "MC", "HC", "AA")
-                     * .where('S', GTResearchMachines.HIGH_PERFORMANCE_COMPUTING_ARRAY, Direction.NORTH)
-                     * .where('A', ADVANCED_COMPUTER_CASING)
-                     * .where('V', COMPUTER_HEAT_VENT)
-                     * .where('C', COMPUTER_CASING)
-                     * .where('E', GTMachines.ENERGY_INPUT_HATCH[GTValues.LuV], Direction.SOUTH)
-                     * .where('H', GTMachines.FLUID_IMPORT_HATCH[GTValues.LV], Direction.SOUTH)
-                     * .where('O', GTResearchMachines.COMPUTATION_HATCH_TRANSMITTER, Direction.NORTH)
-                     * .where('M', ConfigHolder.INSTANCE.machines.enableMaintenance ?
-                     * GTMachines.MAINTENANCE_HATCH.defaultBlockState().setValue(
-                     * GTMachines.MAINTENANCE_HATCH.get().getRotationState().property,
-                     * Direction.SOUTH) :
-                     * COMPUTER_CASING.getDefaultState());
-                     * 
-                     * // a few example structures
-                     * shapeInfo.add(builder.shallowCopy()
-                     * .where('0', GTResearchMachines.HPCA_EMPTY_COMPONENT, Direction.WEST)
-                     * .where('1', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('2', GTResearchMachines.HPCA_EMPTY_COMPONENT, Direction.WEST)
-                     * .where('3', GTResearchMachines.HPCA_EMPTY_COMPONENT, Direction.WEST)
-                     * .where('4', GTResearchMachines.HPCA_COMPUTATION_COMPONENT, Direction.WEST)
-                     * .where('5', GTResearchMachines.HPCA_EMPTY_COMPONENT, Direction.WEST)
-                     * .where('6', GTResearchMachines.HPCA_EMPTY_COMPONENT, Direction.WEST)
-                     * .where('7', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('8', GTResearchMachines.HPCA_EMPTY_COMPONENT, Direction.WEST)
-                     * .build());
-                     * 
-                     * shapeInfo.add(builder.shallowCopy()
-                     * .where('0', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('1', GTResearchMachines.HPCA_COMPUTATION_COMPONENT, Direction.WEST)
-                     * .where('2', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('3', GTResearchMachines.HPCA_ACTIVE_COOLER_COMPONENT, Direction.WEST)
-                     * .where('4', GTResearchMachines.HPCA_COMPUTATION_COMPONENT, Direction.WEST)
-                     * .where('5', GTResearchMachines.HPCA_BRIDGE_COMPONENT, Direction.WEST)
-                     * .where('6', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('7', GTResearchMachines.HPCA_COMPUTATION_COMPONENT, Direction.WEST)
-                     * .where('8', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .build());
-                     * 
-                     * shapeInfo.add(builder.shallowCopy()
-                     * .where('0', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('1', GTResearchMachines.HPCA_COMPUTATION_COMPONENT, Direction.WEST)
-                     * .where('2', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('3', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('4', GTResearchMachines.HPCA_ADVANCED_COMPUTATION_COMPONENT, Direction.WEST)
-                     * .where('5', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('6', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('7', GTResearchMachines.HPCA_BRIDGE_COMPONENT, Direction.WEST)
-                     * .where('8', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .build());
-                     * 
-                     * shapeInfo.add(builder.shallowCopy()
-                     * .where('0', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('1', GTResearchMachines.HPCA_ADVANCED_COMPUTATION_COMPONENT, Direction.WEST)
-                     * .where('2', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('3', GTResearchMachines.HPCA_ACTIVE_COOLER_COMPONENT, Direction.WEST)
-                     * .where('4', GTResearchMachines.HPCA_BRIDGE_COMPONENT, Direction.WEST)
-                     * .where('5', GTResearchMachines.HPCA_ACTIVE_COOLER_COMPONENT, Direction.WEST)
-                     * .where('6', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .where('7', GTResearchMachines.HPCA_ADVANCED_COMPUTATION_COMPONENT, Direction.WEST)
-                     * .where('8', GTResearchMachines.HPCA_HEAT_SINK_COMPONENT, Direction.WEST)
-                     * .build());
-                     * 
-                     * return shapeInfo;
-                     * })
-                     */
                     .sidedWorkableCasingModel(GTCEu.id("block/casings/hpca/advanced_computer_casing"),
                             GTCEu.id("block/multiblock/hpca"))
                     .register();
         }
     }
+
+    public static final MultiblockMachineDefinition HIGH_PERFORMANCE_BREEDER_REACTOR = REGISTRATE
+            .multiblock("high_performance_breeder_reactor", FissionWorkableElectricMultiblockMachine::new)
+            .langValue("§bHigh Performance Breeder Reactor")
+            .recipeType(PhoenixRecipeTypes.FISSION_RECIPES)
+            .generator(true)
+            .regressWhenWaiting(false)
+            .recipeModifier(FissionWorkableElectricMultiblockMachine::recipeModifier)
+            .appearanceBlock(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("BBCCCCCBB", "BBDEEEDBB", "BBDEEEDBB", "BBDEEEDBB", "BBDFFFDBB", "BBDFFFDBB", "BBCFFFCBB",
+                            "BBCFFFCBB", "BBBBBBBBB")
+                    .aisle("BCCCCCCCB", "BGAAAAHGB", "BGAAAAHGB", "BGAAAAHGB", "BGAAAAHGB", "BGAAAAHGB", "BCAAAAHCB",
+                            "BCAAAAHCB", "BBCCCCCBB")
+                    .aisle("CCCCCCCCC", "DHIAAAIHD", "DHIAAAIHD", "DHIAAAIHD", "DHIAAAIHD", "DHIJJJIHD", "CHIKKKIHC",
+                            "CHIAAAIHC", "BCCCCCCCB")
+                    .aisle("CCCCCCCCC", "EAALILAAE", "EAALILAAE", "EAALILAAE", "FAALILAAF", "FAJJIJJAF", "FAKKIKKAF",
+                            "FAAAIAAAF", "BCCGGGCCB")
+                    .aisle("CCCCCCCCC", "EAAIJIAAE", "EAAIJIAAE", "EAAIJIAAE", "FAAIJIAAF", "FAJIJIJAF", "FAKIDIKAF",
+                            "FAAIDIAAF", "BCCGJGCCB")
+                    .aisle("CCCCCCCCC", "EAALILAAE", "EAALILAAE", "EAALILAAE", "FAALILAAF", "FAJJIJJAF", "FAKKIKKAF",
+                            "FAAAIAAAF", "BCCGGGCCB")
+                    .aisle("CCCCCCCCC", "DHIAAAIHD", "DHIAAAIHD", "DHIAAAIHD", "DHIAAAIHD", "DHIJJJIHD", "CHIKKKIHC",
+                            "CHIAAAIHC", "BCCCCCCCB")
+                    .aisle("BCCCCCCCB", "BGHAAAHGB", "BGHAAAHGB", "BGHAAAHGB", "BGHAAAHGB", "BGHAAAHGB", "BCHAAAHCB",
+                            "BCHAAAHCB", "BBCCCCCBB")
+                    .aisle("BBCCMCCBB", "BBDEEEDBB", "BBDEEEDBB", "BBDEEEDBB", "BBDFFFDBB", "BBDFFFDBB", "BBCFFFCBB",
+                            "BBCFFFCBB", "BBBBBBBBB")
+                    .where('A', Predicates.air())
+                    .where('B', Predicates.any())
+                    .where("C", blocks(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING.get()).setMinGlobalLimited(10)
+                            .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
+                            .or(Predicates.abilities(PartAbility.SUBSTATION_OUTPUT_ENERGY).setMaxGlobalLimited(2))
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes())))
+                    .where('D', blocks(PhoenixBlocks.FISSILE_HEAT_SAFE_CASING.get()))
+                    .where('E', blocks(Blocks.TINTED_GLASS))
+                    .where('F', Predicates.blocks(GCYMBlocks.CASING_HIGH_TEMPERATURE_SMELTING.get()))
+                    .where("G", Predicates.blocks(GCYMBlocks.HEAT_VENT.get()))
+                    .where("H", Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get()))
+                    .where('I', PhoenixPredicates.fissionModerators())
+                    .where("J", Predicates.blocks(COIL_HSSG.get()))
+                    .where("K", PhoenixPredicates.fissionCoolers())
+                    .where("L", Predicates.blocks(CASING_TUNGSTENSTEEL_PIPE.get()))
+                    .where("M", Predicates.controller(Predicates.blocks(definition.get())))
+                    .build())
+            .model(
+                    createWorkableCasingMachineModel(
+                            phoenixcore.id("block/fission/fissile_reaction_safe_casing"),
+                            GTCEu.id("block/multiblock/fusion_reactor")))
+            .register();
 
     public static void init() {}
 }

@@ -35,6 +35,32 @@ public class PhoenixItems {
                         .texture("layer0", prov.modLoc("item/" + ctx.getName()));
             })
             .register();
+    private static final int UHV_RELATIVE_INDEX = GTValues.UHV - PhoenixCovers.START_TIER;
+
+    /*
+     * public static ItemEntry<ComponentItem> COVER_SOLAR_PANEL_UHV = REGISTRATE
+     * .item("uhv_solar_panel", ComponentItem::create).lang("Ultra High Voltage Solar Panel")
+     * .properties(p -> p.stacksTo(64)) // Added property for stacksTo
+     * // 🚨 FIX HERE: Attach the CoverPlaceBehavior component using the lambda
+     * .onRegister((c) -> c.attachComponents(
+     * new CoverPlaceBehavior(PhoenixCovers.SOLAR_PANEL_TIERED[UHV_RELATIVE_INDEX]),
+     * new TooltipBehavior(lines -> {
+     * lines.addAll(LangHandler.getMultiLang("item.gtceu.solar_panel.tooltip"));
+     * lines.add(Component.translatable("gtceu.universal.tooltip.voltage_out", GTValues.V[GTValues.UHV],
+     * GTValues.VNF[GTValues.UHV]));
+     * })
+     * ))
+     * .register();
+     */
+    /*
+     * public static ItemEntry<ComponentItem> ENERGY_LAPOTRONIC_ORB = REGISTRATE
+     * .item("lapotronic_energy_orb", ComponentItem::create)
+     * .lang("Lapotronic Energy Orb")
+     * .model(overrideModel(GTCEu.id("battery"), 8))
+     * .onRegister(modelPredicate(GTCEu.id("battery"), ElectricStats::getStoredPredicate))
+     * .onRegister(attach(ElectricStats.createRechargeableBattery(250_000_000L, GTValues.IV)))
+     * .tag(CustomTags.IV_BATTERIES).register();
+     */
 
     public static void init() {}
 }

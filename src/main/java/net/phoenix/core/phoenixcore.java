@@ -32,6 +32,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.phoenix.core.api.PhoenixSounds;
 import net.phoenix.core.api.recipe.lookup.MapMicroverseIngredient;
 import net.phoenix.core.api.recipe.lookup.MapShieldIngredient;
 import net.phoenix.core.client.PhoenixClient;
@@ -41,6 +42,7 @@ import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
+import net.phoenix.core.common.machine.PhoenixBeeMachines;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.PhoenixResearchMachines;
 import net.phoenix.core.common.machine.multiblock.Microverse;
@@ -152,11 +154,12 @@ public class phoenixcore {
     }
 
     public void registerSounds(GTCEuAPI.RegisterEvent<ResourceLocation, SoundEntry> event) {
-        // CustomSounds.init(); // Uncomment if needed
+        PhoenixSounds.init();
     }
 
     private void registerMachines(GTCEuAPI.RegisterEvent<ResourceLocation, MachineDefinition> event) {
         PhoenixMachines.init();
+        PhoenixBeeMachines.init();
         PhoenixResearchMachines.init();
     }
 
