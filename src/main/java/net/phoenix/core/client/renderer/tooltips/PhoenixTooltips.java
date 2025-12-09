@@ -1,20 +1,19 @@
 package net.phoenix.core.client.renderer.tooltips;
 
+import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
+import com.gregtechceu.gtceu.api.data.chemical.material.Material;
+import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
+
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
-
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
-import com.gregtechceu.gtceu.api.data.chemical.material.Material;
-import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
-
-import net.minecraft.client.gui.screens.Screen;
 
 @Mod.EventBusSubscriber(modid = "phoenixcore", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PhoenixTooltips {
@@ -50,7 +49,8 @@ public class PhoenixTooltips {
                     Component materialName = mat.getLocalizedName()
                             .copy()
                             .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(mat.getMaterialARGB())));
-                    Component madeFrom = Component.translatable("tooltip.phoenixcore.crystal_rose.made_from", materialName);
+                    Component madeFrom = Component.translatable("tooltip.phoenixcore.crystal_rose.made_from",
+                            materialName);
                     event.getToolTip().add(madeFrom);
                 } else {
                     // Show hint line when Shift is NOT held

@@ -12,6 +12,7 @@ import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
@@ -39,6 +40,7 @@ import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
+import net.phoenix.core.common.machine.multiblock.FissionSteamMultiblockMachine;
 import net.phoenix.core.common.machine.multiblock.FissionWorkableElectricMultiblockMachine;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
@@ -940,10 +942,11 @@ public class PhoenixMachines {
     public static final MultiblockMachineDefinition HIGH_PERFORMANCE_BREEDER_REACTOR = REGISTRATE
             .multiblock("high_performance_breeder_reactor", FissionWorkableElectricMultiblockMachine::new)
             .langValue("§bHigh Performance Breeder Reactor")
-            .recipeType(PhoenixRecipeTypes.FISSION_RECIPES)
+            .recipeType(PhoenixRecipeTypes.HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES)
             .generator(true)
             .regressWhenWaiting(false)
-            .recipeModifier(FissionWorkableElectricMultiblockMachine::recipeModifier)
+            .recipeModifiers(FissionWorkableElectricMultiblockMachine::recipeModifier,
+                    GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK))
             .appearanceBlock(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("BBCCCCCBB", "BBDEEEDBB", "BBDEEEDBB", "BBDEEEDBB", "BBDFFFDBB", "BBDFFFDBB", "BBCFFFCBB",
@@ -984,6 +987,108 @@ public class PhoenixMachines {
             .model(
                     createWorkableCasingMachineModel(
                             phoenixcore.id("block/fission/fissile_reaction_safe_casing"),
+                            GTCEu.id("block/multiblock/fusion_reactor")))
+            .register();
+    public static final MultiblockMachineDefinition PRESSURIZED_FISSION_REACTOR = REGISTRATE
+            .multiblock("pressurized_fission_reactor", FissionWorkableElectricMultiblockMachine::new)
+            .langValue("§bPressurized Fission Reactor")
+            .recipeType(PhoenixRecipeTypes.PRESSURIZED_FISSION_REACTOR_RECIPES)
+            .generator(true)
+            .regressWhenWaiting(false)
+            .recipeModifiers(FissionWorkableElectricMultiblockMachine::recipeModifier,
+                    GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK))
+            .appearanceBlock(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("BCCCB", "CDDDC", "CDDDC", "CDDDC", "BCCCB")
+                    .aisle("CEFEC", "DGGGD", "DGGGD", "DGGGD", "CDHDC")
+                    .aisle("CFEFC", "DGFGD", "DGFGD", "DGFGD", "CHEHC")
+                    .aisle("CEFEC", "DGGGD", "DGGGD", "DGGGD", "CDHDC")
+                    .aisle("BCICB", "CDDDC", "CDDDC", "CDDDC", "BCCCB")
+                    .aisle("BCICB", "CDDDC", "CDDDC", "CDDDC", "BCCCB")
+                    .where("A", air())
+                    .where("B", any())
+                    .where("C", blocks(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING.get()).setMinGlobalLimited(12) // Corrected
+                                                                                                                 // line
+                            .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
+                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
+                            .or(Predicates.abilities(PartAbility.OUTPUT_ENERGY).setMaxGlobalLimited(8)
+                                    .setPreviewCount(2))
+                            .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                    .where("D", blocks(Blocks.TINTED_GLASS))
+                    .where("E", blocks(COIL_KANTHAL.get()))
+                    .where("F", PhoenixPredicates.fissionModerators())
+                    .where("G", PhoenixPredicates.fissionCoolers())
+                    .where("H", blocks(PhoenixBlocks.FISSILE_HEAT_SAFE_CASING.get()))
+                    .where("I", Predicates.controller(Predicates.blocks(definition.get())))
+                    .build())
+            .model(
+                    createWorkableCasingMachineModel(
+                            phoenixcore.id("block/fission/fissile_reaction_safe_casing"),
+                            GTCEu.id("block/multiblock/fusion_reactor")))
+            .register();
+    public static final MultiblockMachineDefinition ADVANCED_PRESSURIZED_FISSION_REACTOR = REGISTRATE
+            .multiblock("advanced_pressurized_fission_reactor", FissionSteamMultiblockMachine::new)
+            .langValue("§bAdvanced Pressurized Fission Reactor")
+            .recipeType(PhoenixRecipeTypes.ADVANCED_PRESSURIZED_FISSION_REACTOR_RECIPES)
+            .generator(true)
+            .regressWhenWaiting(false)
+            .recipeModifiers(FissionSteamMultiblockMachine::recipeModifier,
+                    GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK))
+            .appearanceBlock(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("BCCCCCB", "CDDDDDC", "CDDDDDC", "CDDDDDC", "CDDDDDC", "CDDDDDC", "BCCCCCB")
+                    .aisle("CCCCCCC", "DAAEAAD", "DAAEAAD", "DAAEAAD", "DAAEAAD", "DAAEAAD", "CDDFDDC")
+                    .aisle("CCGEGCC", "DAHHHAD", "DAHHHAD", "DAHHHAD", "DAIIIAD", "DAEEEAD", "CDFGFDC")
+                    .aisle("CCEEECC", "DEHEHED", "DEHEHED", "DEHEHED", "DEIEIED", "DEEEEED", "CFGFGFC")
+                    .aisle("CCGEGCC", "DAHHHAD", "DAHHHAD", "DAHHHAD", "DAIIIAD", "DAEEEAD", "CDFGFDC")
+                    .aisle("CCCCCCC", "DAAEAAD", "DAAEAAD", "DAAEAAD", "DAAEAAD", "DAAEAAD", "CDDFDDC")
+                    .aisle("BCCJCCB", "CDDDDDC", "CDDDDDC", "CDDDDDC", "CDDDDDC", "CDDDDDC", "BCCCCCB")
+                    .where("A", air())
+                    .where("B", any())
+                    .where("C", blocks(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING.get()).setMinGlobalLimited(12) // Corrected
+                                                                                                                 // line
+                            .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
+                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
+                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
+                            .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
+                            .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                    .where("D", blocks(Blocks.ICE))
+                    .where("E", PhoenixPredicates.fissionModerators())
+                    .where("F", blocks(PhoenixBlocks.FISSILE_HEAT_SAFE_CASING.get()))
+                    .where("G", Predicates.blocks(COIL_NICHROME.get()))
+                    .where("H", PhoenixPredicates.fissionCoolers())
+                    .where("I", blocks(Blocks.ICE))
+                    .where("J", Predicates.controller(Predicates.blocks(definition.get())))
+                    .build())
+            .model(
+                    createWorkableCasingMachineModel(
+                            phoenixcore.id("block/fission/fissile_reaction_safe_casing"),
+                            GTCEu.id("block/multiblock/fusion_reactor")))
+            .register();
+    public static final MultiblockMachineDefinition HEAT_EXCHANGER = REGISTRATE
+            .multiblock("heat_exchanger", WorkableElectricMultiblockMachine::new)
+            .langValue("§bHeat Exchanger")
+            .recipeType(PhoenixRecipeTypes.HEAT_EXCHANGER_RECIPES)
+            .recipeModifiers(
+                    GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK),
+                    GTRecipeModifiers.BATCH_MODE)
+            .appearanceBlock(PhoenixBlocks.FISSILE_HEAT_SAFE_CASING)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("BBBBBBB", "BCCCCCB", "BCCCCCB", "BCCCCCB", "BBBBBBB")
+                    .aisle("BBBBBBB", "BAAAAAB", "BAAEAAB", "BAAAAAB", "BBCBCBB")
+                    .aisle("BBBBBBB", "BAEAEAB", "BEEEEEB", "BAEAEAB", "BCCBCCB")
+                    .aisle("BBBBBBB", "BAAAAAB", "BAAEAAB", "BAAAAAB", "BBCBCBB")
+                    .aisle("BBBBBBB", "BCCCCCB", "BCCDCCB", "BCCCCCB", "BBBBBBB")
+                    .where("A", air())
+                    .where("B", blocks(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING.get()))
+                    .where("C", blocks(PhoenixBlocks.FISSILE_HEAT_SAFE_CASING.get()).setMinGlobalLimited(6)
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes())))
+                    .where("D", Predicates.controller(Predicates.blocks(definition.get())))
+                    .where("E", blocks(PhoenixBlocks.FISSILE_SAFE_GEARBOX_CASING.get()))
+                    .build())
+            .model(
+                    createWorkableCasingMachineModel(
+                            phoenixcore.id("block/fission/fissile_heat_safe_casing"),
                             GTCEu.id("block/multiblock/fusion_reactor")))
             .register();
 

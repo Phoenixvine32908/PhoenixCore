@@ -1,6 +1,7 @@
 {
   "block.phoenixcore.active_phoenix_cooling_component": "Active Phoenix Cooling Component",
   "block.phoenixcore.advanced_phoenix_computation_component": "Advanced Phoenix Computation Component",
+  "block.phoenixcore.advanced_pressurized_fission_reactor": "§bAdvanced Pressurized Fission Reactor",
   "block.phoenixcore.akashic_coil_block": "§5Computation Coil",
   "block.phoenixcore.akashic_zeronium_casing": "§5Akashic Zeronium Casing",
   "block.phoenixcore.apis_progenitor": "Apis Progenitor",
@@ -25,6 +26,7 @@
   "block.phoenixcore.fission_moderator.shift": "Hold §eShift§r for moderator details",
   "block.phoenixcore.glitched_entropy_casing": "§aGlitched Entropy Casing",
   "block.phoenixcore.graphite_moderator": "Graphite Moderator",
+  "block.phoenixcore.heat_exchanger": "§bHeat Exchanger",
   "block.phoenixcore.heat_stable_cooler": "Heat Stable Cooler",
   "block.phoenixcore.high_performance_breeder_reactor": "§bHigh Performance Breeder Reactor",
   "block.phoenixcore.high_temp_cooler": "High Temp Cooler",
@@ -50,6 +52,7 @@
   "block.phoenixcore.phoenix_heart_casing": "§cPhoenix Heart Casing",
   "block.phoenixcore.phoenix_heat_sink_component": "Phoenix Heat Sink Component",
   "block.phoenixcore.phoenix_infuser": "§cPhoenix Infuser",
+  "block.phoenixcore.pressurized_fission_reactor": "§bPressurized Fission Reactor",
   "block.phoenixcore.reliable_naquadah_alloy_machine_casing": "§cReliable Naquadah Alloy Machine Casing",
   "block.phoenixcore.shield_stability_sensor_hatch": "Shield Stability Sensor Hatch",
   "block.phoenixcore.simulated_colony": "Apis Progenitor",

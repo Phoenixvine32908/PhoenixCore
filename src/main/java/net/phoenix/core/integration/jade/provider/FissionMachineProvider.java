@@ -1,11 +1,13 @@
 package net.phoenix.core.integration.jade.provider;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.phoenix.core.common.machine.multiblock.FissionWorkableElectricMultiblockMachine;
 import net.phoenix.core.phoenixcore;
+
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -18,7 +20,6 @@ public class FissionMachineProvider implements IBlockComponentProvider, IServerD
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-
         // Prevent showing tooltip on all blocks.
         if (!(accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE &&
                 metaBE.getMetaMachine() instanceof FissionWorkableElectricMultiblockMachine)) {
@@ -54,7 +55,6 @@ public class FissionMachineProvider implements IBlockComponentProvider, IServerD
 
     @Override
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
-
         if (!(accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE &&
                 metaBE.getMetaMachine() instanceof FissionWorkableElectricMultiblockMachine machine)) {
             return; // do NOT send any data for non-fission blocks

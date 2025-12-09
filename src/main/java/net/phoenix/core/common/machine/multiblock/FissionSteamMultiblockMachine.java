@@ -8,6 +8,8 @@ import com.gregtechceu.gtceu.api.machine.feature.IExplosionMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
+import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
@@ -28,11 +30,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 @MethodsReturnNonnullByDefault
-public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMultiblockMachine
-                                                      implements IExplosionMachine {
+// Inherit from WorkableElectricMultiblockMachine to reuse multiblock and recipe execution logic
+public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMachine
+                                           implements IExplosionMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-            FissionWorkableElectricMultiblockMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
+            FissionSteamMultiblockMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
 
     @Persisted
     private int meltdownTimerTicks = -1;
@@ -40,15 +43,13 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
     private int meltdownTimerMax = 0;
 
     private IFissionCoolerType activeCooler = FissionCoolerBlock.fissionCoolerType.COOLER_TRUE_HEAT_STABLE;
-
     private IFissionModeratorType activeModerator = FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE;
 
     public int lastRequiredCooling = 0;
     public int lastProvidedCooling = 0;
-
     public boolean lastHasCoolant = true;
 
-    public FissionWorkableElectricMultiblockMachine(IMachineBlockEntity holder) {
+    public FissionSteamMultiblockMachine(IMachineBlockEntity holder) {
         super(holder);
     }
 
@@ -74,9 +75,7 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
-
         activeCooler = FissionCoolerBlock.fissionCoolerType.COOLER_TRUE_HEAT_STABLE;
-
         activeModerator = FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE;
         meltdownTimerTicks = -1;
         meltdownTimerMax = 0;
@@ -123,13 +122,10 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
                 currentRecipe.data.getInt("required_cooling") : 0;
 
         lastProvidedCooling = activeCooler == null ? 0 : activeCooler.getCoolerTemperature();
-
         int coolantNeededPerTick = activeCooler.getCoolantPerTick();
-
         lastHasCoolant = tryConsumeCoolantFromParts(activeCooler, coolantNeededPerTick);
 
         int effectiveProvidedCooling = lastHasCoolant ? lastProvidedCooling : 0;
-
         int deficit = Math.max(0, lastRequiredCooling - effectiveProvidedCooling);
         float deficitPct = lastRequiredCooling == 0 ? 0f : ((float) deficit / (float) lastRequiredCooling);
 
@@ -137,7 +133,6 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
         return true;
     }
-
 
     private boolean tryConsumeCoolantFromParts(@Nullable IFissionCoolerType cooler, int mb) {
         if (cooler == null || mb <= 0) return false;
@@ -168,17 +163,6 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         return false;
     }
 
-    private FluidStack materialToFluidStack(Material mat, int mb) {
-        if (mat == null || mb <= 0) return FluidStack.EMPTY;
-
-        try {
-            FluidStack fs = mat.getFluid(mb);
-            return fs == null ? FluidStack.EMPTY : fs;
-        } catch (Throwable ignored) {
-            return FluidStack.EMPTY;
-        }
-    }
-
     private void handleDangerTiers(float deficitPct) {
         if (deficitPct <= 0f) {
             meltdownTimerTicks = -1;
@@ -187,7 +171,7 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         }
 
         if (!lastHasCoolant) {
-            int grace = 15;
+            int grace = 15; // seconds
             meltdownTimerMax = grace * 20;
 
             if (meltdownTimerTicks < 0)
@@ -221,7 +205,6 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
         if (getLevel() instanceof net.minecraft.server.level.ServerLevel world) {
 
-
             net.minecraft.world.entity.Entity explosionCauser = null;
 
             double x = getPos().getX() + 0.5;
@@ -230,9 +213,7 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
             world.explode(
                     explosionCauser,
-                    x,
-                    y,
-                    z,
+                    x, y, z,
                     power,
                     net.minecraft.world.level.Level.ExplosionInteraction.BLOCK);
         }
@@ -241,24 +222,25 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         meltdownTimerMax = 0;
     }
 
+    /**
+     * MODIFICATION: Recipe modifier is changed to only apply the duration (fuel discount) multiplier.
+     * The EU multiplier is set to 1.0, effectively disabling the moderator's EU boost feature.
+     */
     public static com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction recipeModifier(
                                                                                             com.gregtechceu.gtceu.api.machine.MetaMachine machine,
                                                                                             com.gregtechceu.gtceu.api.recipe.GTRecipe recipe) {
-        if (!(machine instanceof FissionWorkableElectricMultiblockMachine m))
-            return com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier
-                    .nullWrongType(FissionWorkableElectricMultiblockMachine.class, machine);
+        if (!(machine instanceof FissionSteamMultiblockMachine m))
+            return RecipeModifier.nullWrongType(FissionSteamMultiblockMachine.class, machine);
 
         IFissionModeratorType mod = m.activeModerator;
-        double eutMultiplier = 1.0;
         double durationMultiplier = 1.0;
 
         if (mod != null) {
-            eutMultiplier *= 1.0 + (mod.getEUBoost() / 100.0);
             durationMultiplier *= Math.max(0.01, 1.0 - (mod.getFuelDiscount() / 100.0));
         }
 
-        return com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction.builder()
-                .eutMultiplier(eutMultiplier)
+        return ModifierFunction.builder()
+                .eutMultiplier(1.0) // <--- CRITICAL CHANGE: EU boost is ignored.
                 .durationMultiplier(durationMultiplier)
                 .build();
     }
@@ -273,18 +255,15 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
             return;
         }
 
-
         if (!isWorkingEnabled() && !isActive() && meltdownTimerTicks < 0) {
             textList.add(Component.translatable("phoenix.fission.status.safe_idle")
                     .withStyle(s -> s.withColor(0x33FF33)));
         }
 
-
         else if (lastRequiredCooling > 0 && lastProvidedCooling >= lastRequiredCooling && lastHasCoolant) {
             textList.add(Component.translatable("phoenix.fission.status.safe_working")
                     .withStyle(s -> s.withColor(0x00CCFF)));
         }
-
 
         else if (meltdownTimerTicks > 0) {
             int seconds = getMeltdownSecondsRemaining();
@@ -300,6 +279,7 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
             }
         }
 
+        // --- DETAILS ---
         String modKey = getModeratorName();
         Component moderatorName = modKey.equals("None") ?
                 Component.literal("None") : Component.translatable("block.phoenixcore." + modKey);
@@ -309,7 +289,8 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
                 Component.literal("None") : Component.translatable("block.phoenixcore." + coolerKey);
 
         textList.add(Component.translatable("phoenix.fission.moderator", moderatorName));
-        textList.add(Component.translatable("phoenix.fission.moderator_boost", getModeratorEUBoost()));
+        // textList.add(Component.translatable("phoenix.fission.moderator_boost", getModeratorEUBoost())); // <--
+        // REMOVED THIS LINE
         textList.add(Component.translatable("phoenix.fission.moderator_fuel_discount", getModeratorFuelDiscount()));
 
         textList.add(Component.translatable("phoenix.fission.cooler", coolerName));
@@ -326,12 +307,11 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
         textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
 
-
         textList.add(Component.translatable(lastHasCoolant ?
                 "phoenix.fission.coolant_status.ok" : "phoenix.fission.coolant_status.empty")
                 .withStyle(s -> s.withColor(lastHasCoolant ? 0x33FF33 : 0xFF3333)));
 
-        textList.add(Component.translatable("phoenix.fission.coolant_rate", activeCooler.getCoolantPerTick()));
+        textList.add(Component.translatable("phoenix.fission.coolant_rate", getCoolantRatePerTick()));
 
         if (lastRequiredCooling > 0) {
             int color = lastProvidedCooling >= lastRequiredCooling ? 0x33FF33 : 0xFF3333;
@@ -341,6 +321,9 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         }
     }
 
+    // --- Helper Getters (Copied to fix the compilation error) ---
+
+    @SuppressWarnings("unused")
     public float getExplosionProgress() {
         if (meltdownTimerTicks < 0) return 1f;
         if (meltdownTimerMax <= 0) return 0f;
@@ -377,22 +360,5 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
     public int getCoolantRatePerTick() {
         return activeCooler == null ? 0 : activeCooler.getCoolantPerTick();
-    }
-
-    public record CoolantProperties(int exampleCoolingValue, double exampleMultiplier) {
-
-    }
-
-    public static final Map<Material, CoolantProperties> COOLANT_PROPERTIES = new HashMap<>();
-    static {
-        try {
-            COOLANT_PROPERTIES.put(GTMaterials.SodiumPotassium, new CoolantProperties(3, 2.0));
-        } catch (Throwable ignored) {}
-        try {
-            COOLANT_PROPERTIES.put(GTMaterials.DistilledWater, new CoolantProperties(1, 1.0));
-        } catch (Throwable ignored) {}
-        try {
-            COOLANT_PROPERTIES.put(GTMaterials.Lead, new CoolantProperties(5, 0.8));
-        } catch (Throwable ignored) {}
     }
 }
