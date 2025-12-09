@@ -14,7 +14,10 @@ import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.*;
 
 public class PhoenixRecipeTypes {
 
-    public static GTRecipeType FISSION_RECIPES;
+    public static GTRecipeType HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES;
+    public static GTRecipeType ADVANCED_PRESSURIZED_FISSION_REACTOR_RECIPES;
+    public static GTRecipeType PRESSURIZED_FISSION_REACTOR_RECIPES;
+    public static GTRecipeType HEAT_EXCHANGER_RECIPES;
     // Existing types
     public static GTRecipeType HONEY_CHAMBER_RECIPES;
     public static GTRecipeType PLEASE;
@@ -80,7 +83,7 @@ public class PhoenixRecipeTypes {
                 .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
                 .setSound(GTSoundEntries.MIXER) // Suitable for genetic mixing
                 .setEUIO(IO.IN);
-        FISSION_RECIPES = register("fission_reactor", MULTIBLOCK)
+        HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES = register("high_performance_breeder_reactor", MULTIBLOCK)
                 .setMaxIOSize(2, 2, 2, 2)
                 .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
                 .setProgressBar(PhoenixGuiTextures.PROGRESS_BAR_FISSION, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
@@ -93,5 +96,36 @@ public class PhoenixRecipeTypes {
                     }
                     return "";
                 });
+        PRESSURIZED_FISSION_REACTOR_RECIPES = register("pressurized_fission_reactor", MULTIBLOCK)
+                .setMaxIOSize(1, 1, 0, 0)
+                .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
+                .setProgressBar(PhoenixGuiTextures.PROGRESS_BAR_FISSION, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.CHEMICAL)
+                .setEUIO(IO.OUT)
+                .addDataInfo(data -> {
+                    int cooling = data.getInt("required_cooling");
+                    if (cooling > 0) {
+                        return LocalizationUtils.format("emi_info.phoenixcore.required_cooling", cooling);
+                    }
+                    return "";
+                });
+        ADVANCED_PRESSURIZED_FISSION_REACTOR_RECIPES = register("advanced_pressurized_fission_reactor", MULTIBLOCK)
+                .setMaxIOSize(1, 1, 1, 1)
+                .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
+                .setProgressBar(PhoenixGuiTextures.PROGRESS_BAR_FISSION, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.CHEMICAL)
+                .addDataInfo(data -> {
+                    int cooling = data.getInt("required_cooling");
+                    if (cooling > 0) {
+                        return LocalizationUtils.format("emi_info.phoenixcore.required_cooling", cooling);
+                    }
+                    return "";
+                });
+        HEAT_EXCHANGER_RECIPES = register("heat_exchanging", MULTIBLOCK)
+                .setMaxIOSize(0, 0, 1, 1) // Item, Fluid
+                .setSlotOverlay(false, true, GuiTextures.BOX_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_EXTRACT, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.MIXER)
+                .setEUIO(IO.IN);
     }
 }

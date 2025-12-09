@@ -13,7 +13,6 @@ import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
-import lombok.Getter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fluids.FluidStack;
@@ -105,9 +104,7 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
                 .map(p -> (IFissionCoolerType) p)
                 .toList();
         Optional<IFissionCoolerType> opt = cools.stream()
-                // Use getCoolerTemperature() for matching
                 .filter(c -> c.getCoolerTemperature() >= lastRequiredCooling)
-                // Use getCoolerTemperature() for comparison
                 .min(Comparator.comparingInt(IFissionCoolerType::getCoolerTemperature));
         opt.ifPresent(c -> activeCooler = c);
 
@@ -125,15 +122,12 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         lastRequiredCooling = currentRecipe.data.contains("required_cooling") ?
                 currentRecipe.data.getInt("required_cooling") : 0;
 
-        // Use getCoolerTemperature() for provided cooling power
         lastProvidedCooling = activeCooler == null ? 0 : activeCooler.getCoolerTemperature();
 
-        // Use the interface's calculated coolant rate
         int coolantNeededPerTick = activeCooler.getCoolantPerTick();
 
         lastHasCoolant = tryConsumeCoolantFromParts(activeCooler, coolantNeededPerTick);
 
-        // Effective cooling is 0 if no coolant is present, triggering the grace period
         int effectiveProvidedCooling = lastHasCoolant ? lastProvidedCooling : 0;
 
         int deficit = Math.max(0, lastRequiredCooling - effectiveProvidedCooling);
@@ -144,7 +138,6 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         return true;
     }
 
-    // Removed the now-redundant calculateCoolantPerTick() method
 
     private boolean tryConsumeCoolantFromParts(@Nullable IFissionCoolerType cooler, int mb) {
         if (cooler == null || mb <= 0) return false;
@@ -164,7 +157,6 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
                 var fluid = tank.getFluidInTank(i);
 
                 if (!fluid.isEmpty() && fluid.getFluid().isSame(required.getFluid())) {
-                    // ✅ Use drainInternal instead of drain
                     int drained = tank.drainInternal(required, IFluidHandler.FluidAction.EXECUTE).getAmount();
                     if (drained >= mb) {
                         return true;
@@ -188,22 +180,20 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
     }
 
     private void handleDangerTiers(float deficitPct) {
-        // Case 1: No deficit → Safe
         if (deficitPct <= 0f) {
             meltdownTimerTicks = -1;
             meltdownTimerMax = 0;
             return;
         }
 
-        // Case 2: No coolant → fixed 15s countdown
         if (!lastHasCoolant) {
-            int grace = 15; // seconds
+            int grace = 15;
             meltdownTimerMax = grace * 20;
 
             if (meltdownTimerTicks < 0)
                 meltdownTimerTicks = meltdownTimerMax;
 
-            meltdownTimerTicks -= 1; // 1 tick per tick
+            meltdownTimerTicks -= 1;
 
             if (meltdownTimerTicks <= 0)
                 doMeltdown();
@@ -211,19 +201,14 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
             return;
         }
 
-        // Case 3: Cooler temp is BELOW requirement
-        // deficitPct = (required - provided) / required
-        // Map deficitPct from 0→60 seconds, 1→10 seconds
         float graceSeconds = 60f - (deficitPct * 50f);
         if (graceSeconds < 10f) graceSeconds = 10f;
 
         meltdownTimerMax = (int) (graceSeconds * 20);
 
-        // Initialize timer if first time
         if (meltdownTimerTicks < 0)
             meltdownTimerTicks = meltdownTimerMax;
 
-        // Tick down 1 per tick
         meltdownTimerTicks -= 1;
 
         if (meltdownTimerTicks <= 0)
@@ -236,25 +221,19 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
         if (getLevel() instanceof net.minecraft.server.level.ServerLevel world) {
 
-            // FIX: The BlockEntity (getHolder()) cannot be cast to Entity.
-            // Use 'null' as the explosion source to satisfy the API signature.
-            net.minecraft.world.entity.Entity explosionCauser = null; // Use null instead of casting
+
+            net.minecraft.world.entity.Entity explosionCauser = null;
 
             double x = getPos().getX() + 0.5;
             double y = getPos().getY() + 0.5;
             double z = getPos().getZ() + 0.5;
 
-            // explode(Entity, double, double, double, float, Level.ExplosionInteraction)
             world.explode(
-                    // ARG 1: Entity Source (now null, no crash)
                     explosionCauser,
-                    // ARG 2, 3, 4: Coordinates
                     x,
                     y,
                     z,
-                    // ARG 5: Power
                     power,
-                    // ARG 6: ExplosionInteraction
                     net.minecraft.world.level.Level.ExplosionInteraction.BLOCK);
         }
 
@@ -290,38 +269,37 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
         if (!isFormed()) {
             textList.add(Component.translatable("phoenix.fission.not_formed")
-                    .withStyle(s -> s.withColor(0xFF4444))); // red
+                    .withStyle(s -> s.withColor(0xFF4444)));
             return;
         }
 
-        // SAFE IDLE
+
         if (!isWorkingEnabled() && !isActive() && meltdownTimerTicks < 0) {
             textList.add(Component.translatable("phoenix.fission.status.safe_idle")
-                    .withStyle(s -> s.withColor(0x33FF33))); // green
+                    .withStyle(s -> s.withColor(0x33FF33)));
         }
 
-        // SAFE WORKING
+
         else if (lastRequiredCooling > 0 && lastProvidedCooling >= lastRequiredCooling && lastHasCoolant) {
             textList.add(Component.translatable("phoenix.fission.status.safe_working")
-                    .withStyle(s -> s.withColor(0x00CCFF))); // cyan
+                    .withStyle(s -> s.withColor(0x00CCFF)));
         }
 
-        // DANGER – MELTDOWN TIMER
+
         else if (meltdownTimerTicks > 0) {
             int seconds = getMeltdownSecondsRemaining();
             textList.add(Component.translatable("phoenix.fission.status.danger_timer", seconds)
-                    .withStyle(s -> s.withColor(0xFFAA00))); // orange-yellow
+                    .withStyle(s -> s.withColor(0xFFAA00)));
 
             if (!lastHasCoolant) {
                 textList.add(Component.translatable("phoenix.fission.status.no_coolant")
-                        .withStyle(s -> s.withColor(0xFF3333))); // bright red
+                        .withStyle(s -> s.withColor(0xFF3333)));
             } else {
                 textList.add(Component.translatable("phoenix.fission.status.low_cooling")
-                        .withStyle(s -> s.withColor(0xFF5555))); // red tint
+                        .withStyle(s -> s.withColor(0xFF5555)));
             }
         }
 
-        // --- DETAILS ---
         String modKey = getModeratorName();
         Component moderatorName = modKey.equals("None") ?
                 Component.literal("None") : Component.translatable("block.phoenixcore." + modKey);
@@ -348,7 +326,7 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
 
         textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
 
-        // color-coded coolant status
+
         textList.add(Component.translatable(lastHasCoolant ?
                 "phoenix.fission.coolant_status.ok" : "phoenix.fission.coolant_status.empty")
                 .withStyle(s -> s.withColor(lastHasCoolant ? 0x33FF33 : 0xFF3333)));
@@ -356,7 +334,6 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         textList.add(Component.translatable("phoenix.fission.coolant_rate", activeCooler.getCoolantPerTick()));
 
         if (lastRequiredCooling > 0) {
-            // Summary color logic
             int color = lastProvidedCooling >= lastRequiredCooling ? 0x33FF33 : 0xFF3333;
             textList.add(Component.translatable("phoenix.fission.summary",
                     lastProvidedCooling, lastRequiredCooling)
@@ -364,7 +341,6 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         }
     }
 
-    @SuppressWarnings("unused") // Method is for external GUI/rendering
     public float getExplosionProgress() {
         if (meltdownTimerTicks < 0) return 1f;
         if (meltdownTimerMax <= 0) return 0f;
@@ -399,7 +375,6 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         return mat.getName();
     }
 
-    // Removed the internal calculateCoolantPerTick, relying on activeCooler.getCoolantPerTick()
     public int getCoolantRatePerTick() {
         return activeCooler == null ? 0 : activeCooler.getCoolantPerTick();
     }

@@ -11,8 +11,10 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
+
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fluids.FluidStack;
@@ -21,6 +23,7 @@ import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
 import net.phoenix.core.common.block.FissionCoolerBlock;
 import net.phoenix.core.common.block.FissionModeratorBlock;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +32,7 @@ import java.util.*;
 @MethodsReturnNonnullByDefault
 // Inherit from WorkableElectricMultiblockMachine to reuse multiblock and recipe execution logic
 public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMachine
-        implements IExplosionMachine {
+                                           implements IExplosionMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             FissionSteamMultiblockMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
@@ -224,8 +227,8 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
      * The EU multiplier is set to 1.0, effectively disabling the moderator's EU boost feature.
      */
     public static com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction recipeModifier(
-            com.gregtechceu.gtceu.api.machine.MetaMachine machine,
-            com.gregtechceu.gtceu.api.recipe.GTRecipe recipe) {
+                                                                                            com.gregtechceu.gtceu.api.machine.MetaMachine machine,
+                                                                                            com.gregtechceu.gtceu.api.recipe.GTRecipe recipe) {
         if (!(machine instanceof FissionSteamMultiblockMachine m))
             return RecipeModifier.nullWrongType(FissionSteamMultiblockMachine.class, machine);
 
@@ -286,7 +289,8 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
                 Component.literal("None") : Component.translatable("block.phoenixcore." + coolerKey);
 
         textList.add(Component.translatable("phoenix.fission.moderator", moderatorName));
-        // textList.add(Component.translatable("phoenix.fission.moderator_boost", getModeratorEUBoost())); // <-- REMOVED THIS LINE
+        // textList.add(Component.translatable("phoenix.fission.moderator_boost", getModeratorEUBoost())); // <--
+        // REMOVED THIS LINE
         textList.add(Component.translatable("phoenix.fission.moderator_fuel_discount", getModeratorFuelDiscount()));
 
         textList.add(Component.translatable("phoenix.fission.cooler", coolerName));
@@ -304,7 +308,7 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
         textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
 
         textList.add(Component.translatable(lastHasCoolant ?
-                        "phoenix.fission.coolant_status.ok" : "phoenix.fission.coolant_status.empty")
+                "phoenix.fission.coolant_status.ok" : "phoenix.fission.coolant_status.empty")
                 .withStyle(s -> s.withColor(lastHasCoolant ? 0x33FF33 : 0xFF3333)));
 
         textList.add(Component.translatable("phoenix.fission.coolant_rate", getCoolantRatePerTick()));
@@ -312,7 +316,7 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
         if (lastRequiredCooling > 0) {
             int color = lastProvidedCooling >= lastRequiredCooling ? 0x33FF33 : 0xFF3333;
             textList.add(Component.translatable("phoenix.fission.summary",
-                            lastProvidedCooling, lastRequiredCooling)
+                    lastProvidedCooling, lastRequiredCooling)
                     .withStyle(s -> s.withColor(color)));
         }
     }

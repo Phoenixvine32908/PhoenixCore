@@ -1,6 +1,7 @@
 {
   "block.phoenixcore.active_phoenix_cooling_component": "ʇuǝuodɯoƆ buıןooƆ xıuǝoɥԀ ǝʌıʇɔⱯ",
   "block.phoenixcore.advanced_phoenix_computation_component": "ʇuǝuodɯoƆ uoıʇɐʇndɯoƆ xıuǝoɥԀ pǝɔuɐʌpⱯ",
+  "block.phoenixcore.advanced_pressurized_fission_reactor": "ɹoʇɔɐǝᴚ uoıssıℲ pǝzıɹnssǝɹԀ pǝɔuɐʌpⱯq§",
   "block.phoenixcore.akashic_coil_block": "ןıoƆ uoıʇɐʇndɯoƆϛ§",
   "block.phoenixcore.akashic_zeronium_casing": "buısɐƆ ɯnıuoɹǝZ ɔıɥsɐʞⱯϛ§",
   "block.phoenixcore.apis_progenitor": "ɹoʇıuǝboɹԀ sıdⱯ",
@@ -25,6 +26,7 @@
   "block.phoenixcore.fission_moderator.shift": "sןıɐʇǝp ɹoʇɐɹǝpoɯ ɹoɟ ɹ§ʇɟıɥSǝ§ pןoH",
   "block.phoenixcore.glitched_entropy_casing": "buısɐƆ ʎdoɹʇuƎ pǝɥɔʇıן⅁ɐ§",
   "block.phoenixcore.graphite_moderator": "ɹoʇɐɹǝpoW ǝʇıɥdɐɹ⅁",
+  "block.phoenixcore.heat_exchanger": "ɹǝbuɐɥɔxƎ ʇɐǝHq§",
   "block.phoenixcore.heat_stable_cooler": "ɹǝןooƆ ǝןqɐʇS ʇɐǝH",
   "block.phoenixcore.high_performance_breeder_reactor": "ɹoʇɔɐǝᴚ ɹǝpǝǝɹᗺ ǝɔuɐɯɹoɟɹǝԀ ɥbıHq§",
   "block.phoenixcore.high_temp_cooler": "ɹǝןooƆ dɯǝ⟘ ɥbıH",
@@ -50,6 +52,7 @@
   "block.phoenixcore.phoenix_heart_casing": "buısɐƆ ʇɹɐǝH xıuǝoɥԀɔ§",
   "block.phoenixcore.phoenix_heat_sink_component": "ʇuǝuodɯoƆ ʞuıS ʇɐǝH xıuǝoɥԀ",
   "block.phoenixcore.phoenix_infuser": "ɹǝsnɟuI xıuǝoɥԀɔ§",
+  "block.phoenixcore.pressurized_fission_reactor": "ɹoʇɔɐǝᴚ uoıssıℲ pǝzıɹnssǝɹԀq§",
   "block.phoenixcore.reliable_naquadah_alloy_machine_casing": "buısɐƆ ǝuıɥɔɐW ʎoןןⱯ ɥɐpɐnbɐN ǝןqɐıןǝᴚɔ§",
   "block.phoenixcore.shield_stability_sensor_hatch": "ɥɔʇɐH ɹosuǝS ʎʇıןıqɐʇS pןǝıɥS",
   "block.phoenixcore.simulated_colony": "ɹoʇıuǝboɹԀ sıdⱯ",

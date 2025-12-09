@@ -157,14 +157,14 @@ public class PhoenixMachineRecipes {
                 .EUt(ZPM * 2)
                 .outputItems(PhoenixMachines.DANCE)
                 .save(provider);
-        PhoenixRecipeTypes.FISSION_RECIPES.recipeBuilder("honey_chamber_test")
+        PhoenixRecipeTypes.HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES.recipeBuilder("honey_chamber_test")
                 .inputFluids(Water.getFluid(16))
                 .duration(600)
                 .EUt(-LV).duration(400)
                 .addData("required_cooling", 5000)
                 .outputFluids(SodiumPotassium.getFluid(16))
                 .save(provider);
-        PhoenixRecipeTypes.FISSION_RECIPES.recipeBuilder("honey_chamber_tet")
+        PhoenixRecipeTypes.HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES.recipeBuilder("honey_chamber_tet")
                 .inputFluids(Acetone.getFluid(16))
                 .duration(600)
                 .EUt(-LV).duration(400)
