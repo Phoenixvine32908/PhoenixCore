@@ -34,27 +34,19 @@ public class PhoenixKubeJSPlugin extends KubeJSPlugin {
     public void init() {
         super.init();
         RegistryInfo.BLOCK.addType(
-                // The ID used in KubeJS scripts (e.g., 'phoenixcore:fission_cooler')
                 phoenixcore.MOD_ID + ":fission_cooler",
-                // The Builder class
                 FissionCoolerBlockBuilder.class,
-                // The constructor reference
                 FissionCoolerBlockBuilder::new);
 
-        // 2. Register the Fission Moderator Builder
         RegistryInfo.BLOCK.addType(
-                // The ID used in KubeJS scripts (e.g., 'phoenixcore:fission_moderator')
                 phoenixcore.MOD_ID + ":fission_moderator",
-                // The Builder class
                 FissionModeratorBlockBuilder.class,
-                // The constructor reference
                 FissionModeratorBlockBuilder::new);
     }
 
     @Override
     public void registerClasses(ScriptType type, ClassFilter filter) {
         super.registerClasses(type, filter);
-        // allow user to access all gtceu classes by importing them.
         filter.allow("net.phoenix.core");
     }
 

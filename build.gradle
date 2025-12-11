@@ -46,6 +46,7 @@ repositories {
         content {
             includeGroup 'com.gregtechceu.gtceu'
             includeGroup 'appeng'
+            includeGroup 'lu.kolja'
 
         }
     }
@@ -205,6 +206,7 @@ dependencies {
     modCompileOnly("curse.maven:jade-324717:5390389")
 
     jarJar("appeng:appliedenergistics2-forge:${ae2_version}")
+    jarJar("lu.kolja:expandedae:${expandedAE}")
 
 
 

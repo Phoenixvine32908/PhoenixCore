@@ -1,7 +1,6 @@
 package net.phoenix.core.api.pattern;
 
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
-import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;
 
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
 
@@ -12,7 +11,9 @@ import net.phoenix.core.api.block.IFissionModeratorType;
 import net.phoenix.core.common.block.FissionCoolerBlock;
 import net.phoenix.core.common.block.FissionModeratorBlock;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -28,13 +29,12 @@ public class PhoenixPredicates {
                 if (blockState.is(entry.getValue().get())) {
 
                     var type = entry.getKey();
-                    Object existing = blockWorldState.getMatchContext().getOrPut("CoolerType", type);
 
-                    if (!existing.equals(type)) {
-                        blockWorldState.setError(new PatternStringError(
-                                "phoenix.multiblock.pattern.error.single_cooler_type"));
-                        return false;
-                    }
+                    @SuppressWarnings("unchecked")
+                    List<IFissionCoolerType> componentList = (List<IFissionCoolerType>) blockWorldState
+                            .getMatchContext()
+                            .getOrPut("CoolerTypes", new ArrayList<IFissionCoolerType>());
+                    componentList.add(type);
 
                     return true;
                 }
@@ -46,7 +46,7 @@ public class PhoenixPredicates {
                         .sorted(Comparator.comparingInt(e -> e.getKey().getTier()))
                         .map(e -> BlockInfo.fromBlockState(e.getValue().get().defaultBlockState()))
                         .toArray(BlockInfo[]::new))
-                .addTooltips(Component.translatable("phoenix.multiblock.pattern.error.single_cooler_type"));
+                .addTooltips(Component.translatable("phoenix.multiblock.pattern.info.multiple_coolers"));
     }
 
     public static TraceabilityPredicate fissionModerators() {
@@ -59,13 +59,12 @@ public class PhoenixPredicates {
                 if (blockState.is(entry.getValue().get())) {
 
                     var type = entry.getKey();
-                    Object existing = blockWorldState.getMatchContext().getOrPut("ModeratorType", type);
 
-                    if (!existing.equals(type)) {
-                        blockWorldState.setError(new PatternStringError(
-                                "phoenix.multiblock.pattern.error.single_moderator_type"));
-                        return false;
-                    }
+                    @SuppressWarnings("unchecked")
+                    List<IFissionModeratorType> componentList = (List<IFissionModeratorType>) blockWorldState
+                            .getMatchContext()
+                            .getOrPut("ModeratorTypes", new ArrayList<IFissionModeratorType>());
+                    componentList.add(type);
 
                     return true;
                 }
@@ -77,6 +76,6 @@ public class PhoenixPredicates {
                         .sorted(Comparator.comparingInt(e -> e.getKey().getTier()))
                         .map(e -> BlockInfo.fromBlockState(e.getValue().get().defaultBlockState()))
                         .toArray(BlockInfo[]::new))
-                .addTooltips(Component.translatable("phoenix.multiblock.pattern.error.single_moderator_type"));
+                .addTooltips(Component.translatable("phoenix.multiblock.pattern.info.multiple_moderators"));
     }
 }

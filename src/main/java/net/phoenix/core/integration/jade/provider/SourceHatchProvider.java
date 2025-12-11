@@ -34,7 +34,6 @@ public class SourceHatchProvider implements IBlockComponentProvider, IServerData
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
         if (blockAccessor.getBlockEntity() instanceof MetaMachineBlockEntity blockEntity) {
             if (blockEntity.getMetaMachine() instanceof SourceHatchPartMachine sourceHatch) {
-                // Corrected: The variable type must be ISourceTile
                 ISourceTile sourceContainer = sourceHatch.getSourceContainer();
 
                 compoundTag.putInt("sourceStored", sourceContainer.getSource());

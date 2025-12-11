@@ -16,15 +16,12 @@ public class ShieldComponent implements RecipeComponent<Shield.ShieldTypes> {
 
     @Override
     public JsonElement write(RecipeJS recipeJS, Shield.ShieldTypes shieldType) {
-        // Writes the enum key (integer) to the JSON
         return new JsonPrimitive(shieldType.key);
     }
 
     @Override
     public Shield.ShieldTypes read(RecipeJS recipeJS, Object o) {
-        // Reads the object back from KubeJS or JSON
         if (o instanceof Number n) {
-            // Assumes Shield.ShieldTypes has a static lookup method
             return Shield.ShieldTypes.getShieldFromKey(n.intValue());
         }
         if (o instanceof String s) {

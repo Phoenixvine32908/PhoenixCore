@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "phoenixcore:high_temp_cooler"
+          "name": "phoenixcore:basic_cooler"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "phoenixcore:blocks/high_temp_cooler"
+  "random_sequence": "phoenixcore:blocks/basic_cooler"
 }

@@ -3,9 +3,6 @@ package net.phoenix.core.common.machine.multiblock.part;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 
-/**
- * Enum property for rendering shield states on sensor hatches.
- */
 public enum ShieldRenderProperty implements StringRepresentable {
 
     NORMAL("normal"),

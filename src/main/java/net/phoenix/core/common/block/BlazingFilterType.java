@@ -8,14 +8,8 @@ import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Custom IFilterType enum for the Blazing Cleanroom.
- * Note: Enums in Java cannot extend other enums, so we create a new
- * enum that implements the same interface, IFilterType.
- */
 public enum BlazingFilterType implements IFilterType {
 
-    // Define the custom filter type entry, linking it to your BlazingCleanroom class.
     FILTER_CASING_BLAZING("blazing_filter_casing", 1, BlazingCleanroom.BLAZING_CLEANROOM);
 
     private final String name;

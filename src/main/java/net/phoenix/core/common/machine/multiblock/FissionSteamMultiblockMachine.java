@@ -21,16 +21,15 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
-import net.phoenix.core.common.block.FissionCoolerBlock;
-import net.phoenix.core.common.block.FissionModeratorBlock;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @MethodsReturnNonnullByDefault
-// Inherit from WorkableElectricMultiblockMachine to reuse multiblock and recipe execution logic
 public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMachine
                                            implements IExplosionMachine {
 
@@ -42,8 +41,15 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
     @Persisted
     private int meltdownTimerMax = 0;
 
-    private IFissionCoolerType activeCooler = FissionCoolerBlock.fissionCoolerType.COOLER_TRUE_HEAT_STABLE;
-    private IFissionModeratorType activeModerator = FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE;
+    @Persisted
+    private List<IFissionCoolerType> activeCoolers = new ArrayList<>();
+    @Persisted
+    private List<IFissionModeratorType> activeModerators = new ArrayList<>();
+
+    @Nullable
+    private transient IFissionCoolerType primaryCoolerType = null;
+    @Nullable
+    private transient IFissionModeratorType primaryModeratorType = null;
 
     public int lastRequiredCooling = 0;
     public int lastProvidedCooling = 0;
@@ -62,11 +68,20 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
     public void onStructureFormed() {
         super.onStructureFormed();
 
-        Object cooler = getMultiblockState().getMatchContext().get("CoolerType");
-        if (cooler instanceof IFissionCoolerType ct) activeCooler = ct;
+        // Retrieve the lists
+        @SuppressWarnings("unchecked")
+        List<IFissionCoolerType> coolers = (List<IFissionCoolerType>) getMultiblockState().getMatchContext()
+                .get("CoolerTypes");
+        this.activeCoolers = coolers == null ? new ArrayList<>() : coolers;
 
-        Object moderator = getMultiblockState().getMatchContext().get("ModeratorType");
-        if (moderator instanceof IFissionModeratorType mt) activeModerator = mt;
+        @SuppressWarnings("unchecked")
+        List<IFissionModeratorType> moderators = (List<IFissionModeratorType>) getMultiblockState().getMatchContext()
+                .get("ModeratorTypes");
+        this.activeModerators = moderators == null ? new ArrayList<>() : moderators;
+
+        // Determine the Primary Components (FIXED: Calls specialized methods)
+        this.primaryCoolerType = getPrimaryCooler(this.activeCoolers);
+        this.primaryModeratorType = getPrimaryModerator(this.activeModerators);
 
         meltdownTimerTicks = -1;
         meltdownTimerMax = 0;
@@ -75,8 +90,12 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
-        activeCooler = FissionCoolerBlock.fissionCoolerType.COOLER_TRUE_HEAT_STABLE;
-        activeModerator = FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE;
+
+        activeCoolers.clear();
+        activeModerators.clear();
+        this.primaryCoolerType = null;
+        this.primaryModeratorType = null;
+
         meltdownTimerTicks = -1;
         meltdownTimerMax = 0;
     }
@@ -90,22 +109,6 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
         } else {
             lastRequiredCooling = 0;
         }
-
-        List<IFissionModeratorType> mods = getParts().stream()
-                .filter(p -> p instanceof IFissionModeratorType)
-                .map(p -> (IFissionModeratorType) p)
-                .toList();
-        if (!mods.isEmpty()) activeModerator = mods.stream()
-                .max(Comparator.comparingInt(IFissionModeratorType::getTier)).orElse(activeModerator);
-
-        List<IFissionCoolerType> cools = getParts().stream()
-                .filter(p -> p instanceof IFissionCoolerType)
-                .map(p -> (IFissionCoolerType) p)
-                .toList();
-        Optional<IFissionCoolerType> opt = cools.stream()
-                .filter(c -> c.getCoolerTemperature() >= lastRequiredCooling)
-                .min(Comparator.comparingInt(IFissionCoolerType::getCoolerTemperature));
-        opt.ifPresent(c -> activeCooler = c);
 
         return super.beforeWorking(recipe);
     }
@@ -121,9 +124,18 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
         lastRequiredCooling = currentRecipe.data.contains("required_cooling") ?
                 currentRecipe.data.getInt("required_cooling") : 0;
 
-        lastProvidedCooling = activeCooler == null ? 0 : activeCooler.getCoolerTemperature();
-        int coolantNeededPerTick = activeCooler.getCoolantPerTick();
-        lastHasCoolant = tryConsumeCoolantFromParts(activeCooler, coolantNeededPerTick);
+        // Cooling is ADDITIVE (Sum all)
+        lastProvidedCooling = this.activeCoolers.stream()
+                .mapToInt(IFissionCoolerType::getCoolerTemperature)
+                .sum();
+
+        // Coolant Needed is NON-ADDITIVE (Use Primary Cooler's rate)
+        int coolantNeededPerTick = 0;
+        if (this.primaryCoolerType != null) {
+            coolantNeededPerTick = this.primaryCoolerType.getCoolantPerTick();
+        }
+
+        lastHasCoolant = tryConsumePrimaryCoolant(this.primaryCoolerType, coolantNeededPerTick);
 
         int effectiveProvidedCooling = lastHasCoolant ? lastProvidedCooling : 0;
         int deficit = Math.max(0, lastRequiredCooling - effectiveProvidedCooling);
@@ -134,16 +146,54 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
         return true;
     }
 
-    private boolean tryConsumeCoolantFromParts(@Nullable IFissionCoolerType cooler, int mb) {
-        if (cooler == null || mb <= 0) return false;
+    /**
+     * Finds the "Primary" Cooler Type based on quantity, then tier.
+     */
+    private @Nullable IFissionCoolerType getPrimaryCooler(List<IFissionCoolerType> componentList) {
+        if (componentList.isEmpty()) {
+            return null;
+        }
 
-        Material mat = cooler.getRequiredCoolantMaterial();
-        if (mat == null) return false;
+        Map<IFissionCoolerType, Long> counts = componentList.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        FluidStack required = mat.getFluid(mb);
-        if (required == null || required.isEmpty()) return false;
+        return counts.entrySet().stream()
+                .max(Comparator.<Map.Entry<IFissionCoolerType, Long>>comparingLong(Map.Entry::getValue)
+                        .thenComparingInt(e -> e.getKey().getTier()))
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    /**
+     * Finds the "Primary" Moderator Type based on quantity, then tier.
+     */
+    private @Nullable IFissionModeratorType getPrimaryModerator(List<IFissionModeratorType> componentList) {
+        if (componentList.isEmpty()) {
+            return null;
+        }
+
+        Map<IFissionModeratorType, Long> counts = componentList.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        return counts.entrySet().stream()
+                .max(Comparator.<Map.Entry<IFissionModeratorType, Long>>comparingLong(Map.Entry::getValue)
+                        .thenComparingInt(e -> e.getKey().getTier()))
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    // Consumes only the coolant required by the primary cooler at its designated rate.
+    private boolean tryConsumePrimaryCoolant(@Nullable IFissionCoolerType primaryCooler, int amountMb) {
+        if (primaryCooler == null || amountMb <= 0) return true;
+
+        Material requiredMat = primaryCooler.getRequiredCoolantMaterial();
+        if (requiredMat == null || requiredMat == GTMaterials.NULL) return true;
+
+        FluidStack required = requiredMat.getFluid(amountMb);
+        if (required == null || required.isEmpty()) return true;
 
         var tanks = getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP);
+        boolean consumedThisType = false;
 
         for (var handler : tanks) {
             if (!(handler instanceof NotifiableFluidTank tank)) continue;
@@ -153,14 +203,15 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
 
                 if (!fluid.isEmpty() && fluid.getFluid().isSame(required.getFluid())) {
                     int drained = tank.drainInternal(required, IFluidHandler.FluidAction.EXECUTE).getAmount();
-                    if (drained >= mb) {
-                        return true;
+                    if (drained >= amountMb) {
+                        consumedThisType = true;
+                        break;
                     }
                 }
             }
+            if (consumedThisType) break;
         }
-
-        return false;
+        return consumedThisType;
     }
 
     private void handleDangerTiers(float deficitPct) {
@@ -200,8 +251,14 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
     }
 
     private void doMeltdown() {
-        float power = 6.0f + (activeCooler == null ? 0f : activeCooler.getTier() * 1.5f) +
-                (activeModerator == null ? 0f : activeModerator.getTier() * 0.7f);
+        // Explosion Tier uses PRIMARY/MAX TIER component's tier
+        int coolerTier = this.primaryCoolerType != null ? this.primaryCoolerType.getTier() : 0;
+        int moderatorTier = this.primaryModeratorType != null ? this.primaryModeratorType.getTier() : 0;
+
+        float coolerPower = coolerTier * 1.5f;
+        float moderatorPower = moderatorTier * 0.7f;
+
+        float power = 6.0f + coolerPower + moderatorPower;
 
         if (getLevel() instanceof net.minecraft.server.level.ServerLevel world) {
 
@@ -222,25 +279,22 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
         meltdownTimerMax = 0;
     }
 
-    /**
-     * MODIFICATION: Recipe modifier is changed to only apply the duration (fuel discount) multiplier.
-     * The EU multiplier is set to 1.0, effectively disabling the moderator's EU boost feature.
-     */
     public static com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction recipeModifier(
                                                                                             com.gregtechceu.gtceu.api.machine.MetaMachine machine,
                                                                                             com.gregtechceu.gtceu.api.recipe.GTRecipe recipe) {
         if (!(machine instanceof FissionSteamMultiblockMachine m))
             return RecipeModifier.nullWrongType(FissionSteamMultiblockMachine.class, machine);
 
-        IFissionModeratorType mod = m.activeModerator;
-        double durationMultiplier = 1.0;
+        // Fuel Discount is ADDITIVE (Sum all)
+        double totalFuelDiscountPercent = m.activeModerators.stream()
+                .mapToInt(IFissionModeratorType::getFuelDiscount)
+                .sum();
 
-        if (mod != null) {
-            durationMultiplier *= Math.max(0.01, 1.0 - (mod.getFuelDiscount() / 100.0));
-        }
+        double durationMultiplier = Math.max(0.01, 1.0 - (totalFuelDiscountPercent / 100.0));
 
+        // EU boost is still ignored in the Steam Fission Reactor (eutMultiplier = 1.0)
         return ModifierFunction.builder()
-                .eutMultiplier(1.0) // <--- CRITICAL CHANGE: EU boost is ignored.
+                .eutMultiplier(1.0)
                 .durationMultiplier(durationMultiplier)
                 .build();
     }
@@ -279,39 +333,42 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
             }
         }
 
-        // --- DETAILS ---
-        String modKey = getModeratorName();
-        Component moderatorName = modKey.equals("None") ?
-                Component.literal("None") : Component.translatable("block.phoenixcore." + modKey);
+        // Moderator Display: Primary Name + Total Count
+        String moderatorName = getModeratorName();
+        String moderatorCount = this.activeModerators.size() > 1 ?
+                "(" + this.activeModerators.size() + " total)" : "";
 
-        String coolerKey = getCoolerName();
-        Component coolerName = coolerKey.equals("None") ?
-                Component.literal("None") : Component.translatable("block.phoenixcore." + coolerKey);
+        Component moderatorDisplay = Component.literal(moderatorName + " " + moderatorCount);
 
-        textList.add(Component.translatable("phoenix.fission.moderator", moderatorName));
-        // textList.add(Component.translatable("phoenix.fission.moderator_boost", getModeratorEUBoost())); // <--
-        // REMOVED THIS LINE
+        textList.add(Component.translatable("phoenix.fission.moderator", moderatorDisplay));
         textList.add(Component.translatable("phoenix.fission.moderator_fuel_discount", getModeratorFuelDiscount()));
 
-        textList.add(Component.translatable("phoenix.fission.cooler", coolerName));
+        // Cooler Display: Primary Name + Total Count
+        String coolerName = getCoolerName();
+        String coolerCount = this.activeCoolers.size() > 1 ?
+                "(" + this.activeCoolers.size() + " total)" : "";
 
-        Material coolantMat = activeCooler == null ? null : activeCooler.getRequiredCoolantMaterial();
-        Component coolantComp;
-        if (coolantMat == null || coolantMat == GTMaterials.NULL || coolantMat.getName().equals("none")) {
-            coolantComp = Component.literal("None");
+        Component coolerDisplay = Component.literal(coolerName + " " + coolerCount);
+        textList.add(Component.translatable("phoenix.fission.cooler", coolerDisplay));
+
+        // Coolant Display: Primary Material Name and Primary Rate
+        int totalCoolantRate = getCoolantRatePerTick();
+
+        if (totalCoolantRate > 0 && this.primaryCoolerType != null) {
+            String coolantMatName = getCoolantName();
+            Component coolantComp = Component.literal(coolantMatName);
+
+            textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
+
+            textList.add(Component.translatable(lastHasCoolant ?
+                    "phoenix.fission.coolant_status.ok" : "phoenix.fission.coolant_status.empty")
+                    .withStyle(s -> s.withColor(lastHasCoolant ? 0x33FF33 : 0xFF3333)));
+
+            textList.add(Component.translatable("phoenix.fission.coolant_rate", totalCoolantRate));
         } else {
-            FluidStack fs = coolantMat.getFluid(1);
-            coolantComp = fs.isEmpty() ?
-                    Component.translatable(coolantMat.getDefaultTranslation()) : fs.getDisplayName();
+            Component coolantComp = Component.literal("None Required");
+            textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
         }
-
-        textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
-
-        textList.add(Component.translatable(lastHasCoolant ?
-                "phoenix.fission.coolant_status.ok" : "phoenix.fission.coolant_status.empty")
-                .withStyle(s -> s.withColor(lastHasCoolant ? 0x33FF33 : 0xFF3333)));
-
-        textList.add(Component.translatable("phoenix.fission.coolant_rate", getCoolantRatePerTick()));
 
         if (lastRequiredCooling > 0) {
             int color = lastProvidedCooling >= lastRequiredCooling ? 0x33FF33 : 0xFF3333;
@@ -320,8 +377,6 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
                     .withStyle(s -> s.withColor(color)));
         }
     }
-
-    // --- Helper Getters (Copied to fix the compilation error) ---
 
     @SuppressWarnings("unused")
     public float getExplosionProgress() {
@@ -336,29 +391,32 @@ public class FissionSteamMultiblockMachine extends WorkableElectricMultiblockMac
     }
 
     public int getModeratorEUBoost() {
-        return activeModerator == null ? 0 : activeModerator.getEUBoost();
+        return this.activeModerators.stream()
+                .mapToInt(IFissionModeratorType::getEUBoost)
+                .sum();
     }
 
     public int getModeratorFuelDiscount() {
-        return activeModerator == null ? 0 : activeModerator.getFuelDiscount();
+        return this.activeModerators.stream()
+                .mapToInt(IFissionModeratorType::getFuelDiscount)
+                .sum();
     }
 
     public String getModeratorName() {
-        return activeModerator == null ? "None" : activeModerator.getName();
+        return this.primaryModeratorType != null ? this.primaryModeratorType.getName() : "None";
     }
 
     public String getCoolerName() {
-        return activeCooler == null ? "None" : activeCooler.getName();
+        return this.primaryCoolerType != null ? this.primaryCoolerType.getName() : "None";
     }
 
     public String getCoolantName() {
-        Material mat = activeCooler == null ? null : activeCooler.getRequiredCoolantMaterial();
+        Material mat = this.primaryCoolerType != null ? this.primaryCoolerType.getRequiredCoolantMaterial() : null;
         if (mat == null || mat == GTMaterials.NULL) return "None";
-
         return mat.getName();
     }
 
     public int getCoolantRatePerTick() {
-        return activeCooler == null ? 0 : activeCooler.getCoolantPerTick();
+        return this.primaryCoolerType != null ? this.primaryCoolerType.getCoolantPerTick() : 0;
     }
 }

@@ -29,7 +29,7 @@ public class PhoenixMaterialRegistry {
         ResourceLocation loc = new ResourceLocation(fluidId);
         Fluid fluid = ForgeRegistries.FLUIDS.getValue(loc);
         if (fluid == null) return null;
-        return getMaterial(fluid); // delegate to your existing Fluid-based method
+        return getMaterial(fluid);
     }
 
     public static Material getMaterial(Fluid fluid) {

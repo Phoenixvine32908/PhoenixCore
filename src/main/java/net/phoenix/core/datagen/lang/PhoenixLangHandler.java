@@ -5,12 +5,10 @@ import com.tterrag.registrate.providers.RegistrateLangProvider;
 public class PhoenixLangHandler {
 
     public static void init(RegistrateLangProvider provider) {
-        // --- Custom Capability/Recipe Viewer Keys (New) ---
         provider.add("emi_info.phoenixcore.required_shield", "Required Shield: %s");
         provider.add("shield.phoenixcore.type.normal", "Normal");
         provider.add("shield.phoenixcore.type.inactive", "Inactive");
         provider.add("shield.phoenixcore.type.decayed", "Decayed");
-        // --------------------------------------------------
         provider.add("emi_info.phoenixcore.shield_heal", "Shield Health Restored: +%s");
         provider.add("emi_info.phoenixcore.shield_damage", "Shield Damage Applied: -%s");
         provider.add("phoenix.fission.coolant_required", "§7Required Coolant: §f%s");
@@ -49,17 +47,18 @@ public class PhoenixLangHandler {
         provider.add("block.phoenixcore.fission_cooler.info_header", "§7--- Cooler Information ---");
         provider.add("block.phoenixcore.fission_cooler.temperature", "§cOperating Temperature: §f%s K");
         provider.add("block.phoenixcore.fission_cooler.required_coolant", "§bRequired Coolant: §f%s");
-        provider.add("block.phoenixcore.fission_cooler.flow_rate", "§aFlow Rate Multiplier: §f%s×");
 
         provider.add("block.phoenixcore.fission_moderator.shift", "Hold §eShift§r for moderator details");
         provider.add("block.phoenixcore.fission_moderator.info_header", "§7--- Moderator Information ---");
-        provider.add("block.phoenixcore.fission_moderator.boost", "§aEU Output Boost: §f%s×");
-        provider.add("block.phoenixcore.fission_moderator.fuel_discount", "§bFuel Usage Reduction: §f%s×");
+        provider.add("block.phoenixcore.fission_moderator.boost", "§aEU Output Boost: §f%s%%");
+        provider.add("block.phoenixcore.fission_moderator.fuel_discount", "§bFuel Usage Reduction: §f%s%%");
 
-        provider.add("phoenix.multiblock.pattern.error.single_cooler_type",
-                "Only one type of cooler may be used in this multiblock!");
-        provider.add("phoenix.multiblock.pattern.error.single_moderator_type",
-                "Only one type of moderator may be used in this multiblock!");
+
+
+        provider.add("phoenix.multiblock.pattern.info.multiple_coolers",
+                "Accepts multiple Fission Cooler Blocks. Cooling power is additive.");
+        provider.add("phoenix.multiblock.pattern.info.multiple_moderators",
+                "Accepts multiple Fission Moderator Blocks. EU Boost/Fuel Discount is additive.");
 
         provider.add("config.jade.plugin_phoenixcore.source_hatch_info", "Source Stored: %s");
         provider.add("gui.phoenixcore.source_hatch.source", "Source Stored: %s");
@@ -114,21 +113,21 @@ public class PhoenixLangHandler {
                 "§cExtremely Modified Space Grade Steel");
         provider.add("material.phoenixcore.quantum_coolant",
                 "§bQuantum Coolant");
+        provider.add("material.phoenixcore.boron_carbide", "§5Boron Carbide");
+        provider.add("material.phoenixcore.niobium_modified_silicon_carbide", "§5Niobium Modified Silicon Carbide");
+        provider.add("material.phoenixcore.frost", "§bFrost");
         provider.add("material.phoenixcore.eighty_five_percent_pure_nevvonian_steel",
                 "§6Eighty Five Percent Pure Nevvonian Steel");
         provider.add("material.phoenixcore.phoenix_enriched_naquadah",
                 "§6Phoenix Enriched Naquadah");
         provider.add("phoenixcore.tooltip.hyper_machine_1", "Each Coolant provides a boost:");
 
-        provider.add("shield.phoenixcore.current_shield", "Shield Status: %s"); // %s will be "Normal", "Inactive", etc.
-        provider.add("shield.phoenixcore.health", "Health: %s"); // %s will be shield health value
+        provider.add("shield.phoenixcore.current_shield", "Shield Status: %s");
+        provider.add("shield.phoenixcore.health", "Health: %s");
         provider.add("shield.phoenixcore.cooldown", "Cooldown: %s seconds");
         provider.add("jade.phoenixcore.shield_state", "Shield State: %s");
-        // --- NEW KEYS ADDED BELOW ---
         provider.add("jade.phoenixcore.shield_health", "Health: %s");
         provider.add("config.jade.plugin_phoenixcore.plasma_furnace_info", "High-Pressure Plasma Arc Furnace Info");
-        provider.add("jade.phoenixcore.shield_cooldown", "Cooldown: %s seconds");
-        // --------------------------------------
         provider.add("jade.phoenixcore.plasma_boost_active", "Plasma Boost: %s Active");
         provider.add("jade.phoenixcore.plasma_boost_duration", "Duration Multiplier: %s");
         provider.add("jade.phoenixcore.no_plasma_boost", "No Plasma Catalyst");

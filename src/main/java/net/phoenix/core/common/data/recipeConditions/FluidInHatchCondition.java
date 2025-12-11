@@ -57,7 +57,6 @@ public class FluidInHatchCondition extends RecipeCondition {
     public static FluidInHatchCondition of(@NotNull Fluid fluid) {
         ResourceLocation id = ForgeRegistries.FLUIDS.getKey(fluid);
         if (id == null) throw new IllegalArgumentException("Fluid has no registry ID: " + fluid);
-        // Data generator safe - only stores the ID
         return new FluidInHatchCondition(false, id.toString(), "");
     }
 
@@ -70,7 +69,6 @@ public class FluidInHatchCondition extends RecipeCondition {
     }
 
     public static FluidInHatchCondition of(@NotNull String fluidId) {
-        // Data generator safe - only stores the ID
         return new FluidInHatchCondition(false, fluidId, "");
     }
 

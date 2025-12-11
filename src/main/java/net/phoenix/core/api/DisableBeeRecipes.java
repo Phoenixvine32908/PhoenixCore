@@ -9,7 +9,6 @@ import java.util.List;
 public class DisableBeeRecipes {
 
     public static void main(String[] args) {
-        // Use the manually provided list of bee names.
         List<String> beeNames = Arrays.asList(
                 "ashy_mining_bee",
                 "blue_banded_bee",
@@ -164,32 +163,24 @@ public class DisableBeeRecipes {
                 "polarity_flipped_bismuthite_bee",
                 "dye_bee");
 
-        // 2. Define the base directory where the new JSON files will be created.
-        // This is the path you provided.
         String baseDirectory = "C:\\Users\\conno\\curseforge\\minecraft\\Instances\\Phoenix Forge Technologies\\kubejs\\assets\\productivebees\\recipes\\bee_breeding\\";
 
-        // 3. Define the template JSON content.
         String jsonContent = "{}";
 
-        // Ensure the directory exists.
         File directory = new File(baseDirectory);
         if (!directory.exists()) {
             System.out.println("Creating directory: " + baseDirectory);
             directory.mkdirs();
         }
 
-        // 4. Iterate through the list of bees and create a file for each.
         for (String beeName : beeNames) {
-            // Construct the full file path.
             String fileName = beeName + ".json";
             String filePath = baseDirectory + fileName;
 
-            // 5. Write the file.
             try (FileWriter fileWriter = new FileWriter(filePath)) {
                 fileWriter.write(jsonContent);
                 System.out.println("Successfully created and wrote to: " + filePath);
             } catch (IOException e) {
-                // 6. Handle potential errors.
                 System.err.println("An error occurred while writing the file for " + beeName + ":");
                 e.printStackTrace();
             }

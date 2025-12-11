@@ -44,7 +44,6 @@ public class PhoenixGTAddon implements IGTAddon {
 
     @Override
     public void registerTagPrefixes() {
-        // CustomTagPrefixes.init();
     }
 
     @Override
@@ -69,13 +68,12 @@ public class PhoenixGTAddon implements IGTAddon {
 
     public static final ShieldComponent SHIELD_COMPONENT = new ShieldComponent();
     public static final ContentJS<Shield.ShieldTypes> SHIELD_IN = new ContentJS<>(SHIELD_COMPONENT,
-            PhoenixRecipeCapabilities.SHIELDTYPES, true); // isInput = true
+            PhoenixRecipeCapabilities.SHIELDTYPES, true);
     public static final ContentJS<Shield.ShieldTypes> SHIELD_OUT = new ContentJS<>(SHIELD_COMPONENT,
-            PhoenixRecipeCapabilities.SHIELDTYPES, false); // isInput = false, thus isOutput = true
+            PhoenixRecipeCapabilities.SHIELDTYPES, false);
 
     @Override
     public void registerRecipeKeys(KJSRecipeKeyEvent event) {
-        // Change the null to SHIELD_OUT
         event.registerKey(PhoenixRecipeCapabilities.SHIELDTYPES, Pair.of(SHIELD_IN, SHIELD_OUT));
     }
 }

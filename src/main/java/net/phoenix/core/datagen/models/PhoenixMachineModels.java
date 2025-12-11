@@ -78,9 +78,6 @@ public class PhoenixMachineModels {
         model.texture("side", casing);
     }
 
-    // ============================================================
-    // NEW: GTCEu-Style FISSION COOLER MODEL
-    // ============================================================
 
     public static <
             T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrateBlockstateProvider> createActiveCoolerModel(IFissionCoolerType type) {
@@ -104,9 +101,6 @@ public class PhoenixMachineModels {
         };
     }
 
-    // ============================================================
-    // NEW: GTCEu-Style FISSION MODERATOR MODEL
-    // ============================================================
 
     public static <
             T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrateBlockstateProvider> createFissionModeratorModel(IFissionModeratorType type) {

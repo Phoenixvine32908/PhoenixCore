@@ -86,7 +86,7 @@ public class PhoenixHPCAMachine extends WorkableElectricMultiblockMachine
     private boolean hasNotEnoughEnergy;
 
     @Persisted
-    private double temperature = IDLE_TEMPERATURE; // start at idle temperature
+    private double temperature = IDLE_TEMPERATURE;
 
     private final TimedProgressSupplier progressSupplier;
 
@@ -188,7 +188,6 @@ public class PhoenixHPCAMachine extends WorkableElectricMultiblockMachine
     @Override
     public boolean canBridge(@NotNull Collection<IOpticalComputationProvider> seen) {
         seen.add(this);
-        // don't show a problem if the structure is not yet formed
         return !isFormed() || hpcaHandler.hasHPCABridge();
     }
 
@@ -453,7 +452,6 @@ public class PhoenixHPCAMachine extends WorkableElectricMultiblockMachine
          * @return The temperature change, can be positive or negative.
          */
         public double calculateTemperatureChange(IFluidHandler coolantTank, boolean forceCoolWithActive) {
-            // calculate temperature increase
             int maxCWUt = Math.max(1, getMaxCWUt()); // avoids dividing by 0 and the behavior is no different
             int maxCoolingDemand = getMaxCoolingDemand();
 
@@ -513,22 +511,20 @@ public class PhoenixHPCAMachine extends WorkableElectricMultiblockMachine
 
         private int getStrongestAvailableCoolantSlot(IFluidHandler tank) {
             Fluid[] fluids = new Fluid[] {
-                    GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant2).getFluid(), // slot 2
-                    // strongest
-                    GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant1).getFluid(), // slot 1
-                    GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolantBase).getFluid() // slot 0
-                    // weakest
+                    GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant2).getFluid(),
+                    GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant1).getFluid(),
+                    GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolantBase).getFluid()
             };
             for (int slot = 0; slot < fluids.length; slot++) {
                 int tanks = tank.getTanks();
                 for (int i = 0; i < tanks; i++) {
                     FluidStack stack = tank.getFluidInTank(i);
                     if (!stack.isEmpty() && stack.getFluid() == fluids[slot]) {
-                        return 2 - slot; // slot 2 is index 0, so invert
+                        return 2 - slot;
                     }
                 }
             }
-            return 0; // fallback to base coolant
+            return 0;
         }
 
         public FluidStack getCoolantStack(int amount, IFluidHandler tank) {
@@ -542,7 +538,7 @@ public class PhoenixHPCAMachine extends WorkableElectricMultiblockMachine
                     return GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant1).getFluid();
                 case 2:
                     return GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant2).getFluid();
-                default: // slot 0 = baseline pcb_coolant
+                default:
                     return GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolantBase).getFluid();
             }
         }

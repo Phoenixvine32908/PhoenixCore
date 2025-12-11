@@ -24,36 +24,25 @@ public class BeeRecipeData {
     public static final String MOD_ID = "phoenixcore";
     public static final int FINAL_HONEY_OUTPUT_AMOUNT = 250;
 
-    // --- FLUID CONSTANTS ---
     public static final String SUGAR_WATER_FLUID = "gtceu:sugar_water";
     public static final int SUGAR_WATER_AMOUNT = 100;
     public static final String HONEY_FLUID = "productivebees:honey";
 
-    // --- DEFAULT RECIPE TIER CONSTANTS (Easily adjust entire groups here) ---
-    private static final int DEFAULT_IV_EUT = GTValues.VA[GTValues.IV]; // 4096 EU/t
-    private static final int DEFAULT_LUV_EUT = GTValues.VA[GTValues.LuV]; // 16384 EU/t
-    private static final int DEFAULT_DECANTING_DURATION = 3600; // 3 minutes
-    private static final int DEFAULT_WAX_FLUID_DURATION = 400;  // 20 seconds
+    private static final int DEFAULT_IV_EUT = GTValues.VA[GTValues.IV];
+    private static final int DEFAULT_LUV_EUT = GTValues.VA[GTValues.LuV];
+    private static final int DEFAULT_DECANTING_DURATION = 3600;
+    private static final int DEFAULT_WAX_FLUID_DURATION = 400;
 
-    // Decanting EUT from KubeJS for new entries (Using a specific value for IV bees)
     private static final int DECANTING_EUT_IV = 4000;
     private static final int WAX_EUT_DEFAULT = 6128;
     private static final int FLUID_EUT_DEFAULT = 6128;
 
-    // ✅ NEW: Declare as an empty, mutable HashMap.
     public static final Map<String, FullBeeConfig> ALL_BEE_CONFIGS = new HashMap<>();
-
-    // FIX 2: This map also needs to be a simple HashMap to avoid static initialization failure.
     public static final Map<String, String> ALL_BEE_NAMES = new HashMap<>();
 
-    // ✅ NEW: Create a public static init method to run the population logic later.
-    @SuppressWarnings("deprecation") // Silences ResourceLocation(String) warnings
+    @SuppressWarnings("deprecation")
     public static void init() {
         Map<String, FullBeeConfig> configs = Stream.of(
-                // FullBeeConfig(beeId, pollinationInputId, finalOutputItem, decantingEut, decantingDuration, waxEut,
-                // waxDuration, fluidEut, fluidDuration)
-
-                // EXISTING ENTRIES (IV Tier Defaults)
                 Map.entry("iron", new FullBeeConfig(
                         "iron", "minecraft:iron_block", ChemicalHelper.get(TagPrefix.rawOre, GTMaterials.Iron, 5),
                         DECANTING_EUT_IV, DEFAULT_DECANTING_DURATION, WAX_EUT_DEFAULT, DEFAULT_WAX_FLUID_DURATION,
@@ -63,8 +52,6 @@ public class BeeRecipeData {
                         ChemicalHelper.get(TagPrefix.rawOre, GTMaterials.Diamond, 5),
                         DECANTING_EUT_IV, DEFAULT_DECANTING_DURATION, WAX_EUT_DEFAULT, DEFAULT_WAX_FLUID_DURATION,
                         FLUID_EUT_DEFAULT, DEFAULT_WAX_FLUID_DURATION)),
-
-                // KUBEJS CONSOLIDATED ENTRIES (IV Tier Defaults)
                 Map.entry("pitchblende",
                         new FullBeeConfig("pitchblende", "gtceu:raw_pitchblende_block",
                                 ChemicalHelper.get(TagPrefix.rawOre, GTMaterials.Pitchblende, 5), DECANTING_EUT_IV,
@@ -630,13 +617,10 @@ public class BeeRecipeData {
 
         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        // Populate the static map
         ALL_BEE_CONFIGS.putAll(configs);
     }
 
     public static final List<ApisProgenitorConfig> UNIQUE_APIS_PROGENITOR_CONFIGS = List.of(
-            // Recipe ID, Output Bee ID, Input Bee ID (for NBT), Input Item Stack (String ID * Count), Fluid Input,
-            // Duration, EUt
             new ApisProgenitorConfig("diamond_from_redstone_emerald", "diamond", "ender",
                     "minecraft:lapis_block * 4", null, 100, GTValues.VA[GTValues.IV] / 2),
             new ApisProgenitorConfig("emerald_from_lapis_redstone", "emerald", "diamond",
@@ -648,7 +632,6 @@ public class BeeRecipeData {
             new ApisProgenitorConfig("thorium_from_water", "thorium", "diamond",
                     "gtceu:thorium_block * 4", null, 360, GTValues.VA[GTValues.LuV]),
 
-            // Missing KubeJS Entries
             new ApisProgenitorConfig("infinity_from_water", "infinity", "blazing",
                     "minecraft:obsidian * 32", null, 360, GTValues.VA[GTValues.IV] / 2),
             new ApisProgenitorConfig("tungstate_from_water", "tungstate", "silver",

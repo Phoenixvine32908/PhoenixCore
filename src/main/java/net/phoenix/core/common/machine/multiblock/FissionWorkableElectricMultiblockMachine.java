@@ -1,13 +1,12 @@
 package net.phoenix.core.common.machine.multiblock;
 
-import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.IExplosionMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
@@ -16,16 +15,16 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.phoenix.core.PhoenixAPI;
 import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
-import net.phoenix.core.common.block.FissionCoolerBlock;
-import net.phoenix.core.common.block.FissionModeratorBlock;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @MethodsReturnNonnullByDefault
 public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMultiblockMachine
@@ -39,9 +38,21 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
     @Persisted
     private int meltdownTimerMax = 0;
 
-    private IFissionCoolerType activeCooler = FissionCoolerBlock.fissionCoolerType.COOLER_TRUE_HEAT_STABLE;
+    // FIX 1: Serialization fix - Persist String IDs instead of the objects/interfaces
+    @Persisted
+    private List<String> persistedCoolerIDs = new ArrayList<>();
+    @Persisted
+    private List<String> persistedModeratorIDs = new ArrayList<>();
 
-    private IFissionModeratorType activeModerator = FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE;
+    // FIX 2: Runtime fields - Store the actual objects transiently
+    private transient List<IFissionCoolerType> activeCoolers = new ArrayList<>();
+    private transient List<IFissionModeratorType> activeModerators = new ArrayList<>();
+
+    // FIX 3: Primary Component tracking (Transient)
+    @Nullable
+    private transient IFissionCoolerType primaryCoolerType = null;
+    @Nullable
+    private transient IFissionModeratorType primaryModeratorType = null;
 
     public int lastRequiredCooling = 0;
     public int lastProvidedCooling = 0;
@@ -57,15 +68,40 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         return MANAGED_FIELD_HOLDER;
     }
 
+    // NEW: Resolve persisted IDs back to objects on world load
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        resolvePersistedComponents();
+        // Recalculate primary components based on the loaded list
+        this.primaryCoolerType = getPrimaryCooler(this.activeCoolers);
+        this.primaryModeratorType = getPrimaryModerator(this.activeModerators);
+    }
+
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
 
-        Object cooler = getMultiblockState().getMatchContext().get("CoolerType");
-        if (cooler instanceof IFissionCoolerType ct) activeCooler = ct;
+        // FIX 4: Retrieve the component lists from the match context (plural keys)
+        @SuppressWarnings("unchecked")
+        List<IFissionCoolerType> foundCoolers = (List<IFissionCoolerType>) getMultiblockState().getMatchContext()
+                .get("CoolerTypes");
+        this.activeCoolers = foundCoolers == null ? new ArrayList<>() : foundCoolers;
 
-        Object moderator = getMultiblockState().getMatchContext().get("ModeratorType");
-        if (moderator instanceof IFissionModeratorType mt) activeModerator = mt;
+        @SuppressWarnings("unchecked")
+        List<IFissionModeratorType> foundModerators = (List<IFissionModeratorType>) getMultiblockState()
+                .getMatchContext().get("ModeratorTypes");
+        this.activeModerators = foundModerators == null ? new ArrayList<>() : foundModerators;
+
+        // FIX 5: Persist the serialized names of the components
+        this.persistedCoolerIDs = this.activeCoolers.stream()
+                .map(IFissionCoolerType::getName).collect(Collectors.toList());
+        this.persistedModeratorIDs = this.activeModerators.stream()
+                .map(IFissionModeratorType::getName).collect(Collectors.toList());
+
+        // FIX 6: Determine the Primary Components
+        this.primaryCoolerType = getPrimaryCooler(this.activeCoolers);
+        this.primaryModeratorType = getPrimaryModerator(this.activeModerators);
 
         meltdownTimerTicks = -1;
         meltdownTimerMax = 0;
@@ -75,9 +111,14 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
     public void onStructureInvalid() {
         super.onStructureInvalid();
 
-        activeCooler = FissionCoolerBlock.fissionCoolerType.COOLER_TRUE_HEAT_STABLE;
+        // Clear all lists/types
+        activeCoolers.clear();
+        activeModerators.clear();
+        persistedCoolerIDs.clear();
+        persistedModeratorIDs.clear();
+        this.primaryCoolerType = null;
+        this.primaryModeratorType = null;
 
-        activeModerator = FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE;
         meltdownTimerTicks = -1;
         meltdownTimerMax = 0;
     }
@@ -92,21 +133,7 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
             lastRequiredCooling = 0;
         }
 
-        List<IFissionModeratorType> mods = getParts().stream()
-                .filter(p -> p instanceof IFissionModeratorType)
-                .map(p -> (IFissionModeratorType) p)
-                .toList();
-        if (!mods.isEmpty()) activeModerator = mods.stream()
-                .max(Comparator.comparingInt(IFissionModeratorType::getTier)).orElse(activeModerator);
-
-        List<IFissionCoolerType> cools = getParts().stream()
-                .filter(p -> p instanceof IFissionCoolerType)
-                .map(p -> (IFissionCoolerType) p)
-                .toList();
-        Optional<IFissionCoolerType> opt = cools.stream()
-                .filter(c -> c.getCoolerTemperature() >= lastRequiredCooling)
-                .min(Comparator.comparingInt(IFissionCoolerType::getCoolerTemperature));
-        opt.ifPresent(c -> activeCooler = c);
+        // REMOVED redundant component part retrieval logic (now handled by onStructureFormed/onLoad)
 
         return super.beforeWorking(recipe);
     }
@@ -122,11 +149,16 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         lastRequiredCooling = currentRecipe.data.contains("required_cooling") ?
                 currentRecipe.data.getInt("required_cooling") : 0;
 
-        lastProvidedCooling = activeCooler == null ? 0 : activeCooler.getCoolerTemperature();
+        // FIX 7: Cooling is ADDITIVE (Sum all)
+        lastProvidedCooling = this.activeCoolers.stream()
+                .mapToInt(IFissionCoolerType::getCoolerTemperature)
+                .sum();
 
-        int coolantNeededPerTick = activeCooler.getCoolantPerTick();
+        // FIX 8: Coolant Needed is NON-ADDITIVE (Use Primary Cooler's rate)
+        int coolantNeededPerTick = this.primaryCoolerType != null ? this.primaryCoolerType.getCoolantPerTick() : 0;
 
-        lastHasCoolant = tryConsumeCoolantFromParts(activeCooler, coolantNeededPerTick);
+        // Use the primary type for coolant consumption check
+        lastHasCoolant = tryConsumePrimaryCoolant(this.primaryCoolerType, coolantNeededPerTick);
 
         int effectiveProvidedCooling = lastHasCoolant ? lastProvidedCooling : 0;
 
@@ -138,34 +170,85 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         return true;
     }
 
+    // NEW: Resolves stored string IDs back into object types
+    private void resolvePersistedComponents() {
+        this.activeCoolers.clear();
+        this.activeModerators.clear();
 
-    private boolean tryConsumeCoolantFromParts(@Nullable IFissionCoolerType cooler, int mb) {
-        if (cooler == null || mb <= 0) return false;
-
-        Material mat = cooler.getRequiredCoolantMaterial();
-        if (mat == null) return false;
-
-        FluidStack required = mat.getFluid(mb);
-        if (required == null || required.isEmpty()) return false;
-
-        var tanks = getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP);
-
-        for (var handler : tanks) {
-            if (!(handler instanceof NotifiableFluidTank tank)) continue;
-
-            for (int i = 0; i < tank.getTanks(); i++) {
-                var fluid = tank.getFluidInTank(i);
-
-                if (!fluid.isEmpty() && fluid.getFluid().isSame(required.getFluid())) {
-                    int drained = tank.drainInternal(required, IFluidHandler.FluidAction.EXECUTE).getAmount();
-                    if (drained >= mb) {
-                        return true;
-                    }
-                }
-            }
+        for (String id : this.persistedCoolerIDs) {
+            IFissionCoolerType type = resolveCoolerType(id);
+            if (type != null) this.activeCoolers.add(type);
         }
 
-        return false;
+        for (String id : this.persistedModeratorIDs) {
+            IFissionModeratorType type = resolveModeratorType(id);
+            if (type != null) this.activeModerators.add(type);
+        }
+    }
+
+    // NEW HELPER: Resolves IFissionCoolerType from its serialized name using the API map
+    private @Nullable IFissionCoolerType resolveCoolerType(String serializedName) {
+        return PhoenixAPI.FISSION_COOLERS.keySet().stream()
+                .filter(type -> type.getName().equals(serializedName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    // NEW HELPER: Resolves IFissionModeratorType from its serialized name using the API map
+    private @Nullable IFissionModeratorType resolveModeratorType(String serializedName) {
+        return PhoenixAPI.FISSION_MODERATORS.keySet().stream()
+                .filter(type -> type.getName().equals(serializedName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    // NEW HELPER: Finds the Primary Cooler Type
+    private @Nullable IFissionCoolerType getPrimaryCooler(List<IFissionCoolerType> componentList) {
+        if (componentList.isEmpty()) return null;
+        Map<IFissionCoolerType, Long> counts = componentList.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        return counts.entrySet().stream()
+                .max(Comparator.<Map.Entry<IFissionCoolerType, Long>>comparingLong(Map.Entry::getValue)
+                        .thenComparingInt(e -> e.getKey().getTier()))
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    // NEW HELPER: Finds the Primary Moderator Type
+    private @Nullable IFissionModeratorType getPrimaryModerator(List<IFissionModeratorType> componentList) {
+        if (componentList.isEmpty()) return null;
+        Map<IFissionModeratorType, Long> counts = componentList.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        return counts.entrySet().stream()
+                .max(Comparator.<Map.Entry<IFissionModeratorType, Long>>comparingLong(Map.Entry::getValue)
+                        .thenComparingInt(e -> e.getKey().getTier()))
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    // Updated and renamed logic to use primaryCoolerType
+    private boolean tryConsumePrimaryCoolant(@Nullable IFissionCoolerType primaryCooler, int amountMb) {
+        if (primaryCooler == null || amountMb <= 0) return true;
+
+        Material requiredMat = primaryCooler.getRequiredCoolantMaterial();
+        if (requiredMat == null || requiredMat == GTMaterials.NULL) return true;
+
+        GTRecipe dummyRecipe = com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder.ofRaw()
+                .inputFluids(requiredMat.getFluid(amountMb))
+                .buildRawRecipe();
+
+        if (!RecipeHelper.matchRecipe(this, dummyRecipe).isSuccess()) {
+            return false;
+        }
+
+        if (!RecipeHelper.handleRecipeIO(
+                this,
+                dummyRecipe,
+                IO.IN,
+                getRecipeLogic().getChanceCaches()).isSuccess()) {
+            return false;
+        }
+        return true;
     }
 
     private FluidStack materialToFluidStack(Material mat, int mb) {
@@ -216,11 +299,16 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
     }
 
     private void doMeltdown() {
-        float power = 6.0f + (activeCooler == null ? 0f : activeCooler.getTier() * 1.5f) +
-                (activeModerator == null ? 0f : activeModerator.getTier() * 0.7f);
+        // FIX 9: Use Primary type's tier for explosion power
+        int coolerTier = this.primaryCoolerType != null ? this.primaryCoolerType.getTier() : 0;
+        int moderatorTier = this.primaryModeratorType != null ? this.primaryModeratorType.getTier() : 0;
+
+        float coolerPower = coolerTier * 1.5f;
+        float moderatorPower = moderatorTier * 0.7f;
+
+        float power = 6.0f + coolerPower + moderatorPower;
 
         if (getLevel() instanceof net.minecraft.server.level.ServerLevel world) {
-
 
             net.minecraft.world.entity.Entity explosionCauser = null;
 
@@ -248,14 +336,16 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
             return com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier
                     .nullWrongType(FissionWorkableElectricMultiblockMachine.class, machine);
 
-        IFissionModeratorType mod = m.activeModerator;
-        double eutMultiplier = 1.0;
-        double durationMultiplier = 1.0;
+        // FIX 10: EU Boost/Discount is ADDITIVE (Sum all active moderators)
+        double totalEUBoostPercent = m.activeModerators.stream()
+                .mapToInt(IFissionModeratorType::getEUBoost)
+                .sum();
+        double totalFuelDiscountPercent = m.activeModerators.stream()
+                .mapToInt(IFissionModeratorType::getFuelDiscount)
+                .sum();
 
-        if (mod != null) {
-            eutMultiplier *= 1.0 + (mod.getEUBoost() / 100.0);
-            durationMultiplier *= Math.max(0.01, 1.0 - (mod.getFuelDiscount() / 100.0));
-        }
+        double eutMultiplier = 1.0 + (totalEUBoostPercent / 100.0);
+        double durationMultiplier = Math.max(0.01, 1.0 - (totalFuelDiscountPercent / 100.0));
 
         return com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction.builder()
                 .eutMultiplier(eutMultiplier)
@@ -272,19 +362,7 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
                     .withStyle(s -> s.withColor(0xFF4444)));
             return;
         }
-
-
-        if (!isWorkingEnabled() && !isActive() && meltdownTimerTicks < 0) {
-            textList.add(Component.translatable("phoenix.fission.status.safe_idle")
-                    .withStyle(s -> s.withColor(0x33FF33)));
-        }
-
-
-        else if (lastRequiredCooling > 0 && lastProvidedCooling >= lastRequiredCooling && lastHasCoolant) {
-            textList.add(Component.translatable("phoenix.fission.status.safe_working")
-                    .withStyle(s -> s.withColor(0x00CCFF)));
-        }
-
+        // ... (Status messages)
 
         else if (meltdownTimerTicks > 0) {
             int seconds = getMeltdownSecondsRemaining();
@@ -300,38 +378,65 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
             }
         }
 
-        String modKey = getModeratorName();
-        Component moderatorName = modKey.equals("None") ?
-                Component.literal("None") : Component.translatable("block.phoenixcore." + modKey);
+        // FIX 11: Display Primary Name + Total Count + Summed Boosts/Discounts
+        String moderatorName = getPrimaryModeratorName();
+        String moderatorCount = this.activeModerators.size() > 1 ?
+                " (" + this.activeModerators.size() + " total)" : "";
 
-        String coolerKey = getCoolerName();
-        Component coolerName = coolerKey.equals("None") ?
-                Component.literal("None") : Component.translatable("block.phoenixcore." + coolerKey);
+        Component moderatorDisplay;
+        if (this.primaryModeratorType != null) {
+            String namespace = getNamespaceForType(this.primaryModeratorType);
+            moderatorDisplay = Component.translatable("block." + namespace + "." + moderatorName)
+                    .append(moderatorCount);
+        } else {
+            moderatorDisplay = Component.literal("None");
+        }
 
-        textList.add(Component.translatable("phoenix.fission.moderator", moderatorName));
+        textList.add(Component.translatable("phoenix.fission.moderator", moderatorDisplay));
         textList.add(Component.translatable("phoenix.fission.moderator_boost", getModeratorEUBoost()));
         textList.add(Component.translatable("phoenix.fission.moderator_fuel_discount", getModeratorFuelDiscount()));
 
-        textList.add(Component.translatable("phoenix.fission.cooler", coolerName));
+        // FIX 12: Cooler Display: Primary Name + Total Count
+        String coolerName = getPrimaryCoolerName();
+        String coolerCount = this.activeCoolers.size() > 1 ?
+                " (" + this.activeCoolers.size() + " total)" : "";
 
-        Material coolantMat = activeCooler == null ? null : activeCooler.getRequiredCoolantMaterial();
-        Component coolantComp;
-        if (coolantMat == null || coolantMat == GTMaterials.NULL || coolantMat.getName().equals("none")) {
-            coolantComp = Component.literal("None");
+        Component coolerDisplay;
+        if (this.primaryCoolerType != null) {
+            String namespace = getNamespaceForType(this.primaryCoolerType);
+            coolerDisplay = Component.translatable("block." + namespace + "." + coolerName)
+                    .append(coolerCount);
         } else {
-            FluidStack fs = coolantMat.getFluid(1);
-            coolantComp = fs.isEmpty() ?
-                    Component.translatable(coolantMat.getDefaultTranslation()) : fs.getDisplayName();
+            coolerDisplay = Component.literal("None");
         }
 
-        textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
+        textList.add(Component.translatable("phoenix.fission.cooler", coolerDisplay));
 
+        // Coolant Display: Uses Primary Coolant properties
+        int coolantRate = getCoolantRatePerTick();
 
-        textList.add(Component.translatable(lastHasCoolant ?
-                "phoenix.fission.coolant_status.ok" : "phoenix.fission.coolant_status.empty")
-                .withStyle(s -> s.withColor(lastHasCoolant ? 0x33FF33 : 0xFF3333)));
+        if (coolantRate > 0 && this.primaryCoolerType != null) {
+            Material coolantMat = this.primaryCoolerType.getRequiredCoolantMaterial();
+            Component coolantComp;
+            if (coolantMat == null || coolantMat == GTMaterials.NULL || coolantMat.getName().equals("none")) {
+                coolantComp = Component.literal("None");
+            } else {
+                FluidStack fs = coolantMat.getFluid(1);
+                coolantComp = fs.isEmpty() ?
+                        Component.translatable(coolantMat.getDefaultTranslation()) : fs.getDisplayName();
+            }
 
-        textList.add(Component.translatable("phoenix.fission.coolant_rate", activeCooler.getCoolantPerTick()));
+            textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
+
+            textList.add(Component.translatable(lastHasCoolant ?
+                    "phoenix.fission.coolant_status.ok" : "phoenix.fission.coolant_status.empty")
+                    .withStyle(s -> s.withColor(lastHasCoolant ? 0x33FF33 : 0xFF3333)));
+
+            textList.add(Component.translatable("phoenix.fission.coolant_rate", coolantRate));
+        } else {
+            Component coolantComp = Component.literal("None Required");
+            textList.add(Component.translatable("phoenix.fission.coolant", coolantComp));
+        }
 
         if (lastRequiredCooling > 0) {
             int color = lastProvidedCooling >= lastRequiredCooling ? 0x33FF33 : 0xFF3333;
@@ -340,6 +445,22 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
                     .withStyle(s -> s.withColor(color)));
         }
     }
+
+    // NEW: Helper methods for namespace checking (moved to use primary types)
+    private String getNamespaceForType(IFissionCoolerType type) {
+        if (type.getClass().getName().contains("KjsCoolerType")) {
+            return "kubejs";
+        }
+        return "phoenixcore";
+    }
+
+    private String getNamespaceForType(IFissionModeratorType type) {
+        if (type.getClass().getName().contains("KjsModeratorType")) {
+            return "kubejs";
+        }
+        return "phoenixcore";
+    }
+    // END NEW: Helper methods
 
     public float getExplosionProgress() {
         if (meltdownTimerTicks < 0) return 1f;
@@ -352,31 +473,41 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         return Math.max(0, meltdownTimerTicks / 20);
     }
 
+    // FIX 13: Use SUM of all active moderators
     public int getModeratorEUBoost() {
-        return activeModerator == null ? 0 : activeModerator.getEUBoost();
+        return this.activeModerators.stream()
+                .mapToInt(IFissionModeratorType::getEUBoost)
+                .sum();
     }
 
+    // FIX 14: Use SUM of all active moderators
     public int getModeratorFuelDiscount() {
-        return activeModerator == null ? 0 : activeModerator.getFuelDiscount();
+        return this.activeModerators.stream()
+                .mapToInt(IFissionModeratorType::getFuelDiscount)
+                .sum();
     }
 
-    public String getModeratorName() {
-        return activeModerator == null ? "None" : activeModerator.getName();
+    // FIX 15: Use PRIMARY moderator for name
+    public String getPrimaryModeratorName() {
+        return this.primaryModeratorType != null ? this.primaryModeratorType.getName() : "None";
     }
 
-    public String getCoolerName() {
-        return activeCooler == null ? "None" : activeCooler.getName();
+    // FIX 16: Use PRIMARY cooler for name
+    public String getPrimaryCoolerName() {
+        return this.primaryCoolerType != null ? this.primaryCoolerType.getName() : "None";
     }
 
+    // FIX 17: Use PRIMARY cooler for coolant properties
     public String getCoolantName() {
-        Material mat = activeCooler == null ? null : activeCooler.getRequiredCoolantMaterial();
+        Material mat = this.primaryCoolerType != null ? this.primaryCoolerType.getRequiredCoolantMaterial() : null;
         if (mat == null || mat == GTMaterials.NULL) return "None";
 
         return mat.getName();
     }
 
+    // FIX 18: Use PRIMARY cooler for coolant rate
     public int getCoolantRatePerTick() {
-        return activeCooler == null ? 0 : activeCooler.getCoolantPerTick();
+        return this.primaryCoolerType != null ? this.primaryCoolerType.getCoolantPerTick() : 0;
     }
 
     public record CoolantProperties(int exampleCoolingValue, double exampleMultiplier) {

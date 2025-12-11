@@ -19,7 +19,7 @@ public class SourceHatchBlockEntity extends TieredIOPartMachine implements ISour
         this.sourceContainer = new NotifiableSourceContainer(this, io, getMaxCapacity(tier), getMaxConsumption(tier));
     }
 
-    // --- Ars Nouveau ISourceTile forwarding ---
+
     @Override
     public int getTransferRate() {
         return sourceContainer.getTransferRate();
@@ -60,7 +60,6 @@ public class SourceHatchBlockEntity extends TieredIOPartMachine implements ISour
         return sourceContainer.removeSource(source);
     }
 
-    // --- Hook into Ars SourceManager ---
     @Override
     public void onLoad() {
         super.onLoad();
@@ -72,7 +71,6 @@ public class SourceHatchBlockEntity extends TieredIOPartMachine implements ISour
         }
     }
 
-    // --- Helpers ---
     public static int getMaxCapacity(int tier) {
         return 1000 * tier;
     }

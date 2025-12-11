@@ -53,12 +53,10 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
         int remaining = left.stream().reduce(0, Integer::sum);
 
         if (io == IO.IN) {
-            // GT recipe wants to consume -> remove from container
             int extracted = Math.min(remaining, currentSource);
             if (!simulate) removeSource(extracted);
             remaining -= extracted;
         } else if (io == IO.OUT) {
-            // GT recipe outputs -> insert into container
             int inserted = Math.min(remaining, maxSource - currentSource);
             if (!simulate) addSource(inserted);
             remaining -= inserted;
@@ -82,7 +80,6 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
         return SourceRecipeCapability.CAP;
     }
 
-    // Ars Nouveau bridge
     @Override
     public int getTransferRate() {
         return maxConsumption;
@@ -90,7 +87,6 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
 
     @Override
     public boolean canAcceptSource() {
-        // Corrected: The container can always accept source if it has space
         return currentSource < maxSource;
     }
 
@@ -118,7 +114,6 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
 
     @Override
     public int addSource(int amount) {
-        // Corrected: Remove the check for handlerIO
         int inserted = Math.min(amount, maxSource - currentSource);
         currentSource += inserted;
         notifyListeners();
@@ -127,7 +122,6 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
 
     @Override
     public int removeSource(int amount) {
-        // Corrected: Remove the check for handlerIO
         int extracted = Math.min(amount, currentSource);
         currentSource -= extracted;
         notifyListeners();

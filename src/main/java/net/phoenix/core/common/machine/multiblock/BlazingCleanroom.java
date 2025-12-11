@@ -6,9 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class BlazingCleanroom extends CleanroomType {
 
-    // This public static final instance ensures the constructor is called
-    // when the class is loaded, which registers the new cleanroom type
-    // with GTCEu's CleanroomType system.
     public static final CleanroomType BLAZING_CLEANROOM = new CleanroomType(
             "blazing_cleanroom",
             "gtceu.recipe.cleanroom_blazing.display_name");
@@ -20,7 +17,6 @@ public class BlazingCleanroom extends CleanroomType {
      * @param translationKey The translation key for the cleanroom's display name.
      */
     public BlazingCleanroom(@NotNull String name, @NotNull String translationKey) {
-        // The super() call triggers the registration logic in the parent class.
         super(name, translationKey);
     }
 }

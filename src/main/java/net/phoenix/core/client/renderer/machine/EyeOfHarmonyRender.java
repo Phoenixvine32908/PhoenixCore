@@ -63,15 +63,11 @@ public class EyeOfHarmonyRender extends DynamicRender<WorkableElectricMultiblock
     @Override
     public void render(WorkableElectricMultiblockMachine machine, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        // --- MUDANÇA 1: CONDIÇÃO DE RENDERIZAÇÃO ---
-        // A renderização agora só acontece se a máquina estiver formada E trabalhando.
+
         if (!machine.isFormed() || !machine.getRecipeLogic().isActive()) {
             return;
         }
 
-        // --- MUDANÇA 2: TIMER DA ANIMAÇÃO ---
-        // O tempo da animação agora é baseado no timer interno da máquina,
-        // então ela só se move quando uma receita está em progresso.
         float tick = (machine.getOffsetTimer() + partialTick);
         VertexConsumer consumer = buffer.getBuffer(Sheets.translucentCullBlockSheet());
 
@@ -112,13 +108,13 @@ public class EyeOfHarmonyRender extends DynamicRender<WorkableElectricMultiblock
             float orbitRadius;
             switch (a) {
                 case 0: // Nether
-                    orbitRadius = 3.99f; // Seus valores customizados
+                    orbitRadius = 3.99f;
                     break;
                 case 1: // Overworld
-                    orbitRadius = 3.99f + (1 * 2.99f); // Calculado a partir da sua fórmula
+                    orbitRadius = 3.99f + (1 * 2.99f);
                     break;
                 case 2: // End
-                    orbitRadius = 3.99f + (2 * 2.99f); // Calculado a partir da sua fórmula
+                    orbitRadius = 3.99f + (2 * 2.99f);
                     break;
                 default:
                     orbitRadius = 0.0f;
@@ -138,7 +134,7 @@ public class EyeOfHarmonyRender extends DynamicRender<WorkableElectricMultiblock
 
             float r = 1.0f, g = 1.0f, b = 1.0f;
             switch (a) {
-                case 0: // Nether
+                case 0:
                     r = 1.0f;
                     g = 0.6f;
                     b = 0.4f;

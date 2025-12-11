@@ -23,75 +23,45 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class PhoenixComputationPartMachine extends HPCAComputationPartMachine implements IHPCAComputationProvider {
 
-    // You can define new tiers for your part if you need, or simply use a single tier.
-    // For this example, we'll make a single, very powerful part.
+
     public PhoenixComputationPartMachine(IMachineBlockEntity holder) {
-        // We pass 'false' to the super constructor because we are defining a new,
-        // single-tier part that isn't 'advanced' in the base sense.
+
         super(holder, true);
     }
 
-    /**
-     * Defines the component icon.
-     * You will need to define a custom ResourceTexture for this.
-     * For now, we will use a placeholder texture from GTCEu and add a comment.
-     * 
-     * @return The resource texture for the part's icon.
-     */
+
     @Override
     public ResourceTexture getComponentIcon() {
         if (isDamaged()) {
-            // TODO: Replace with own damaged texture
+
             return GuiTextures.HPCA_ICON_DAMAGED_COMPUTATION_COMPONENT;
         }
-        // TODO: Replace with own custom texture for the Phoenix part
+
         return GuiTextures.HPCA_ICON_ADVANCED_COMPUTATION_COMPONENT;
     }
 
-    /**
-     * Overrides the energy upkeep required per tick.
-     * We'll make this part a late-game component, so it has a high upkeep.
-     * 
-     * @return The upkeep EUt per tick.
-     */
+
     @Override
     public int getUpkeepEUt() {
         return GTValues.VA[PhoenixConfigs.INSTANCE.features.PCUEutUpkeep];
     }
 
-    /**
-     * Overrides the maximum EUt the part can handle before it breaks.
-     * We'll set this to a very high value to match the part's tier.
-     * 
-     * @return The maximum EUt the part can handle.
-     */
+
     @Override
     public int getMaxEUt() {
         return GTValues.VA[PhoenixConfigs.INSTANCE.features.PCUMaxEUt];
     }
 
-    /**
-     * Overrides the CWU (Computation Unit) output per tick.
-     * This is the core purpose of the part.
-     * We'll give it a very high value to make it worthwhile.
-     * 
-     * @return The CWU provided per tick.
-     */
+
     @Override
     public int getCWUPerTick() {
         if (isDamaged()) return PhoenixConfigs.INSTANCE.features.damagedPCUStrength;
         return PhoenixConfigs.INSTANCE.features.PCUStrength;
     }
 
-    /**
-     * Overrides the amount of cooling the part provides.
-     * Even though it's a powerful part, it still needs to be cooled.
-     * You can customize this based on your balancing needs.
-     * 
-     * @return The amount of cooling provided per tick.
-     */
+
     @Override
     public int getCoolingPerTick() {
-        return PhoenixConfigs.INSTANCE.features.PCUCoolantUsed; // Double the base advanced part's cooling.
+        return PhoenixConfigs.INSTANCE.features.PCUCoolantUsed;
     }
 }

@@ -34,9 +34,7 @@ public class PhoenixTooltips {
         MaterialStack matStack = ChemicalHelper.getMaterialStack(stack);
         Material mat = !matStack.isEmpty() ? matStack.material() : null;
 
-        // --- Crystal Rose ---
         if (path.endsWith("_crystal_rose")) {
-            // Generic line always shows
             Component generic = Component.translatable("tooltip.phoenixcore.crystal_rose.generic");
             if (mat != null) {
                 generic = generic.copy().setStyle(Style.EMPTY.withColor(TextColor.fromRgb(mat.getMaterialARGB())));
@@ -45,7 +43,6 @@ public class PhoenixTooltips {
 
             if (mat != null) {
                 if (Screen.hasShiftDown()) {
-                    // Show dynamic line when Shift is held
                     Component materialName = mat.getLocalizedName()
                             .copy()
                             .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(mat.getMaterialARGB())));
@@ -53,15 +50,12 @@ public class PhoenixTooltips {
                             materialName);
                     event.getToolTip().add(madeFrom);
                 } else {
-                    // Show hint line when Shift is NOT held
                     event.getToolTip().add(Component.literal("§7Hold §eShift§7 to see what it's forged from."));
                 }
             }
         }
 
-        // --- Nanites ---
         if (path.endsWith("_nanites")) {
-            // Generic line always shows
             Component generic = Component.translatable("tooltip.phoenixcore.nanites.generic");
             if (mat != null) {
                 generic = generic.copy().setStyle(Style.EMPTY.withColor(TextColor.fromRgb(mat.getMaterialARGB())));
@@ -70,14 +64,12 @@ public class PhoenixTooltips {
 
             if (mat != null) {
                 if (Screen.hasShiftDown()) {
-                    // Show dynamic line when Shift is held
                     Component materialName = mat.getLocalizedName()
                             .copy()
                             .setStyle(Style.EMPTY.withColor(TextColor.fromRgb(mat.getMaterialARGB())));
                     Component madeFrom = Component.translatable("tooltip.phoenixcore.nanites.made_from", materialName);
                     event.getToolTip().add(madeFrom);
                 } else {
-                    // Show hint line when Shift is NOT held
                     event.getToolTip().add(Component.literal("§7Hold §eShift§7 to see what they're constructed from."));
                 }
             }

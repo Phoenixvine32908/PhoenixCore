@@ -15,33 +15,23 @@ import lombok.Getter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * A custom HPCA Cooler Part for the Phoenix mod.
- * This class is designed to handle both a standard and an advanced version
- * within the same class, similar to the original GTCEu implementation.
- */
+
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class PhoenixCoolerPartMachine extends HPCAComponentPartMachine implements IHPCACoolantProvider {
 
-    // The 'advanced' property is handled by the HPCAComponentPartMachine base class.
-    // We simply use the value from the superclass to determine behavior.
+
 
     @Getter
     private final boolean advanced;
 
     public PhoenixCoolerPartMachine(IMachineBlockEntity holder, boolean advanced) {
-        // We pass 'false' to the super constructor because we are defining a new,
-        // single-tier part that isn't 'advanced' in the base sense.
+
         super(holder);
         this.advanced = advanced;
     }
 
-    /**
-     * Defines the component icon based on whether it is the advanced version.
-     * 
-     * @return The resource texture for the part's icon.
-     */
+
     @Override
     public ResourceTexture getComponentIcon() {
         return advanced ? GuiTextures.HPCA_ICON_ACTIVE_COOLER_COMPONENT : GuiTextures.HPCA_ICON_HEAT_SINK_COMPONENT;
