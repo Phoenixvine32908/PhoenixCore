@@ -33,7 +33,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.phoenix.core.api.PhoenixSounds;
-import net.phoenix.core.api.recipe.lookup.MapMicroverseIngredient;
 import net.phoenix.core.api.recipe.lookup.MapShieldIngredient;
 import net.phoenix.core.client.PhoenixClient;
 import net.phoenix.core.common.block.PhoenixBlocks;
@@ -45,7 +44,6 @@ import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.PhoenixBeeMachines;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.PhoenixResearchMachines;
-import net.phoenix.core.common.machine.multiblock.Microverse;
 import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.PhoenixDatagen;
@@ -117,15 +115,11 @@ public class phoenixcore {
     public void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(
                 () -> {
-                    // Assuming Microverse.class is correct for its type
-                    MapIngredientTypeManager.registerMapIngredient(Microverse.class, MapMicroverseIngredient::from);
 
-                    // FIX HERE: Use the inner enum class, Shield.ShieldTypes.class
                     MapIngredientTypeManager.registerMapIngredient(Shield.ShieldTypes.class, MapShieldIngredient::from);
                 });
     }
 
-    // Now correctly annotated to ensure it only runs on the client.
     @OnlyIn(Dist.CLIENT)
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("Hey, we're on Minecraft version {}!", Minecraft.getInstance().getLaunchedVersion());
@@ -133,7 +127,6 @@ public class phoenixcore {
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            // Add items to creative tab if needed
         }
     }
 
@@ -163,12 +156,10 @@ public class phoenixcore {
         PhoenixResearchMachines.init();
     }
 
-    // Utility method for consistent ResourceLocation creation
     public static ResourceLocation id(String path) {
         return new ResourceLocation(MOD_ID, path);
     }
 
-    // Optional helper for plasma fluid lookup
     public static Fluid plasma(Material material) {
         return material.getFluid(FluidStorageKeys.PLASMA, 1).getFluid();
     }

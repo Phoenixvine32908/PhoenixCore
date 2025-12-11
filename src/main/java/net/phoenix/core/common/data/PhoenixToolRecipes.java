@@ -27,10 +27,7 @@ import java.util.function.Consumer;
 import static com.gregtechceu.gtceu.api.data.tag.TagPrefix.*;
 import static net.phoenix.core.common.data.recipe.generated.PhoenixToolRecipeHelper.powerUnitItems;
 
-/**
- * Handles Phoenix-specific GTCEu tool & power unit recipes.
- * Adds automatic recipe generation for all GTCEu tiers and includes the custom LuV Power Unit.
- */
+
 public final class PhoenixToolRecipes {
 
     private PhoenixToolRecipes() {}
@@ -40,9 +37,7 @@ public final class PhoenixToolRecipes {
     private static final Int2ReferenceMap<Material> baseMaterials = new Int2ReferenceArrayMap<>();
     private static final Int2ReferenceMap<List<ItemEntry<? extends Item>>> batteryItems = new Int2ReferenceArrayMap<>();
 
-    /**
-     * Main entry point for recipe registration.
-     */
+
     public static void init(@NotNull Consumer<FinishedRecipe> provider) {
         initTierMaps();
         registerPowerUnitRecipes(provider);
@@ -53,9 +48,6 @@ public final class PhoenixToolRecipes {
         }
     }
 
-    /**
-     * Initializes tier-based item/material mappings.
-     */
     private static void initTierMaps() {
         motorItems.put(GTValues.LuV, GTItems.ELECTRIC_MOTOR_LuV);
         baseMaterials.put(GTValues.LuV, GTMaterials.RhodiumPlatedPalladium);
@@ -65,9 +57,6 @@ public final class PhoenixToolRecipes {
         powerUnitItems.put(GTValues.LuV, PhoenixItems.POWER_UNIT_LUV);
     }
 
-    /**
-     * Registers shaped recipes for tiered power units using their respective materials and batteries.
-     */
     private static void registerPowerUnitRecipes(@NotNull Consumer<FinishedRecipe> provider) {
         for (int tier : powerUnitItems.keySet()) {
             var powerUnitEntry = powerUnitItems.get(tier);
@@ -77,7 +66,6 @@ public final class PhoenixToolRecipes {
 
             if (powerUnitEntry == null || motorEntry == null || material == null || batteries == null ||
                     batteries.isEmpty()) {
-                // Skip missing tiers gracefully
                 continue;
             }
 
@@ -93,7 +81,6 @@ public final class PhoenixToolRecipes {
                         BuiltInRegistries.ITEM.getKey(powerUnitEntry.get()).getPath(),
                         BuiltInRegistries.ITEM.getKey(batteryItem.get()).getPath());
 
-                // Register the recipe
                 VanillaRecipeHelper.addShapedEnergyTransferRecipe(provider, true, false, true, recipeName,
                         Ingredient.of(batteryStack), powerUnitStack,
                         "S d", "GMG", "PBP",

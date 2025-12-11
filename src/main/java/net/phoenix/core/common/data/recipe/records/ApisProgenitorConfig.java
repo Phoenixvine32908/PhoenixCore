@@ -4,7 +4,7 @@ public record ApisProgenitorConfig(
                                    String id,
                                    String outputBeeType,
                                    String inputBeeType,
-                                   String itemInput, // Changed from ItemStack to String
+                                   String itemInput,
                                    String fluidInput,
                                    int duration,
                                    int EUt) {}

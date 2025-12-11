@@ -99,7 +99,6 @@ public class PhoenixMachines {
 
                     .overlayTieredHullModel(
                             phoenixcore.id("block/machine/part/overlay_maintenance_blazing_cleaning"))
-                    // Tier can always be changed later
                     .register();
         }
     }
@@ -220,7 +219,7 @@ public class PhoenixMachines {
                     .multiblock("phoenix_infuser", FissionWorkableElectricMultiblockMachine::new)
                     .langValue("§cPhoenix Infuser")
                     .rotationState(RotationState.NON_Y_AXIS)
-                    .recipeType(PhoenixRecipeTypes.PLEASE) // Agora isso não será mais nulo
+                    .recipeType(PhoenixRecipeTypes.PLEASE)
                     .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH,
                             GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK),
                             FissionWorkableElectricMultiblockMachine::recipeModifier)
@@ -1004,16 +1003,12 @@ public class PhoenixMachines {
                     .aisle("CFEFC", "DGFGD", "DGFGD", "DGFGD", "CHEHC")
                     .aisle("CEFEC", "DGGGD", "DGGGD", "DGGGD", "CDHDC")
                     .aisle("BCICB", "CDDDC", "CDDDC", "CDDDC", "BCCCB")
-                    .aisle("BCICB", "CDDDC", "CDDDC", "CDDDC", "BCCCB")
                     .where("A", air())
                     .where("B", any())
-                    .where("C", blocks(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING.get()).setMinGlobalLimited(12) // Corrected
-                                                                                                                 // line
-                            .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
-                            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
-                            .or(Predicates.abilities(PartAbility.OUTPUT_ENERGY).setMaxGlobalLimited(8)
-                                    .setPreviewCount(2))
-                            .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                    .where("C", blocks(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING.get()).setMinGlobalLimited(12) // Corrected////
+                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))                                // line
+                            .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
+                            .or(Predicates.autoAbilities(definition.getRecipeTypes())))
                     .where("D", blocks(Blocks.TINTED_GLASS))
                     .where("E", blocks(COIL_KANTHAL.get()))
                     .where("F", PhoenixPredicates.fissionModerators())
@@ -1045,14 +1040,14 @@ public class PhoenixMachines {
                     .aisle("BCCJCCB", "CDDDDDC", "CDDDDDC", "CDDDDDC", "CDDDDDC", "CDDDDDC", "BCCCCCB")
                     .where("A", air())
                     .where("B", any())
-                    .where("C", blocks(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING.get()).setMinGlobalLimited(12) // Corrected
+                    .where("C", blocks(PhoenixBlocks.FISSILE_REACTION_SAFE_CASING.get()).setMinGlobalLimited(12) // Corrected////
                                                                                                                  // line
                             .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
-                    .where("D", blocks(Blocks.ICE))
+                    .where("D", blocks(Blocks.TINTED_GLASS))
                     .where("E", PhoenixPredicates.fissionModerators())
                     .where("F", blocks(PhoenixBlocks.FISSILE_HEAT_SAFE_CASING.get()))
                     .where("G", Predicates.blocks(COIL_NICHROME.get()))

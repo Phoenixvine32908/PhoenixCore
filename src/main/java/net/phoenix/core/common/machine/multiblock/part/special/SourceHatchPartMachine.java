@@ -17,7 +17,6 @@ import lombok.Getter;
 
 public class SourceHatchPartMachine extends MetaMachine implements ISpecialSourceProvider {
 
-    // Corrected: Add a public getter method for the source container
     @Getter
     private final ISourceTile sourceContainer;
     private final BlockPos pos;

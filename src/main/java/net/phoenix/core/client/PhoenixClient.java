@@ -23,8 +23,6 @@ public class PhoenixClient {
     private PhoenixClient() {}
 
     public static void init(IEventBus modBus) {
-        // You can remove this line as the @Mod.EventBusSubscriber annotation handles registration
-        // modBus.register(PhoenixClient.class);
         DynamicRenderManager.register(phoenixcore.id("eye_of_harmony"), EyeOfHarmonyRender.TYPE);
         DynamicRenderManager.register(phoenixcore.id("artificial_star"), ArtificialStarRender.TYPE);
         DynamicRenderManager.register(phoenixcore.id("plasma_arc_furnace"), PlasmaArcFurnaceRender.TYPE);
@@ -45,7 +43,6 @@ public class PhoenixClient {
     @SubscribeEvent
     public static void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            // Register your coil block's render type here
             ItemBlockRenderTypes.setRenderLayer(PhoenixBlocks.COIL_TRUE_HEAT_STABLE.get(), RenderType.cutoutMipped());
         });
     }

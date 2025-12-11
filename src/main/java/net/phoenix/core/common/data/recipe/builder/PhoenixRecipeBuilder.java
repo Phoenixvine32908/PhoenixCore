@@ -11,9 +11,7 @@ import lombok.experimental.Accessors;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * A recipe builder for Phoenix-specific recipes that supports plasma-based conditions.
- */
+
 @SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -24,12 +22,7 @@ public class PhoenixRecipeBuilder extends GTRecipeBuilder {
         super(id, recipeType);
     }
 
-    /**
-     * Adds a PlasmaTempCondition based on the given plasma material.
-     * * @param plasmaFluidId The resource location of the plasma fluid.
-     * 
-     * @return This builder instance for chaining.
-     */
+
     public PhoenixRecipeBuilder plasmaTemp(ResourceLocation plasmaFluidId) {
         return (PhoenixRecipeBuilder) this.addCondition(
                 FluidInHatchCondition.of(plasmaFluidId.toString()));

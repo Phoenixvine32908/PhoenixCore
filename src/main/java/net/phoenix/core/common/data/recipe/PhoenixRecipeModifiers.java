@@ -45,7 +45,6 @@ public class PhoenixRecipeModifiers {
             }
         }
 
-        // Get hatches inside machine, tanks inside UI of singleblocks, etc
         var fluidHandlers = workableMachine.getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP);
         for (var fluidHandler : fluidHandlers) {
 

@@ -47,17 +47,11 @@ public class PhoenixBlocks {
     public static final BlockEntry<CoilBlock> COIL_TRUE_HEAT_STABLE = createCoilBlock(
             PhoenixCoilBlock.CoilType.COIL_TRUE_HEAT_STABLE);
 
-    public static final BlockEntry<FissionCoolerBlock> COOLER_TRUE_HEAT_STABLE = createCoolerBlock(
-            FissionCoolerBlock.fissionCoolerType.COOLER_TRUE_HEAT_STABLE);
-
-    public static final BlockEntry<FissionCoolerBlock> COOLER_HIGH_TEMP = createCoolerBlock(
-            FissionCoolerBlock.fissionCoolerType.COOLER_HIGH_TEMP);
+    public static final BlockEntry<FissionCoolerBlock> COOLER_BASIC = createCoolerBlock(
+            FissionCoolerBlock.fissionCoolerType.COOLER_BASIC);
 
     public static final BlockEntry<FissionModeratorBlock> MODERATOR_GRAPHITE = createModeratorBlock(
             FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE);
-
-    public static final BlockEntry<FissionModeratorBlock> MODERATOR_BERYLLIUM = createModeratorBlock(
-            FissionModeratorBlock.fissionModeratorType.MODERATOR_BERYLLIUM);
 
     public static BlockEntry<Block> PHOENIX_ENRICHED_TRITANIUM_CASING = registerSimpleBlock(
             "§6Extremely Heat-Stable Casing", "phoenix_enriched_tritanium_casing",

@@ -14,19 +14,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-// FIX HERE: Use the inner enum ShieldTypes as the generic type
 public class NotifiableShieldContainer extends NotifiableRecipeHandlerTrait<ShieldTypes> {
 
     public NotifiableShieldContainer(MetaMachine machine) {
         super(machine);
     }
 
-    // FIX HERE: Change return type
     public ShieldTypes getHeldShield() {
         if (!(getMachine() instanceof HighPressurePlasmaArcFurnaceMachine furnace)) {
             throw new IllegalStateException();
         }
-        // Assuming HighPressurePlasmaArcFurnaceMachine's getter is now correct (returning ShieldTypes)
         return furnace.getShieldType();
     }
 
@@ -35,10 +32,9 @@ public class NotifiableShieldContainer extends NotifiableRecipeHandlerTrait<Shie
         return IO.IN;
     }
 
-    // FIX HERE: Change List generic type
     @Override
     public List<ShieldTypes> handleRecipeInner(IO io, GTRecipe recipe, List<ShieldTypes> left, boolean simulate) {
-        ShieldTypes recipeShieldType = left.get(0); // FIX: Change variable type
+        ShieldTypes recipeShieldType = left.get(0);
 
         if (getHeldShield() == recipeShieldType) {
             return null;

@@ -4,8 +4,6 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
 import com.gregtechceu.gtceu.api.item.component.ElectricStats;
 
-import net.minecraft.world.item.Item;
-
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
@@ -28,30 +26,8 @@ public class PhoenixItems {
             .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/power_unit_zpm")))
             .onRegister((c) -> c.attachComponents(ElectricStats.createElectricItem(409600000L, GTValues.ZPM)))
             .register();
-    public static ItemEntry<Item> basic_fuel_rod = REGISTRATE
-            .item("basic_fuel_rod", Item::new)
-            .model((ctx, prov) -> {
-                prov.withExistingParent(ctx.getName(), prov.mcLoc("item/generated"))
-                        .texture("layer0", prov.modLoc("item/" + ctx.getName()));
-            })
-            .register();
     private static final int UHV_RELATIVE_INDEX = GTValues.UHV - PhoenixCovers.START_TIER;
 
-    /*
-     * public static ItemEntry<ComponentItem> COVER_SOLAR_PANEL_UHV = REGISTRATE
-     * .item("uhv_solar_panel", ComponentItem::create).lang("Ultra High Voltage Solar Panel")
-     * .properties(p -> p.stacksTo(64)) // Added property for stacksTo
-     * // 🚨 FIX HERE: Attach the CoverPlaceBehavior component using the lambda
-     * .onRegister((c) -> c.attachComponents(
-     * new CoverPlaceBehavior(PhoenixCovers.SOLAR_PANEL_TIERED[UHV_RELATIVE_INDEX]),
-     * new TooltipBehavior(lines -> {
-     * lines.addAll(LangHandler.getMultiLang("item.gtceu.solar_panel.tooltip"));
-     * lines.add(Component.translatable("gtceu.universal.tooltip.voltage_out", GTValues.V[GTValues.UHV],
-     * GTValues.VNF[GTValues.UHV]));
-     * })
-     * ))
-     * .register();
-     */
     /*
      * public static ItemEntry<ComponentItem> ENERGY_LAPOTRONIC_ORB = REGISTRATE
      * .item("lapotronic_energy_orb", ComponentItem::create)

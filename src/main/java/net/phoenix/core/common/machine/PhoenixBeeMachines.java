@@ -194,7 +194,7 @@ public class PhoenixBeeMachines {
             .register();
     public static final MultiblockMachineDefinition SIMULATED_COLONY = REGISTRATE
             .multiblock("simulated_colony", WorkableElectricMultiblockMachine::new)
-            .langValue("Apis Progenitor")
+            .langValue("Simulated Colony")
             .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.BATCH_MODE)
             .rotationState(RotationState.NON_Y_AXIS)
             .recipeType(PhoenixRecipeTypes.SIMULATED_COLONY_RECIPES)

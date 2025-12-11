@@ -25,18 +25,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class FissionModeratorBlock extends ActiveBlock {
 
-    // 🌟 FIX: Changed from a static field (DEFAULT_MODERATOR_TYPE)
-    // to a non-static, final instance field. This ensures each block
-    // instance holds its own correct data.
     private final IFissionModeratorType moderatorType;
-
-    // The static field can be removed, or renamed to something
-    // more descriptive if it is absolutely needed elsewhere.
-    // For now, we will assume it's not needed and remove the problematic line.
 
     public FissionModeratorBlock(Properties properties, IFissionModeratorType moderatorType) {
         super(properties);
-        // 🌟 FIX: Assign the passed-in type to the instance field.
         this.moderatorType = moderatorType;
     }
 
@@ -50,7 +42,7 @@ public class FissionModeratorBlock extends ActiveBlock {
 
         tooltip.add(Component.translatable("block.phoenixcore.fission_moderator.info_header"));
 
-        // 🌟 FIX: Use the instance field (this.moderatorType) to retrieve the correct stats.
+
         tooltip.add(Component.translatable("block.phoenixcore.fission_moderator.boost",
                 this.moderatorType.getEUBoost()));
 
@@ -58,13 +50,11 @@ public class FissionModeratorBlock extends ActiveBlock {
                 this.moderatorType.getFuelDiscount()));
     }
 
-    // The enum definition remains the same as it correctly defines the data for each type.
+
     public enum fissionModeratorType implements StringRepresentable, IFissionModeratorType {
 
-        MODERATOR_GRAPHITE("graphite_moderator", 5, 5, 5, GTMaterials.Graphite,
-                phoenixcore.id("block/fission/graphite_moderator")),
-        MODERATOR_BERYLLIUM("beryllium_moderator", 17, 50, 3, GTMaterials.Beryllium,
-                phoenixcore.id("block/fission/beryllium_moderator"));
+        MODERATOR_GRAPHITE("graphite_moderator", 1, 3, 1, GTMaterials.Graphite,
+                phoenixcore.id("block/fission/graphite_moderator"));
 
         @NotNull
         @Getter

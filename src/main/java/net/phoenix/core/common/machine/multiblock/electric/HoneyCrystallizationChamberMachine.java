@@ -50,15 +50,14 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
     @RequireRerender
     private @NotNull Set<BlockPos> fluidBlockOffsets = new HashSet<>();
 
-    // Constant honey fluidstack
     private static final FluidStack HONEY_STACK;
     static {
         Fluid honeyFluid = ForgeRegistries.FLUIDS
                 .getValue(ResourceLocation.fromNamespaceAndPath("productivebees", "honey"));
         if (honeyFluid != null) {
-            HONEY_STACK = new FluidStack(honeyFluid, 1000); // 1000 mB default
+            HONEY_STACK = new FluidStack(honeyFluid, 1000);
         } else {
-            HONEY_STACK = FluidStack.EMPTY; // fallback in case fluid is missing
+            HONEY_STACK = FluidStack.EMPTY;
         }
     }
 
@@ -91,37 +90,29 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
         Direction back = getFrontFacing().getOpposite();
         Direction right = RelativeDirection.RIGHT.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
 
-        BlockPos pos = getPos(); // Controller position
+        BlockPos pos = getPos();
 
         Set<BlockPos> offsets = new HashSet<>();
 
-        // 1. Define a STARTING POINT (e.g., the front-left-bottom corner of the render area)
 
-        // Start 2 blocks down (relative(up, -2))
-        // Start 3 blocks back (relative(back, 3))
-        // Start 2 blocks to the left (relative(right.getOpposite(), 2))
         BlockPos startPos = pos
                 .relative(up, -1)
                 .relative(back, 3)
                 .relative(right.getOpposite(), 2);
 
-        // 2. Loop to build the 5x5x1 volume
-        int width = 5;  // 5 blocks wide (X axis relative to the machine)
-        int depth = 5;  // 5 blocks deep (Z axis relative to the machine)
-        int height = 1; // 1 block high (Y axis)
+        int width = 5;
+        int depth = 5;
+        int height = 1;
 
-        // Use loop counters (dx, dz, dy) to step away from the starting point
         for (int dx = 0; dx < width; dx++) {
             for (int dz = 0; dz < depth; dz++) {
                 for (int dy = 0; dy < height; dy++) {
 
-                    // Calculate the position relative to the startPos
                     BlockPos currentPos = startPos.offset(
                             right.getStepX() * dx + back.getStepX() * dz,
                             up.getStepY() * dy,
                             right.getStepZ() * dx + back.getStepZ() * dz);
 
-                    // 3. Add the relative position (offset) to the set
                     offsets.add(currentPos.subtract(pos));
                 }
             }
@@ -141,17 +132,12 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
     private record PlasmaBoost(String name, double durationMultiplier, double eutMultiplier, int consumeAmount,
                                int ticksPerConsumption) {}
 
-    // --- Plasma registry with per-plasma configs ---
     private static final Map<Fluid, HoneyCrystallizationChamberMachine.PlasmaBoost> PLASMA_BOOSTS = new HashMap<>();
     static {
-        // Here, the amount and ticks are set for a periodic consumption rate
-        // Example: 100 mB every 2 seconds (40 ticks)
         PLASMA_BOOSTS.put(GTMaterials.Helium.getFluid(FluidStorageKeys.PLASMA),
                 new HoneyCrystallizationChamberMachine.PlasmaBoost("Helium Plasma", 0.9, 0.8, 1, 40));
-        // Example: 200 mB every 1 second (20 ticks)
         PLASMA_BOOSTS.put(GTMaterials.Iron.getFluid(FluidStorageKeys.PLASMA),
                 new HoneyCrystallizationChamberMachine.PlasmaBoost("Iron Plasma", 0.7, 0.85, 200, 20));
-        // Example: 50 mB every 0.5 seconds (10 ticks)
         PLASMA_BOOSTS.put(GTMaterials.Nickel.getFluid(FluidStorageKeys.PLASMA),
                 new HoneyCrystallizationChamberMachine.PlasmaBoost("Nickel Plasma", 0.6, 0.9, 50, 10));
     }
@@ -168,9 +154,6 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
         super(holder);
     }
 
-    // ------------------------------------------//
-    // Recipe Logic //
-    // ------------------------------------------//
 
     private GTRecipe getPlasmaRecipe(HoneyCrystallizationChamberMachine.PlasmaBoost boost,
                                      net.minecraft.world.level.material.Fluid fluid) {
@@ -179,10 +162,8 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
 
     @Override
     public boolean onWorking() {
-        // Only perform the plasma check and consumption on the correct tick.
         if (this.consumptionTimer % (activeBoost == null ? 1 : activeBoost.ticksPerConsumption()) == 0) {
 
-            // On the check tick, reset the boost state
             isPlasmaBoosted = false;
             activeBoost = null;
 
@@ -201,10 +182,8 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
             }
         }
 
-        // The call to super.onWorking() now uses the current, persistent state
         boolean value = super.onWorking();
 
-        // Increment the timer and reset it to prevent overflow
         this.consumptionTimer++;
         if (this.consumptionTimer > 72000) this.consumptionTimer = 0;
 
@@ -243,7 +222,6 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
         }
     }
 
-    // Optional: Override to supply constant honey fluid for rendering
     public List<FluidStack> getRenderFluids() {
         return List.of(HONEY_STACK);
     }

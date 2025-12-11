@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MapShieldIngredient extends AbstractMapIngredient {
 
-    public final ShieldTypes shield; // <-- Change type to ShieldTypes
+    public final ShieldTypes shield;
 
     public MapShieldIngredient(ShieldTypes shield) { // <-- Change type to ShieldTypes
         this.shield = shield;
@@ -16,7 +16,7 @@ public class MapShieldIngredient extends AbstractMapIngredient {
 
     @Override
     protected int hash() {
-        return shield.key; // shield.key refers to the key on the ShieldTypes enum
+        return shield.key;
     }
 
     @Override
@@ -27,7 +27,6 @@ public class MapShieldIngredient extends AbstractMapIngredient {
         return other.shield == shield;
     }
 
-    // <-- Change method argument type to ShieldTypes
     public static List<AbstractMapIngredient> from(ShieldTypes ingredient) {
         return List.of(new MapShieldIngredient(ingredient));
     }

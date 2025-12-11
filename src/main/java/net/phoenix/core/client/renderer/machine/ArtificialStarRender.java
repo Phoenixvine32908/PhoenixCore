@@ -36,9 +36,8 @@ public class ArtificialStarRender extends DynamicRender<WorkableElectricMultiblo
     private static BakedModel artificialStarModel;
     private static final RandomSource random = RandomSource.create();
 
-    // --- CONSTANTES ADICIONADAS PARA CONTROLE DA ROTAÇÃO ---
-    private static final float ROTATION_SPEED = 0.025F; // Velocidade base do movimento
-    private static final float MAX_ROTATION_ANGLE = 30.0F; // Amplitude máxima do movimento principal
+    private static final float ROTATION_SPEED = 0.025F;
+    private static final float MAX_ROTATION_ANGLE = 30.0F;
 
     private ArtificialStarRender() {
         ModelUtils.registerBakeEventListener(true, event -> {
@@ -60,13 +59,12 @@ public class ArtificialStarRender extends DynamicRender<WorkableElectricMultiblo
 
         float tick = (machine.getOffsetTimer() + partialTick);
 
-        // Lógica de posicionamento (sem alterações)
-        // Center of the multiblock
+
         double x = 0.5;
-        double y = 2.5; // a little above the controller block
+        double y = 2.5;
         double z = 0.5;
 
-        // Offset in front of the facing direction by 5 blocks
+
         switch (machine.getFrontFacing()) {
             case NORTH -> z -= 5.0;
             case SOUTH -> z += 5.0;
@@ -86,27 +84,24 @@ public class ArtificialStarRender extends DynamicRender<WorkableElectricMultiblo
         if (artificialStarModel == null) return;
         poseStack.pushPose();
 
-        // Lógica de rotação em formato de símbolo do infinito
         float angleY = MAX_ROTATION_ANGLE * (float) Math.sin(tick * ROTATION_SPEED);
         float angleX = (MAX_ROTATION_ANGLE / 2.0f) * (float) Math.sin(tick * ROTATION_SPEED * 2.0f);
 
         poseStack.mulPose(new Quaternionf().fromAxisAngleDeg(0.0F, 1.0F, 0.0F, angleY));
         poseStack.mulPose(new Quaternionf().fromAxisAngleDeg(1.0F, 0.0F, 0.0F, angleX));
 
-        // Lógica de renderização dupla para efeito de bloom
 
-        // 1. Renderiza a estrela principal (interna, SÓLIDA e MENOR)
         poseStack.pushPose();
-        // ALTERADO: Escala diminuída para 0.40F
+
         poseStack.scale(0.40F, 0.40F, 0.40F);
-        // ALTERADO: Usando solidBlockSheet para garantir que seja opaca
+
         renderModel(poseStack, buffer.getBuffer(Sheets.solidBlockSheet()), artificialStarModel, 1.0F, 1.0F, 1.0F, 1.0f,
                 LightTexture.FULL_BRIGHT, packedOverlay);
         poseStack.popPose();
 
-        // 2. Renderiza a aura de brilho (externa, MENOR e semi-transparente)
+
         poseStack.pushPose();
-        // ALTERADO: Escala diminuída para 0.50F
+
         poseStack.scale(0.407F, 0.407F, 0.407F);
         renderModel(poseStack, buffer.getBuffer(RenderType.cutout()), artificialStarModel, 1.0F, 1.0F, 1.0F, 0.6F,
                 LightTexture.FULL_BRIGHT, packedOverlay);

@@ -33,19 +33,17 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
     public static final DynamicRenderType<WorkableElectricMultiblockMachine, PlasmaArcFurnaceRender> TYPE = new DynamicRenderType<>(
             PlasmaArcFurnaceRender.CODEC);
 
-    // CHANGE: Load two different models
-    public static final ResourceLocation SPHERE_MODEL_RL = phoenixcore.id("obj/blue_star"); // Or a new model for the
-                                                                                            // sphere
+    public static final ResourceLocation SPHERE_MODEL_RL = phoenixcore.id("obj/blue_star");
+
     public static final ResourceLocation RINGS_MODEL_RL = phoenixcore.id("obj/rings");
 
     private static BakedModel sphereModel;
     private static BakedModel ringsModel;
     private static final RandomSource random = RandomSource.create();
 
-    // --- CONSTANTS ADDED FOR ROTATION CONTROL ---
-    private static final float ROTATION_SPEED = 0.025F; // Base speed of movement
-    private static final float MAX_ROTATION_ANGLE = 30.0F; // Maximum amplitude of the main movement
-    private static final float RINGS_ROTATION_SPEED = 0.5F; // New constant for rings rotation speed
+    private static final float ROTATION_SPEED = 0.025F;
+    private static final float MAX_ROTATION_ANGLE = 30.0F;
+    private static final float RINGS_ROTATION_SPEED = 0.5F;
 
     private PlasmaArcFurnaceRender() {
         ModelUtils.registerBakeEventListener(true, event -> {
@@ -64,11 +62,6 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
         if (!(machine instanceof HighPressurePlasmaArcFurnaceMachine furnace)) return;
 
-        // --- NEW CONDITION ADDED HERE ---
-        // The render should only happen if:
-        // 1. The machine is formed.
-        // 2. The machine is currently active (running a recipe).
-        // 3. The shield state is NORMAL (the active state).
         if (!furnace.isFormed() || furnace.getShieldType() != Shield.ShieldTypes.NORMAL) {
             return;
         }
@@ -96,29 +89,24 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
         if (sphereModel == null || ringsModel == null) return;
         poseStack.pushPose();
 
-        // Overall rotation of the entire object (sphere + rings)
         float angleY = MAX_ROTATION_ANGLE * (float) Math.sin(tick * ROTATION_SPEED);
         float angleX = (MAX_ROTATION_ANGLE / 2.0f) * (float) Math.sin(tick * ROTATION_SPEED * 2.0f);
         poseStack.mulPose(new Quaternionf().fromAxisAngleDeg(0.0F, 1.0F, 0.0F, angleY));
         poseStack.mulPose(new Quaternionf().fromAxisAngleDeg(1.0F, 0.0F, 0.0F, angleX));
 
-        // 1. Renders the main star (internal, SOLID and SMALLER)
         poseStack.pushPose();
-        // CHANGED: Scale reduced to 0.40F
         poseStack.scale(0.1F, 0.1F, 0.1F);
-        // CHANGED: Using solidBlockSheet to ensure it is opaque
         renderModel(poseStack, buffer.getBuffer(Sheets.solidBlockSheet()), sphereModel, 1.0F, 1.0F, 1.0F, 1.0f,
                 LightTexture.FULL_BRIGHT, packedOverlay);
         poseStack.popPose();
 
-        // 2. Renders the glow aura (external, SMALLER and semi-transparent)
+
         poseStack.pushPose();
 
-        // ADDED: Rotate the rings on a different axis and with a different speed
         float ringsAngle = (tick * RINGS_ROTATION_SPEED) % 360;
         poseStack.mulPose(new Quaternionf().fromAxisAngleDeg(0.0F, 1.0F, 0.0F, ringsAngle));
 
-        poseStack.scale(6.4F, 6.4F, 6.4F); // Adjust scale as needed
+        poseStack.scale(6.4F, 6.4F, 6.4F);
         renderModel(poseStack, buffer.getBuffer(Sheets.solidBlockSheet()), ringsModel, 1.0F, 1.0F, 1.0F, 0.6F,
                 LightTexture.FULL_BRIGHT, packedOverlay);
         poseStack.popPose();

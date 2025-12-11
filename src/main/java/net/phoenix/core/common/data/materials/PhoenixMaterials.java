@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
@@ -24,7 +25,9 @@ public class PhoenixMaterials {
     public static Material PHOENIX_ENRICHED_TRITANIUM;
     public static Material PHOENIX_ENRICHED_NAQUADAH;
     public static Material ALUMINFROST;
-    public static Material TEST_FLUID;
+    public static Material FROST;
+    public static Material BORON_CARBIDE;
+    public static Material NIOBIUM_MODIFIED_SILICON_CARBIDE;
 
     public static void register() {
         ALUMINFROST = new Material.Builder(
@@ -67,26 +70,54 @@ public class PhoenixMaterials {
                 .formula("PENaq")
                 .iconSet(MaterialIconSet.SHINY)
                 .buildAndRegister();
-        TEST_FLUID = new Material.Builder(
-                phoenixcore.id("test_fluid"))
-                .langValue("test_fluid")
+        FROST = new Material.Builder(
+                phoenixcore.id("frost"))
+                .langValue("§bFrost")
                 .fluid()
-                .color(0xFFA500)
+                .color(0xA7D1EB)
+                .secondaryColor(0x778899)
                 .iconSet(MaterialIconSet.SHINY)
+                .buildAndRegister();
+        BORON_CARBIDE = new Material.Builder(
+                phoenixcore.id("boron_carbide"))
+                .ingot()
+                .color(0x353630)
+                .iconSet(MaterialIconSet.DULL)
+                .blastTemp(3600, BlastProperty.GasTier.LOW, 500, 1500)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_DENSE)
+                .formula("B4C")
+                .buildAndRegister();
+
+        NIOBIUM_MODIFIED_SILICON_CARBIDE = new Material.Builder(
+                phoenixcore.id("niobium_modified_silicon_carbide"))
+                .ingot()
+                .color(0x4A4B6B)
+                .secondaryColor(0x101021)
+                .iconSet(MaterialIconSet.METALLIC)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_FOIL)
+                .blastTemp(4500, BlastProperty.GasTier.MID, 2000, 1800)
+                .formula("Nb(SiC)x")
                 .buildAndRegister();
     }
 
     public static void modifyMaterials() {
         CrystalRoseHelper.addCrystalRoseFlags(
-                GTMaterials.Iron,
-                GTMaterials.Copper,
-                GTMaterials.Tin,
-                GTMaterials.Silver,
-                GTMaterials.Gold,
-                GTMaterials.Aluminium,
-                GTMaterials.Nickel,
-                GTMaterials.Zinc
-        // Add any others
+                Iron,
+                Copper,
+                Tin,
+                Silver,
+                Gold,
+                Aluminium,
+                Nickel,
+                Zinc,
+                Diamond,
+                Pitchblende,
+                Cobalt,
+                Steel,
+                Salt,
+                Apatite
+
+
         );
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
             ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);

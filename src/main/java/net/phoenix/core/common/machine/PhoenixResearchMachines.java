@@ -28,28 +28,20 @@ import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 import static net.phoenix.core.configs.PhoenixConfigs.*;
 
-////////////////////////////////////////////
-// ******** MULTIBLOCK PARTS ********//
-////////////////////////////////////////////
 public class PhoenixResearchMachines {
 
     public static MachineDefinition PHOENIX_COMPUTATION_COMPONENT = null;
     public static MachineDefinition ADVANCED_PHOENIX_COMPUTATION_COMPONENT = null;
     public static MachineDefinition PHOENIX_COOLER_COMPONENT = null;
     public static MachineDefinition ACTIVE_PHOENIX_COOLER_COMPONENT = null;
-    //////////////////////////////////////
-    // *********** HPCA ***********//
-    //////////////////////////////////////
+
 
     static {
         if (INSTANCE.features.HPCAComponetsEnabled) {
-            // Here we define your new custom HPCA part.
             PHOENIX_COMPUTATION_COMPONENT = registerComputationHPCAPart(
                     "phoenix_computation_component", "Phoenix Computation Component",
-                    // The constructor now uses your custom class.
                     BasicPhoenixComputationPartMachine::new, "reinforced_computation", false)
                     .tooltips(
-                            // Update the tooltips to reflect the new part's values.
                             Component.translatable("gtceu.machine.hpca.component_general.upkeep_eut",
                                     VA[INSTANCE.features.basicPCUEutUpkeep]),
                             Component.translatable("gtceu.machine.hpca.component_general.max_eut",
@@ -63,10 +55,8 @@ public class PhoenixResearchMachines {
                     .register();
             ADVANCED_PHOENIX_COMPUTATION_COMPONENT = registerComputationHPCAPart(
                     "advanced_phoenix_computation_component", "Advanced Phoenix Computation Component",
-                    // The constructor now uses your custom class.
                     PhoenixComputationPartMachine::new, "advanced_phoenix_computation_component", true)
                     .tooltips(
-                            // Update the tooltips to reflect the new part's values.
                             Component.translatable("gtceu.machine.hpca.component_general.upkeep_eut",
                                     VA[INSTANCE.features.PCUEutUpkeep]),
                             Component.translatable("gtceu.machine.hpca.component_general.max_eut",
@@ -79,12 +69,10 @@ public class PhoenixResearchMachines {
                     .tooltipBuilder(OVERHEAT_TOOLTIPS)
                     .register();
 
-            // Standard version of your custom cooler
             PHOENIX_COOLER_COMPONENT = registerCoolingHPCAPart(
                     "phoenix_heat_sink_component", "Phoenix Heat Sink Component",
-                    // Use a lambda to correctly pass the 'advanced' boolean
                     holder -> new BasicPhoenixCoolerPartMachine(holder, false),
-                    "advanced_heat_sink", false) // Pass false for the advanced parameter
+                    "advanced_heat_sink", false)
                     .tooltips(
                             Component.translatable("gtceu.machine.hpca.component_general.upkeep_eut",
                                     INSTANCE.features.HeatSinkEutUpkeep),
@@ -94,12 +82,11 @@ public class PhoenixResearchMachines {
                             Component.translatable("gtceu.part_sharing.disabled"))
                     .register();
 
-            // Advanced version of your custom cooler
             ACTIVE_PHOENIX_COOLER_COMPONENT = registerCoolingHPCAPart(
                     "active_phoenix_cooling_component", "Active Phoenix Cooling Component",
-                    // Use a lambda to correctly pass the 'advanced' boolean
+
                     holder -> new PhoenixCoolerPartMachine(holder, true),
-                    "advanced_active_cooler", true) // Pass true for the advanced parameter
+                    "advanced_active_cooler", true)
                     .tooltips(
                             Component.translatable("gtceu.machine.hpca.component_general.upkeep_eut",
                                     INSTANCE.features.ActiveCoolerEutUpkeep),
@@ -108,8 +95,6 @@ public class PhoenixResearchMachines {
                                     INSTANCE.features.ActiveCoolerCoolantUse,
                                     // This is already correct
                                     GTMaterials.get(INSTANCE.features.ActiveCoolerCoolantBase).getLocalizedName()),
-                            // This is the line you need to fix
-                            // First, get the localized name for the configured material
                             Component.translatable("gtceu.tooltip.uses_custom_coolant",
                                     GTMaterials.get(INSTANCE.features.ActiveCoolerCoolantBase).getLocalizedName()),
                             Component.translatable("gtceu.machine.hpca.component_type.cooler_cooling",

@@ -62,11 +62,9 @@ public class PhoenixCoilBlock extends ActiveBlock {
         @NotNull
         @Getter
         private final String name;
-        // electric blast furnace properties
         @Getter
         private final int coilTemperature;
 
-        // multi smelter properties
         @Getter
         private final int level;
         @Getter

@@ -117,24 +117,17 @@ public class PhoenixMachineRecipes {
         }
         PhoenixRecipeTypes.PLEASE.recipeBuilder("plasma_furnace_shield_activation")
 
-                // CRITICAL INPUT: Requires the machine to be in the INACTIVE state (Key 2).
-                // The NotifiableShieldContainer blocks the recipe if the machine state doesn't match this input.
                 .input(SHIELDTYPES, INACTIVE)
 
-                // --- Material Costs (Example, adjust tier/cost as needed) ---
                 .inputItems(TagPrefix.plate, Neutronium, 16)
                 .inputItems(FIELD_GENERATOR.get(UV), 4)
                 .inputFluids(GTMaterials.SolderingAlloy.getFluid(L * 32))
 
-                // --- State Change Data Tags (Read by HighPressurePlasmaArcFurnaceMachine.java in afterWorking) ---
-                // 1. Flag for the machine to recognize this is a state-change recipe
                 .addData("shield_activation", true)
-                // 2. Target state key: Shield.ShieldTypes.NORMAL has key 1
                 .addData("updated_shield_key", NORMAL.key)
 
-                // --- Recipe Duration & Energy ---
-                .EUt(VA[UV]) // Ultra-Voltage (1M EUt/t)
-                .duration(1000) // 50 seconds
+                .EUt(VA[UV])
+                .duration(1000)
                 .save(provider);
 
         PhoenixRecipeTypes.PLEASE.recipeBuilder("please")
@@ -170,6 +163,13 @@ public class PhoenixMachineRecipes {
                 .EUt(-LV).duration(400)
                 .addData("required_cooling", 12000)
                 .outputFluids(SodiumPotassium.getFluid(16))
+                .save(provider);
+        CIRCUIT_ASSEMBLER_RECIPES.recipeBuilder("electronic_circuit_mv_universal").EUt(VA[LV]).duration(300)
+                .inputItems(GOOD_CIRCUIT_BOARD)
+                .inputItems(CustomTags.LV_CIRCUITS, 2)
+                .inputItems(CustomTags.DIODES, 2)
+                .inputItems(wireGtSingle, Copper, 2)
+                .outputItems(ELECTRONIC_CIRCUIT_MV)
                 .save(provider);
     }
 }

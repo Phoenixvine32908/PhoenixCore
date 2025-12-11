@@ -20,7 +20,6 @@ public class FissionMachineProvider implements IBlockComponentProvider, IServerD
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        // Prevent showing tooltip on all blocks.
         if (!(accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE &&
                 metaBE.getMetaMachine() instanceof FissionWorkableElectricMultiblockMachine)) {
             return;
@@ -32,14 +31,12 @@ public class FissionMachineProvider implements IBlockComponentProvider, IServerD
         boolean hasCoolant = data.getBoolean("hasCoolant");
         boolean lowCooling = data.getBoolean("lowCooling");
 
-        // SAFE (no meltdown)
         if (!hasMeltdownTimer || ticks < 0) {
             tooltip.add(Component.translatable("jade.phoenixcore.fission_safe")
                     .withStyle(s -> s.withColor(0x33FF33)));
             return;
         }
 
-        // MELTDOWN
         int seconds = ticks / 20;
         tooltip.add(Component.translatable("jade.phoenixcore.fission_meltdown_timer", seconds)
                 .withStyle(s -> s.withColor(0xFFAA00)));
@@ -57,12 +54,12 @@ public class FissionMachineProvider implements IBlockComponentProvider, IServerD
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         if (!(accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE &&
                 metaBE.getMetaMachine() instanceof FissionWorkableElectricMultiblockMachine machine)) {
-            return; // do NOT send any data for non-fission blocks
+            return;
         }
 
         int secondsRemaining = machine.getMeltdownSecondsRemaining();
 
-        // Only send meltdown data if meltdown is actually in progress.
+
         tag.putInt("meltdownTimerTicks", secondsRemaining > 0 ? secondsRemaining * 20 : -1);
         tag.putBoolean("hasCoolant", machine.lastHasCoolant);
         tag.putBoolean("lowCooling", machine.lastProvidedCooling < machine.lastRequiredCooling);
