@@ -19,7 +19,6 @@ public class SourceHatchBlockEntity extends TieredIOPartMachine implements ISour
         this.sourceContainer = new NotifiableSourceContainer(this, io, getMaxCapacity(tier), getMaxConsumption(tier));
     }
 
-
     @Override
     public int getTransferRate() {
         return sourceContainer.getTransferRate();

@@ -309,13 +309,14 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
         float power = 6.0f + coolerPower + moderatorPower;
 
         if (getLevel() instanceof net.minecraft.server.level.ServerLevel world) {
-
             net.minecraft.world.entity.Entity explosionCauser = null;
 
             double x = getPos().getX() + 0.5;
             double y = getPos().getY() + 0.5;
             double z = getPos().getZ() + 0.5;
 
+            // 1. Trigger the standard explosion for visual, sound, and entity damage.
+            // Block interaction is set to BLOCK but will likely be cancelled by FTB Chunks.
             world.explode(
                     explosionCauser,
                     x,
@@ -323,6 +324,43 @@ public class FissionWorkableElectricMultiblockMachine extends WorkableElectricMu
                     z,
                     power,
                     net.minecraft.world.level.Level.ExplosionInteraction.BLOCK);
+
+            // --- START AGGRESSIVE PROTECTION BYPASS ---
+
+            // 2. Determine a radius to forcibly destroy blocks. (e.g., radius of 2 blocks)
+            int radius = (int) Math.min(Math.ceil(power / 4.0), 3.0); // Dynamically set a small radius
+
+            // 3. Loop through a small area around the reactor and forcibly remove blocks.
+            // This method, while direct, is less likely to be blocked by soft protection events.
+            net.minecraft.core.BlockPos center = getPos();
+
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dy = -radius; dy <= radius; dy++) {
+                    for (int dz = -radius; dz <= radius; dz++) {
+
+                        net.minecraft.core.BlockPos targetPos = center.offset(dx, dy, dz);
+
+                        // Only destroy blocks within a sphere (optional, for realism)
+                        if (dx * dx + dy * dy + dz * dz <= radius * radius + 1) {
+
+                            // Force block removal. FLAG_IGNORE_VIBRATIONS is key for low-level removal.
+                            // FLAG_NO_RERENDER (2) | FLAG_FORCE_STATE (64) | FLAG_IGNORE_VIBRATIONS (128)
+                            // Using (3) for standard update/notify, but using the lowest-level method.
+
+                            world.setBlock(
+                                    targetPos,
+                                    net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),
+                                    3 | 64 | 128 // Using combination of flags to bypass logic
+                            );
+                        }
+                    }
+                }
+            }
+
+            // 4. Invalidate the structure to prevent it from restarting.
+            this.onStructureInvalid();
+
+            // --- END AGGRESSIVE PROTECTION BYPASS ---
         }
 
         meltdownTimerTicks = -1;

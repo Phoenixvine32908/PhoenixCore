@@ -25,6 +25,7 @@ public class PhoenixRecipeTypes {
     public static GTRecipeType COMB_DECANTING_RECIPES;
     public static GTRecipeType SWARM_NURTURING_RECIPES;
     public static GTRecipeType APIS_PROGENITOR_RECIPES;
+    public static GTRecipeType MELLIFERIOUS_MATRIX_RECIPES;
 
     public static void init() {
         PLEASE = register("please", MULTIBLOCK)
@@ -42,13 +43,19 @@ public class PhoenixRecipeTypes {
                 .setEUIO(IO.IN);
 
         SIMULATED_COLONY_RECIPES = register("simulated_colony", MULTIBLOCK)
-                .setMaxIOSize(2, 1, 2, 1)
+                .setMaxIOSize(4, 1, 2, 1)
                 .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
-                .setSound(GTSoundEntries.FORGE_HAMMER) // Use a suitable sound
+                .setSound(GTSoundEntries.FORGE_HAMMER)
                 .setEUIO(IO.IN);
 
         COMB_DECANTING_RECIPES = register("comb_decanting", MULTIBLOCK)
+                .setMaxIOSize(1, 2, 1, 2)
+                .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_MACERATE, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.CENTRIFUGE)
+                .setEUIO(IO.IN);
+        MELLIFERIOUS_MATRIX_RECIPES = register("melliferous_matrix", MULTIBLOCK)
                 .setMaxIOSize(1, 2, 1, 2)
                 .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_MACERATE, ProgressTexture.FillDirection.LEFT_TO_RIGHT)

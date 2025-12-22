@@ -15,22 +15,17 @@ import lombok.Getter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class PhoenixCoolerPartMachine extends HPCAComponentPartMachine implements IHPCACoolantProvider {
-
-
 
     @Getter
     private final boolean advanced;
 
     public PhoenixCoolerPartMachine(IMachineBlockEntity holder, boolean advanced) {
-
         super(holder);
         this.advanced = advanced;
     }
-
 
     @Override
     public ResourceTexture getComponentIcon() {

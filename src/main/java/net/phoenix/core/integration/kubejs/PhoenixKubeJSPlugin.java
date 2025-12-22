@@ -8,6 +8,7 @@ import net.phoenix.core.common.data.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixElements;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
+import net.phoenix.core.common.data.materials.PhoenixOres;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.multiblock.*;
 import net.phoenix.core.configs.PhoenixConfigs;
@@ -62,6 +63,7 @@ public class PhoenixKubeJSPlugin extends KubeJSPlugin {
         super.registerBindings(event);
         event.add("ShieldType", Shield.ShieldTypes.class);
         event.add("PhoenixMaterials", PhoenixMaterials.class);
+        event.add("PhoenixOres", PhoenixOres.class);
         event.add("PhoenixConfigs", PhoenixConfigs.class);
         event.add("BlazingCleanroom", BlazingCleanroom.class);
         event.add("PhoenixElements", PhoenixElements.class);

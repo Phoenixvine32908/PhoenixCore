@@ -40,6 +40,7 @@ import net.phoenix.core.common.data.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
+import net.phoenix.core.common.data.materials.PhoenixOres;
 import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.PhoenixBeeMachines;
 import net.phoenix.core.common.machine.PhoenixMachines;
@@ -126,8 +127,7 @@ public class phoenixcore {
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-        }
+        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {}
     }
 
     private void addMaterialRegistries(MaterialRegistryEvent event) {
@@ -136,6 +136,7 @@ public class phoenixcore {
 
     private void addMaterials(MaterialEvent event) {
         PhoenixMaterials.register();
+        PhoenixOres.register();
     }
 
     private void modifyMaterials(PostMaterialEvent event) {

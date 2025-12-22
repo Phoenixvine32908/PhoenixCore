@@ -8,7 +8,6 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
-import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.phoenix.core.api.item.tool.PhoenixToolType;
 import net.phoenix.core.common.data.PhoenixMaterialRegistry;
@@ -28,8 +27,16 @@ public class PhoenixMaterials {
     public static Material FROST;
     public static Material BORON_CARBIDE;
     public static Material NIOBIUM_MODIFIED_SILICON_CARBIDE;
+    public static Material SUGAR_WATER;
 
     public static void register() {
+        SUGAR_WATER = new Material.Builder(
+                phoenixcore.id("sugar_water"))
+                .fluid()
+                .color(0xFFFFF0)
+                .iconSet(MaterialIconSet.DULL) // Icon set from KubeJS
+                .flags(MaterialFlags.DISABLE_DECOMPOSITION)
+                .buildAndRegister();
         ALUMINFROST = new Material.Builder(
                 phoenixcore.id("aluminfrost"))
                 .color(0xadd8e6).secondaryColor(0xc0c0c0).iconSet(MaterialIconSet.DULL)
@@ -102,23 +109,19 @@ public class PhoenixMaterials {
 
     public static void modifyMaterials() {
         CrystalRoseHelper.addCrystalRoseFlags(
-                Iron,
-                Copper,
-                Tin,
-                Silver,
-                Gold,
-                Aluminium,
-                Nickel,
-                Zinc,
-                Diamond,
-                Pitchblende,
-                Cobalt,
-                Steel,
-                Salt,
-                Apatite
+                Amethyst, Apatite, Bauxite, Cinnabar, Cobalt, Cobaltite, Copper, Diamond,
+                Electrotine, Emerald, Galena, Gold, Ilmenite, Invar, Iron, Lapis,
+                Lead, Lepidolite, Malachite, Nickel, Opal, Pitchblende, Pyrope, Realgar,
+                Ruby, Salt, Sapphire, Scheelite, Silicon, Silver, Steel, Stibnite, Topaz,
+                TricalciumPhosphate, Tungstate, Zinc,
+                Barite, Bastnasite, Bismuth, Chromite, Graphite, Molybdenum, Oilsands, Platinum,
+                Pyrochlore, Pyrolusite, Sphalerite, Sulfur, Tantalite, Tetrahedrite, Thorium,
+                Titanium, VanadiumMagnetite,
+                PhoenixOres.FLUORITE,
+                NetherQuartz,
+                RockSalt,
+                Sodalite);
 
-
-        );
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
             ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);
 

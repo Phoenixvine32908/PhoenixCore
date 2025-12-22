@@ -59,11 +59,9 @@ public class ArtificialStarRender extends DynamicRender<WorkableElectricMultiblo
 
         float tick = (machine.getOffsetTimer() + partialTick);
 
-
         double x = 0.5;
         double y = 2.5;
         double z = 0.5;
-
 
         switch (machine.getFrontFacing()) {
             case NORTH -> z -= 5.0;
@@ -90,7 +88,6 @@ public class ArtificialStarRender extends DynamicRender<WorkableElectricMultiblo
         poseStack.mulPose(new Quaternionf().fromAxisAngleDeg(0.0F, 1.0F, 0.0F, angleY));
         poseStack.mulPose(new Quaternionf().fromAxisAngleDeg(1.0F, 0.0F, 0.0F, angleX));
 
-
         poseStack.pushPose();
 
         poseStack.scale(0.40F, 0.40F, 0.40F);
@@ -98,7 +95,6 @@ public class ArtificialStarRender extends DynamicRender<WorkableElectricMultiblo
         renderModel(poseStack, buffer.getBuffer(Sheets.solidBlockSheet()), artificialStarModel, 1.0F, 1.0F, 1.0F, 1.0f,
                 LightTexture.FULL_BRIGHT, packedOverlay);
         poseStack.popPose();
-
 
         poseStack.pushPose();
 

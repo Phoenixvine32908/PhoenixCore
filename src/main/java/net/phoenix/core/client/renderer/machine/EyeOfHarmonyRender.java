@@ -63,7 +63,6 @@ public class EyeOfHarmonyRender extends DynamicRender<WorkableElectricMultiblock
     @Override
     public void render(WorkableElectricMultiblockMachine machine, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
-
         if (!machine.isFormed() || !machine.getRecipeLogic().isActive()) {
             return;
         }

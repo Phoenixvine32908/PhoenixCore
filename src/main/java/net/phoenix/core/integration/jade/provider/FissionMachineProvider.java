@@ -59,7 +59,6 @@ public class FissionMachineProvider implements IBlockComponentProvider, IServerD
 
         int secondsRemaining = machine.getMeltdownSecondsRemaining();
 
-
         tag.putInt("meltdownTimerTicks", secondsRemaining > 0 ? secondsRemaining * 20 : -1);
         tag.putBoolean("hasCoolant", machine.lastHasCoolant);
         tag.putBoolean("lowCooling", machine.lastProvidedCooling < machine.lastRequiredCooling);

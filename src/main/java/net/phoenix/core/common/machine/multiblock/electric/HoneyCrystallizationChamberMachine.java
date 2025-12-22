@@ -94,7 +94,6 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
 
         Set<BlockPos> offsets = new HashSet<>();
 
-
         BlockPos startPos = pos
                 .relative(up, -1)
                 .relative(back, 3)
@@ -153,7 +152,6 @@ public class HoneyCrystallizationChamberMachine extends WorkableElectricMultiblo
     public HoneyCrystallizationChamberMachine(IMachineBlockEntity holder) {
         super(holder);
     }
-
 
     private GTRecipe getPlasmaRecipe(HoneyCrystallizationChamberMachine.PlasmaBoost boost,
                                      net.minecraft.world.level.material.Fluid fluid) {

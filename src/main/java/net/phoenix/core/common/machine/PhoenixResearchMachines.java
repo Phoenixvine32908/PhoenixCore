@@ -35,7 +35,6 @@ public class PhoenixResearchMachines {
     public static MachineDefinition PHOENIX_COOLER_COMPONENT = null;
     public static MachineDefinition ACTIVE_PHOENIX_COOLER_COMPONENT = null;
 
-
     static {
         if (INSTANCE.features.HPCAComponetsEnabled) {
             PHOENIX_COMPUTATION_COMPONENT = registerComputationHPCAPart(

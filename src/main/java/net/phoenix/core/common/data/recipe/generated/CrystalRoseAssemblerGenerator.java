@@ -32,8 +32,6 @@ public class CrystalRoseAssemblerGenerator {
             if (inputStack.isEmpty()) return;
             inputStack.setCount(4);
 
-
-
             ItemStack roseStack = ChemicalHelper.get(PhoenixMaterialFlags.crystal_rose, material, 1);
             if (roseStack.isEmpty()) return;
 
@@ -74,14 +72,12 @@ public class CrystalRoseAssemblerGenerator {
         return mat;
     }
 
-
     private static ItemStack getPreferredInputForMaterial(Material material) {
         // 1 — raw ore (best)
         if (!TagPrefix.rawOre.isIgnored(material)) {
             ItemStack raw = ChemicalHelper.get(TagPrefix.rawOre, material, 1);
             if (!raw.isEmpty()) return raw;
         }
-
 
         if (!TagPrefix.dust.isIgnored(material)) {
             ItemStack dust = ChemicalHelper.get(TagPrefix.dust, material, 1);

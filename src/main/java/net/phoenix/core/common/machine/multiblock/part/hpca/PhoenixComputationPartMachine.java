@@ -23,12 +23,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class PhoenixComputationPartMachine extends HPCAComputationPartMachine implements IHPCAComputationProvider {
 
-
     public PhoenixComputationPartMachine(IMachineBlockEntity holder) {
-
         super(holder, true);
     }
-
 
     @Override
     public ResourceTexture getComponentIcon() {
@@ -40,25 +37,21 @@ public class PhoenixComputationPartMachine extends HPCAComputationPartMachine im
         return GuiTextures.HPCA_ICON_ADVANCED_COMPUTATION_COMPONENT;
     }
 
-
     @Override
     public int getUpkeepEUt() {
         return GTValues.VA[PhoenixConfigs.INSTANCE.features.PCUEutUpkeep];
     }
-
 
     @Override
     public int getMaxEUt() {
         return GTValues.VA[PhoenixConfigs.INSTANCE.features.PCUMaxEUt];
     }
 
-
     @Override
     public int getCWUPerTick() {
         if (isDamaged()) return PhoenixConfigs.INSTANCE.features.damagedPCUStrength;
         return PhoenixConfigs.INSTANCE.features.PCUStrength;
     }
-
 
     @Override
     public int getCoolingPerTick() {
