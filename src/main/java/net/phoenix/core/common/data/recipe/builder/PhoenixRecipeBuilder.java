@@ -11,7 +11,6 @@ import lombok.experimental.Accessors;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-
 @SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -21,7 +20,6 @@ public class PhoenixRecipeBuilder extends GTRecipeBuilder {
     public PhoenixRecipeBuilder(ResourceLocation id, GTRecipeType recipeType) {
         super(id, recipeType);
     }
-
 
     public PhoenixRecipeBuilder plasmaTemp(ResourceLocation plasmaFluidId) {
         return (PhoenixRecipeBuilder) this.addCondition(

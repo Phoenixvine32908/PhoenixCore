@@ -6,11 +6,13 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.WirePropertie
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 import com.gregtechceu.gtceu.utils.GTUtil;
-import it.unimi.dsi.fastutil.objects.Reference2IntMap;
-import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+
 import net.minecraft.Util;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
+
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -26,6 +28,7 @@ import static com.gregtechceu.gtceu.common.data.GTMaterials.PolyvinylChloride;
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.ASSEMBLER_RECIPES;
 
 public class PhoenixWireRecipeHandler {
+
     private static final Reference2IntMap<TagPrefix> INSULATION_AMOUNT = Util.make(new Reference2IntOpenHashMap<>(),
             map -> {
                 map.put(cableGtSingle, 1);
@@ -52,7 +55,6 @@ public class PhoenixWireRecipeHandler {
         generateCableCovering(provider, property, wireGtOctal, material);
         generateCableCovering(provider, property, wireGtHex, material);
     }
-
 
     private static void generateCableCovering(@NotNull Consumer<FinishedRecipe> provider,
                                               @NotNull WireProperties property,
@@ -88,4 +90,3 @@ public class PhoenixWireRecipeHandler {
                 .save(provider);
     }
 }
-

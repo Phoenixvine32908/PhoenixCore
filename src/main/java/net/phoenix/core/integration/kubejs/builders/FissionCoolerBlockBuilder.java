@@ -41,8 +41,6 @@ public class FissionCoolerBlockBuilder extends BlockBuilder {
         return this;
     }
 
-
-
     private class KjsCoolerType implements IFissionCoolerType, StringRepresentable {
 
         private final ResourceLocation textureLocation = new ResourceLocation(texture);

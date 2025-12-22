@@ -11,7 +11,6 @@ import net.phoenix.core.api.capability.PhoenixRecipeCapabilities;
 import net.phoenix.core.common.data.PhoenixCovers;
 import net.phoenix.core.common.data.PhoenixMachineRecipes;
 import net.phoenix.core.common.data.PhoenixToolRecipes;
-import net.phoenix.core.common.data.bees.BeeRecipeData;
 import net.phoenix.core.common.data.materials.PhoenixElements;
 import net.phoenix.core.common.data.recipe.generated.CrystalRoseAssemblerGenerator;
 import net.phoenix.core.common.data.recipe.generated.PhoenixBeeRecipeGenerator;
@@ -43,13 +42,11 @@ public class PhoenixGTAddon implements IGTAddon {
     }
 
     @Override
-    public void registerTagPrefixes() {
-    }
+    public void registerTagPrefixes() {}
 
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
         PhoenixMachineRecipes.init(provider);
-        BeeRecipeData.init();
         PhoenixToolRecipes.init(provider);
         PhoenixBeeRecipeGenerator.loadBeeRecipes(provider);
         CrystalRoseAssemblerGenerator.generateCrystalRoseRecipes(provider);

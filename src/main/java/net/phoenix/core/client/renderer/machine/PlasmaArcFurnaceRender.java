@@ -100,7 +100,6 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
                 LightTexture.FULL_BRIGHT, packedOverlay);
         poseStack.popPose();
 
-
         poseStack.pushPose();
 
         float ringsAngle = (tick * RINGS_ROTATION_SPEED) % 360;

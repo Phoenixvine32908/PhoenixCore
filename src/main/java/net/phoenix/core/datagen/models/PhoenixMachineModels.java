@@ -78,7 +78,6 @@ public class PhoenixMachineModels {
         model.texture("side", casing);
     }
 
-
     public static <
             T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrateBlockstateProvider> createActiveCoolerModel(IFissionCoolerType type) {
         return (ctx, prov) -> {
@@ -100,7 +99,6 @@ public class PhoenixMachineModels {
                     .modelForState().modelFile(active).addModel();
         };
     }
-
 
     public static <
             T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrateBlockstateProvider> createFissionModeratorModel(IFissionModeratorType type) {

@@ -28,12 +28,9 @@ public class GithubBeeRecipes {
             beeNames = List.of("honey_bee", "nether_bee", "rocky_bee");
         }
 
-
         String baseDirectory = "C:\\Users\\conno\\curseforge\\minecraft\\Instances\\Phoenix Forge Technologies\\kubejs\\assets\\productivebees\\recipes\\bee_breeding\\";
 
-
         String jsonContent = "{}";
-
 
         System.out.println("Successfully retrieved " + beeNames.size() + " bee names from GitHub:");
         System.out.println(beeNames);

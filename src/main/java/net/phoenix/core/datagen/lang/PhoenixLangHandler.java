@@ -53,8 +53,6 @@ public class PhoenixLangHandler {
         provider.add("block.phoenixcore.fission_moderator.boost", "§aEU Output Boost: §f%s%%");
         provider.add("block.phoenixcore.fission_moderator.fuel_discount", "§bFuel Usage Reduction: §f%s%%");
 
-
-
         provider.add("phoenix.multiblock.pattern.info.multiple_coolers",
                 "Accepts multiple Fission Cooler Blocks. Cooling power is additive.");
         provider.add("phoenix.multiblock.pattern.info.multiple_moderators",
@@ -116,11 +114,30 @@ public class PhoenixLangHandler {
         provider.add("material.phoenixcore.boron_carbide", "§5Boron Carbide");
         provider.add("material.phoenixcore.niobium_modified_silicon_carbide", "§5Niobium Modified Silicon Carbide");
         provider.add("material.phoenixcore.frost", "§bFrost");
+        provider.add("material.phoenixcore.sugar_water", "Sugar Water");
         provider.add("material.phoenixcore.eighty_five_percent_pure_nevvonian_steel",
                 "§6Eighty Five Percent Pure Nevvonian Steel");
         provider.add("material.phoenixcore.phoenix_enriched_naquadah",
                 "§6Phoenix Enriched Naquadah");
+        provider.add("material.phoenixcore.ignisium", "§4Ignisium");
+        provider.add("material.phoenixcore.crystallized_fluxstone", "§dCrystallized Fluxstone");
+        provider.add("material.phoenixcore.nevvonian_iron", "§7Nevvonian Iron");
+        provider.add("material.phoenixcore.fluorite", "§aFluorite");
+        provider.add("material.phoenixcore.polarity_flipped_bismuthite", "§bPolarity Flipped Bismuthite");
+        provider.add("material.phoenixcore.voidglass_shard", "§5Voidglass Shard");
         provider.add("phoenixcore.tooltip.hyper_machine_1", "Each Coolant provides a boost:");
+        provider.add("gtceu.recipe_type.phoenixcore.high_performance_breeder_reactor",
+                "High-Performance Breeder Reactor");
+        provider.add("gtceu.recipe_type.phoenixcore.advanced_pressurized_fission_reactor",
+                "Advanced Pressurized Fission Reactor");
+        provider.add("gtceu.recipe_type.phoenixcore.pressurized_fission_reactor", "Pressurized Fission Reactor");
+        provider.add("gtceu.recipe_type.phoenixcore.heat_exchanging", "Heat Exchanger");
+        provider.add("gtceu.recipe_type.phoenixcore.honey_chamber", "Honey Chamber");
+        provider.add("gtceu.recipe_type.phoenixcore.please", "Please Multiblock");
+        provider.add("gtceu.recipe_type.phoenixcore.simulated_colony", "Simulated Colony");
+        provider.add("gtceu.recipe_type.phoenixcore.comb_decanting", "Comb Decanter");
+        provider.add("gtceu.recipe_type.phoenixcore.swarm_nurturing", "Swarm Nurturing Chamber");
+        provider.add("gtceu.recipe_type.phoenixcore.apis_progenitor", "Apis Progenitor");
 
         provider.add("shield.phoenixcore.current_shield", "Shield Status: %s");
         provider.add("shield.phoenixcore.health", "Health: %s");

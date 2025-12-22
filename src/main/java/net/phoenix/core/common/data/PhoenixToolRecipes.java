@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 import static com.gregtechceu.gtceu.api.data.tag.TagPrefix.*;
 import static net.phoenix.core.common.data.recipe.generated.PhoenixToolRecipeHelper.powerUnitItems;
 
-
 public final class PhoenixToolRecipes {
 
     private PhoenixToolRecipes() {}
@@ -36,7 +35,6 @@ public final class PhoenixToolRecipes {
     private static final Int2ReferenceMap<ItemEntry<? extends Item>> motorItems = new Int2ReferenceArrayMap<>();
     private static final Int2ReferenceMap<Material> baseMaterials = new Int2ReferenceArrayMap<>();
     private static final Int2ReferenceMap<List<ItemEntry<? extends Item>>> batteryItems = new Int2ReferenceArrayMap<>();
-
 
     public static void init(@NotNull Consumer<FinishedRecipe> provider) {
         initTierMaps();

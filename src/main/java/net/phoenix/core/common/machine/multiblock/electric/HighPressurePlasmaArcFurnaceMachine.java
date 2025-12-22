@@ -71,8 +71,6 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
 
     private int consumptionTimer = 0;
 
-
-
     public HighPressurePlasmaArcFurnaceMachine(IMachineBlockEntity holder) {
         super(holder);
 
@@ -89,7 +87,6 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
     public Shield.ShieldTypes getShieldType() {
         return this.shieldType;
     }
-
 
     public void updateShield(int pKey, boolean setCooldown) {
         this.shieldType = Shield.ShieldTypes.getShieldFromKey(pKey);
@@ -215,7 +212,6 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
         return super.isWorkingEnabled();
     }
 
-
     private boolean hasPlasmaInHatch(net.minecraft.world.level.material.Fluid fluid, int requiredAmount) {
         return getParts().stream()
                 .filter(PlasmaHatchPartMachine.class::isInstance)
@@ -282,9 +278,7 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
 
         }
 
-
         textList.add(Component.literal("--------------------"));
-
 
         if (this.shieldType == Shield.ShieldTypes.NORMAL) {
             if (isPlasmaBoosted && activeBoost != null) {

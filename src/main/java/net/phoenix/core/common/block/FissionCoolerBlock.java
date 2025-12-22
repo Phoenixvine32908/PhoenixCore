@@ -49,12 +49,10 @@ public class FissionCoolerBlock extends ActiveBlock {
         tooltip.add(Component.literal("§7Coolant Usage: §f" +
                 coolerType.getCoolantPerTick() + " mB/t"));
 
-
         tooltip.add(Component.translatable(
                 "phoenix.fission.cooling_power",
                 coolerType.getCoolerTemperature()));
     }
-
 
     private static Component getCoolantName(Material mat) {
         if (mat == null || mat == GTMaterials.NULL || mat.getName().equals("none"))
@@ -64,8 +62,7 @@ public class FissionCoolerBlock extends ActiveBlock {
             FluidStack stack = mat.getFluid(1);
             if (!stack.isEmpty())
                 return stack.getDisplayName();
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) {}
 
         return Component.translatable(mat.getDefaultTranslation());
     }
@@ -125,7 +122,5 @@ public class FissionCoolerBlock extends ActiveBlock {
         public @NotNull String getRequiredCoolantMaterialId() {
             return this.requiredCoolantMaterialId;
         }
-
-
     }
 }

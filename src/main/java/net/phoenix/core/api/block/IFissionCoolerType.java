@@ -43,7 +43,6 @@ public interface IFissionCoolerType {
         return getCoolantUsagePerTick();
     }
 
-
     Material getMaterial();
 
     int getTier();

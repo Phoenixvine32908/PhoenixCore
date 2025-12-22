@@ -13,16 +13,13 @@ import net.phoenix.core.configs.PhoenixConfigs;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BasicPhoenixComputationPartMachine extends HPCAComputationPartMachine implements IHPCAComputationProvider {
 
-
     public BasicPhoenixComputationPartMachine(IMachineBlockEntity holder) {
         super(holder, false);
     }
-
 
     @Override
     public ResourceTexture getComponentIcon() {
@@ -34,25 +31,21 @@ public class BasicPhoenixComputationPartMachine extends HPCAComputationPartMachi
         return GuiTextures.HPCA_ICON_ADVANCED_COMPUTATION_COMPONENT;
     }
 
-
     @Override
     public int getUpkeepEUt() {
         return GTValues.VA[PhoenixConfigs.INSTANCE.features.basicPCUEutUpkeep];
     }
-
 
     @Override
     public int getMaxEUt() {
         return GTValues.VA[PhoenixConfigs.INSTANCE.features.basicPCUMaxEUt];
     }
 
-
     @Override
     public int getCWUPerTick() {
         if (isDamaged()) return PhoenixConfigs.INSTANCE.features.damagedBasicPCUStrength;
         return PhoenixConfigs.INSTANCE.features.BasicPCUStrength;
     }
-
 
     @Override
     public int getCoolingPerTick() {

@@ -15,12 +15,9 @@ import lombok.Getter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BasicPhoenixCoolerPartMachine extends HPCAComponentPartMachine implements IHPCACoolantProvider {
-
-
 
     @Getter
     private final boolean advanced;

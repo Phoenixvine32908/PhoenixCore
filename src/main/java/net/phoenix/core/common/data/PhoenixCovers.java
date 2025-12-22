@@ -5,7 +5,6 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.cover.CoverDefinition;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.client.renderer.cover.SimpleCoverRenderer;
-import com.gregtechceu.gtceu.common.data.GTCovers;
 
 import net.phoenix.core.common.cover.PhoenixCoverSolarPanel;
 import net.phoenix.core.phoenixcore;
@@ -14,7 +13,6 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public class PhoenixCovers {
-
 
     public static final int START_TIER = GTValues.UHV;
     public static final int END_TIER = GTValues.MAX;
@@ -32,10 +30,7 @@ public class PhoenixCovers {
         GTRegistries.COVERS.freeze();
     }
 
-    public static void init() {
-    }
-
-
+    public static void init() {}
 
     private static CoverDefinition[] registerPhoenixTiered(
                                                            String id,

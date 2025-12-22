@@ -38,7 +38,6 @@ public class FissionModeratorBlockBuilder extends BlockBuilder {
         return this;
     }
 
-
     private class KjsModeratorType implements IFissionModeratorType, StringRepresentable {
 
         private final ResourceLocation textureLocation = new ResourceLocation(texture);

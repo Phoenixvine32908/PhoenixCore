@@ -42,14 +42,12 @@ public class FissionModeratorBlock extends ActiveBlock {
 
         tooltip.add(Component.translatable("block.phoenixcore.fission_moderator.info_header"));
 
-
         tooltip.add(Component.translatable("block.phoenixcore.fission_moderator.boost",
                 this.moderatorType.getEUBoost()));
 
         tooltip.add(Component.translatable("block.phoenixcore.fission_moderator.fuel_discount",
                 this.moderatorType.getFuelDiscount()));
     }
-
 
     public enum fissionModeratorType implements StringRepresentable, IFissionModeratorType {
 
