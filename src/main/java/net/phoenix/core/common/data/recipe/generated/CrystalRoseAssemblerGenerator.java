@@ -35,14 +35,14 @@ public class CrystalRoseAssemblerGenerator {
             ItemStack roseStack = ChemicalHelper.get(PhoenixMaterialFlags.crystal_rose, material, 1);
             if (roseStack.isEmpty()) return;
 
-            FluidStack sodiumPotassium = GTMaterials.SodiumPotassium.getFluid(144);
+            FluidStack crystalRoseFluid = GTMaterials.get("cryo_graphite_binding_solution").getFluid(144);
 
             GTRecipeBuilder builder = GTRecipeTypes.ASSEMBLER_RECIPES.recipeBuilder(
                     "phoenixcore:crystal_rose_" + material.getName())
                     .EUt(GTValues.V[GTValues.IV])
                     .duration(200)
                     .inputItems(inputStack)
-                    .inputFluids(sodiumPotassium)
+                    .inputFluids(crystalRoseFluid)
                     .outputItems(roseStack);
 
             builder.save(provider);
