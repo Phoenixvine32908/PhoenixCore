@@ -153,16 +153,16 @@ public class PhoenixBeeRecipeGenerator {
                     .EUt(config.decantingEut()).duration(config.decantingDuration())
                     .inputItemNbtPredicate(visualComb, combPredicate)
                     .outputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(waxDustId))))
-                    .outputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs:honey_comb_base"))))
+                    .outputItems(new ItemStack(
+                            ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs:honey_comb_base"))))
                     .save(provider);
 
             BREWING_RECIPES.recipeBuilder(MOD_ID + "/wax_melting/" + beeId)
                     .EUt(config.waxEut()).duration(400)
                     .inputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(waxDustId))))
-                    .inputFluids(GTMaterials.get("wax_melting_catalyst").getFluid(100))
+                    .inputFluids(GTMaterials.get("melting_catalyst").getFluid(100))
                     .outputFluids(getFluidStack(honeyedFluidId + " 1000"))
                     .save(provider);
-
 
             var purifier = CENTRIFUGE_RECIPES.recipeBuilder(MOD_ID + "/honeyed_purifying/" + beeId)
                     .EUt(config.decantingEut()).duration(400)
@@ -170,9 +170,11 @@ public class PhoenixBeeRecipeGenerator {
                     .outputFluids(getFluidStack("gtceu:impure_honey 500"));
 
             if (beeId.equals("water")) {
-                purifier.outputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft:salmon"))));
+                purifier.outputItems(
+                        new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft:salmon"))));
             } else if (beeId.equals("wannabee")) {
-                purifier.outputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(config.pollinationInputId())), 2));
+                purifier.outputItems(new ItemStack(
+                        ForgeRegistries.ITEMS.getValue(new ResourceLocation(config.pollinationInputId())), 2));
             } else {
                 purifier.outputItems(config.finalOutputItem());
             }
@@ -183,7 +185,8 @@ public class PhoenixBeeRecipeGenerator {
                     .EUt(config.fluidEut()).duration(config.fluidDuration())
                     .inputItemNbtPredicate(visualComb, combPredicate)
                     .inputFluids(BeeRecipeData.SUGAR_WATER_MATERIAL.getFluid(BeeRecipeData.SUGAR_WATER_AMOUNT))
-                    .outputFluids(getFluidStack(BeeRecipeData.HONEY_FLUID + " " + BeeRecipeData.FINAL_HONEY_OUTPUT_AMOUNT))
+                    .outputFluids(
+                            getFluidStack(BeeRecipeData.HONEY_FLUID + " " + BeeRecipeData.FINAL_HONEY_OUTPUT_AMOUNT))
                     .save(provider);
         }
     }

@@ -109,18 +109,32 @@ public class PhoenixMaterials {
 
     public static void modifyMaterials() {
         CrystalRoseHelper.addCrystalRoseFlags(
+                // --- Basic & Base Metals ---
                 Amethyst, Apatite, Bauxite, Cinnabar, Cobalt, Cobaltite, Copper, Diamond,
                 Electrotine, Emerald, Galena, Gold, Ilmenite, Invar, Iron, Lapis,
                 Lead, Lepidolite, Malachite, Nickel, Opal, Pitchblende, Pyrope, Realgar,
                 Ruby, Salt, Sapphire, Scheelite, Silicon, Silver, Steel, Stibnite, Topaz,
                 TricalciumPhosphate, Tungstate, Zinc,
+
+                // --- LuV & Specialized Materials ---
                 Barite, Bastnasite, Bismuth, Chromite, Graphite, Molybdenum, Oilsands, Platinum,
                 Pyrochlore, Pyrolusite, Sphalerite, Sulfur, Tantalite, Tetrahedrite, Thorium,
                 Titanium, VanadiumMagnetite,
+
+                // --- Custom & External Materials from your Configs ---
                 PhoenixOres.FLUORITE,
                 NetherQuartz,
                 RockSalt,
-                Sodalite);
+                Sodalite,
+
+                // --- Missing GT Materials from BeeRecipeData ---
+                Coal,             // For Coal Bee
+                Redstone,         // For Redstone Bee
+                Tin,              // For Tin Bee
+                Obsidian,         // For Obsidian Bee
+                Netherite,        // For Netherite Bee
+                CertusQuartz     // For Spacial Bee
+        );
 
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
             ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);

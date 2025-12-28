@@ -328,7 +328,7 @@ public class BeeRecipeData {
                 case "netherite":
                     blockId = "minecraft:ancient_debris";
                     outputId = "minecraft:ancient_debris";
-                    outputCount = 1;
+                    outputCount = 5;
                     break;
                 case "ghostly":
                     blockId = "minecraft:phantom_membrane";
@@ -624,6 +624,34 @@ public class BeeRecipeData {
                 case "acidic":
                     blockId = "gtceu:sulfuric_acid_bucket";
                     outputId = "gtceu:sulfuric_acid_bucket";
+                    break;
+                case "fluorite":
+                    blockId = "phoenixcore:raw_fluorite_block";
+                    outputId = "phoenixcore:raw_fluorite";
+                    outputCount = 5;
+                    break;
+                case "brown_shroom":
+                    blockId = "minecraft:brown_mushroom_block";
+                    outputId = "minecraft:brown_mushroom";
+                    outputCount = 5;
+                    break;
+
+                case "red_shroom":
+                    blockId = "minecraft:red_mushroom_block";
+                    outputId = "minecraft:red_mushroom";
+                    outputCount = 5;
+                    break;
+
+                case "crimson":
+                    blockId = "minecraft:crimson_stem";
+                    outputId = "minecraft:crimson_fungus";
+                    outputCount = 5;
+                    break;
+
+                case "warped":
+                    blockId = "minecraft:warped_stem";
+                    outputId = "minecraft:warped_fungus";
+                    outputCount = 5;
                     break;
 
                 default:
