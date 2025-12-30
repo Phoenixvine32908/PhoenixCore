@@ -145,14 +145,12 @@ public class PhoenixMaterials {
                 .iconSet(MaterialIconSet.DULL)
                 .buildAndRegister();
         CRYO_GRAPHITE_BINDING_SOLUTION = new Material.Builder(
-        phoenixcore.id("cryo_graphite_binding_solution"))
+                phoenixcore.id("cryo_graphite_binding_solution"))
                 .color(0x507080)
                 .secondaryColor(0x7090A0)
                 .fluid()
                 .iconSet(MaterialIconSet.DULL)
                 .buildAndRegister();
-
-
     }
 
     public static void modifyMaterials() {
