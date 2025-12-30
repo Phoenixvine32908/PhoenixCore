@@ -110,6 +110,7 @@ public class PhoenixMaterials {
         WAX_MELTING_CATALYST = new Material.Builder(
                 phoenixcore.id("wax_melting_catalyst"))
                 .color(0xADD8E6)
+                .fluid()
                 .secondaryColor(0x6A5ACD)
                 .iconSet(MaterialIconSet.DULL)
                 .buildAndRegister();
@@ -117,6 +118,7 @@ public class PhoenixMaterials {
                 phoenixcore.id("cryo_graphite_binding_solution"))
                 .color(0x507080)
                 .secondaryColor(0x7090A0)
+                .fluid()
                 .iconSet(MaterialIconSet.DULL)
                 .buildAndRegister();
     }
