@@ -114,6 +114,7 @@ public class PhoenixLangHandler {
         provider.add("material.phoenixcore.boron_carbide", "§5Boron Carbide");
         provider.add("material.phoenixcore.niobium_modified_silicon_carbide", "§5Niobium Modified Silicon Carbide");
         provider.add("material.phoenixcore.frost", "§bFrost");
+        provider.add("material.phoenixcore.wax_melting_catalyst", "Wax Melting Catalyst");
         provider.add("material.phoenixcore.sugar_water", "Sugar Water");
         provider.add("material.phoenixcore.eighty_five_percent_pure_nevvonian_steel",
                 "§6Eighty Five Percent Pure Nevvonian Steel");

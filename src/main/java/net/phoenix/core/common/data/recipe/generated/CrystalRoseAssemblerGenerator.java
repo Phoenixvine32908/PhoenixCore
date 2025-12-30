@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.phoenix.core.common.data.bees.BeeRecipeData;
 import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
+import net.phoenix.core.common.data.materials.PhoenixMaterials;
 
 import java.util.function.Consumer;
 
@@ -35,7 +36,7 @@ public class CrystalRoseAssemblerGenerator {
             ItemStack roseStack = ChemicalHelper.get(PhoenixMaterialFlags.crystal_rose, material, 1);
             if (roseStack.isEmpty()) return;
 
-            FluidStack crystalRoseFluid = GTMaterials.get("cryo_graphite_binding_solution").getFluid(144);
+            FluidStack crystalRoseFluid = PhoenixMaterials.CRYO_GRAPHITE_BINDING_SOLUTION.getFluid(144);
 
             GTRecipeBuilder builder = GTRecipeTypes.ASSEMBLER_RECIPES.recipeBuilder(
                     "phoenixcore:crystal_rose_" + material.getName())
