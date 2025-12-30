@@ -28,6 +28,8 @@ public class PhoenixMaterials {
     public static Material BORON_CARBIDE;
     public static Material NIOBIUM_MODIFIED_SILICON_CARBIDE;
     public static Material SUGAR_WATER;
+    public static Material WAX_MELTING_CATALYST;
+    public static Material CRYO_GRAPHITE_BINDING_SOLUTION;
 
     public static void register() {
         SUGAR_WATER = new Material.Builder(
@@ -105,6 +107,20 @@ public class PhoenixMaterials {
                 .blastTemp(4500, BlastProperty.GasTier.MID, 2000, 1800)
                 .formula("Nb(SiC)x")
                 .buildAndRegister();
+        WAX_MELTING_CATALYST = new Material.Builder(
+                phoenixcore.id("wax_melting_catalyst"))
+                .color(0xADD8E6)
+                .secondaryColor(0x6A5ACD)
+                .iconSet(MaterialIconSet.DULL)
+                .buildAndRegister();
+        CRYO_GRAPHITE_BINDING_SOLUTION = new Material.Builder(
+        phoenixcore.id("cryo_graphite_binding_solution"))
+                .color(0x507080)
+                .secondaryColor(0x7090A0)
+                .iconSet(MaterialIconSet.DULL)
+                .buildAndRegister();
+
+
     }
 
     public static void modifyMaterials() {

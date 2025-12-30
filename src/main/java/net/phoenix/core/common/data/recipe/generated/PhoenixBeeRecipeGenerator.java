@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.common.data.bees.BeeRecipeData;
+import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.recipe.records.ApisProgenitorConfig;
 import net.phoenix.core.common.data.recipe.records.FullBeeConfig;
 
@@ -160,7 +161,7 @@ public class PhoenixBeeRecipeGenerator {
             BREWING_RECIPES.recipeBuilder(MOD_ID + "/wax_melting/" + beeId)
                     .EUt(config.waxEut()).duration(400)
                     .inputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(waxDustId))))
-                    .inputFluids(GTMaterials.get("melting_catalyst").getFluid(100))
+                    .inputFluids(PhoenixMaterials.WAX_MELTING_CATALYST.getFluid(100))
                     .outputFluids(getFluidStack(honeyedFluidId + " 1000"))
                     .save(provider);
 
