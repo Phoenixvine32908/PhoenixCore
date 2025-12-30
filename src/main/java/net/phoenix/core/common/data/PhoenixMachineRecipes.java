@@ -20,15 +20,16 @@ import java.util.function.Consumer;
 
 import static com.gregtechceu.gtceu.api.GTValues.*;
 import static com.gregtechceu.gtceu.api.data.tag.TagPrefix.*;
-import static com.gregtechceu.gtceu.common.data.GTBlocks.ADVANCED_COMPUTER_CASING;
-import static com.gregtechceu.gtceu.common.data.GTBlocks.OPTICAL_PIPES;
+import static com.gregtechceu.gtceu.common.data.GTBlocks.*;
 import static com.gregtechceu.gtceu.common.data.GTItems.*;
 import static com.gregtechceu.gtceu.common.data.GTMachines.*;
 import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.*;
 import static com.gregtechceu.gtceu.common.data.machines.GTResearchMachines.*;
 import static com.gregtechceu.gtceu.data.recipe.GTCraftingComponents.*;
+import static com.hollingsworth.arsnouveau.common.lib.LibBlockNames.SOURCESTONE;
 import static com.hollingsworth.arsnouveau.setup.registry.ItemsRegistry.SOURCE_GEM;
+import static com.hollingsworth.arsnouveau.setup.registry.BlockRegistry.SOURCE_GEM_BLOCK;
 import static net.phoenix.core.api.capability.PhoenixRecipeCapabilities.SHIELDTYPES;
 import static net.phoenix.core.common.data.materials.PhoenixMaterials.*;
 import static net.phoenix.core.common.data.materials.PhoenixMaterials.SOURCE_OF_MAGIC;
@@ -258,6 +259,16 @@ public class PhoenixMachineRecipes {
                 .outputFluids(SOURCE_OF_MAGIC.getFluid(200))
                 .duration(180)
                 .EUt(GTValues.VA[GTValues.HV] / 3)
+                .save(provider);
+        ASSEMBLER_RECIPES.recipeBuilder("alchemical_imbuer")
+                .inputItems(SOURCE_GEM_BLOCK, 4)
+                .inputItems(pipeLargeFluid,StainlessSteel, 4)
+                .inputItems(SOURCESTONE, 16)
+                .inputItems(CASING_STAINLESS_CLEAN, 4)
+                .inputItems(CustomTags.HV_CIRCUITS, 2)
+                .outputItems(PhoenixMachines.ALCHEMICAL_IMBUER)
+                .inputFluids(SolderingAlloy, 613)
+                .duration(150).EUt(VA[HV] / 2)
                 .save(provider);
     }
 }
