@@ -45,6 +45,7 @@ import net.phoenix.core.common.machine.multiblock.FissionWorkableElectricMultibl
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
 import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.ShieldSensorHatchPartMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
@@ -1085,6 +1086,51 @@ public class PhoenixMachines {
                     createWorkableCasingMachineModel(
                             phoenixcore.id("block/fission/fissile_heat_safe_casing"),
                             GTCEu.id("block/multiblock/fusion_reactor")))
+            .register();
+
+    public static final MultiblockMachineDefinition ALCHEMICAL_IMBUER = REGISTRATE
+            .multiblock("alchemical_imbuer", WorkableElectricMultiblockMachine::new)
+            .langValue("§5Alchemical Imbuer")
+            .recipeTypes(PhoenixRecipeTypes.SOURCE_EXTRACTION_RECIPES,PhoenixRecipeTypes.SOURCE_IMBUEMENT_RECIPES) //PhoenixRecipeTypes.SOURCE_IMBUMENT_RECIPES)//"SOURCE_IMBUMENT_RECIPES","SOURCE_EXTRACTION_RECIPES")
+            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT_SUBTICK, GTRecipeModifiers.BATCH_MODE)
+            .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
+            .rotationState(RotationState.NON_Y_AXIS)
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("BBCCCBB", "BBBBBBB", "BBBBBBB", "BBBBBBB", "BBBBBBB", "BBBBBBB", "BBCCCBB")
+                    .aisle("BCDDDCB", "BBCCCBB", "BBBBBBB", "BBBBBBB", "BBBBBBB", "BBCCCBB", "BCDDDCB")
+                    .aisle("CDDDDDC", "BCEEECB", "BBFFFBB", "BBFFFBB", "BBFFFBB", "BCDDDCB", "CDGGGDC")
+                    .aisle("CDDDDDC", "BCEEECB", "BBFEFBB", "BBFHFBB", "BBFEFBB", "BCDIDCB", "CDGJGDC")
+                    .aisle("CDDDDDC", "BCEEECB", "BBFFFBB", "BBFFFBB", "BBFFFBB", "BCDDDCB", "CDGGGDC")
+                    .aisle("BCDDDCB", "BBCCCBB", "BBBBBBB", "BBBBBBB", "BBBBBBB", "BBCCCBB", "BCDDDCB")
+                    .aisle("BBCKCBB", "BBBBBBB", "BBBBBBB", "BBBBBBB", "BBBBBBB", "BBBBBBB", "BBCCCBB")
+                    .where("B", Predicates.any())
+                    .where("C",
+                            Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get())
+                                    .or(Predicates.autoAbilities(definition.getRecipeTypes()))
+                                    .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                    .where("D",
+                            Predicates.blocks(
+                                    ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("ars_nouveau:sourcestone"))))
+                    .where("E",
+                            Predicates.blocks(ForgeRegistries.BLOCKS
+                                    .getValue(ResourceLocation.parse("ars_nouveau:magebloom_block"))))
+                    .where("F", Predicates.blocks(GTBlocks.CASING_TEMPERED_GLASS.get()))
+                    .where("G",
+                            Predicates.blocks(
+                                    ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("ars_nouveau:void_prism"))))
+                    .where("H",
+                            Predicates.blocks(ForgeRegistries.BLOCKS
+                                    .getValue(ResourceLocation.parse("ars_nouveau:source_gem_block"))))
+                    .where("I",
+                            Predicates.blocks(
+                                    ForgeRegistries.BLOCKS.getValue(ResourceLocation.parse("ars_nouveau:arcane_core"))))
+                    .where("J",
+                            Predicates.blocks(ForgeRegistries.BLOCKS
+                                    .getValue(ResourceLocation.parse("ars_nouveau:agronomic_sourcelink"))))
+                    .where("K", Predicates.controller(Predicates.blocks(definition.get())))
+                    .build())
+            .workableCasingModel(GTCEu.id("block/casings/solid/machine_casing_clean_stainless_steel"),
+                    GTCEu.id("block/multiblock/implosion_compressor"))
             .register();
 
     public static void init() {}

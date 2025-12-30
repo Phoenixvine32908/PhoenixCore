@@ -1,6 +1,7 @@
 package net.phoenix.core.common.data.materials;
 
 import com.gregtechceu.gtceu.api.GTCEuAPI;
+import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
@@ -14,6 +15,7 @@ import net.phoenix.core.common.data.PhoenixMaterialRegistry;
 import net.phoenix.core.common.data.recipe.generated.CrystalRoseHelper;
 import net.phoenix.core.phoenixcore;
 
+import static com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty.GasTier.MID;
 import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
 
 public class PhoenixMaterials {
@@ -24,6 +26,9 @@ public class PhoenixMaterials {
     public static Material PHOENIX_ENRICHED_TRITANIUM;
     public static Material PHOENIX_ENRICHED_NAQUADAH;
     public static Material ALUMINFROST;
+    public static Material SOURCE_OF_MAGIC; //Showtime, Fire!
+    public static Material SOURCE_IMBUED_TITANIUM;
+    public static Material EightyFivePercentPureNevonianSteel;
     public static Material FROST;
     public static Material BORON_CARBIDE;
     public static Material NIOBIUM_MODIFIED_SILICON_CARBIDE;
@@ -43,6 +48,31 @@ public class PhoenixMaterials {
                 phoenixcore.id("aluminfrost"))
                 .color(0xadd8e6).secondaryColor(0xc0c0c0).iconSet(MaterialIconSet.DULL)
                 .flags(MaterialFlags.GENERATE_PLATE)
+                .buildAndRegister();
+        SOURCE_IMBUED_TITANIUM = new Material.Builder(
+                phoenixcore.id("source_imbued_titanium"))
+                .ingot()
+                .fluid()
+                .formula("✨C✨Ti")
+                .langValue("§5Source Imbued Titanium")
+                .fluidPipeProperties(2800, 200, true, true, false, false)
+                .color(0xc600ff).iconSet(MaterialIconSet.METALLIC)
+                .flags(MaterialFlags.GENERATE_PLATE,MaterialFlags.GENERATE_RING,MaterialFlags.GENERATE_GEAR,MaterialFlags.PHOSPHORESCENT,MaterialFlags.GENERATE_ROD,MaterialFlags.GENERATE_LONG_ROD,MaterialFlags.GENERATE_BOLT_SCREW,MaterialFlags.GENERATE_FRAME,MaterialFlags.GENERATE_DENSE,MaterialFlags.GENERATE_ROTOR)
+                .buildAndRegister();
+        SOURCE_OF_MAGIC = new Material.Builder(
+                phoenixcore.id("source_of_magic"))
+                .langValue("§5Source Of Magic")
+                .fluid()
+                .iconSet(MaterialIconSet.BRIGHT)
+                .color(0x8F00FF)
+                .buildAndRegister();
+        EightyFivePercentPureNevonianSteel = new Material.Builder(
+                phoenixcore.id("eightyfivepercentpurenevoniansteel")) //only one n
+                .ingot()
+                .langValue("85% Pure Nevonian Steel")
+                .color(0xFFFFE0).secondaryColor(0xFFD700).iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE,MaterialFlags.GENERATE_GEAR,MaterialFlags.GENERATE_SMALL_GEAR,MaterialFlags.GENERATE_SPRING,MaterialFlags.PHOSPHORESCENT,MaterialFlags.GENERATE_ROD,MaterialFlags.GENERATE_DENSE,MaterialFlags.GENERATE_BOLT_SCREW,MaterialFlags.GENERATE_FRAME,MaterialFlags.GENERATE_DENSE)
+                .blastTemp(3800,MID, GTValues.VA[GTValues.EV], 1200)
                 .buildAndRegister();
         QuantumCoolant = new Material.Builder(
                 phoenixcore.id("quantum_coolant"))
@@ -110,6 +140,7 @@ public class PhoenixMaterials {
         WAX_MELTING_CATALYST = new Material.Builder(
                 phoenixcore.id("wax_melting_catalyst"))
                 .color(0xADD8E6)
+                .fluid()
                 .secondaryColor(0x6A5ACD)
                 .iconSet(MaterialIconSet.DULL)
                 .buildAndRegister();
@@ -117,6 +148,7 @@ public class PhoenixMaterials {
         phoenixcore.id("cryo_graphite_binding_solution"))
                 .color(0x507080)
                 .secondaryColor(0x7090A0)
+                .fluid()
                 .iconSet(MaterialIconSet.DULL)
                 .buildAndRegister();
 

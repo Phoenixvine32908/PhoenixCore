@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.common.data.GTSoundEntries;
 import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture;
 import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
 
+import net.minecraft.client.gui.Gui;
 import net.phoenix.core.api.gui.PhoenixGuiTextures;
 
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.*;
@@ -26,6 +27,9 @@ public class PhoenixRecipeTypes {
     public static GTRecipeType SWARM_NURTURING_RECIPES;
     public static GTRecipeType APIS_PROGENITOR_RECIPES;
     public static GTRecipeType MELLIFERIOUS_MATRIX_RECIPES;
+    public static GTRecipeType SOURCE_IMBUEMENT_RECIPES;
+    public static GTRecipeType SOURCE_EXTRACTION_RECIPES;
+    public static GTRecipeType HIGH_PRESSURE_ARC_FURNACE;
 
     public static void init() {
         PLEASE = register("please", MULTIBLOCK)
@@ -60,6 +64,27 @@ public class PhoenixRecipeTypes {
                 .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_MACERATE, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
                 .setSound(GTSoundEntries.CENTRIFUGE)
+                .setEUIO(IO.IN);
+
+        HIGH_PRESSURE_ARC_FURNACE = register("high_pressure_arc_furnace", MULTIBLOCK)
+                .setMaxIOSize(2,2,2,2)
+                .setSlotOverlay(false,false,GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.ARC)
+                .setEUIO(IO.IN);
+
+        SOURCE_IMBUEMENT_RECIPES = register("source_imbuement", MULTIBLOCK) //Imbue
+                .setMaxIOSize(3, 1, 1, 1)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.CHEMICAL)
+                .setEUIO(IO.IN);
+
+        SOURCE_EXTRACTION_RECIPES = register("source_extraction", MULTIBLOCK) //Extract
+                .setMaxIOSize(3, 1, 1, 1)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
+                .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
+                .setSound(GTSoundEntries.CHEMICAL)
                 .setEUIO(IO.IN);
 
         APIS_PROGENITOR_RECIPES = register("apis_progenitor", MULTIBLOCK)
