@@ -146,6 +146,7 @@ public class PhoenixMaterials {
                 .buildAndRegister();
         CRYO_GRAPHITE_BINDING_SOLUTION = new Material.Builder(
                 phoenixcore.id("cryo_graphite_binding_solution"))
+                .fluid()
                 .color(0x507080)
                 .secondaryColor(0x7090A0)
                 .fluid()
