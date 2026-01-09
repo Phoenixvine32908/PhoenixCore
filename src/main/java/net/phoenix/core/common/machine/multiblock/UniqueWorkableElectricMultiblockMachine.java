@@ -8,6 +8,7 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
@@ -16,12 +17,14 @@ import net.phoenix.core.saveddata.UniqueMultiblockSavedData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 
 // Copied from CosmicCore with some minor changes (thank you Caitlynn!)
 public class UniqueWorkableElectricMultiblockMachine extends WorkableElectricMultiblockMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-            UniqueWorkableElectricMultiblockMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
+            UniqueWorkableElectricMultiblockMachine.class,
+            WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
 
     public UniqueWorkableElectricMultiblockMachine(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
@@ -32,7 +35,7 @@ public class UniqueWorkableElectricMultiblockMachine extends WorkableElectricMul
         return MANAGED_FIELD_HOLDER;
     }
 
-    // Used to make sure you cannot have more than one of this multiblock per player / team
+    // Used to make sure you cannot have more than one of this multiblock per owner
     @Persisted
     public boolean isDuplicate = false;
 
@@ -41,28 +44,68 @@ public class UniqueWorkableElectricMultiblockMachine extends WorkableElectricMul
         super.onStructureFormed();
 
         if (getLevel() instanceof ServerLevel serverLevel) {
-            var owner = getOwnerUUID();
-            var multiblockId = getDefinition().getId().toString();
-            var uniqueMultiblockMapping = UniqueMultiblockSavedData.getOrCreate(serverLevel);
+            UUID owner = getOwnerUUID();
+            String multiblockId = getDefinition().getId().toString();
+            String dimension = getLevel().dimension().location().toString();
+            BlockPos pos = getPos();
 
-            if (uniqueMultiblockMapping.hasData(owner, multiblockId)) {
-                this.isDuplicate = !uniqueMultiblockMapping.isUnique(owner, multiblockId, getPos());
-                if (isDuplicate) recipeLogic.setStatus(RecipeLogic.Status.SUSPEND);
-            } else uniqueMultiblockMapping.addMultiblock(owner, getDefinition().getId().toString(),
-                    getPos());
+            UniqueMultiblockSavedData uniqueMultiblockMapping = UniqueMultiblockSavedData.getOrCreate(serverLevel);
 
+            handleUniqueRegistration(uniqueMultiblockMapping, owner, multiblockId, dimension, pos);
         }
     }
 
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
+
         if (getLevel() instanceof ServerLevel serverLevel) {
-            var owner = getOwnerUUID();
-            var uniqueMultiblockMapping = UniqueMultiblockSavedData.getOrCreate(serverLevel);
-            uniqueMultiblockMapping.removeMultiblock(owner, getDefinition().getId().toString(),
-                    getPos());
+            UUID owner = getOwnerUUID();
+            String multiblockId = getDefinition().getId().toString();
+            String dimension = getLevel().dimension().location().toString();
+            BlockPos pos = getPos();
+
+            UniqueMultiblockSavedData uniqueMultiblockMapping = UniqueMultiblockSavedData.getOrCreate(serverLevel);
+
+            handleUniqueRemoval(uniqueMultiblockMapping, owner, multiblockId, dimension, pos);
         }
+    }
+
+    /**
+     * Default unique registration: one multiblock per player (owner UUID).
+     * Tesla Tower will override this to use team UUID instead.
+     */
+    protected void handleUniqueRegistration(UniqueMultiblockSavedData data,
+                                            UUID owner,
+                                            String multiblockId,
+                                            String dimension,
+                                            BlockPos pos) {
+        if (owner == null) {
+            return;
+        }
+
+        if (data.hasData(owner, multiblockId)) {
+            this.isDuplicate = !data.isUnique(owner, multiblockId, dimension, pos);
+            if (isDuplicate) {
+                recipeLogic.setStatus(RecipeLogic.Status.SUSPEND);
+            }
+        } else {
+            data.addMultiblock(owner, multiblockId, dimension, pos);
+        }
+    }
+
+    /**
+     * Default unique removal for player‑owned machines.
+     */
+    protected void handleUniqueRemoval(UniqueMultiblockSavedData data,
+                                       UUID owner,
+                                       String multiblockId,
+                                       String dimension,
+                                       BlockPos pos) {
+        if (owner == null) {
+            return;
+        }
+        data.removeMultiblock(owner, multiblockId, dimension, pos);
     }
 
     @Override
@@ -72,6 +115,8 @@ public class UniqueWorkableElectricMultiblockMachine extends WorkableElectricMul
                     .setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
             textList.add(Component.translatable("monilabs.multiblock.duplicate.2")
                     .setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
-        } else super.addDisplayText(textList);
+        } else {
+            super.addDisplayText(textList);
+        }
     }
 }

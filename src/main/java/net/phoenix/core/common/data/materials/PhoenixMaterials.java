@@ -11,7 +11,6 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
 
 import net.phoenix.core.api.item.tool.PhoenixToolType;
-import net.phoenix.core.common.data.PhoenixMaterialRegistry;
 import net.phoenix.core.common.data.recipe.generated.CrystalRoseHelper;
 import net.phoenix.core.phoenixcore;
 
@@ -21,12 +20,11 @@ import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
 public class PhoenixMaterials {
 
     public static Material QuantumCoolant;
-    public static Material ExtremelyModifiedSpaceGradeSteel;
     public static Material EightyFivePercentPureNevvonianSteel;
     public static Material PHOENIX_ENRICHED_TRITANIUM;
     public static Material PHOENIX_ENRICHED_NAQUADAH;
     public static Material ALUMINFROST;
-    public static Material SOURCE_OF_MAGIC; //Showtime, Fire!
+    public static Material SOURCE_OF_MAGIC; // Showtime, Fire!
     public static Material SOURCE_IMBUED_TITANIUM;
     public static Material EightyFivePercentPureNevonianSteel;
     public static Material FROST;
@@ -57,7 +55,10 @@ public class PhoenixMaterials {
                 .langValue("§5Source Imbued Titanium")
                 .fluidPipeProperties(2800, 200, true, true, false, false)
                 .color(0xc600ff).iconSet(MaterialIconSet.METALLIC)
-                .flags(MaterialFlags.GENERATE_PLATE,MaterialFlags.GENERATE_RING,MaterialFlags.GENERATE_GEAR,MaterialFlags.PHOSPHORESCENT,MaterialFlags.GENERATE_ROD,MaterialFlags.GENERATE_LONG_ROD,MaterialFlags.GENERATE_BOLT_SCREW,MaterialFlags.GENERATE_FRAME,MaterialFlags.GENERATE_DENSE,MaterialFlags.GENERATE_ROTOR)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_RING, MaterialFlags.GENERATE_GEAR,
+                        MaterialFlags.PHOSPHORESCENT, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_LONG_ROD,
+                        MaterialFlags.GENERATE_BOLT_SCREW, MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_DENSE,
+                        MaterialFlags.GENERATE_ROTOR)
                 .buildAndRegister();
         SOURCE_OF_MAGIC = new Material.Builder(
                 phoenixcore.id("source_of_magic"))
@@ -67,18 +68,16 @@ public class PhoenixMaterials {
                 .color(0x8F00FF)
                 .buildAndRegister();
         EightyFivePercentPureNevonianSteel = new Material.Builder(
-                phoenixcore.id("eightyfivepercentpurenevoniansteel")) //only one n
+                phoenixcore.id("eightyfivepercentpurenevoniansteel")) // only one n
                 .ingot()
                 .langValue("85% Pure Nevonian Steel")
                 .color(0xFFFFE0).secondaryColor(0xFFD700).iconSet(MaterialIconSet.SHINY)
-                .flags(MaterialFlags.GENERATE_PLATE,MaterialFlags.GENERATE_GEAR,MaterialFlags.GENERATE_SMALL_GEAR,MaterialFlags.GENERATE_SPRING,MaterialFlags.PHOSPHORESCENT,MaterialFlags.GENERATE_ROD,MaterialFlags.GENERATE_DENSE,MaterialFlags.GENERATE_BOLT_SCREW,MaterialFlags.GENERATE_FRAME,MaterialFlags.GENERATE_DENSE)
-                .blastTemp(3800,MID, GTValues.VA[GTValues.EV], 1200)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_GEAR, MaterialFlags.GENERATE_SMALL_GEAR,
+                        MaterialFlags.GENERATE_SPRING, MaterialFlags.PHOSPHORESCENT, MaterialFlags.GENERATE_ROD,
+                        MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_BOLT_SCREW, MaterialFlags.GENERATE_FRAME,
+                        MaterialFlags.GENERATE_DENSE)
+                .blastTemp(3800, MID, GTValues.VA[GTValues.EV], 1200)
                 .buildAndRegister();
-        QuantumCoolant = new Material.Builder(
-                phoenixcore.id("quantum_coolant"))
-                .plasma()
-                .buildAndRegister();
-        PhoenixMaterialRegistry.register(QuantumCoolant);
         EightyFivePercentPureNevvonianSteel = new Material.Builder(
                 phoenixcore.id("eighty_five_percent_pure_nevvonian_steel"))
                 .ingot()
@@ -149,7 +148,6 @@ public class PhoenixMaterials {
                 .fluid()
                 .color(0x507080)
                 .secondaryColor(0x7090A0)
-                .fluid()
                 .iconSet(MaterialIconSet.DULL)
                 .buildAndRegister();
     }

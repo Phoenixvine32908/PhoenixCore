@@ -45,6 +45,7 @@ import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.machine.PhoenixBeeMachines;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.PhoenixResearchMachines;
+import net.phoenix.core.common.machine.PhoenixTeslaMachines;
 import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.PhoenixDatagen;
@@ -155,6 +156,7 @@ public class phoenixcore {
         PhoenixMachines.init();
         PhoenixBeeMachines.init();
         PhoenixResearchMachines.init();
+        PhoenixTeslaMachines.init();
     }
 
     public static ResourceLocation id(String path) {

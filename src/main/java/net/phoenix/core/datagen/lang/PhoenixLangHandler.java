@@ -139,7 +139,24 @@ public class PhoenixLangHandler {
         provider.add("gtceu.recipe_type.phoenixcore.comb_decanting", "Comb Decanter");
         provider.add("gtceu.recipe_type.phoenixcore.swarm_nurturing", "Swarm Nurturing Chamber");
         provider.add("gtceu.recipe_type.phoenixcore.apis_progenitor", "Apis Progenitor");
+        provider.add("block.monilabs.tesla_battery.tooltip_empty", "§7A hollow casing. Provides no storage.");
+        provider.add("block.monilabs.tesla_battery.tooltip_filled", "§aCapacity: §f%s EU");
+        // provider.add("tooltip.phoenixcore.tesla_hatch.input", "A wireless receiver tuned to the frequency of the
+        // Second Core world.");
+        // provider.add("tooltip.phoenixcore.tesla_hatch.output", "A wireless transmitter broadcasting energy across the
+        // local weave.");
+        provider.add("tooltip.phoenixcore.tesla_hatch.input",
+                "§bWireless Receiver§r: Siphons energy into the Tesla Cloud.");
+        provider.add("tooltip.phoenixcore.tesla_hatch.output",
+                "§bWireless Transmitter§r: Broadcasts energy from the Tesla Cloud.");
 
+        provider.add("block.phoenixcore.tesla_battery.tooltip_empty", "§7A hollow casing. Provides no storage.");
+        provider.add("block.phoenixcore.tesla_battery.tooltip_filled", "§aCapacity: §f%s EU");
+
+        provider.add("tooltip.phoenixcore.tesla_hatch.lore", "§6Nevvonian Core Tech: Frequency Locked.");
+
+        // Tower UI Component
+        provider.add("gtceu.multiblock.tesla.stored", "Network Power: %s / %s EU");
         provider.add("shield.phoenixcore.current_shield", "Shield Status: %s");
         provider.add("shield.phoenixcore.health", "Health: %s");
         provider.add("shield.phoenixcore.cooldown", "Cooldown: %s seconds");

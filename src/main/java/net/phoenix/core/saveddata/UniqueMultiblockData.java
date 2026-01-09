@@ -10,7 +10,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-// Copied from CosmicCore with some minor changes (thank you Caitlynn!)
+/**
+ * Stores all unique multiblock entries for a single owner (team or player).
+ * Each entry maps:
+ *
+ * multiblockType → (dimension, pos)
+ *
+ * This allows one unique multiblock per type per owner.
+ */
 public class UniqueMultiblockData {
 
     @Getter
@@ -18,76 +25,123 @@ public class UniqueMultiblockData {
 
         private final String multiblockType;
 
-        protected UniqueMultiblockId(String multiblockType) {
+        public UniqueMultiblockId(String multiblockType) {
             this.multiblockType = multiblockType;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            UniqueMultiblockId that = (UniqueMultiblockId) o;
+            if (!(o instanceof UniqueMultiblockId that)) return false;
             return Objects.equals(multiblockType, that.multiblockType);
         }
 
         @Override
         public int hashCode() {
-            int result = 17; // Some arbitrary prime number
-            result = 31 * result + multiblockType.hashCode();
-            return result;
+            return Objects.hash(multiblockType);
+        }
+    }
+
+    @Getter
+    public static class UniqueMultiblockEntry {
+
+        private final String dimension;
+        private final BlockPos pos;
+
+        public UniqueMultiblockEntry(String dimension, BlockPos pos) {
+            this.dimension = dimension;
+            this.pos = pos;
         }
     }
 
     private static final String MULTIBLOCK_TYPE = "multiblockType";
-    private static final String MULTIBLOCK_POS = "multiblockPos";
+    private static final String MULTIBLOCK_DIMENSION = "dimension";
+    private static final String MULTIBLOCK_POS = "pos";
 
-    // Map a tuple of "Multiblock Type" and "Dimension Name" to a "BlockPos"
-    public Map<UniqueMultiblockId, BlockPos> data;
+
+    private final Map<UniqueMultiblockId, UniqueMultiblockEntry> data;
 
     public UniqueMultiblockData() {
         this.data = new HashMap<>();
     }
 
+    /** Deserialize from NBT list */
     public static UniqueMultiblockData fromTag(ListTag tag) {
-        var result = new UniqueMultiblockData();
-        for (int i = 0; i < tag.size(); ++i) {
-            CompoundTag entry = tag.getCompound(i);
-            var type = entry.getString(MULTIBLOCK_TYPE);
-            var pos = BlockPos.of(entry.getLong(MULTIBLOCK_POS));
-            result.data.put(new UniqueMultiblockId(type), pos);
+        UniqueMultiblockData result = new UniqueMultiblockData();
+
+        for (int i = 0; i < tag.size(); i++) {
+            CompoundTag entryTag = tag.getCompound(i);
+
+            String type = entryTag.getString(MULTIBLOCK_TYPE);
+            String dimension = entryTag.getString(MULTIBLOCK_DIMENSION);
+            BlockPos pos = BlockPos.of(entryTag.getLong(MULTIBLOCK_POS));
+
+            result.data.put(
+                    new UniqueMultiblockId(type),
+                    new UniqueMultiblockEntry(dimension, pos));
         }
+
         return result;
     }
 
+    /** Serialize to NBT list */
     public ListTag toTag() {
-        var uniqueMultiblockData = new ListTag();
+        ListTag list = new ListTag();
+
         for (var entry : data.entrySet()) {
-            if (entry.getKey() == null || entry.getValue() == null) continue;
-            var entryTag = new CompoundTag();
-            entryTag.putString(MULTIBLOCK_TYPE, entry.getKey().getMultiblockType());
-            entryTag.putLong(MULTIBLOCK_POS, entry.getValue().asLong());
-            uniqueMultiblockData.add(entryTag);
+            UniqueMultiblockId id = entry.getKey();
+            UniqueMultiblockEntry value = entry.getValue();
+
+            if (id == null || value == null) continue;
+
+            CompoundTag tag = new CompoundTag();
+            tag.putString(MULTIBLOCK_TYPE, id.getMultiblockType());
+            tag.putString(MULTIBLOCK_DIMENSION, value.getDimension());
+            tag.putLong(MULTIBLOCK_POS, value.getPos().asLong());
+
+            list.add(tag);
         }
-        return uniqueMultiblockData;
+
+        return list;
     }
 
+    /** Check if this owner already has a multiblock of this type */
     public boolean hasData(String multiblockType) {
         return data.containsKey(new UniqueMultiblockId(multiblockType));
     }
 
-    public boolean isUnique(String multiblockType, BlockPos pos) {
-        var key = new UniqueMultiblockId(multiblockType);
+    /** Check if the given pos/dimension matches the stored one */
+    public boolean isUnique(String multiblockType, String dimension, BlockPos pos) {
+        UniqueMultiblockId key = new UniqueMultiblockId(multiblockType);
+
         if (!data.containsKey(key)) return true;
-        else return data.get(key).equals(pos);
+
+        UniqueMultiblockEntry entry = data.get(key);
+        return entry.getDimension().equals(dimension) && entry.getPos().equals(pos);
     }
 
-    public void addMultiblock(String multiblockType, BlockPos pos) {
-        data.put(new UniqueMultiblockId(multiblockType), pos);
+    /** Add or overwrite the multiblock entry */
+    public void addMultiblock(String multiblockType, String dimension, BlockPos pos) {
+        data.put(
+                new UniqueMultiblockId(multiblockType),
+                new UniqueMultiblockEntry(dimension, pos));
     }
 
-    public void removeMultiblock(String multiblockType, BlockPos pos) {
-        var key = new UniqueMultiblockId(multiblockType);
-        if (!hasData(multiblockType)) return;
-        if (data.get(key).equals(pos)) data.remove(key);
+    /** Remove only if the stored entry matches */
+    public void removeMultiblock(String multiblockType, String dimension, BlockPos pos) {
+        UniqueMultiblockId key = new UniqueMultiblockId(multiblockType);
+
+        if (!data.containsKey(key)) return;
+
+        UniqueMultiblockEntry entry = data.get(key);
+
+        if (entry.getDimension().equals(dimension) && entry.getPos().equals(pos)) {
+            data.remove(key);
+        }
+    }
+
+    /** Retrieve the entry for a type */
+    public UniqueMultiblockEntry getEntry(String multiblockType) {
+        return data.get(new UniqueMultiblockId(multiblockType));
     }
 }

@@ -14,6 +14,7 @@ public class PhoenixConfigs {
     public static PhoenixConfigs INSTANCE;
 
     public static ConfigHolder<PhoenixConfigs> CONFIG_HOLDER;
+    public static FeatureConfigs.TeslaConnectionMode TeslaConnectionMode;
 
     public static void init() {
         CONFIG_HOLDER = Configuration.registerConfig(PhoenixConfigs.class, ConfigFormats.yaml());
@@ -129,5 +130,17 @@ public class PhoenixConfigs {
         @Configurable.Comment({
                 "What Strongest Coolant the Active Phoenix Cooler uses when in the PHPCA (Gt or GT Kubejs Material)" })
         public double CoolantBoost2 = 1.2;
+        @Configurable
+        @Configurable.Comment({
+                "The connection mode for Tesla Towers.",
+                "TEAM_AUTO: All towers under a team/player share the same cloud automatically.",
+                "DATA_STICK: Towers must be manually linked to hatches using a Data Stick."
+        })
+        public TeslaConnectionMode teslaConnectionMode = FeatureConfigs.TeslaConnectionMode.DATA_STICK;
+
+        public enum TeslaConnectionMode {
+            TEAM_AUTO,
+            DATA_STICK
+        }
     }
 }

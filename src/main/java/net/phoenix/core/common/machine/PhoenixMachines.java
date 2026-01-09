@@ -45,7 +45,6 @@ import net.phoenix.core.common.machine.multiblock.FissionWorkableElectricMultibl
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
 import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.ShieldSensorHatchPartMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
@@ -1091,7 +1090,7 @@ public class PhoenixMachines {
     public static final MultiblockMachineDefinition ALCHEMICAL_IMBUER = REGISTRATE
             .multiblock("alchemical_imbuer", WorkableElectricMultiblockMachine::new)
             .langValue("§5Alchemical Imbuer")
-            .recipeTypes(PhoenixRecipeTypes.SOURCE_EXTRACTION_RECIPES,PhoenixRecipeTypes.SOURCE_IMBUEMENT_RECIPES) //PhoenixRecipeTypes.SOURCE_IMBUMENT_RECIPES)//"SOURCE_IMBUMENT_RECIPES","SOURCE_EXTRACTION_RECIPES")
+            .recipeTypes(PhoenixRecipeTypes.SOURCE_EXTRACTION_RECIPES, PhoenixRecipeTypes.SOURCE_IMBUEMENT_RECIPES) // PhoenixRecipeTypes.SOURCE_IMBUMENT_RECIPES)//"SOURCE_IMBUMENT_RECIPES","SOURCE_EXTRACTION_RECIPES")
             .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT_SUBTICK, GTRecipeModifiers.BATCH_MODE)
             .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
             .rotationState(RotationState.NON_Y_AXIS)

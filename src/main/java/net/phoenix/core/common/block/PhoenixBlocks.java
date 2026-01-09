@@ -44,6 +44,35 @@ public class PhoenixBlocks {
                 .register();
     }
 
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_EMPTY = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.EMPTY_TIER_I);
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_HV = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.TIER_I);
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_EV = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.TIER_II);
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_IV = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.TIER_III);
+
+
+    private static BlockEntry<TeslaBatteryBlock> createTeslaBattery(TeslaBatteryBlock.TeslaBatteryType type) {
+        var battery = REGISTRATE
+                .block("tesla_battery_%s".formatted(type.getBatteryName()),
+                        p -> new TeslaBatteryBlock(p, type))
+                .initialProperties(() -> Blocks.IRON_BLOCK)
+                .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false))
+
+                .blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(),
+                        prov.models().cubeAll(ctx.getName(), phoenixcore.id("block/advanced_logic2"))))
+                .tag(CustomTags.MINEABLE_WITH_CONFIG_VALID_PICKAXE_WRENCH)
+                .item(BlockItem::new)
+                .build()
+                .register();
+
+
+        PhoenixAPI.TESLA_BATTERIES.put(type, battery);
+        return battery;
+    }
+
     public static final BlockEntry<CoilBlock> COIL_TRUE_HEAT_STABLE = createCoilBlock(
             PhoenixCoilBlock.CoilType.COIL_TRUE_HEAT_STABLE);
 
@@ -107,6 +136,9 @@ public class PhoenixBlocks {
     public static BlockEntry<Block> FISSILE_SAFE_GEARBOX_CASING = registerSimpleBlock(
             "§bFissile Safe Gearbox", "fissile_safe_gearbox_casing",
             "fissile_safe_gearbox", BlockItem::new);
+    public static BlockEntry<Block> INSANELY_SUPERCHARGED_TESLA_CASING = registerSimpleBlock(
+            "§4Insanely Supercharged Tesla Tower Casing", "insanely_supercharged_tesla_casing",
+            "casings/multiblock/tesla_casing", BlockItem::new);
 
     static {
         if (PhoenixConfigs.INSTANCE.features.blazingCleanroomEnabled) {

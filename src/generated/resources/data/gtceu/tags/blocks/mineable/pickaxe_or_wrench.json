@@ -1,5 +1,9 @@
 {
   "values": [
+    "phoenixcore:tesla_battery_empty_tier_i",
+    "phoenixcore:tesla_battery_tier_i",
+    "phoenixcore:tesla_battery_tier_ii",
+    "phoenixcore:tesla_battery_tier_iii",
     "phoenixcore:true_heat_stable_coil_block",
     "phoenixcore:basic_cooler",
     "phoenixcore:graphite_moderator",
