@@ -8,6 +8,7 @@ Most assets and code are licensed under LPGL 3.0 as I use code/assets from other
 However for the code involving cleanroom and hpca componet parts, these are an exception as these are licensed under MIT
 
 ## Credit
+- Thanks to Haze Vista of AstroGreg for providing the Tesla Tower related textures [HazeVista/Haze] (https://github.com/HazeVista)
 - Thanks to Ezlych of Sky Of Grind for providing the textures for the Phoenix HPCA Componets[Ezlych/RianGomita] (https://github.com/RianGomita)
 - Thanks to Sky of Grind for some textures/ideas[Sky of Grind Github] (https://github.com/RianGomita/Sky-Of-Grind)
 - Thanks to Ghostipedia for allowing me to use her UniqueWorkableElectricMultiblockMachine class[Ghosipedia] (https://github.com/Ghostipedia)
