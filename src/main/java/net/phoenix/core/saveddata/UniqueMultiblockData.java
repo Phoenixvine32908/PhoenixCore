@@ -58,7 +58,6 @@ public class UniqueMultiblockData {
     private static final String MULTIBLOCK_DIMENSION = "dimension";
     private static final String MULTIBLOCK_POS = "pos";
 
-
     private final Map<UniqueMultiblockId, UniqueMultiblockEntry> data;
 
     public UniqueMultiblockData() {

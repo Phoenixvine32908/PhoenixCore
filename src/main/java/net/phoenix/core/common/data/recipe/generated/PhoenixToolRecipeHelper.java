@@ -20,7 +20,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.phoenix.core.api.item.tool.PhoenixToolType;
-import net.phoenix.core.common.data.PhoenixItems;
+import net.phoenix.core.common.data.item.PhoenixItems;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceArrayMap;

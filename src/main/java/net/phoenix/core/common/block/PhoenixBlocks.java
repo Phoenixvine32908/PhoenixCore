@@ -44,32 +44,42 @@ public class PhoenixBlocks {
                 .register();
     }
 
-    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_EMPTY = createTeslaBattery(
-            TeslaBatteryBlock.TeslaBatteryType.EMPTY_TIER_I);
-    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_HV = createTeslaBattery(
-            TeslaBatteryBlock.TeslaBatteryType.TIER_I);
-    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_EV = createTeslaBattery(
-            TeslaBatteryBlock.TeslaBatteryType.TIER_II);
-    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_IV = createTeslaBattery(
-            TeslaBatteryBlock.TeslaBatteryType.TIER_III);
-
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_UHV = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.UHV);
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_UEV = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.UEV);
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_UIV = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.UIV);
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_UXV = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.UXV);
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_OPV = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.OPV);
+    public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_MAX = createTeslaBattery(
+            TeslaBatteryBlock.TeslaBatteryType.MAX);
 
     private static BlockEntry<TeslaBatteryBlock> createTeslaBattery(TeslaBatteryBlock.TeslaBatteryType type) {
-        var battery = REGISTRATE
-                .block("tesla_battery_%s".formatted(type.getBatteryName()),
-                        p -> new TeslaBatteryBlock(p, type))
-                .initialProperties(() -> Blocks.IRON_BLOCK)
-                .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false))
+        String tierName = type.getBatteryName();
 
-                .blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(),
-                        prov.models().cubeAll(ctx.getName(), phoenixcore.id("block/advanced_logic2"))))
-                .tag(CustomTags.MINEABLE_WITH_CONFIG_VALID_PICKAXE_WRENCH)
+        var battery = REGISTRATE
+                .block("tesla_battery_%s".formatted(tierName), p -> new TeslaBatteryBlock(p, type))
+                .initialProperties(() -> Blocks.IRON_BLOCK)
+                // Explicitly set the display name to override "Opv"
+                // If the tier is OPV, this will set it to "Tesla Battery OpV"
+                .lang("Tesla Battery " + (tierName.equalsIgnoreCase("opv") ? "OpV" : tierName.toUpperCase()))
+                .blockstate((ctx, prov) -> {
+                    String folderPath = "block/casings/batteries/tesla_" + tierName + "/";
+                    var side = phoenixcore.id(folderPath + "side");
+                    var top = phoenixcore.id(folderPath + "top");
+                    var bottom = phoenixcore.id(folderPath + "bottom");
+
+                    prov.simpleBlock(ctx.getEntry(),
+                            prov.models().cubeBottomTop(ctx.getName(), side, bottom, top));
+                })
                 .item(BlockItem::new)
                 .build()
                 .register();
 
-
-        PhoenixAPI.TESLA_BATTERIES.put(type, battery);
+        PhoenixAPI.TESLA_BATTERIES.put(type, battery::get);
         return battery;
     }
 

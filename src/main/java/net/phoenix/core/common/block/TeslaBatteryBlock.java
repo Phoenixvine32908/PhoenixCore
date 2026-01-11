@@ -10,11 +10,14 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
 
+@Getter
 @MethodsReturnNonnullByDefault
 public class TeslaBatteryBlock extends Block {
 
@@ -25,13 +28,9 @@ public class TeslaBatteryBlock extends Block {
         this.batteryData = batteryData;
     }
 
-    public ITeslaBattery getBatteryData() {
-        return batteryData;
-    }
-
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip,
-                                TooltipFlag flag) {
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip,
+                                @NotNull TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
 
         if (batteryData.getTier() == -1) {
@@ -42,25 +41,21 @@ public class TeslaBatteryBlock extends Block {
         }
     }
 
-
     public enum TeslaBatteryType implements ITeslaBattery {
 
-        EMPTY_TIER_I(-1, 0, 0, 0),
-        TIER_I(1, 50_000_000L, 2048L, 2048L),
-        TIER_II(2, 200_000_000L, 8192L, 8192L),
-        TIER_III(3, 1_000_000_000L, 32768L, 32768L),
-        ULTIMATE(4, Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE);
+        UHV(9, 10_000_000_000L),
+        UEV(10, 50_000_000_000L),
+        UIV(11, 250_000_000_000L),
+        UXV(12, 1_000_000_000_000L),
+        OPV(13, 10_000_000_000_000L),
+        MAX(14, Long.MAX_VALUE);
 
         private final int tier;
         private final long capacity;
-        private final long maxInput;
-        private final long maxOutput;
 
-        TeslaBatteryType(int tier, long capacity, long maxInput, long maxOutput) {
+        TeslaBatteryType(int tier, long capacity) {
             this.tier = tier;
             this.capacity = capacity;
-            this.maxInput = maxInput;
-            this.maxOutput = maxOutput;
         }
 
         @Override
@@ -74,18 +69,18 @@ public class TeslaBatteryBlock extends Block {
         }
 
         @Override
+        public String getBatteryName() {
+            return name().toLowerCase(Locale.ROOT);
+        }
+
+        @Override
         public long getMaxInput() {
-            return maxInput;
+            return Long.MAX_VALUE;
         }
 
         @Override
         public long getMaxOutput() {
-            return maxOutput;
-        }
-
-        @Override
-        public String getBatteryName() {
-            return name().toLowerCase(Locale.ROOT);
+            return Long.MAX_VALUE;
         }
     }
 }

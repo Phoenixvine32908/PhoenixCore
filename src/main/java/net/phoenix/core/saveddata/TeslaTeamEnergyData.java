@@ -9,23 +9,12 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaEnergyBank;
 import net.phoenix.core.configs.PhoenixConfigs;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class TeslaTeamEnergyData extends SavedData {
 
     private static final String DATA_NAME = "phoenix_tesla_team_energy";
-
     private final Map<UUID, TeslaEnergyBank> energyBanks = new HashMap<>();
-
-    /**
-     * Tracks which teams currently have an active, formed, and powered Tesla Tower.
-     * This is NOT saved to NBT because it should reset on server restart
-     * and be repopulated by the towers as they load.
-     */
     private final Set<UUID> activeNetworks = new HashSet<>();
 
     public TeslaTeamEnergyData() {}
@@ -43,20 +32,16 @@ public class TeslaTeamEnergyData extends SavedData {
     }
 
     public boolean isNetworkOnline(UUID teamId) {
-
-        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode == PhoenixConfigs.TeslaConnectionMode.TEAM_AUTO) {
-            return activeNetworks.contains(teamId);
-        }
-
         return activeNetworks.contains(teamId);
     }
 
-    /* ------------------------------------------------------------ */
-    /* ENERGY BANK ACCESS */
-    /* ------------------------------------------------------------ */
 
     public TeslaEnergyBank getOrCreateEnergyBank(UUID teamId) {
-        return energyBanks.computeIfAbsent(teamId, id -> new TeslaEnergyBank());
+        if (!energyBanks.containsKey(teamId)) {
+            energyBanks.put(teamId, new TeslaEnergyBank());
+            setDirty();
+        }
+        return energyBanks.get(teamId);
     }
 
     public TeslaEnergyBank getEnergyBank(UUID teamId) {

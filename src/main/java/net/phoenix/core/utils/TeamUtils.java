@@ -22,9 +22,16 @@ public final class TeamUtils {
                 .orElse(player.getUUID());
     }
 
+    public static String getTeamName(UUID teamId) {
+        var api = FTBTeamsAPI.api();
+        var manager = api.getManager();
+
+        return manager.getTeamByID(teamId)
+                .map(team -> team.getName().getString()) // correct getter for FTB Teams 2
+                .orElse(teamId.toString().substring(0, 8));
+    }
 
     public static Optional<Team> getTeam(ServerPlayer player) {
-
         return FTBTeamsAPI.api()
                 .getManager()
                 .getTeamForPlayer(player);

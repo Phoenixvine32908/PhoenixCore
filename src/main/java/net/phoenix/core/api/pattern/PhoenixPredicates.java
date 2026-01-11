@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.state.BlockState;
 import net.phoenix.core.PhoenixAPI;
 import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
@@ -33,10 +34,9 @@ public class PhoenixPredicates {
 
                     var type = entry.getKey();
 
-                    @SuppressWarnings("unchecked")
-                    List<IFissionCoolerType> componentList = (List<IFissionCoolerType>) blockWorldState
+                    List<IFissionCoolerType> componentList = blockWorldState
                             .getMatchContext()
-                            .getOrPut("CoolerTypes", new ArrayList<IFissionCoolerType>());
+                            .getOrPut("CoolerTypes", new ArrayList<>());
                     componentList.add(type);
 
                     return true;
@@ -56,27 +56,33 @@ public class PhoenixPredicates {
 
     public static TraceabilityPredicate teslaBatteries() {
         return new TraceabilityPredicate(blockWorldState -> {
-            var state = blockWorldState.getBlockState();
+            BlockState state = blockWorldState.getBlockState();
 
-            for (Map.Entry<ITeslaBattery, java.util.function.Supplier<net.phoenix.core.common.block.TeslaBatteryBlock>> entry : PhoenixAPI.TESLA_BATTERIES
-                    .entrySet()) {
+            for (Map.Entry<ITeslaBattery, Supplier<TeslaBatteryBlock>> entry : PhoenixAPI.TESLA_BATTERIES.entrySet()) {
 
-                if (state.is(entry.getValue().get())) {
+                // FIX: match block ignoring blockstate properties
+                if (state.getBlock() == entry.getValue().get()) {
+
                     ITeslaBattery battery = entry.getKey();
 
-
+                    // Only count real batteries (tier != -1)
                     if (battery.getTier() != -1 && battery.getCapacity() > 0) {
-                        String key = TTB_BATTERY_HEADER + battery.getBatteryName();
 
+                        String key = TeslaTowerMachine.TTB_BATTERY_HEADER + battery.getBatteryName();
 
-                        TeslaTowerMachine.BatteryMatchWrapper wrapper = blockWorldState.getMatchContext().get(key);
-                        if (wrapper == null) wrapper = new TeslaTowerMachine.BatteryMatchWrapper(battery);
+                        TeslaTowerMachine.BatteryMatchWrapper wrapper =
+                                blockWorldState.getMatchContext().get(key);
+
+                        if (wrapper == null)
+                            wrapper = new TeslaTowerMachine.BatteryMatchWrapper(battery);
 
                         blockWorldState.getMatchContext().set(key, wrapper.increment());
                     }
+
                     return true;
                 }
             }
+
             return false;
         }, () -> PhoenixAPI.TESLA_BATTERIES.entrySet().stream()
                 .sorted(Comparator.comparingInt(e -> e.getKey().getTier()))
@@ -84,6 +90,8 @@ public class PhoenixPredicates {
                 .toArray(BlockInfo[]::new))
                 .addTooltips(Component.translatable("gtceu.multiblock.pattern.error.batteries"));
     }
+
+
 
     public static TraceabilityPredicate fissionModerators() {
         return new TraceabilityPredicate(blockWorldState -> {
@@ -96,10 +104,9 @@ public class PhoenixPredicates {
 
                     var type = entry.getKey();
 
-                    @SuppressWarnings("unchecked")
-                    List<IFissionModeratorType> componentList = (List<IFissionModeratorType>) blockWorldState
+                    List<IFissionModeratorType> componentList = blockWorldState
                             .getMatchContext()
-                            .getOrPut("ModeratorTypes", new ArrayList<IFissionModeratorType>());
+                            .getOrPut("ModeratorTypes", new ArrayList<>());
                     componentList.add(type);
 
                     return true;

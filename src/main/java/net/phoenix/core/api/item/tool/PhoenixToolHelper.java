@@ -1,7 +1,7 @@
 package net.phoenix.core.api.item.tool;
 
 import net.minecraft.world.item.ItemStack;
-import net.phoenix.core.common.data.PhoenixItems;
+import net.phoenix.core.common.data.item.PhoenixItems;
 
 import java.util.function.Supplier;
 

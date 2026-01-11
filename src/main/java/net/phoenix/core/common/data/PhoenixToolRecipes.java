@@ -19,6 +19,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import net.phoenix.core.common.data.item.PhoenixItems;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

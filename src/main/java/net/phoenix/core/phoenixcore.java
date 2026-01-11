@@ -36,7 +36,7 @@ import net.phoenix.core.api.PhoenixSounds;
 import net.phoenix.core.api.recipe.lookup.MapShieldIngredient;
 import net.phoenix.core.client.PhoenixClient;
 import net.phoenix.core.common.block.PhoenixBlocks;
-import net.phoenix.core.common.data.PhoenixItems;
+import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
