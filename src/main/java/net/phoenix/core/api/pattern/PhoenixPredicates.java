@@ -70,8 +70,7 @@ public class PhoenixPredicates {
 
                         String key = TeslaTowerMachine.TTB_BATTERY_HEADER + battery.getBatteryName();
 
-                        TeslaTowerMachine.BatteryMatchWrapper wrapper =
-                                blockWorldState.getMatchContext().get(key);
+                        TeslaTowerMachine.BatteryMatchWrapper wrapper = blockWorldState.getMatchContext().get(key);
 
                         if (wrapper == null)
                             wrapper = new TeslaTowerMachine.BatteryMatchWrapper(battery);
@@ -90,8 +89,6 @@ public class PhoenixPredicates {
                 .toArray(BlockInfo[]::new))
                 .addTooltips(Component.translatable("gtceu.multiblock.pattern.error.batteries"));
     }
-
-
 
     public static TraceabilityPredicate fissionModerators() {
         return new TraceabilityPredicate(blockWorldState -> {

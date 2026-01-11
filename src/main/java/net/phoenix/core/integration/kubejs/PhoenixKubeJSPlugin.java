@@ -4,8 +4,8 @@ import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
-import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
+import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.data.materials.PhoenixElements;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.materials.PhoenixOres;

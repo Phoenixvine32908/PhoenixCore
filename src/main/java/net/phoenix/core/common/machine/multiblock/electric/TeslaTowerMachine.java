@@ -18,8 +18,6 @@ import com.gregtechceu.gtceu.utils.FormattingUtil;
 import com.lowdragmc.lowdraglib.gui.widget.*;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -30,24 +28,25 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-
 import net.phoenix.core.api.gui.PhoenixGuiTextures;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.machine.multiblock.UniqueWorkableElectricMultiblockMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
-import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.saveddata.UniqueMultiblockSavedData;
 import net.phoenix.core.utils.TeamUtils;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 import java.util.*;
 
 public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
-        implements IEnergyInfoProvider, IFancyUIMachine, IDisplayUIMachine, IDataStickInteractable {
+                               implements IEnergyInfoProvider, IFancyUIMachine, IDisplayUIMachine,
+                               IDataStickInteractable {
 
     public static final String MULTIBLOCK_TYPE = "tesla_tower";
     public static final String TTB_BATTERY_HEADER = "TeslaTowerBattery_";
@@ -55,14 +54,22 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     private EnergyContainerList inputHatches;
     private EnergyContainerList outputHatches;
 
-    @Persisted private long netInLastSec;
-    @Persisted private long netOutLastSec;
-    @Persisted private long totalInputPerTick;
-    @Persisted private long totalOutputPerTick;
-    @Persisted private long batteryCapacity;
-    @Persisted private long batteryStored;
-    @Persisted private int batteryTier;
-    @Persisted private boolean isOnline;
+    @Persisted
+    private long netInLastSec;
+    @Persisted
+    private long netOutLastSec;
+    @Persisted
+    private long totalInputPerTick;
+    @Persisted
+    private long totalOutputPerTick;
+    @Persisted
+    private long batteryCapacity;
+    @Persisted
+    private long batteryStored;
+    @Persisted
+    private int batteryTier;
+    @Persisted
+    private boolean isOnline;
 
     private UUID ownerTeamUUID;
     private boolean isDuplicate = false;
@@ -70,7 +77,8 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
     public TeslaTowerMachine(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
-        this.energyTransferSubscription = new ConditionalSubscriptionHandler(this, this::tickEnergyTransfer, this::isFormed);
+        this.energyTransferSubscription = new ConditionalSubscriptionHandler(this, this::tickEnergyTransfer,
+                this::isFormed);
     }
 
     @Override
@@ -109,7 +117,8 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         UniqueMultiblockSavedData unique = UniqueMultiblockSavedData.getOrCreate(sl);
         if (unique.hasData(ownerTeamUUID, MULTIBLOCK_TYPE)) {
             var existing = unique.getEntry(ownerTeamUUID, MULTIBLOCK_TYPE);
-            if (existing != null && (!existing.getDimension().equals(getLevel().dimension().location().toString()) || !existing.getPos().equals(getPos()))) {
+            if (existing != null && (!existing.getDimension().equals(getLevel().dimension().location().toString()) ||
+                    !existing.getPos().equals(getPos()))) {
                 this.isDuplicate = true;
                 recipeLogic.setStatus(RecipeLogic.Status.SUSPEND);
                 return;
@@ -120,7 +129,8 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         List<IEnergyContainer> outputs = new ArrayList<>();
         traitSubscriptions.clear();
 
-        Long2ObjectMap<IO> ioMap = getMultiblockState().getMatchContext().getOrCreate("ioMap", Long2ObjectMaps::emptyMap);
+        Long2ObjectMap<IO> ioMap = getMultiblockState().getMatchContext().getOrCreate("ioMap",
+                Long2ObjectMaps::emptyMap);
 
         for (IMultiPart part : getParts()) {
             IO io = ioMap.getOrDefault(part.self().getPos().asLong(), IO.BOTH);
@@ -135,7 +145,8 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                 if (handlerList.getHandlerIO().support(IO.IN)) inputs.addAll(containers);
                 else if (handlerList.getHandlerIO().support(IO.OUT)) outputs.addAll(containers);
 
-                traitSubscriptions.add(handlerList.subscribe(energyTransferSubscription::updateSubscription, EURecipeCapability.CAP));
+                traitSubscriptions.add(
+                        handlerList.subscribe(energyTransferSubscription::updateSubscription, EURecipeCapability.CAP));
             }
         }
 
@@ -253,11 +264,14 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                 .append(Component.literal(FormattingUtil.formatNumbers(batteryCapacity)).withStyle(GOLD)));
 
         textList.add(Component.literal(" IO: ")
-                .append(Component.literal("+ " + FormattingUtil.formatNumbers(totalInputPerTick) + " EU/t ").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal("+ " + FormattingUtil.formatNumbers(totalInputPerTick) + " EU/t ")
+                        .withStyle(ChatFormatting.GREEN))
                 .append(Component.literal("| ").withStyle(GRAY))
-                .append(Component.literal("- " + FormattingUtil.formatNumbers(totalOutputPerTick) + " EU/t").withStyle(ChatFormatting.RED)));
+                .append(Component.literal("- " + FormattingUtil.formatNumbers(totalOutputPerTick) + " EU/t")
+                        .withStyle(ChatFormatting.RED)));
 
-        textList.add(Component.literal(" Battery Tier: ").append(Component.literal(GTValues.VN[batteryTier]).withStyle(AQUA)));
+        textList.add(Component.literal(" Battery Tier: ")
+                .append(Component.literal(GTValues.VN[batteryTier]).withStyle(AQUA)));
     }
 
     private com.lowdragmc.lowdraglib.gui.texture.IGuiTexture getTeslaTierTexture(int tier) {
@@ -299,20 +313,49 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     private List<ITeslaBattery> collectBatteries() {
         List<ITeslaBattery> list = new ArrayList<>();
         for (Map.Entry<?, ?> entry : getMultiblockState().getMatchContext().entrySet()) {
-            if (entry.getKey() instanceof String key && key.startsWith(TTB_BATTERY_HEADER) && entry.getValue() instanceof BatteryMatchWrapper wrapper) {
+            if (entry.getKey() instanceof String key && key.startsWith(TTB_BATTERY_HEADER) &&
+                    entry.getValue() instanceof BatteryMatchWrapper wrapper) {
                 for (int i = 0; i < wrapper.amount; i++) list.add(wrapper.partType);
             }
         }
         return list;
     }
 
-    @Override public EnergyInfo getEnergyInfo() { return new EnergyInfo(BigInteger.valueOf(batteryCapacity), BigInteger.valueOf(batteryStored)); }
-    @Override public long getInputPerSec() { return totalInputPerTick * 20; }
-    @Override public long getOutputPerSec() { return totalOutputPerTick * 20; }
-    @Override public boolean supportsBigIntEnergyValues() { return true; }
-    private String getTeamNameLabel() { return ownerTeamUUID == null ? "Unlinked" : TeamUtils.getTeamName(ownerTeamUUID); }
-    @Override public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) { super.saveCustomPersistedData(tag, forDrop); if (ownerTeamUUID != null) tag.putUUID("OwnerTeamUUID", ownerTeamUUID); }
-    @Override public void loadCustomPersistedData(@NotNull CompoundTag tag) { super.loadCustomPersistedData(tag); if (tag.hasUUID("OwnerTeamUUID")) ownerTeamUUID = tag.getUUID("OwnerTeamUUID"); }
+    @Override
+    public EnergyInfo getEnergyInfo() {
+        return new EnergyInfo(BigInteger.valueOf(batteryCapacity), BigInteger.valueOf(batteryStored));
+    }
+
+    @Override
+    public long getInputPerSec() {
+        return totalInputPerTick * 20;
+    }
+
+    @Override
+    public long getOutputPerSec() {
+        return totalOutputPerTick * 20;
+    }
+
+    @Override
+    public boolean supportsBigIntEnergyValues() {
+        return true;
+    }
+
+    private String getTeamNameLabel() {
+        return ownerTeamUUID == null ? "Unlinked" : TeamUtils.getTeamName(ownerTeamUUID);
+    }
+
+    @Override
+    public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
+        super.saveCustomPersistedData(tag, forDrop);
+        if (ownerTeamUUID != null) tag.putUUID("OwnerTeamUUID", ownerTeamUUID);
+    }
+
+    @Override
+    public void loadCustomPersistedData(@NotNull CompoundTag tag) {
+        super.loadCustomPersistedData(tag);
+        if (tag.hasUUID("OwnerTeamUUID")) ownerTeamUUID = tag.getUUID("OwnerTeamUUID");
+    }
 
     @Override
     public InteractionResult onDataStickShiftUse(Player player, ItemStack binder) {
@@ -328,13 +371,24 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         return InteractionResult.sidedSuccess(getLevel().isClientSide);
     }
 
-    @Override protected void handleUniqueRegistration(UniqueMultiblockSavedData d, UUID o, String m, String dim, BlockPos p) {}
-    @Override protected void handleUniqueRemoval(UniqueMultiblockSavedData d, UUID o, String m, String dim, BlockPos p) {}
+    @Override
+    protected void handleUniqueRegistration(UniqueMultiblockSavedData d, UUID o, String m, String dim, BlockPos p) {}
+
+    @Override
+    protected void handleUniqueRemoval(UniqueMultiblockSavedData d, UUID o, String m, String dim, BlockPos p) {}
 
     public static class BatteryMatchWrapper {
+
         public final ITeslaBattery partType;
         public int amount;
-        public BatteryMatchWrapper(ITeslaBattery type) { this.partType = type; }
-        public BatteryMatchWrapper increment() { amount++; return this; }
+
+        public BatteryMatchWrapper(ITeslaBattery type) {
+            this.partType = type;
+        }
+
+        public BatteryMatchWrapper increment() {
+            amount++;
+            return this;
+        }
     }
 }

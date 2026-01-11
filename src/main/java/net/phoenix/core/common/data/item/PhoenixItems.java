@@ -5,8 +5,9 @@ import com.gregtechceu.gtceu.api.item.ComponentItem;
 import com.gregtechceu.gtceu.api.item.component.ElectricStats;
 import com.gregtechceu.gtceu.common.item.DataItemBehavior;
 
-import com.tterrag.registrate.util.entry.ItemEntry;
 import net.phoenix.core.common.data.PhoenixCovers;
+
+import com.tterrag.registrate.util.entry.ItemEntry;
 
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 import static net.phoenix.core.phoenixcore.PHOENIX_CREATIVE_TAB;

@@ -25,8 +25,10 @@ import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
 
 import org.jetbrains.annotations.NotNull;
-import javax.annotation.Nullable;
+
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implements IDataStickInteractable {
 
@@ -49,7 +51,7 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     }
 
     // ------------------------------------------------------------------
-    //  LIFECYCLE & TICKING
+    // LIFECYCLE & TICKING
     // ------------------------------------------------------------------
 
     @Override
@@ -90,7 +92,7 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
                 if (accepted > 0) {
                     bank.deposit(accepted);
                     energyContainer.changeEnergy(-accepted);
-                    TeslaTeamEnergyData.get((ServerLevel)getLevel()).setDirty();
+                    TeslaTeamEnergyData.get((ServerLevel) getLevel()).setDirty();
                 }
             }
         } else if (io == IO.OUT) {
@@ -103,14 +105,14 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
                 long pulled = bank.extract(toPull);
                 if (pulled > 0) {
                     energyContainer.changeEnergy(pulled);
-                    TeslaTeamEnergyData.get((ServerLevel)getLevel()).setDirty();
+                    TeslaTeamEnergyData.get((ServerLevel) getLevel()).setDirty();
                 }
             }
         }
     }
 
     // ------------------------------------------------------------------
-    //  TEAM & BANK RESOLUTION
+    // TEAM & BANK RESOLUTION
     // ------------------------------------------------------------------
 
     private TeslaEnergyBank getTeamBank() {
@@ -140,7 +142,7 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     }
 
     // ------------------------------------------------------------------
-    //  DATA STICK / BINDER LINKING
+    // DATA STICK / BINDER LINKING
     // ------------------------------------------------------------------
 
     @Override
@@ -154,9 +156,11 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
                 if (!binderUUID.equals(this.ownerTeamUUID)) {
                     this.ownerTeamUUID = binderUUID;
                     self().markDirty();
-                    player.sendSystemMessage(Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID).withStyle(ChatFormatting.AQUA));
+                    player.sendSystemMessage(Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID)
+                            .withStyle(ChatFormatting.AQUA));
                 } else {
-                    player.sendSystemMessage(Component.literal("Tesla Hatch: Already synced.").withStyle(ChatFormatting.GRAY));
+                    player.sendSystemMessage(
+                            Component.literal("Tesla Hatch: Already synced.").withStyle(ChatFormatting.GRAY));
                 }
             }
             return InteractionResult.sidedSuccess(getLevel().isClientSide);
@@ -165,7 +169,7 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     }
 
     // ------------------------------------------------------------------
-    //  PERSISTENCE
+    // PERSISTENCE
     // ------------------------------------------------------------------
 
     @Override

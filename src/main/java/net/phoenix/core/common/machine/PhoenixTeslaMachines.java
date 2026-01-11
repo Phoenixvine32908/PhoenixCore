@@ -77,8 +77,7 @@ public class PhoenixTeslaMachines {
                             Component.translatable("gtceu.universal.tooltip.amperage_in", 2),
                             Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
                                     FormattingUtil.formatNumbers(GTValues.V[tier] * 16L * 2)),
-                            Component.translatable("tooltip.phoenixcore.tesla_hatch.input")
-                    )
+                            Component.translatable("tooltip.phoenixcore.tesla_hatch.input"))
                     .overlayTieredHullModel("tesla_hatches/tesla_input")
                     .register(),
             GTValues.ALL_TIERS);
@@ -97,8 +96,7 @@ public class PhoenixTeslaMachines {
                             Component.translatable("gtceu.universal.tooltip.amperage_out", 2),
                             Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
                                     FormattingUtil.formatNumbers(GTValues.V[tier] * 64L * 2)),
-                            Component.translatable("tooltip.phoenixcore.tesla_hatch.output")
-                    )
+                            Component.translatable("tooltip.phoenixcore.tesla_hatch.output"))
                     .overlayTieredHullModel("tesla_hatches/tesla_output")
                     .register(),
             GTValues.ALL_TIERS);

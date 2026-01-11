@@ -7,7 +7,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaEnergyBank;
-import net.phoenix.core.configs.PhoenixConfigs;
 
 import java.util.*;
 
@@ -34,7 +33,6 @@ public class TeslaTeamEnergyData extends SavedData {
     public boolean isNetworkOnline(UUID teamId) {
         return activeNetworks.contains(teamId);
     }
-
 
     public TeslaEnergyBank getOrCreateEnergyBank(UUID teamId) {
         if (!energyBanks.containsKey(teamId)) {
