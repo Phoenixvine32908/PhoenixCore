@@ -54,43 +54,34 @@ public class PhoenixPredicates {
                         .toArray(BlockInfo[]::new))
                 .addTooltips(Component.translatable("phoenix.multiblock.pattern.info.multiple_coolers"));
     }
-
     public static TraceabilityPredicate teslaBatteries() {
         return new TraceabilityPredicate(blockWorldState -> {
             BlockState state = blockWorldState.getBlockState();
 
             for (Map.Entry<ITeslaBattery, Supplier<TeslaBatteryBlock>> entry : PhoenixAPI.TESLA_BATTERIES.entrySet()) {
-
-                if (state.getBlock() == entry.getValue().get()) {
-
+                if (state.is(entry.getValue().get())) {
                     ITeslaBattery battery = entry.getKey();
 
-                    if (battery.getTier() != -1 &&
-                            battery.getCapacity().compareTo(BigInteger.ZERO) > 0) {
-
+                    if (battery.getTier() != -1 && battery.getCapacity().compareTo(BigInteger.ZERO) > 0) {
                         String key = TTB_BATTERY_HEADER + battery.getBatteryName();
 
-                        TeslaTowerMachine.BatteryMatchWrapper wrapper = blockWorldState.getMatchContext().get(key);
+                        // Using getOrCreate ensures we don't overwrite existing counts
+                        TeslaTowerMachine.BatteryMatchWrapper wrapper = blockWorldState.getMatchContext()
+                                .getOrCreate(key, () -> new TeslaTowerMachine.BatteryMatchWrapper(battery));
 
-                        if (wrapper == null)
-                            wrapper = new TeslaTowerMachine.BatteryMatchWrapper(battery);
-
-                        blockWorldState.getMatchContext().set(key, wrapper.increment());
+                        wrapper.increment();
                     }
-
                     return true;
                 }
             }
-
             return false;
         }, () -> PhoenixAPI.TESLA_BATTERIES.entrySet().stream()
                 .sorted(Comparator.comparingInt(entry -> entry.getKey().getTier()))
-                .map(entry -> new BlockInfo(
-                        entry.getValue().get().defaultBlockState(),
-                        null))
+                .map(entry -> new BlockInfo(entry.getValue().get().defaultBlockState(), null))
                 .toArray(BlockInfo[]::new))
                 .addTooltips(Component.translatable("gtceu.multiblock.pattern.error.batteries"));
     }
+
 
     public static TraceabilityPredicate fissionModerators() {
         return new TraceabilityPredicate(blockWorldState -> {

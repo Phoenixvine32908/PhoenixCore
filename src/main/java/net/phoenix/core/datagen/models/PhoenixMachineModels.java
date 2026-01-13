@@ -1,14 +1,21 @@
 package net.phoenix.core.datagen.models;
 
 import com.gregtechceu.gtceu.GTCEu;
+import com.gregtechceu.gtceu.api.block.ActiveBlock;
+import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.block.property.GTBlockStateProperties;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 
+import com.gregtechceu.gtceu.common.block.BatteryBlock;
+import com.gregtechceu.gtceu.common.block.CoilBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
+import net.minecraftforge.client.model.generators.ModelFile;
 import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
+import net.phoenix.core.api.machine.trait.ITeslaBattery;
+import net.phoenix.core.common.block.TeslaBatteryBlock;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
 import net.phoenix.core.phoenixcore;
 
@@ -45,6 +52,17 @@ public class PhoenixMachineModels {
             });
 
             builder.addReplaceableTextures("bottom", "top", "side");
+        };
+    }
+
+
+
+    public static NonNullBiConsumer<DataGenContext<Block, TeslaBatteryBlock>, RegistrateBlockstateProvider> createTeslaBlockModel(ITeslaBattery batteryData) {
+        return (ctx, prov) -> {
+            prov.simpleBlock(ctx.getEntry(), prov.models().cubeBottomTop(ctx.getName(),
+                    phoenixcore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/side"),
+                    phoenixcore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/top"),
+                    phoenixcore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/top")));
         };
     }
 

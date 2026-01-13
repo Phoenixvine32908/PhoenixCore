@@ -3,8 +3,11 @@ package net.phoenix.core.common.block;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.block.IFilterType;
+import com.gregtechceu.gtceu.api.machine.multiblock.IBatteryData;
+import com.gregtechceu.gtceu.common.block.BatteryBlock;
 import com.gregtechceu.gtceu.common.block.CoilBlock;
 import com.gregtechceu.gtceu.common.data.models.GTModels;
+import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
 import net.minecraft.world.item.BlockItem;
@@ -15,6 +18,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.phoenix.core.PhoenixAPI;
 import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
+import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.models.PhoenixMachineModels;
 import net.phoenix.core.phoenixcore;
@@ -57,11 +61,12 @@ public class PhoenixBlocks {
     public static final BlockEntry<TeslaBatteryBlock> TESLA_BATTERY_MAX = createTeslaBattery(
             TeslaBatteryBlock.TeslaBatteryType.MAX);
 
-    private static BlockEntry<TeslaBatteryBlock> createTeslaBattery(TeslaBatteryBlock.TeslaBatteryType type) {
-        String tierName = type.getBatteryName();
+    private static BlockEntry<TeslaBatteryBlock> createTeslaBattery(ITeslaBattery batteryData) {
+        // REMOVED: ITeslaBattery type = null; (This was overwriting your data)
+        String tierName = batteryData.getBatteryName();
 
         var battery = REGISTRATE
-                .block("tesla_battery_%s".formatted(tierName), p -> new TeslaBatteryBlock(p, type))
+                .block("tesla_battery_%s".formatted(tierName), p -> new TeslaBatteryBlock(p, batteryData))
                 .initialProperties(() -> Blocks.IRON_BLOCK)
                 .lang("Tesla Battery " + (tierName.equalsIgnoreCase("opv") ? "OpV" : tierName.toUpperCase()))
                 .blockstate((ctx, prov) -> {
@@ -77,7 +82,8 @@ public class PhoenixBlocks {
                 .build()
                 .register();
 
-        PhoenixAPI.TESLA_BATTERIES.put(type, battery::get);
+        // Now we put the actual batteryData into the map, not null
+        PhoenixAPI.TESLA_BATTERIES.put(batteryData, battery);
         return battery;
     }
 

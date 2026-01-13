@@ -1,123 +1,113 @@
 package net.phoenix.core.common.machine.multiblock.electric;
 
+import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
+import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.nbt.CompoundTag;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
+/*
 
-public class TeslaEnergyBank {
+public class TeslaEnergyBank extends MachineTrait {
+
+    public static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(TeslaEnergyBank.class);
 
     private long[] storage;
     private long[] maximums;
 
-    @Setter
-    @Getter
+    @Setter @Getter
     private int tier;
+
     @Getter
     private BigInteger maxInput = BigInteger.ZERO;
     @Getter
     private BigInteger maxOutput = BigInteger.ZERO;
 
-    public TeslaEnergyBank() {
+
+    public TeslaEnergyBank(MetaMachine machine) {
+        super(machine);
         this.storage = new long[0];
         this.maximums = new long[0];
-        this.tier = 9;
+        this.tier = 0;
     }
 
-    public TeslaEnergyBank(@NotNull List<ITeslaBattery> batteries) {
-        List<Long> storedList = new ArrayList<>();
-        List<Long> maxList = new ArrayList<>();
-        int highestTier = 9;
 
-        for (ITeslaBattery battery : batteries) {
-            long cap = battery.getCapacity().min(BigInteger.valueOf(Long.MAX_VALUE)).longValue();
-            maxList.add(cap);
-            storedList.add(0L);
+    public void initialize(@NotNull List<ITeslaBattery> batteries) {
+        int size = batteries.size();
+        this.storage = new long[size];
+        this.maximums = new long[size];
 
+        int highestTier = 0;
+        for (int i = 0; i < size; i++) {
+            ITeslaBattery battery = batteries.get(i);
+            this.maximums[i] = battery.getCapacity().min(BigInteger.valueOf(Long.MAX_VALUE)).longValue();
             if (battery.getTier() > highestTier) highestTier = battery.getTier();
         }
 
-        this.storage = storedList.stream().mapToLong(Long::longValue).toArray();
-        this.maximums = maxList.stream().mapToLong(Long::longValue).toArray();
         this.tier = highestTier;
+        calculateIORates();
     }
 
-    public TeslaEnergyBank rebuild(@NotNull List<ITeslaBattery> batteries) {
-        TeslaEnergyBank rebuilt = new TeslaEnergyBank(batteries);
-        rebuilt.fill(this.getStored());
-        rebuilt.tier = this.tier;
-        rebuilt.maxInput = this.maxInput;
-        rebuilt.maxOutput = this.maxOutput;
-        return rebuilt;
+    private void calculateIORates() {
+        long voltage = GTValues.V[this.tier];
+        this.maxInput = BigInteger.valueOf(voltage * 2);
+        this.maxOutput = BigInteger.valueOf(voltage * 2);
     }
+
+    public void rebuild(@NotNull List<ITeslaBattery> batteries) {
+        BigInteger currentlyStored = getStored();
+        initialize(batteries);
+        fill(currentlyStored);
+    }
+
+
 
     public long fill(long amount) {
         if (amount <= 0) return 0;
-        long remaining = amount;
-
-        for (int i = 0; i < storage.length && remaining > 0; i++) {
-            long space = maximums[i] - storage[i];
-            if (space <= 0) continue;
-            long moved = Math.min(space, remaining);
-            storage[i] += moved;
-            remaining -= moved;
-        }
-
-        return amount - remaining;
+        BigInteger before = getStored();
+        fill(BigInteger.valueOf(amount));
+        return getStored().subtract(before).longValue();
     }
 
     public long drain(long amount) {
         if (amount <= 0) return 0;
-        long remaining = amount;
-
-        for (int i = storage.length - 1; i >= 0 && remaining > 0; i--) {
-            long available = storage[i];
-            if (available <= 0) continue;
-            long moved = Math.min(available, remaining);
-            storage[i] -= moved;
-            remaining -= moved;
-        }
-
-        return amount - remaining;
+        return drain(BigInteger.valueOf(amount)).longValue();
     }
 
     public void fill(@NotNull BigInteger amount) {
         if (amount.signum() <= 0) return;
-
         BigInteger remaining = amount;
-        for (int i = 0; i < storage.length && remaining.signum() > 0; i++) {
-            BigInteger space = BigInteger.valueOf(maximums[i] - storage[i]);
-            if (space.signum() <= 0) continue;
 
-            BigInteger moved = remaining.min(space);
-            storage[i] += moved.longValue();
-            remaining = remaining.subtract(moved);
+        for (int i = 0; i < storage.length && remaining.signum() > 0; i++) {
+            long space = maximums[i] - storage[i];
+            if (space <= 0) continue;
+
+            long moved = remaining.min(BigInteger.valueOf(space)).longValue();
+            storage[i] += moved;
+            remaining = remaining.subtract(BigInteger.valueOf(moved));
         }
     }
 
     public @NotNull BigInteger drain(@NotNull BigInteger amount) {
         if (amount.signum() <= 0) return BigInteger.ZERO;
-
         BigInteger remaining = amount;
-        BigInteger drained = BigInteger.ZERO;
+        BigInteger totalDrained = BigInteger.ZERO;
 
         for (int i = storage.length - 1; i >= 0 && remaining.signum() > 0; i--) {
-            BigInteger available = BigInteger.valueOf(storage[i]);
-            if (available.signum() <= 0) continue;
+            if (storage[i] <= 0) continue;
 
-            BigInteger moved = remaining.min(available);
-            storage[i] -= moved.longValue();
-            remaining = remaining.subtract(moved);
-            drained = drained.add(moved);
+            long moved = remaining.min(BigInteger.valueOf(storage[i])).longValue();
+            storage[i] -= moved;
+            remaining = remaining.subtract(BigInteger.valueOf(moved));
+            totalDrained = totalDrained.add(BigInteger.valueOf(moved));
         }
-
-        return drained;
+        return totalDrained;
     }
 
     public @NotNull BigInteger getStored() {
@@ -132,36 +122,45 @@ public class TeslaEnergyBank {
         return total;
     }
 
-    public @NotNull CompoundTag writeToNBT() {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("Size", storage.length);
-
-        for (int i = 0; i < storage.length; i++) {
-            CompoundTag sub = new CompoundTag();
-            sub.putLong("Stored", storage[i]);
-            sub.putLong("Max", maximums[i]);
-            tag.put(String.valueOf(i), sub);
-        }
-
-        tag.putInt("Tier", tier);
-        tag.putString("MaxInput", maxInput.toString());
-        tag.putString("MaxOutput", maxOutput.toString());
-        return tag;
+    public boolean hasEnergy() {
+        for (long l : storage) if (l > 0) return true;
+        return false;
     }
 
-    public void readFromNBT(@NotNull CompoundTag tag) {
-        int size = tag.getInt("Size");
-        storage = new long[size];
-        maximums = new long[size];
+    // --- Persistence ---
 
+    @Override
+    public void loadCustomPersistedData(@NotNull CompoundTag tag) {
+        int size = tag.getInt("Size");
+        this.storage = new long[size];
+        this.maximums = new long[size];
         for (int i = 0; i < size; i++) {
             CompoundTag sub = tag.getCompound(String.valueOf(i));
-            storage[i] = sub.getLong("Stored");
-            maximums[i] = sub.getLong("Max");
+            this.storage[i] = sub.getLong("S");
+            this.maximums[i] = sub.getLong("M");
         }
+        this.tier = tag.getInt("Tier");
+        this.maxInput = new BigInteger(tag.getString("In"));
+        this.maxOutput = new BigInteger(tag.getString("Out"));
+    }
 
-        tier = tag.getInt("Tier");
-        maxInput = new BigInteger(tag.getString("MaxInput"));
-        maxOutput = new BigInteger(tag.getString("MaxOutput"));
+    @Override
+    public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
+        tag.putInt("Size", storage.length);
+        for (int i = 0; i < storage.length; i++) {
+            CompoundTag sub = new CompoundTag();
+            sub.putLong("S", storage[i]);
+            sub.putLong("M", maximums[i]);
+            tag.put(String.valueOf(i), sub);
+        }
+        tag.putInt("Tier", tier);
+        tag.putString("In", maxInput.toString());
+        tag.putString("Out", maxOutput.toString());
+    }
+
+    @Override
+    public ManagedFieldHolder getFieldHolder() {
+        return MANAGED_FIELD_HOLDER;
     }
 }
+*/

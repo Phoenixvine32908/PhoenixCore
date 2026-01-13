@@ -6,19 +6,17 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.phoenix.core.common.machine.multiblock.electric.TeslaEnergyBank;
+import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 
+/*
 import java.util.*;
 
-/**
- * Tracks all TeslaTeam energy banks across the server.
- * Each team has a single TeslaEnergyBank instance.
- */
+
 public class TeslaTeamEnergyData extends SavedData {
 
     private static final String DATA_NAME = "phoenix_tesla_team_energy";
 
-    private final Map<UUID, TeslaEnergyBank> energyBanks = new HashMap<>();
+    private final Map<UUID, TeslaTowerMachine.TeslaEnergyBank> energyBanks = new HashMap<>();
     private final Set<UUID> activeNetworks = new HashSet<>();
 
     public TeslaTeamEnergyData() {}
@@ -31,23 +29,28 @@ public class TeslaTeamEnergyData extends SavedData {
     public boolean isNetworkOnline(UUID teamId) {
         return activeNetworks.contains(teamId);
     }
+    public void setEnergyBank(UUID teamId, TeslaTowerMachine.TeslaEnergyBank bank) {
+        energyBanks.put(teamId, bank);
+        setDirty();
+    }
 
-    public TeslaEnergyBank getOrCreateEnergyBank(UUID teamId) {
+
+    public TeslaTowerMachine.TeslaEnergyBank getOrCreateEnergyBank(UUID teamId) {
         if (!energyBanks.containsKey(teamId)) {
-            energyBanks.put(teamId, new TeslaEnergyBank());
+            energyBanks.put(teamId, new TeslaTowerMachine.TeslaEnergyBank());
             setDirty();
         }
         return energyBanks.get(teamId);
     }
 
-    public TeslaEnergyBank getEnergyBank(UUID teamId) {
+    public TeslaTowerMachine.TeslaEnergyBank getEnergyBank(UUID teamId) {
         return energyBanks.get(teamId);
     }
 
     @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag list = new ListTag();
-        for (Map.Entry<UUID, TeslaEnergyBank> entry : energyBanks.entrySet()) {
+        for (Map.Entry<UUID, TeslaTowerMachine.TeslaEnergyBank> entry : energyBanks.entrySet()) {
             CompoundTag bankTag = new CompoundTag();
             bankTag.putUUID("Team", entry.getKey());
             bankTag.put("Bank", entry.getValue().writeToNBT());
@@ -65,7 +68,7 @@ public class TeslaTeamEnergyData extends SavedData {
             for (int i = 0; i < list.size(); i++) {
                 CompoundTag bankTag = list.getCompound(i);
                 UUID team = bankTag.getUUID("Team");
-                TeslaEnergyBank bank = new TeslaEnergyBank();
+                TeslaTowerMachine.TeslaEnergyBank bank = new TeslaTowerMachine.TeslaEnergyBank();
                 bank.readFromNBT(bankTag.getCompound("Bank"));
                 data.energyBanks.put(team, bank);
             }
@@ -84,3 +87,4 @@ public class TeslaTeamEnergyData extends SavedData {
                 DATA_NAME);
     }
 }
+*/
