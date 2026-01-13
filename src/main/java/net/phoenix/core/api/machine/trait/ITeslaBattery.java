@@ -1,10 +1,19 @@
 package net.phoenix.core.api.machine.trait;
 
-import com.gregtechceu.gtceu.api.machine.multiblock.IBatteryData;
+import org.jetbrains.annotations.NotNull;
 
-public interface ITeslaBattery extends IBatteryData {
+import java.math.BigInteger;
 
-    long getMaxInput();
+public interface ITeslaBattery {
 
-    long getMaxOutput();
+    BigInteger getMaxInput();
+
+    BigInteger getMaxOutput();
+
+    BigInteger getCapacity();
+
+    int getTier();
+
+    @NotNull
+    String getBatteryName();
 }

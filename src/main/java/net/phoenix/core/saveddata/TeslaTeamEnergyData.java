@@ -10,24 +10,22 @@ import net.phoenix.core.common.machine.multiblock.electric.TeslaEnergyBank;
 
 import java.util.*;
 
+/**
+ * Tracks all TeslaTeam energy banks across the server.
+ * Each team has a single TeslaEnergyBank instance.
+ */
 public class TeslaTeamEnergyData extends SavedData {
 
     private static final String DATA_NAME = "phoenix_tesla_team_energy";
+
     private final Map<UUID, TeslaEnergyBank> energyBanks = new HashMap<>();
     private final Set<UUID> activeNetworks = new HashSet<>();
 
     public TeslaTeamEnergyData() {}
 
-    /* ------------------------------------------------------------ */
-    /* NETWORK STATUS */
-    /* ------------------------------------------------------------ */
-
     public void setNetworkOnline(UUID teamId, boolean online) {
-        if (online) {
-            activeNetworks.add(teamId);
-        } else {
-            activeNetworks.remove(teamId);
-        }
+        if (online) activeNetworks.add(teamId);
+        else activeNetworks.remove(teamId);
     }
 
     public boolean isNetworkOnline(UUID teamId) {
@@ -46,17 +44,14 @@ public class TeslaTeamEnergyData extends SavedData {
         return energyBanks.get(teamId);
     }
 
-    /* ------------------------------------------------------------ */
-    /* PERSISTENCE */
-    /* ------------------------------------------------------------ */
 
     @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag list = new ListTag();
-        for (var entry : energyBanks.entrySet()) {
+        for (Map.Entry<UUID, TeslaEnergyBank> entry : energyBanks.entrySet()) {
             CompoundTag bankTag = new CompoundTag();
             bankTag.putUUID("Team", entry.getKey());
-            bankTag.put("Bank", entry.getValue().save());
+            bankTag.put("Bank", entry.getValue().writeToNBT());
             list.add(bankTag);
         }
         tag.put("Banks", list);
@@ -65,16 +60,18 @@ public class TeslaTeamEnergyData extends SavedData {
 
     public static TeslaTeamEnergyData load(CompoundTag tag) {
         TeslaTeamEnergyData data = new TeslaTeamEnergyData();
+
         if (tag.contains("Banks", ListTag.TAG_LIST)) {
             ListTag list = tag.getList("Banks", Tag.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++) {
                 CompoundTag bankTag = list.getCompound(i);
                 UUID team = bankTag.getUUID("Team");
                 TeslaEnergyBank bank = new TeslaEnergyBank();
-                bank.load(bankTag.getCompound("Bank"));
+                bank.readFromNBT(bankTag.getCompound("Bank"));
                 data.energyBanks.put(team, bank);
             }
         }
+
         return data;
     }
 

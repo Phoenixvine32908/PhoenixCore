@@ -63,8 +63,6 @@ public class PhoenixBlocks {
         var battery = REGISTRATE
                 .block("tesla_battery_%s".formatted(tierName), p -> new TeslaBatteryBlock(p, type))
                 .initialProperties(() -> Blocks.IRON_BLOCK)
-                // Explicitly set the display name to override "Opv"
-                // If the tier is OPV, this will set it to "Tesla Battery OpV"
                 .lang("Tesla Battery " + (tierName.equalsIgnoreCase("opv") ? "OpV" : tierName.toUpperCase()))
                 .blockstate((ctx, prov) -> {
                     String folderPath = "block/casings/batteries/tesla_" + tierName + "/";

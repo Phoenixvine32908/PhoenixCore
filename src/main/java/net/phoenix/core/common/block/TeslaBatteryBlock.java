@@ -14,6 +14,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,26 +35,27 @@ public class TeslaBatteryBlock extends Block {
         super.appendHoverText(stack, level, tooltip, flag);
 
         if (batteryData.getTier() == -1) {
-            tooltip.add(Component.translatable("block.monilabs.tesla_battery.tooltip_empty"));
+            tooltip.add(Component.translatable("block.phoenixcore.tesla_battery.tooltip_empty"));
         } else {
-            tooltip.add(Component.translatable("block.monilabs.tesla_battery.tooltip_filled",
+            tooltip.add(Component.translatable("block.phoenixcore.tesla_battery.tooltip_filled",
                     FormattingUtil.formatNumbers(batteryData.getCapacity())));
         }
     }
 
     public enum TeslaBatteryType implements ITeslaBattery {
 
-        UHV(9, 10_000_000_000L),
-        UEV(10, 50_000_000_000L),
-        UIV(11, 250_000_000_000L),
-        UXV(12, 1_000_000_000_000L),
-        OPV(13, 10_000_000_000_000L),
-        MAX(14, Long.MAX_VALUE);
+        UHV(9, BigInteger.valueOf(10_000_000_000L)),
+        UEV(10, BigInteger.valueOf(50_000_000_000L)),
+        UIV(11, BigInteger.valueOf(250_000_000_000L)),
+        UXV(12, BigInteger.valueOf(1_000_000_000_000L)),
+        OPV(13, BigInteger.valueOf(10_000_000_000_000L)),
+        MAX(14, BigInteger.valueOf(Long.MAX_VALUE));
+
 
         private final int tier;
-        private final long capacity;
+        private final BigInteger capacity;
 
-        TeslaBatteryType(int tier, long capacity) {
+        TeslaBatteryType(int tier, BigInteger capacity) {
             this.tier = tier;
             this.capacity = capacity;
         }
@@ -64,7 +66,7 @@ public class TeslaBatteryBlock extends Block {
         }
 
         @Override
-        public long getCapacity() {
+        public BigInteger getCapacity() {
             return capacity;
         }
 
@@ -74,13 +76,13 @@ public class TeslaBatteryBlock extends Block {
         }
 
         @Override
-        public long getMaxInput() {
-            return Long.MAX_VALUE;
+        public BigInteger getMaxInput() {
+            return BigInteger.valueOf(Long.MAX_VALUE);
         }
 
         @Override
-        public long getMaxOutput() {
-            return Long.MAX_VALUE;
+        public BigInteger getMaxOutput() {
+            return BigInteger.valueOf(Long.MAX_VALUE);
         }
     }
 }
