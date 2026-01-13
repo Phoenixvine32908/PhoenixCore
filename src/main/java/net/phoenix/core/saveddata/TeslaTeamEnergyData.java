@@ -44,7 +44,6 @@ public class TeslaTeamEnergyData extends SavedData {
         return energyBanks.get(teamId);
     }
 
-
     @Override
     public CompoundTag save(CompoundTag tag) {
         ListTag list = new ListTag();

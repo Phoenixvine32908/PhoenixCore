@@ -1,10 +1,7 @@
 package net.phoenix.core.api.pattern;
 
-import com.gregtechceu.gtceu.api.GTCEuAPI;
-import com.gregtechceu.gtceu.api.machine.multiblock.IBatteryData;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 
-import com.gregtechceu.gtceu.common.block.BatteryBlock;
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
 
 import net.minecraft.network.chat.Component;
@@ -25,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.gregtechceu.gtceu.common.machine.multiblock.electric.PowerSubstationMachine.PMC_BATTERY_HEADER;
 import static net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine.TTB_BATTERY_HEADER;
 
 public class PhoenixPredicates {
@@ -63,8 +59,7 @@ public class PhoenixPredicates {
         return new TraceabilityPredicate(blockWorldState -> {
             BlockState state = blockWorldState.getBlockState();
 
-            for (Map.Entry<ITeslaBattery, Supplier<TeslaBatteryBlock>> entry :
-                    PhoenixAPI.TESLA_BATTERIES.entrySet()) {
+            for (Map.Entry<ITeslaBattery, Supplier<TeslaBatteryBlock>> entry : PhoenixAPI.TESLA_BATTERIES.entrySet()) {
 
                 if (state.getBlock() == entry.getValue().get()) {
 
@@ -75,8 +70,7 @@ public class PhoenixPredicates {
 
                         String key = TTB_BATTERY_HEADER + battery.getBatteryName();
 
-                        TeslaTowerMachine.BatteryMatchWrapper wrapper =
-                                blockWorldState.getMatchContext().get(key);
+                        TeslaTowerMachine.BatteryMatchWrapper wrapper = blockWorldState.getMatchContext().get(key);
 
                         if (wrapper == null)
                             wrapper = new TeslaTowerMachine.BatteryMatchWrapper(battery);
@@ -97,10 +91,6 @@ public class PhoenixPredicates {
                 .toArray(BlockInfo[]::new))
                 .addTooltips(Component.translatable("gtceu.multiblock.pattern.error.batteries"));
     }
-
-
-
-
 
     public static TraceabilityPredicate fissionModerators() {
         return new TraceabilityPredicate(blockWorldState -> {

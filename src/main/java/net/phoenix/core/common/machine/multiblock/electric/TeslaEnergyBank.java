@@ -1,9 +1,10 @@
 package net.phoenix.core.common.machine.multiblock.electric;
 
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
@@ -56,7 +57,6 @@ public class TeslaEnergyBank {
         return rebuilt;
     }
 
-
     public long fill(long amount) {
         if (amount <= 0) return 0;
         long remaining = amount;
@@ -86,8 +86,6 @@ public class TeslaEnergyBank {
 
         return amount - remaining;
     }
-
-
 
     public void fill(@NotNull BigInteger amount) {
         if (amount.signum() <= 0) return;
@@ -121,8 +119,6 @@ public class TeslaEnergyBank {
 
         return drained;
     }
-
-
 
     public @NotNull BigInteger getStored() {
         BigInteger total = BigInteger.ZERO;

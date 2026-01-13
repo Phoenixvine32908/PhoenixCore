@@ -49,8 +49,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine
         return MANAGED_FIELD_HOLDER;
     }
 
-
-
     public @Nullable UUID getOwnerTeamUUID() {
         autoLinkTeamIfNeeded();
         return ownerTeamUUID;
@@ -79,8 +77,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine
             }
         }
     }
-
-
 
     @Override
     public InteractionResult onDataStickUse(Player player, ItemStack binder) {
@@ -118,8 +114,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine
         }
         return InteractionResult.sidedSuccess(getLevel().isClientSide);
     }
-
-
 
     @Override
     public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {

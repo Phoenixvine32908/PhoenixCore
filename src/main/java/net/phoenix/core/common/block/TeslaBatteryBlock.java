@@ -51,7 +51,6 @@ public class TeslaBatteryBlock extends Block {
         OPV(13, BigInteger.valueOf(10_000_000_000_000L)),
         MAX(14, BigInteger.valueOf(Long.MAX_VALUE));
 
-
         private final int tier;
         private final BigInteger capacity;
 

@@ -4,12 +4,13 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.IEnergyInfoProvider;
 import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
+import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDisplayUIMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.misc.EnergyContainerList;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
+
 import com.lowdragmc.lowdraglib.gui.widget.*;
 
 import net.minecraft.ChatFormatting;
@@ -20,7 +21,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-
 import net.phoenix.core.api.gui.PhoenixGuiTextures;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.common.data.item.PhoenixItems;
@@ -36,7 +36,8 @@ import java.math.BigInteger;
 import java.util.*;
 
 public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
-        implements IFancyUIMachine, IDisplayUIMachine, IDataStickInteractable, IEnergyInfoProvider {
+                               implements IFancyUIMachine, IDisplayUIMachine, IDataStickInteractable,
+                               IEnergyInfoProvider {
 
     public static final String MULTIBLOCK_TYPE = "tesla_tower";
     public static final String TTB_BATTERY_HEADER = "TeslaTowerBattery_";
@@ -48,8 +49,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     private boolean isDuplicate;
 
     private final ConditionalSubscriptionHandler energyTransferSubscription;
-
-
 
     private BigInteger netInLastSec = BigInteger.ZERO;
     private BigInteger netOutLastSec = BigInteger.ZERO;
@@ -75,7 +74,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         }
     }
 
-
     @Override
     public EnergyInfo getEnergyInfo() {
         if (!(getLevel() instanceof ServerLevel sl) || ownerTeamUUID == null) {
@@ -85,11 +83,25 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         return new EnergyInfo(bank.getCapacity(), bank.getStored());
     }
 
-    @Override public long getInputPerSec() { return 0; }
-    @Override public long getOutputPerSec() { return 0; }
-    @Override public boolean isOneProbeHidden() { return false; }
-    @Override public boolean supportsBigIntEnergyValues() { return true; }
+    @Override
+    public long getInputPerSec() {
+        return 0;
+    }
 
+    @Override
+    public long getOutputPerSec() {
+        return 0;
+    }
+
+    @Override
+    public boolean isOneProbeHidden() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsBigIntEnergyValues() {
+        return true;
+    }
 
     private void refreshDisplayFields() {
         if (getLevel() instanceof ServerLevel sl && ownerTeamUUID != null) {
@@ -108,9 +120,8 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     @Override
     public @NotNull Widget createUIWidget() {
         WidgetGroup root = new WidgetGroup(0, 0, 190, 125);
-        DraggableScrollableWidgetGroup panel =
-                new DraggableScrollableWidgetGroup(4, 4, 182, 117)
-                        .setBackground(getScreenTexture());
+        DraggableScrollableWidgetGroup panel = new DraggableScrollableWidgetGroup(4, 4, 182, 117)
+                .setBackground(getScreenTexture());
 
         panel.addWidget(new LabelWidget(4, 5,
                 self().getBlockState().getBlock().getDescriptionId()));
@@ -173,11 +184,9 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     }
 
     private String getTeamNameLabel() {
-        return (getLevel() instanceof ServerLevel sl && ownerTeamUUID != null)
-                ? TeamUtils.getTeamName(ownerTeamUUID)
-                : "Unknown";
+        return (getLevel() instanceof ServerLevel sl && ownerTeamUUID != null) ? TeamUtils.getTeamName(ownerTeamUUID) :
+                "Unknown";
     }
-
 
     @Override
     public InteractionResult onDataStickShiftUse(Player player, ItemStack stack) {
@@ -191,7 +200,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         return InteractionResult.SUCCESS;
     }
 
-
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
@@ -204,8 +212,8 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         if (unique.hasData(ownerTeamUUID, MULTIBLOCK_TYPE)) {
             var existing = unique.getEntry(ownerTeamUUID, MULTIBLOCK_TYPE);
             if (existing != null &&
-                    (!existing.getDimension().equals(sl.dimension().location().toString())
-                            || !existing.getPos().equals(getPos()))) {
+                    (!existing.getDimension().equals(sl.dimension().location().toString()) ||
+                            !existing.getPos().equals(getPos()))) {
 
                 isDuplicate = true;
                 recipeLogic.setStatus(RecipeLogic.Status.SUSPEND);
@@ -215,8 +223,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
         collectHatches();
 
-        TeslaEnergyBank bank =
-                TeslaTeamEnergyData.get(sl).getOrCreateEnergyBank(ownerTeamUUID);
+        TeslaEnergyBank bank = TeslaTeamEnergyData.get(sl).getOrCreateEnergyBank(ownerTeamUUID);
         bank.rebuild(collectBatteries());
         TeslaTeamEnergyData.get(sl).setDirty();
 
@@ -278,11 +285,10 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     private List<ITeslaBattery> collectBatteries() {
         List<ITeslaBattery> batteries = new ArrayList<>();
 
-        for (Map.Entry<String, Object> entry :
-                getMultiblockState().getMatchContext().entrySet()) {
+        for (Map.Entry<String, Object> entry : getMultiblockState().getMatchContext().entrySet()) {
 
-            if (entry.getKey().startsWith(TTB_BATTERY_HEADER)
-                    && entry.getValue() instanceof BatteryMatchWrapper wrapper) {
+            if (entry.getKey().startsWith(TTB_BATTERY_HEADER) &&
+                    entry.getValue() instanceof BatteryMatchWrapper wrapper) {
 
                 for (int i = 0; i < wrapper.amount; i++) {
                     batteries.add(wrapper.partType);
@@ -296,8 +302,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         if (getLevel().isClientSide || isDuplicate || ownerTeamUUID == null) return;
         if (!(getLevel() instanceof ServerLevel sl)) return;
 
-        TeslaEnergyBank bank =
-                TeslaTeamEnergyData.get(sl).getOrCreateEnergyBank(ownerTeamUUID);
+        TeslaEnergyBank bank = TeslaTeamEnergyData.get(sl).getOrCreateEnergyBank(ownerTeamUUID);
 
         if (getOffsetTimer() % 20 == 0) {
             totalInputPerTick = netInLastSec.divide(BigInteger.valueOf(20));
@@ -306,9 +311,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             netOutLastSec = BigInteger.ZERO;
 
             recipeLogic.setStatus(
-                    bank.getStored().signum() > 0
-                            ? RecipeLogic.Status.WORKING
-                            : RecipeLogic.Status.IDLE);
+                    bank.getStored().signum() > 0 ? RecipeLogic.Status.WORKING : RecipeLogic.Status.IDLE);
 
             refreshDisplayFields();
         }
@@ -344,9 +347,8 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         TeslaTeamEnergyData.get(sl).setDirty();
     }
 
-
-
     public static class BatteryMatchWrapper {
+
         public final ITeslaBattery partType;
         public int amount;
 

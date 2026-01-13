@@ -5,10 +5,10 @@ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.misc.EnergyContainerList;
 import com.gregtechceu.gtceu.api.recipe.ingredient.EnergyStack;
 
-import lombok.Setter;
 import net.minecraft.core.Direction;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
