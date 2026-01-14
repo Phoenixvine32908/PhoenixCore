@@ -1,6 +1,7 @@
 package net.phoenix.core.utils;
 
 import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
+
 import net.minecraft.server.level.ServerPlayer;
 
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
@@ -23,6 +24,7 @@ public final class TeamUtils {
                 .map(Team::getTeamId)
                 .orElse(player.getUUID());
     }
+
     @Nullable
     public static UUID getTeamUUID(@Nullable MachineOwner owner) {
         if (owner == null) return null;

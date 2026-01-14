@@ -1,6 +1,7 @@
 package net.phoenix.core.common.machine.multiblock.electric;
 
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;

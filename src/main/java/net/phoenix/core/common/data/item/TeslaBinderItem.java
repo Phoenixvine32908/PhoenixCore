@@ -33,16 +33,13 @@ public class TeslaBinderItem extends ComponentItem {
                     Component.literal("Bound to: ")
                             .withStyle(ChatFormatting.GRAY)
                             .append(Component.literal(ownerName)
-                                    .withStyle(Style.EMPTY.withColor(color)))
-            );
+                                    .withStyle(Style.EMPTY.withColor(color))));
         } else {
             tooltip.add(
                     Component.translatable("item.phoenix.tesla_binder.desc")
-                            .withStyle(ChatFormatting.DARK_GRAY)
-            );
+                            .withStyle(ChatFormatting.DARK_GRAY));
         }
     }
-
 
     private int getAnimatedColor(int color1, int color2, int duration) {
         float time = (System.currentTimeMillis() % duration) / (float) duration;

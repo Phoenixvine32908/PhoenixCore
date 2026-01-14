@@ -5,8 +5,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
-import org.jetbrains.annotations.NotNull;
 
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -16,6 +16,7 @@ public class TeslaTeamEnergyData extends SavedData {
     private static final String DATA_NAME = "phoenix_tesla_team_energy";
 
     public static class TeamEnergy {
+
         public BigInteger stored = BigInteger.ZERO;
         public BigInteger capacity = BigInteger.ZERO;
 
@@ -71,8 +72,7 @@ public class TeslaTeamEnergyData extends SavedData {
             CompoundTag t = list.getCompound(i);
             data.networks.put(
                     t.getUUID("Team"),
-                    TeamEnergy.load(t.getCompound("Energy"))
-            );
+                    TeamEnergy.load(t.getCompound("Energy")));
         }
         return data;
     }
@@ -81,9 +81,6 @@ public class TeslaTeamEnergyData extends SavedData {
         return level.getDataStorage().computeIfAbsent(
                 TeslaTeamEnergyData::load,
                 TeslaTeamEnergyData::new,
-                DATA_NAME
-        );
+                DATA_NAME);
     }
 }
-
-

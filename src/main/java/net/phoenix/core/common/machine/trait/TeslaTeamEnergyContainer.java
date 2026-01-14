@@ -1,13 +1,15 @@
 package net.phoenix.core.common.machine.trait;
 
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
+
 import net.minecraft.server.level.ServerLevel;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 public class TeslaTeamEnergyContainer extends NotifiableEnergyContainer {
 
@@ -24,8 +26,6 @@ public class TeslaTeamEnergyContainer extends NotifiableEnergyContainer {
         );
         this.hatch = hatch;
     }
-
-
 
     @Nullable
     private TeslaTeamEnergyData.TeamEnergy getTeamNet() {

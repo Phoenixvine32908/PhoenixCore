@@ -5,8 +5,10 @@ import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
+
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -19,6 +21,7 @@ import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaWirelessRegistry;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.utils.TeamUtils;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,14 +32,15 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     // ---------------------------------------
     // Managed fields
     // ---------------------------------------
-    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER =
-            new ManagedFieldHolder(TeslaEnergyHatchPartMachine.class, EnergyHatchPartMachine.MANAGED_FIELD_HOLDER);
+    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
+            TeslaEnergyHatchPartMachine.class, EnergyHatchPartMachine.MANAGED_FIELD_HOLDER);
 
     @Persisted
     private UUID ownerTeamUUID;
 
     // Cached reference to tower (not persisted)
     private TeslaTowerMachine boundTower;
+
     @Override
     public void onLoad() {
         super.onLoad();
@@ -50,7 +54,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         super.onUnload();
         TeslaWirelessRegistry.unregisterHatch(this);
     }
-
 
     // ---------------------------------------
     // Constructor & field holder
@@ -90,11 +93,10 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     public boolean isWireless() {
         if (ownerTeamUUID == null) return false;
 
-        PhoenixConfigs.FeatureConfigs.TeslaConnectionMode mode =
-                PhoenixConfigs.INSTANCE.features.teslaConnectionMode;
+        PhoenixConfigs.FeatureConfigs.TeslaConnectionMode mode = PhoenixConfigs.INSTANCE.features.teslaConnectionMode;
 
-        return mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO
-                || mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK;
+        return mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO ||
+                mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK;
     }
 
     /**
@@ -105,9 +107,8 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         if (getLevel().isClientSide || !isWireless() || ownerTeamUUID == null) return;
 
         // TEAM_AUTO: auto-bind tower if not bound
-        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode
-                == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO
-                && boundTower == null) {
+        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode ==
+                PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO && boundTower == null) {
             boundTower = TeslaTowerMachine.getTowerByTeam(ownerTeamUUID);
             if (boundTower != null) bindToTower(boundTower);
         }
@@ -134,7 +135,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         }
     }
 
-
     // ---------------------------------------
     // Team logic
     // ---------------------------------------
@@ -147,8 +147,9 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         if (!(getLevel() instanceof ServerLevel sl)) return;
 
         // DATA_STICK mode: manual bind only
-        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode
-                == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK) return;
+        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode ==
+                PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK)
+            return;
 
         UUID ownerUUID = getOwnerUUID();
         if (ownerUUID == null) return;
@@ -180,13 +181,11 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
                     self().markDirty();
                     player.sendSystemMessage(
                             Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID)
-                                    .withStyle(ChatFormatting.AQUA)
-                    );
+                                    .withStyle(ChatFormatting.AQUA));
                 } else {
                     player.sendSystemMessage(
                             Component.literal("Tesla Hatch: Already synced.")
-                                    .withStyle(ChatFormatting.GRAY)
-                    );
+                                    .withStyle(ChatFormatting.GRAY));
                 }
             }
             return InteractionResult.sidedSuccess(getLevel().isClientSide);

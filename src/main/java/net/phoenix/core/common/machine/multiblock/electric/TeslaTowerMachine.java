@@ -1,6 +1,5 @@
 package net.phoenix.core.common.machine.multiblock.electric;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.capability.IEnergyInfoProvider;
@@ -16,12 +15,9 @@ import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
-import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDisplayUIMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
-import com.gregtechceu.gtceu.api.machine.multiblock.IBatteryData;
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
-import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.misc.EnergyContainerList;
 import com.gregtechceu.gtceu.config.ConfigHolder;
@@ -29,19 +25,13 @@ import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.*;
-import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
@@ -58,24 +48,27 @@ import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchP
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.utils.TeamUtils;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.util.*;
 
+import javax.annotation.Nullable;
+
 public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
-        implements IEnergyInfoProvider, IFancyUIMachine, IDataStickInteractable {
+                               implements IEnergyInfoProvider, IFancyUIMachine, IDataStickInteractable {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             TeslaTowerMachine.class, UniqueWorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
-public TeslaTowerMachine(IMachineBlockEntity holder) {
-    super(holder);
-    this.energyBank = new TeslaEnergyBank(this, List.of());
-    this.tickSubscription = new ConditionalSubscriptionHandler(this, this::transferEnergyTick, this::isFormed);
-}
 
+    public TeslaTowerMachine(IMachineBlockEntity holder) {
+        super(holder);
+        this.energyBank = new TeslaEnergyBank(this, List.of());
+        this.tickSubscription = new ConditionalSubscriptionHandler(this, this::transferEnergyTick, this::isFormed);
+    }
 
     public static final int MAX_BATTERY_LAYERS = 18;
     public static final int MIN_CASINGS = 14;
@@ -83,7 +76,7 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
     public static final long PASSIVE_DRAIN_DIVISOR = 20 * 60 * 60 * 24 * 100;
     public static final long PASSIVE_DRAIN_MAX_PER_STORAGE = 100_000L;
 
-    public static final String TTB_BATTERY_HEADER= "TTBatteries_";
+    public static final String TTB_BATTERY_HEADER = "TTBatteries_";
 
     private static final BigInteger BIG_INTEGER_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
 
@@ -103,9 +96,6 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
     private long outputPerSec;
 
     protected ConditionalSubscriptionHandler tickSubscription;
-
-
-
 
     @Override
     public void onStructureFormed() {
@@ -140,7 +130,8 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
                 if (io.support(IO.IN)) inputs.addAll(containers);
                 if (io.support(IO.OUT)) outputs.addAll(containers);
 
-                traitSubscriptions.add(handlerList.subscribe(tickSubscription::updateSubscription, EURecipeCapability.CAP));
+                traitSubscriptions
+                        .add(handlerList.subscribe(tickSubscription::updateSubscription, EURecipeCapability.CAP));
             }
 
             // Tesla wired hatches
@@ -157,7 +148,8 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         // Collect batteries
         List<ITeslaBattery> batteries = new ArrayList<>();
         for (Map.Entry<String, Object> entry : getMultiblockState().getMatchContext().entrySet()) {
-            if (entry.getKey().startsWith(TTB_BATTERY_HEADER) && entry.getValue() instanceof BatteryMatchWrapper wrapper) {
+            if (entry.getKey().startsWith(TTB_BATTERY_HEADER) &&
+                    entry.getValue() instanceof BatteryMatchWrapper wrapper) {
                 for (int i = 0; i < wrapper.amount; i++) batteries.add(wrapper.partType);
             }
         }
@@ -172,10 +164,6 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
 
         this.passiveDrain = this.energyBank.getPassiveDrainPerTick();
     }
-
-
-
-
 
     protected void transferEnergyTick() {
         if (getLevel().isClientSide) return;
@@ -203,7 +191,8 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
             netOutLastSec += energyPassiveDrained;
 
             // Output: push energy from tower → hatches
-            long energyToOutputs = energyBank.drain(outputHatches.getEnergyCapacity() - outputHatches.getEnergyStored());
+            long energyToOutputs = energyBank
+                    .drain(outputHatches.getEnergyCapacity() - outputHatches.getEnergyStored());
             outputHatches.changeEnergy(energyToOutputs);
             netOutLastSec += energyToOutputs;
         }
@@ -249,10 +238,6 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         }
     }
 
-
-
-
-
     private static final Map<UUID, TeslaTowerMachine> TEAM_TOWER_MAP = new HashMap<>();
 
     public static void registerTower(TeslaTowerMachine tower) {
@@ -271,10 +256,6 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         return TEAM_TOWER_MAP.get(team);
     }
 
-
-
-
-
     @Override
     public void onStructureInvalid() {
         inputHatches = null;
@@ -291,10 +272,6 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         outputPerSec = 0;
         super.onStructureInvalid();
     }
-
-
-
-
 
     private static MutableComponent getTimeToFillDrainText(BigInteger timeToFillSeconds) {
         if (timeToFillSeconds.compareTo(BIG_INTEGER_MAX_LONG) > 0) {
@@ -343,7 +320,6 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         return passiveDrain;
     }
 
-
     public String getStored() {
         if (energyBank == null) {
             return "0";
@@ -376,9 +352,9 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
     private BigInteger[] storage;
     private BigInteger[] maximums;
     @Setter
-    @Getter private BigInteger capacity;
+    @Getter
+    private BigInteger capacity;
     private int index;
-
 
     @Override
     public ModularUI createUI(Player entityPlayer) {
@@ -410,10 +386,9 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         super.loadCustomPersistedData(tag);
         energyBank.readFromNBT(tag.getCompound("energyBank"));
     }
+
     @Persisted
     private BlockPos boundTowerPos;
-
-
 
     @Nullable
     private TeslaTowerMachine getBoundTower() {
@@ -424,10 +399,7 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         return tower;
     }
 
-
     private TickableSubscription energySyncSub;
-
-
 
     @Override
     public void onUnload() {
@@ -438,170 +410,165 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         }
     }
 
-
-
-
     public void bindToTower(TeslaTowerMachine tower) {
         if (tower == null) return;
         boundTowerPos = tower.self().getPos();
         self().markDirty();
     }
 
+    public static class TeslaEnergyBank extends MachineTrait {
 
+        protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
+                TeslaTowerMachine.TeslaEnergyBank.class);
+        private static final String NBT_SIZE = "Size";
+        private static final String NBT_STORED = "Stored";
+        private static final String NBT_MAX = "Max";
 
+        private BigInteger[] storage;
+        private BigInteger[] maximums;
+        @Getter
+        private BigInteger capacity;
+        private int index;
+        private final List<ITeslaBattery> batteries;
 
-
-        public static class TeslaEnergyBank extends MachineTrait {
-
-            protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-                    TeslaTowerMachine.TeslaEnergyBank.class);
-            private static final String NBT_SIZE = "Size";
-            private static final String NBT_STORED = "Stored";
-            private static final String NBT_MAX = "Max";
-
-            private BigInteger[] storage;
-            private BigInteger[] maximums;
-            @Getter
-            private BigInteger capacity;
-            private int index;
-            private final List<ITeslaBattery> batteries;
-
-            public TeslaEnergyBank(MetaMachine machine, List<ITeslaBattery> batteries) {
-                super(machine);
-                this.batteries = new ArrayList<>(batteries);
-                storage = new BigInteger[batteries.size()];
-                maximums = new BigInteger[batteries.size()];
-                capacity = BigInteger.ZERO;
-                for (int i = 0; i < batteries.size(); i++) {
-                    maximums[i] = batteries.get(i).getCapacity();
-                    storage[i] = BigInteger.ZERO;
-                    capacity = capacity.add(maximums[i]);
-                }
-            }
-            public int getHighestTier() {
-                if (batteries.isEmpty()) return 0;
-                return batteries.stream().mapToInt(ITeslaBattery::getTier).max().orElse(0);
-            }
-
-            public void readFromNBT(CompoundTag storageTag) {
-                int size = storageTag.getInt(NBT_SIZE);
-                storage = new BigInteger[size];
-                maximums = new BigInteger[size];
-                capacity = BigInteger.ZERO;
-                for (int i = 0; i < size; i++) {
-                    CompoundTag subtag = storageTag.getCompound(String.valueOf(i));
-                    storage[i] = new BigInteger(subtag.getString(NBT_STORED).isEmpty() ? "0" : subtag.getString(NBT_STORED));
-                    maximums[i] = new BigInteger(subtag.getString(NBT_MAX).isEmpty() ? "0" : subtag.getString(NBT_MAX));
-                    capacity = capacity.add(maximums[i]);
-                }
-            }
-
-            public CompoundTag writeToNBT(CompoundTag compound) {
-                compound.putInt(NBT_SIZE, storage.length);
-                for (int i = 0; i < storage.length; i++) {
-                    CompoundTag subtag = new CompoundTag();
-                    subtag.putString(NBT_STORED, storage[i].toString());
-                    subtag.putString(NBT_MAX, maximums[i].toString());
-                    compound.put(String.valueOf(i), subtag);
-                }
-                return compound;
-            }
-
-            public TeslaTowerMachine.TeslaEnergyBank rebuild(@NotNull List<ITeslaBattery> batteries) {
-                TeslaTowerMachine.TeslaEnergyBank newStorage = new TeslaTowerMachine.TeslaEnergyBank(this.machine, batteries);
-                for (BigInteger stored : storage) {
-                    newStorage.fill(stored);
-                }
-                return newStorage;
-            }
-
-            /** Overloaded fill for long (standard GTCEu hatches) **/
-            public long fill(long amount) {
-                BigInteger filled = fill(BigInteger.valueOf(amount));
-                return filled.longValue();
-            }
-
-            public BigInteger fill(BigInteger amount) {
-                if (amount.signum() < 0) return BigInteger.ZERO;
-
-                if (index < storage.length && storage[index].equals(maximums[index])) {
-                    if (index < storage.length - 1) index++;
-                }
-
-                BigInteger space = maximums[index].subtract(storage[index]);
-                BigInteger toFill = amount.min(space);
-
-                if (toFill.equals(BigInteger.ZERO) && index == storage.length - 1) {
-                    return BigInteger.ZERO;
-                }
-
-                storage[index] = storage[index].add(toFill);
-                BigInteger remaining = amount.subtract(toFill);
-
-                if (remaining.signum() > 0 && index < storage.length - 1) {
-                    return toFill.add(fill(remaining));
-                }
-
-                return toFill;
-            }
-
-            /** Overloaded drain for long **/
-            public long drain(long amount) {
-                BigInteger drained = drain(BigInteger.valueOf(amount));
-                return drained.longValue();
-            }
-
-            public BigInteger drain(BigInteger amount) {
-                if (amount.signum() < 0) return BigInteger.ZERO;
-
-                if (index >= 0 && storage[index].equals(BigInteger.ZERO)) {
-                    if (index > 0) index--;
-                }
-
-                BigInteger toDrain = storage[index].min(amount);
-
-                if (toDrain.equals(BigInteger.ZERO) && index == 0) {
-                    return BigInteger.ZERO;
-                }
-
-
-                storage[index] = storage[index].subtract(toDrain);
-                BigInteger remaining = amount.subtract(toDrain);
-
-                if (remaining.signum() > 0 && index > 0) {
-                    return toDrain.add(drain(remaining));
-                }
-
-                return toDrain;
-            }
-
-            public BigInteger getStored() {
-                BigInteger total = BigInteger.ZERO;
-                for (BigInteger b : storage) total = total.add(b);
-                return total;
-            }
-
-            public boolean hasEnergy() {
-                return getStored().signum() > 0;
-            }
-
-            public long getPassiveDrainPerTick() {
-                BigInteger totalDrain = BigInteger.ZERO;
-                BigInteger divisor = BigInteger.valueOf(PASSIVE_DRAIN_DIVISOR);
-                BigInteger maxPerTick = BigInteger.valueOf(PASSIVE_DRAIN_MAX_PER_STORAGE);
-
-                for (BigInteger max : maximums) {
-                    BigInteger calculated = max.divide(divisor);
-                    totalDrain = totalDrain.add(calculated.min(maxPerTick));
-                }
-                return totalDrain.longValue();
-            }
-
-            @Override
-            public ManagedFieldHolder getFieldHolder() {
-                return MANAGED_FIELD_HOLDER;
+        public TeslaEnergyBank(MetaMachine machine, List<ITeslaBattery> batteries) {
+            super(machine);
+            this.batteries = new ArrayList<>(batteries);
+            storage = new BigInteger[batteries.size()];
+            maximums = new BigInteger[batteries.size()];
+            capacity = BigInteger.ZERO;
+            for (int i = 0; i < batteries.size(); i++) {
+                maximums[i] = batteries.get(i).getCapacity();
+                storage[i] = BigInteger.ZERO;
+                capacity = capacity.add(maximums[i]);
             }
         }
+
+        public int getHighestTier() {
+            if (batteries.isEmpty()) return 0;
+            return batteries.stream().mapToInt(ITeslaBattery::getTier).max().orElse(0);
+        }
+
+        public void readFromNBT(CompoundTag storageTag) {
+            int size = storageTag.getInt(NBT_SIZE);
+            storage = new BigInteger[size];
+            maximums = new BigInteger[size];
+            capacity = BigInteger.ZERO;
+            for (int i = 0; i < size; i++) {
+                CompoundTag subtag = storageTag.getCompound(String.valueOf(i));
+                storage[i] = new BigInteger(
+                        subtag.getString(NBT_STORED).isEmpty() ? "0" : subtag.getString(NBT_STORED));
+                maximums[i] = new BigInteger(subtag.getString(NBT_MAX).isEmpty() ? "0" : subtag.getString(NBT_MAX));
+                capacity = capacity.add(maximums[i]);
+            }
+        }
+
+        public CompoundTag writeToNBT(CompoundTag compound) {
+            compound.putInt(NBT_SIZE, storage.length);
+            for (int i = 0; i < storage.length; i++) {
+                CompoundTag subtag = new CompoundTag();
+                subtag.putString(NBT_STORED, storage[i].toString());
+                subtag.putString(NBT_MAX, maximums[i].toString());
+                compound.put(String.valueOf(i), subtag);
+            }
+            return compound;
+        }
+
+        public TeslaTowerMachine.TeslaEnergyBank rebuild(@NotNull List<ITeslaBattery> batteries) {
+            TeslaTowerMachine.TeslaEnergyBank newStorage = new TeslaTowerMachine.TeslaEnergyBank(this.machine,
+                    batteries);
+            for (BigInteger stored : storage) {
+                newStorage.fill(stored);
+            }
+            return newStorage;
+        }
+
+        /** Overloaded fill for long (standard GTCEu hatches) **/
+        public long fill(long amount) {
+            BigInteger filled = fill(BigInteger.valueOf(amount));
+            return filled.longValue();
+        }
+
+        public BigInteger fill(BigInteger amount) {
+            if (amount.signum() < 0) return BigInteger.ZERO;
+
+            if (index < storage.length && storage[index].equals(maximums[index])) {
+                if (index < storage.length - 1) index++;
+            }
+
+            BigInteger space = maximums[index].subtract(storage[index]);
+            BigInteger toFill = amount.min(space);
+
+            if (toFill.equals(BigInteger.ZERO) && index == storage.length - 1) {
+                return BigInteger.ZERO;
+            }
+
+            storage[index] = storage[index].add(toFill);
+            BigInteger remaining = amount.subtract(toFill);
+
+            if (remaining.signum() > 0 && index < storage.length - 1) {
+                return toFill.add(fill(remaining));
+            }
+
+            return toFill;
+        }
+
+        /** Overloaded drain for long **/
+        public long drain(long amount) {
+            BigInteger drained = drain(BigInteger.valueOf(amount));
+            return drained.longValue();
+        }
+
+        public BigInteger drain(BigInteger amount) {
+            if (amount.signum() < 0) return BigInteger.ZERO;
+
+            if (index >= 0 && storage[index].equals(BigInteger.ZERO)) {
+                if (index > 0) index--;
+            }
+
+            BigInteger toDrain = storage[index].min(amount);
+
+            if (toDrain.equals(BigInteger.ZERO) && index == 0) {
+                return BigInteger.ZERO;
+            }
+
+            storage[index] = storage[index].subtract(toDrain);
+            BigInteger remaining = amount.subtract(toDrain);
+
+            if (remaining.signum() > 0 && index > 0) {
+                return toDrain.add(drain(remaining));
+            }
+
+            return toDrain;
+        }
+
+        public BigInteger getStored() {
+            BigInteger total = BigInteger.ZERO;
+            for (BigInteger b : storage) total = total.add(b);
+            return total;
+        }
+
+        public boolean hasEnergy() {
+            return getStored().signum() > 0;
+        }
+
+        public long getPassiveDrainPerTick() {
+            BigInteger totalDrain = BigInteger.ZERO;
+            BigInteger divisor = BigInteger.valueOf(PASSIVE_DRAIN_DIVISOR);
+            BigInteger maxPerTick = BigInteger.valueOf(PASSIVE_DRAIN_MAX_PER_STORAGE);
+
+            for (BigInteger max : maximums) {
+                BigInteger calculated = max.divide(divisor);
+                totalDrain = totalDrain.add(calculated.min(maxPerTick));
+            }
+            return totalDrain.longValue();
+        }
+
+        @Override
+        public ManagedFieldHolder getFieldHolder() {
+            return MANAGED_FIELD_HOLDER;
+        }
+    }
 
     @Getter
     public static class BatteryMatchWrapper {
@@ -618,6 +585,7 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
             return this;
         }
     }
+
     @Override
     public InteractionResult onDataStickShiftUse(Player player, ItemStack binder) {
         if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
@@ -631,10 +599,12 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
         }
         return InteractionResult.sidedSuccess(getLevel().isClientSide);
     }
+
     @Persisted
     private int batteryTier;
     @Persisted
     private UUID ownerTeamUUID;
+
     private void ensureOwnerTeamUUID() {
         if (!(getLevel() instanceof ServerLevel sl)) return;
         UUID ownerUUID = getOwnerUUID();
@@ -646,8 +616,6 @@ public TeslaTowerMachine(IMachineBlockEntity holder) {
             }
         }
     }
-
-
 
     @Override
     public void addDisplayText(List<Component> textList) {

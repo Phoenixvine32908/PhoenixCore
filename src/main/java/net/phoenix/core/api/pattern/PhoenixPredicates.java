@@ -54,6 +54,7 @@ public class PhoenixPredicates {
                         .toArray(BlockInfo[]::new))
                 .addTooltips(Component.translatable("phoenix.multiblock.pattern.info.multiple_coolers"));
     }
+
     public static TraceabilityPredicate teslaBatteries() {
         return new TraceabilityPredicate(blockWorldState -> {
             BlockState state = blockWorldState.getBlockState();
@@ -81,7 +82,6 @@ public class PhoenixPredicates {
                 .toArray(BlockInfo[]::new))
                 .addTooltips(Component.translatable("gtceu.multiblock.pattern.error.batteries"));
     }
-
 
     public static TraceabilityPredicate fissionModerators() {
         return new TraceabilityPredicate(blockWorldState -> {
