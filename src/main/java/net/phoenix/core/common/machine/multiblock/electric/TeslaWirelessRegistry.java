@@ -58,30 +58,26 @@ public final class TeslaWirelessRegistry {
         return TEAM_TOWERS.get(team);
     }
 
-    @Nullable
-    public static TeslaTowerMachine.TeslaEnergyBank getBank(UUID team) {
-        TeslaTowerMachine tower = getTowerByTeam(team);
-        if (tower == null) return null;
-        return tower.getEnergyBank();
-    }
-
     // --------------------------
     // Tick all wireless hatches for a team
     // --------------------------
 
     public static void tickTeamHatches(UUID team) {
-        TeslaTowerMachine.TeslaEnergyBank bank = getBank(team);
-        if (bank == null) return;
-
         Set<TeslaEnergyHatchPartMachine> hatches = getHatches(team);
         if (hatches == null) return;
 
         for (TeslaEnergyHatchPartMachine hatch : hatches) {
-            // Only tick if wireless
             if (!hatch.isWireless()) continue;
 
-            // Make sure IN pushes to tower, OUT pulls from tower
-            hatch.tickWireless();
+            // Tick the hatch manually
+            hatch.wirelessTick();
+        }
+    }
+
+    // Optional: tick all teams
+    public static void tickAllTeams() {
+        for (UUID team : TEAM_HATCHES.keySet()) {
+            tickTeamHatches(team);
         }
     }
 }

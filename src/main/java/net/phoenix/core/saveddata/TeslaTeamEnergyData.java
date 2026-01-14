@@ -1,5 +1,6 @@
 package net.phoenix.core.saveddata;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -19,6 +20,11 @@ public class TeslaTeamEnergyData extends SavedData {
 
         public BigInteger stored = BigInteger.ZERO;
         public BigInteger capacity = BigInteger.ZERO;
+
+        // diagnostics / stats (keep as Long for simplicity)
+        public final Map<BlockPos, BigInteger> energyInput = new HashMap<>();
+        public final Map<BlockPos, BigInteger> energyOutput = new HashMap<>();
+        public final Map<BlockPos, BigInteger> energyBuffered = new HashMap<>();
 
         public CompoundTag save() {
             CompoundTag tag = new CompoundTag();
@@ -40,6 +46,45 @@ public class TeslaTeamEnergyData extends SavedData {
 
     public TeamEnergy getOrCreate(UUID team) {
         return networks.computeIfAbsent(team, k -> new TeamEnergy());
+    }
+
+    // Change the method to accept 'amount'
+    public BigInteger addEnergy(UUID team, BigInteger amount) {
+        TeamEnergy e = getOrCreate(team);
+
+        BigInteger before = e.stored;
+        // Calculate new total, clamping between 0 and Capacity
+        BigInteger after = before.add(amount).max(BigInteger.ZERO).min(e.capacity);
+
+        e.stored = after;
+        setDirty();
+
+        return after.subtract(before); // returns the actual change
+    }
+
+    // --- UPDATED: BigInteger versions ---
+    public void setEnergyInput(UUID team, BlockPos pos, BigInteger euPerTick) {
+        getOrCreate(team).energyInput.put(pos, euPerTick);
+        setDirty();
+    }
+
+    public void setEnergyOutput(UUID team, BlockPos pos, BigInteger euPerTick) {
+        getOrCreate(team).energyOutput.put(pos, euPerTick);
+        setDirty();
+    }
+
+    public void setEnergyBuffered(UUID team, BlockPos pos, BigInteger stored) {
+        getOrCreate(team).energyBuffered.put(pos, stored);
+        setDirty();
+    }
+    // ------------------------------------
+
+    public void removeEndpoint(UUID team, BlockPos pos) {
+        TeamEnergy e = getOrCreate(team);
+        e.energyInput.remove(pos);
+        e.energyOutput.remove(pos);
+        e.energyBuffered.remove(pos);
+        setDirty();
     }
 
     public void setOnline(UUID team, boolean online) {

@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -37,6 +38,12 @@ public final class TeamUtils {
         return FTBTeamsAPI.api().getManager().getTeamForPlayerID(ownerUUID)
                 .map(Team::getTeamId)
                 .orElse(ownerUUID);
+    }
+    public static boolean isPlayerOnTeam(Player player, UUID teamUUID) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            return getTeamIdOrPlayerFallback(serverPlayer).equals(teamUUID);
+        }
+        return false;
     }
 
     public static String getTeamName(UUID teamId) {

@@ -48,8 +48,8 @@ public class TeslaBatteryBlock extends Block {
         UEV(10, BigInteger.valueOf(50_000_000_000L)),
         UIV(11, BigInteger.valueOf(250_000_000_000L)),
         UXV(12, BigInteger.valueOf(1_000_000_000_000L)),
-        OPV(13, BigInteger.valueOf(10_000_000_000_000L)),
-        MAX(14, BigInteger.valueOf(Long.MAX_VALUE));
+        OPV(13, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(4))),
+        MAX(13, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(16)));
 
         private final int tier;
         private final BigInteger capacity;
