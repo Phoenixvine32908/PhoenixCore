@@ -226,12 +226,12 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         long capacity = container.getEnergyCapacity();
         long transferRate = container.getInputVoltage() * container.getInputAmperage();
 
-        if (hatch.getIO() == IO.OUT) {
+        if (hatch.getIO() == IO.IN) {
             long space = capacity - stored;
             long toPull = Math.min(transferRate, space);
             long pulled = bank.drain(toPull);
             container.changeEnergy(pulled);
-        } else if (hatch.getIO() == IO.IN) {
+        } else if (hatch.getIO() == IO.OUT) {
             long toPush = Math.min(transferRate, stored);
             long accepted = bank.fill(toPush);
             container.changeEnergy(-accepted);
@@ -593,6 +593,9 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             ensureOwnerTeamUUID();
             if (ownerTeamUUID != null) {
                 binder.getOrCreateTag().putUUID("TargetTeam", ownerTeamUUID);
+                if (isFormed()) {
+                    registerTower(this);
+                }
                 player.sendSystemMessage(Component.literal("Tesla Frequency Copied.").withStyle(ChatFormatting.GREEN));
                 return InteractionResult.SUCCESS;
             }

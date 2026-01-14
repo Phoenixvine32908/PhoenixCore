@@ -3,7 +3,9 @@ package net.phoenix.core.common.machine.multiblock.part.special;
 import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
@@ -20,14 +22,18 @@ import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaWirelessRegistry;
 import net.phoenix.core.configs.PhoenixConfigs;
+import net.phoenix.core.phoenixcore;
 import net.phoenix.core.utils.TeamUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implements IDataStickInteractable {
+
+    private static final boolean TESLA_DEBUG = false;
 
     // ---------------------------------------
     // Managed fields
@@ -41,11 +47,15 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     // Cached reference to tower (not persisted)
     private TeslaTowerMachine boundTower;
 
+    // Tick subscription for wireless hatches outside multiblock
+    private TickableSubscription tickSubscription;
+
     @Override
     public void onLoad() {
         super.onLoad();
         if (isWireless()) {
             TeslaWirelessRegistry.registerHatch(this);
+            updateTickSubscription();
         }
     }
 
@@ -53,6 +63,7 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     public void onUnload() {
         super.onUnload();
         TeslaWirelessRegistry.unregisterHatch(this);
+        unsubscribeFromTick();
     }
 
     // ---------------------------------------
@@ -60,6 +71,77 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     // ---------------------------------------
     public TeslaEnergyHatchPartMachine(IMachineBlockEntity holder, int tier, IO io, int amperage, Object... args) {
         super(holder, tier, io, amperage, args);
+    }
+
+    @Override
+    public void addedToController(@NotNull IMultiController controller) {
+        super.addedToController(controller);
+        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] addedToController: {} at {}, isTeslaTower={}",
+                controller.getClass().getSimpleName(), getPos(), controller instanceof TeslaTowerMachine);
+
+        // Only disable self-ticking if added to Tesla Tower
+        if (controller instanceof TeslaTowerMachine) {
+            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Unsubscribing from tick (Tesla Tower)");
+            unsubscribeFromTick();
+        } else {
+            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Updating tick subscription (Other multiblock)");
+            // For other multiblocks
+            updateTickSubscription();
+        }
+    }
+
+    @Override
+    public void removedFromController(@NotNull IMultiController controller) {
+        super.removedFromController(controller);
+        // Outside multiblock, self-tick
+        updateTickSubscription();
+    }
+
+    /**
+     * Updates tick subscription based on wireless status and multiblock membership.
+     * Subscribes if wireless AND (not in multiblock OR in non-Tesla multiblock).
+     */
+    private void updateTickSubscription() {
+        boolean shouldTick = false;
+
+        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] updateTickSubscription called at {}", getPos());
+        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] isWireless={}, controllers={}",
+                isWireless(), getControllers().size());
+
+        if (isWireless()) {
+            if (getControllers().isEmpty()) {
+                // Not in any multiblock - should tick
+                shouldTick = true;
+                if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Not in multiblock, should tick");
+            } else {
+                // In a multiblock - only tick if NOT Tesla Tower
+                shouldTick = getControllers().stream()
+                        .noneMatch(ctrl -> ctrl instanceof TeslaTowerMachine);
+                if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] In multiblock, shouldTick={}", shouldTick);
+            }
+        }
+
+        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] shouldTick={}, currentSubscription={}",
+                shouldTick, tickSubscription != null);
+
+        if (shouldTick) {
+            if (tickSubscription == null) {
+                tickSubscription = subscribeServerTick(this::tickWireless);
+                if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Subscribed to tick!");
+            }
+        } else {
+            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Unsubscribing from tick");
+            unsubscribeFromTick();
+        }
+    }
+
+    // Unsubscribes from tick to avoid duplicate ticking.
+
+    private void unsubscribeFromTick() {
+        if (tickSubscription != null) {
+            tickSubscription.unsubscribe();
+            tickSubscription = null;
+        }
     }
 
     @Override
@@ -104,34 +186,84 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
      * Works for hatches outside the multiblock if they have a bound team.
      */
     public void tickWireless() {
-        if (getLevel().isClientSide || !isWireless() || ownerTeamUUID == null) return;
+        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] tickWireless called at {}", getPos());
 
-        // TEAM_AUTO: auto-bind tower if not bound
-        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode ==
-                PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO && boundTower == null) {
+        if (getLevel() == null) {
+            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Level is null");
+            return;
+        }
+        if (getLevel().isClientSide) {
+            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Client side, skipping");
+            return;
+        }
+        if (!isWireless()) {
+            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Not wireless. ownerTeamUUID={}, mode={}",
+                    ownerTeamUUID, PhoenixConfigs.INSTANCE.features.teslaConnectionMode);
+            return;
+        }
+        if (ownerTeamUUID == null) {
+            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] ownerTeamUUID is null");
+            return;
+        }
+
+        if (TESLA_DEBUG)
+            phoenixcore.LOGGER.info("[TESLA DEBUG] Passed initial checks. ownerTeamUUID={}", ownerTeamUUID);
+
+        // Try to (re)bind to the team's tower if cache reference was lost (e.g. world/chunk reload).
+        if (boundTower == null && ownerTeamUUID != null) {
             boundTower = TeslaTowerMachine.getTowerByTeam(ownerTeamUUID);
+            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Looked up tower by team, found: {}", boundTower
+            // != null);
             if (boundTower != null) bindToTower(boundTower);
         }
 
-        // Skip if still unbound (DATA_STICK or auto)
-        if (boundTower == null || boundTower.getEnergyBank() == null) return;
+        // Still unbound (tower not formed/registered yet) → try again next tick
+        if (boundTower == null) {
+            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] No tower bound yet; skipping this tick");
+            return;
+        }
+
+        if (boundTower.getEnergyBank() == null) {
+            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Energy bank is null");
+            return;
+        }
 
         TeslaTowerMachine.TeslaEnergyBank bank = boundTower.getEnergyBank();
 
         long stored = energyContainer.getEnergyStored();
         long capacity = energyContainer.getEnergyCapacity();
-        long transferRate = energyContainer.getInputVoltage() * energyContainer.getInputAmperage();
 
-        if (getIO() == IO.OUT) {
-            // IN hatch: pull energy from tower → fills hatch
+        // Use tier-based voltage (GTValues.VEX[tier])
+        long voltage = com.gregtechceu.gtceu.api.GTValues.V[getTier()];
+        long amperage = 2;
+        long transferRate = voltage * amperage;
+
+        // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] IO={}, stored={}, capacity={}, transferRate={},
+        // bankStored={}",
+        // getIO(), stored, capacity, transferRate, bank.getStored());
+
+        if (getIO() == IO.IN) {
+            // Output hatch: pull energy from tower → fills hatch → supplies to multiblock
             long space = capacity - stored;
             long toPull = Math.min(transferRate, space);
             long pulled = bank.drain(toPull);
-            energyContainer.changeEnergy(pulled);
-        } else if (getIO() == IO.IN) {
+            if (pulled > 0) {
+                energyContainer.changeEnergy(pulled);
+            }
+            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] OUTPUT: Tried to pull {}, actually pulled {}, new
+            // stored={}",
+            // toPull, pulled, energyContainer.getEnergyStored());
+
+        } else if (getIO() == IO.OUT) {
+            // Input hatch: push energy to tower (from generator)
+            // Use setEnergyStored() instead of changeEnergy()
             long toPush = Math.min(transferRate, stored);
             long accepted = bank.fill(toPush);
-            energyContainer.changeEnergy(-accepted);
+            if (accepted > 0) {
+                energyContainer.changeEnergy(-accepted);
+            }
+            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] INPUT: Tried to push {}, actually pushed {}",
+            // toPush, accepted);
         }
     }
 
@@ -161,6 +293,10 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         if (!team.equals(ownerTeamUUID)) {
             ownerTeamUUID = team;
             self().markDirty();
+            // Update registry and tick subscription when team changes
+            TeslaWirelessRegistry.unregisterHatch(this);
+            TeslaWirelessRegistry.registerHatch(this);
+            updateTickSubscription();
         }
     }
 
@@ -171,24 +307,33 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     public InteractionResult onDataStickUse(Player player, ItemStack binder) {
         if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
 
-        if (binder.hasTag() && binder.getTag().hasUUID("TargetTeam")) {
-            UUID binderUUID = binder.getTag().getUUID("TargetTeam");
+        if (binder.hasTag()) {
+            assert binder.getTag() != null;
+            if (binder.getTag().hasUUID("TargetTeam")) {
+                UUID binderUUID = binder.getTag().getUUID("TargetTeam");
 
-            if (!getLevel().isClientSide) {
-                if (!binderUUID.equals(ownerTeamUUID)) {
-                    ownerTeamUUID = binderUUID;
-                    boundTower = TeslaTowerMachine.getTowerByTeam(ownerTeamUUID);
-                    self().markDirty();
-                    player.sendSystemMessage(
-                            Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID)
-                                    .withStyle(ChatFormatting.AQUA));
-                } else {
-                    player.sendSystemMessage(
-                            Component.literal("Tesla Hatch: Already synced.")
-                                    .withStyle(ChatFormatting.GRAY));
+                if (!Objects.requireNonNull(getLevel()).isClientSide) {
+                    if (!binderUUID.equals(ownerTeamUUID)) {
+                        ownerTeamUUID = binderUUID;
+                        boundTower = TeslaTowerMachine.getTowerByTeam(ownerTeamUUID);
+                        self().markDirty();
+
+                        // Update registry and tick subscription
+                        TeslaWirelessRegistry.unregisterHatch(this);
+                        TeslaWirelessRegistry.registerHatch(this);
+                        updateTickSubscription();
+
+                        player.sendSystemMessage(
+                                Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID)
+                                        .withStyle(ChatFormatting.AQUA));
+                    } else {
+                        player.sendSystemMessage(
+                                Component.literal("Tesla Hatch: Already synced.")
+                                        .withStyle(ChatFormatting.GRAY));
+                    }
                 }
+                return InteractionResult.sidedSuccess(getLevel().isClientSide);
             }
-            return InteractionResult.sidedSuccess(getLevel().isClientSide);
         }
 
         return InteractionResult.SUCCESS;
