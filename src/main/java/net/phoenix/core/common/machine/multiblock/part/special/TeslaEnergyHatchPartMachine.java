@@ -1,15 +1,13 @@
 package net.phoenix.core.common.machine.multiblock.part.special;
 
+import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
-
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
-
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,30 +15,47 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.phoenix.core.common.data.item.PhoenixItems;
+import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
+import net.phoenix.core.common.machine.multiblock.electric.TeslaWirelessRegistry;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.utils.TeamUtils;
-
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
+public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implements IDataStickInteractable {
 
-public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine
-                                         implements IDataStickInteractable {
-
-    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-            TeslaEnergyHatchPartMachine.class,
-            EnergyHatchPartMachine.MANAGED_FIELD_HOLDER);
+    // ---------------------------------------
+    // Managed fields
+    // ---------------------------------------
+    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER =
+            new ManagedFieldHolder(TeslaEnergyHatchPartMachine.class, EnergyHatchPartMachine.MANAGED_FIELD_HOLDER);
 
     @Persisted
     private UUID ownerTeamUUID;
 
-    public TeslaEnergyHatchPartMachine(IMachineBlockEntity holder,
-                                       int tier,
-                                       IO io,
-                                       int amperage,
-                                       Object... args) {
+    // Cached reference to tower (not persisted)
+    private TeslaTowerMachine boundTower;
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (isWireless()) {
+            TeslaWirelessRegistry.registerHatch(this);
+        }
+    }
+
+    @Override
+    public void onUnload() {
+        super.onUnload();
+        TeslaWirelessRegistry.unregisterHatch(this);
+    }
+
+
+    // ---------------------------------------
+    // Constructor & field holder
+    // ---------------------------------------
+    public TeslaEnergyHatchPartMachine(IMachineBlockEntity holder, int tier, IO io, int amperage, Object... args) {
         super(holder, tier, io, amperage, args);
     }
 
@@ -49,6 +64,80 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine
         return MANAGED_FIELD_HOLDER;
     }
 
+    // ---------------------------------------
+    // Energy container accessor
+    // ---------------------------------------
+    public IEnergyContainer getEnergyContainer() {
+        return energyContainer;
+    }
+
+    public IO getIO() {
+        return io;
+    }
+
+    public @Nullable TeslaTowerMachine getBoundTower() {
+        return boundTower;
+    }
+
+    public void bindToTower(TeslaTowerMachine tower) {
+        this.boundTower = tower;
+        self().markDirty();
+    }
+
+    // ---------------------------------------
+    // Wireless logic
+    // ---------------------------------------
+    public boolean isWireless() {
+        if (ownerTeamUUID == null) return false;
+
+        PhoenixConfigs.FeatureConfigs.TeslaConnectionMode mode =
+                PhoenixConfigs.INSTANCE.features.teslaConnectionMode;
+
+        return mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO
+                || mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK;
+    }
+
+    /**
+     * Ticks wireless energy transfer.
+     * Works for hatches outside the multiblock if they have a bound team.
+     */
+    public void tickWireless() {
+        if (getLevel().isClientSide || !isWireless() || ownerTeamUUID == null) return;
+
+        // TEAM_AUTO: auto-bind tower if not bound
+        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode
+                == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO
+                && boundTower == null) {
+            boundTower = TeslaTowerMachine.getTowerByTeam(ownerTeamUUID);
+            if (boundTower != null) bindToTower(boundTower);
+        }
+
+        // Skip if still unbound (DATA_STICK or auto)
+        if (boundTower == null || boundTower.getEnergyBank() == null) return;
+
+        TeslaTowerMachine.TeslaEnergyBank bank = boundTower.getEnergyBank();
+
+        long stored = energyContainer.getEnergyStored();
+        long capacity = energyContainer.getEnergyCapacity();
+        long transferRate = energyContainer.getInputVoltage() * energyContainer.getInputAmperage();
+
+        if (getIO() == IO.OUT) {
+            // IN hatch: pull energy from tower → fills hatch
+            long space = capacity - stored;
+            long toPull = Math.min(transferRate, space);
+            long pulled = bank.drain(toPull);
+            energyContainer.changeEnergy(pulled);
+        } else if (getIO() == IO.IN) {
+            long toPush = Math.min(transferRate, stored);
+            long accepted = bank.fill(toPush);
+            energyContainer.changeEnergy(-accepted);
+        }
+    }
+
+
+    // ---------------------------------------
+    // Team logic
+    // ---------------------------------------
     public @Nullable UUID getOwnerTeamUUID() {
         autoLinkTeamIfNeeded();
         return ownerTeamUUID;
@@ -57,74 +146,52 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine
     private void autoLinkTeamIfNeeded() {
         if (!(getLevel() instanceof ServerLevel sl)) return;
 
-        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode ==
-                PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK) {
-            return;
-        }
+        // DATA_STICK mode: manual bind only
+        if (PhoenixConfigs.INSTANCE.features.teslaConnectionMode
+                == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK) return;
 
         UUID ownerUUID = getOwnerUUID();
         if (ownerUUID == null) return;
 
-        ServerPlayer sp = sl.getServer()
-                .getPlayerList()
-                .getPlayer(ownerUUID);
+        ServerPlayer sp = sl.getServer().getPlayerList().getPlayer(ownerUUID);
+        if (sp == null) return;
 
-        if (sp != null) {
-            UUID team = TeamUtils.getTeamIdOrPlayerFallback(sp);
-            if (!team.equals(ownerTeamUUID)) {
-                ownerTeamUUID = team;
-                self().markDirty();
-            }
+        UUID team = TeamUtils.getTeamIdOrPlayerFallback(sp);
+        if (!team.equals(ownerTeamUUID)) {
+            ownerTeamUUID = team;
+            self().markDirty();
         }
     }
 
+    // ---------------------------------------
+    // Data stick binding
+    // ---------------------------------------
     @Override
     public InteractionResult onDataStickUse(Player player, ItemStack binder) {
         if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
-        if (!binder.hasTag() || !binder.getTag().hasUUID("TargetTeam")) return InteractionResult.FAIL;
 
-        UUID targetTeam = binder.getTag().getUUID("TargetTeam");
+        if (binder.hasTag() && binder.getTag().hasUUID("TargetTeam")) {
+            UUID binderUUID = binder.getTag().getUUID("TargetTeam");
 
-        if (!getLevel().isClientSide) {
-            if (!targetTeam.equals(ownerTeamUUID)) {
-                ownerTeamUUID = targetTeam;
-                self().markDirty();
-                player.sendSystemMessage(
-                        Component.literal("Tesla Hatch linked.")
-                                .withStyle(ChatFormatting.GREEN));
-            } else {
-                player.sendSystemMessage(
-                        Component.literal("Already linked.")
-                                .withStyle(ChatFormatting.GRAY));
+            if (!getLevel().isClientSide) {
+                if (!binderUUID.equals(ownerTeamUUID)) {
+                    ownerTeamUUID = binderUUID;
+                    boundTower = TeslaTowerMachine.getTowerByTeam(ownerTeamUUID);
+                    self().markDirty();
+                    player.sendSystemMessage(
+                            Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID)
+                                    .withStyle(ChatFormatting.AQUA)
+                    );
+                } else {
+                    player.sendSystemMessage(
+                            Component.literal("Tesla Hatch: Already synced.")
+                                    .withStyle(ChatFormatting.GRAY)
+                    );
+                }
             }
+            return InteractionResult.sidedSuccess(getLevel().isClientSide);
         }
-        return InteractionResult.sidedSuccess(getLevel().isClientSide);
-    }
 
-    @Override
-    public InteractionResult onDataStickShiftUse(Player player, ItemStack binder) {
-        if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
-
-        if (!getLevel().isClientSide && ownerTeamUUID != null) {
-            binder.getOrCreateTag().putUUID("TargetTeam", ownerTeamUUID);
-            player.sendSystemMessage(
-                    Component.literal("Tesla Frequency Copied.")
-                            .withStyle(ChatFormatting.GREEN));
-            return InteractionResult.SUCCESS;
-        }
-        return InteractionResult.sidedSuccess(getLevel().isClientSide);
-    }
-
-    @Override
-    public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
-        super.saveCustomPersistedData(tag, forDrop);
-        if (ownerTeamUUID != null) tag.putUUID("OwnerTeamUUID", ownerTeamUUID);
-    }
-
-    @Override
-    public void loadCustomPersistedData(@NotNull CompoundTag tag) {
-        super.loadCustomPersistedData(tag);
-        if (tag.hasUUID("OwnerTeamUUID"))
-            ownerTeamUUID = tag.getUUID("OwnerTeamUUID");
+        return InteractionResult.SUCCESS;
     }
 }

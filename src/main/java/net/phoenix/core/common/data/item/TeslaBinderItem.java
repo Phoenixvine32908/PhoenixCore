@@ -20,22 +20,29 @@ public class TeslaBinderItem extends ComponentItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level level,
+                                List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
 
         if (stack.hasTag() && stack.getTag().contains("OwnerName")) {
             String ownerName = stack.getTag().getString("OwnerName");
 
-            // Purple: #A330FF -> Pink: #FF66CC
             int color = getAnimatedColor(0xA330FF, 0xFF66CC, 2000);
 
-            tooltip.add(Component.literal("Linked to: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ownerName).withStyle(Style.EMPTY.withColor(color))));
+            tooltip.add(
+                    Component.literal("Bound to: ")
+                            .withStyle(ChatFormatting.GRAY)
+                            .append(Component.literal(ownerName)
+                                    .withStyle(Style.EMPTY.withColor(color)))
+            );
         } else {
-            tooltip.add(Component.translatable("item.phoenix.tesla_binder.desc")
-                    .withStyle(ChatFormatting.DARK_GRAY));
+            tooltip.add(
+                    Component.translatable("item.phoenix.tesla_binder.desc")
+                            .withStyle(ChatFormatting.DARK_GRAY)
+            );
         }
     }
+
 
     private int getAnimatedColor(int color1, int color2, int duration) {
         float time = (System.currentTimeMillis() % duration) / (float) duration;

@@ -13,6 +13,7 @@ import com.gregtechceu.gtceu.api.gui.fancy.TooltipsPanel;
 import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDisplayUIMachine;
@@ -35,22 +36,31 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.phoenix.core.api.gui.PhoenixGuiTextures;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.machine.multiblock.UniqueWorkableElectricMultiblockMachine;
+import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
+import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.utils.TeamUtils;
 
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.util.*;
@@ -60,29 +70,31 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             TeslaTowerMachine.class, UniqueWorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
-    // Structure Constants
+public TeslaTowerMachine(IMachineBlockEntity holder) {
+    super(holder);
+    this.energyBank = new TeslaEnergyBank(this, List.of());
+    this.tickSubscription = new ConditionalSubscriptionHandler(this, this::transferEnergyTick, this::isFormed);
+}
+
+
     public static final int MAX_BATTERY_LAYERS = 18;
     public static final int MIN_CASINGS = 14;
 
-    // Passive Drain Constants
-    // 1% capacity per 24 hours
     public static final long PASSIVE_DRAIN_DIVISOR = 20 * 60 * 60 * 24 * 100;
-    // no more than 100kEU/t per storage block
     public static final long PASSIVE_DRAIN_MAX_PER_STORAGE = 100_000L;
 
-    // Match Context Headers
     public static final String TTB_BATTERY_HEADER= "TTBatteries_";
 
     private static final BigInteger BIG_INTEGER_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
 
     private IMaintenanceMachine maintenance;
 
+    @Getter
     private TeslaTowerMachine.TeslaEnergyBank energyBank;
     private EnergyContainerList inputHatches;
     private EnergyContainerList outputHatches;
     private long passiveDrain;
 
-    // Stats tracked for UI display
     private long netInLastSec;
     @Getter
     private long inputPerSec;
@@ -92,76 +104,186 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
     protected ConditionalSubscriptionHandler tickSubscription;
 
-    public TeslaTowerMachine(IMachineBlockEntity holder) {
-        super(holder);
-        this.tickSubscription = new ConditionalSubscriptionHandler(this, this::transferEnergyTick, this::isFormed);
-        this.energyBank = new TeslaTowerMachine.TeslaEnergyBank(this, List.of());
-    }
+
+
 
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
+
+        if (ownerTeamUUID != null) {
+            registerTower(this);
+        }
+        TeslaWirelessRegistry.registerTower(this);
+
+        this.maintenance = null;
+
         List<IEnergyContainer> inputs = new ArrayList<>();
         List<IEnergyContainer> outputs = new ArrayList<>();
-        Long2ObjectMap<IO> ioMap = getMultiblockState().getMatchContext().getOrCreate("ioMap",
-                Long2ObjectMaps::emptyMap);
+
         for (IMultiPart part : getParts()) {
-            IO io = ioMap.getOrDefault(part.self().getPos().asLong(), IO.BOTH);
-            if (io == IO.NONE) continue;
             if (part instanceof IMaintenanceMachine maintenanceMachine) {
                 this.maintenance = maintenanceMachine;
             }
+
+            // Wired energy containers
             var handlerLists = part.getRecipeHandlers();
             for (var handlerList : handlerLists) {
-                if (!handlerList.isValid(io)) continue;
+                IO io = handlerList.getHandlerIO();
+                if (io == IO.NONE) continue;
 
                 var containers = handlerList.getCapability(EURecipeCapability.CAP).stream()
                         .filter(IEnergyContainer.class::isInstance)
                         .map(IEnergyContainer.class::cast)
                         .toList();
 
-                if (handlerList.getHandlerIO().support(IO.IN)) {
-                    inputs.addAll(containers);
-                } else if (handlerList.getHandlerIO().support(IO.OUT)) {
-                    outputs.addAll(containers);
-                }
+                if (io.support(IO.IN)) inputs.addAll(containers);
+                if (io.support(IO.OUT)) outputs.addAll(containers);
 
-                traitSubscriptions
-                        .add(handlerList.subscribe(tickSubscription::updateSubscription, EURecipeCapability.CAP));
+                traitSubscriptions.add(handlerList.subscribe(tickSubscription::updateSubscription, EURecipeCapability.CAP));
+            }
+
+            // Tesla wired hatches
+            if (part instanceof TeslaEnergyHatchPartMachine hatch && !hatch.isWireless()) {
+                if (hatch.getBoundTower() == null) hatch.bindToTower(this);
+                if (hatch.getIO() == IO.IN) inputs.add(hatch.getEnergyContainer());
+                else if (hatch.getIO() == IO.OUT) outputs.add(hatch.getEnergyContainer());
             }
         }
+
         this.inputHatches = new EnergyContainerList(inputs);
         this.outputHatches = new EnergyContainerList(outputs);
 
+        // Collect batteries
         List<ITeslaBattery> batteries = new ArrayList<>();
-        for (Map.Entry<String, Object> battery : getMultiblockState().getMatchContext().entrySet()) {
-            if (battery.getKey().startsWith(TTB_BATTERY_HEADER) &&
-                    battery.getValue() instanceof TeslaTowerMachine.BatteryMatchWrapper wrapper) {
-                for (int i = 0; i < wrapper.amount; i++) {
-                    batteries.add(wrapper.partType);
-                }
+        for (Map.Entry<String, Object> entry : getMultiblockState().getMatchContext().entrySet()) {
+            if (entry.getKey().startsWith(TTB_BATTERY_HEADER) && entry.getValue() instanceof BatteryMatchWrapper wrapper) {
+                for (int i = 0; i < wrapper.amount; i++) batteries.add(wrapper.partType);
             }
         }
+
         if (batteries.isEmpty()) {
-            // only empty batteries found in the structure
             onStructureInvalid();
             return;
         }
-        if (this.energyBank == null) {
-            this.energyBank = new TeslaTowerMachine.TeslaEnergyBank(this, batteries);
-        } else {
-            this.energyBank = energyBank.rebuild(batteries);
-        }
+
+        if (this.energyBank == null) this.energyBank = new TeslaEnergyBank(this, batteries);
+        else this.energyBank = energyBank.rebuild(batteries);
+
         this.passiveDrain = this.energyBank.getPassiveDrainPerTick();
     }
 
+
+
+
+
+    protected void transferEnergyTick() {
+        if (getLevel().isClientSide) return;
+
+        // Update stats every 20 ticks
+        if (getOffsetTimer() % 20 == 0) {
+            getRecipeLogic().setStatus(energyBank.hasEnergy() ? RecipeLogic.Status.WORKING : RecipeLogic.Status.IDLE);
+            inputPerSec = netInLastSec;
+            outputPerSec = netOutLastSec;
+            netInLastSec = 0;
+            netOutLastSec = 0;
+        }
+
+        if (!isWorkingEnabled() || !isFormed()) return;
+
+        // ----- Wired GTCE hatches -----
+        if (inputHatches != null && outputHatches != null) {
+            // Input: pull energy from hatches → tower
+            long energyFromInputs = energyBank.fill(inputHatches.getEnergyStored());
+            inputHatches.changeEnergy(-energyFromInputs);
+            netInLastSec += energyFromInputs;
+
+            // Passive drain from tower
+            long energyPassiveDrained = energyBank.drain(getPassiveDrain());
+            netOutLastSec += energyPassiveDrained;
+
+            // Output: push energy from tower → hatches
+            long energyToOutputs = energyBank.drain(outputHatches.getEnergyCapacity() - outputHatches.getEnergyStored());
+            outputHatches.changeEnergy(energyToOutputs);
+            netOutLastSec += energyToOutputs;
+        }
+
+        // ----- Wireless Tesla hatches -----
+        PhoenixConfigs.FeatureConfigs.TeslaConnectionMode mode = PhoenixConfigs.INSTANCE.features.teslaConnectionMode;
+        for (IMultiPart part : getParts()) {
+            if (!(part instanceof TeslaEnergyHatchPartMachine hatch)) continue;
+            if (!hatch.isWireless()) continue;
+
+            // TEAM_AUTO: auto-bind tower if unbound
+            if (mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO) {
+                if (hatch.getOwnerTeamUUID() == null || !hatch.getOwnerTeamUUID().equals(ownerTeamUUID)) continue;
+                if (hatch.getBoundTower() == null) hatch.bindToTower(this);
+            }
+
+            // DATA_STICK: only tick if bound
+            if (mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK && hatch.getBoundTower() != this)
+                continue;
+
+            tickWirelessHatch(hatch);
+        }
+    }
+
+    /** Corrected energy transfer for a single wireless hatch */
+    private void tickWirelessHatch(TeslaEnergyHatchPartMachine hatch) {
+        IEnergyContainer container = hatch.getEnergyContainer();
+        TeslaEnergyBank bank = this.energyBank;
+
+        long stored = container.getEnergyStored();
+        long capacity = container.getEnergyCapacity();
+        long transferRate = container.getInputVoltage() * container.getInputAmperage();
+
+        if (hatch.getIO() == IO.OUT) {
+            long space = capacity - stored;
+            long toPull = Math.min(transferRate, space);
+            long pulled = bank.drain(toPull);
+            container.changeEnergy(pulled);
+        } else if (hatch.getIO() == IO.IN) {
+            long toPush = Math.min(transferRate, stored);
+            long accepted = bank.fill(toPush);
+            container.changeEnergy(-accepted);
+        }
+    }
+
+
+
+
+
+    private static final Map<UUID, TeslaTowerMachine> TEAM_TOWER_MAP = new HashMap<>();
+
+    public static void registerTower(TeslaTowerMachine tower) {
+        if (tower.ownerTeamUUID != null) {
+            TEAM_TOWER_MAP.put(tower.ownerTeamUUID, tower);
+        }
+    }
+
+    public static void unregisterTower(TeslaTowerMachine tower) {
+        if (tower.ownerTeamUUID != null) {
+            TEAM_TOWER_MAP.remove(tower.ownerTeamUUID);
+        }
+    }
+
+    public static TeslaTowerMachine getTowerByTeam(UUID team) {
+        return TEAM_TOWER_MAP.get(team);
+    }
+
+
+
+
+
     @Override
     public void onStructureInvalid() {
-        // don't null out energyBank since it holds the stored energy, which
-        // we need to hold on to across rebuilds to not void all energy if a
-        // multiblock part or block other than the controller is broken.
         inputHatches = null;
         outputHatches = null;
+
+        TeslaWirelessRegistry.unregisterTower(this);
+
+        unregisterTower(this);
+
         passiveDrain = 0;
         netInLastSec = 0;
         inputPerSec = 0;
@@ -170,115 +292,12 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         super.onStructureInvalid();
     }
 
-    protected void transferEnergyTick() {
-        if (!getLevel().isClientSide) {
-            if (getOffsetTimer() % 20 == 0) {
-                // active here is just used for rendering
-                getRecipeLogic()
-                        .setStatus(energyBank.hasEnergy() ? RecipeLogic.Status.WORKING : RecipeLogic.Status.IDLE);
-                inputPerSec = netInLastSec;
-                outputPerSec = netOutLastSec;
-                netInLastSec = 0;
-                netOutLastSec = 0;
-            }
 
-            if (isWorkingEnabled() && isFormed()) {
-                // Bank from Energy Input Hatches
-                long energyBanked = energyBank.fill(inputHatches.getEnergyStored());
-                inputHatches.changeEnergy(-energyBanked);
-                netInLastSec += energyBanked;
 
-                // Passive drain
-                long energyPassiveDrained = energyBank.drain(getPassiveDrain());
-                netOutLastSec += energyPassiveDrained;
 
-                // Debank to Dynamo Hatches
-                long energyDebanked = energyBank
-                        .drain(outputHatches.getEnergyCapacity() - outputHatches.getEnergyStored());
-                outputHatches.changeEnergy(energyDebanked);
-                netOutLastSec += energyDebanked;
-            }
-        }
-    }
-
-    @Override
-    public void addDisplayText(List<Component> textList) {
-        super.addDisplayText(textList);
-        if (isFormed()) {
-            if (!isWorkingEnabled()) {
-                textList.add(Component.translatable("gtceu.multiblock.work_paused"));
-
-            } else if (isActive()) {
-                textList.add(Component.translatable("gtceu.multiblock.running"));
-                int currentProgress = (int) (recipeLogic.getProgressPercent() * 100);
-                double maxInSec = (float) recipeLogic.getDuration() / 20.0f;
-                double currentInSec = (float) recipeLogic.getProgress() / 20.0f;
-                textList.add(
-                        Component.translatable("gtceu.multiblock.progress", String.format("%.2f", (float) currentInSec),
-                                String.format("%.2f", (float) maxInSec), currentProgress));
-            } else {
-                textList.add(Component.translatable("gtceu.multiblock.idling"));
-            }
-
-            if (recipeLogic.isWaiting()) {
-                textList.add(Component.translatable("gtceu.multiblock.waiting")
-                        .setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
-            }
-
-            if (energyBank != null) {
-                BigInteger energyStored = energyBank.getStored();
-                BigInteger energyCapacity = energyBank.getCapacity();
-
-                var STYLE_GOLD = Style.EMPTY.withColor(ChatFormatting.GOLD);
-                var STYLE_DARK_RED = Style.EMPTY.withColor(ChatFormatting.DARK_RED);
-                var STYLE_GREEN = Style.EMPTY.withColor(ChatFormatting.GREEN);
-                var STYLE_RED = Style.EMPTY.withColor(ChatFormatting.RED);
-
-                var storedComponent = Component.literal(FormattingUtil.formatNumbers(energyStored));
-                textList.add(Component.translatable("gtceu.multiblock.power_substation.stored",
-                        storedComponent.setStyle(STYLE_GOLD)));
-
-                var capacityComponent = Component.literal(FormattingUtil.formatNumbers(energyCapacity));
-                textList.add(Component.translatable("gtceu.multiblock.power_substation.capacity",
-                        capacityComponent.setStyle(STYLE_GOLD)));
-
-                var passiveDrainComponent = Component.literal(FormattingUtil.formatNumbers(getPassiveDrain()));
-                textList.add(Component.translatable("gtceu.multiblock.power_substation.passive_drain",
-                        passiveDrainComponent.setStyle(STYLE_DARK_RED)));
-
-                var avgInComponent = Component.literal(FormattingUtil.formatNumbers(inputPerSec / 20));
-                textList.add(Component
-                        .translatable("gtceu.multiblock.power_substation.average_in",
-                                avgInComponent.setStyle(STYLE_GREEN))
-                        .withStyle(Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("gtceu.multiblock.power_substation.average_in_hover")))));
-
-                var avgOutComponent = Component.literal(FormattingUtil.formatNumbers(Math.abs(outputPerSec / 20)));
-                textList.add(Component
-                        .translatable("gtceu.multiblock.power_substation.average_out",
-                                avgOutComponent.setStyle(STYLE_RED))
-                        .withStyle(Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("gtceu.multiblock.power_substation.average_out_hover")))));
-
-                if (inputPerSec > outputPerSec) {
-                    BigInteger timeToFillSeconds = energyCapacity.subtract(energyStored)
-                            .divide(BigInteger.valueOf(inputPerSec - outputPerSec));
-                    textList.add(Component.translatable("gtceu.multiblock.power_substation.time_to_fill",
-                            getTimeToFillDrainText(timeToFillSeconds).setStyle(STYLE_GREEN)));
-                } else if (inputPerSec < outputPerSec) {
-                    BigInteger timeToDrainSeconds = energyStored
-                            .divide(BigInteger.valueOf(outputPerSec - inputPerSec));
-                    textList.add(Component.translatable("gtceu.multiblock.power_substation.time_to_drain",
-                            getTimeToFillDrainText(timeToDrainSeconds).setStyle(STYLE_RED)));
-                }
-            }
-        }
-        getDefinition().getAdditionalDisplay().accept(this, textList);
-    }
 
     private static MutableComponent getTimeToFillDrainText(BigInteger timeToFillSeconds) {
         if (timeToFillSeconds.compareTo(BIG_INTEGER_MAX_LONG) > 0) {
-            // too large to represent in a java Duration
             timeToFillSeconds = BIG_INTEGER_MAX_LONG;
         }
 
@@ -294,7 +313,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         } else if (duration.toHours() <= 72) {
             fillTime = duration.toHours();
             key = "gtceu.multiblock.power_substation.time_hours";
-        } else if (duration.toDays() <= 730) { // 2 years
+        } else if (duration.toDays() <= 730) {
             fillTime = duration.toDays();
             key = "gtceu.multiblock.power_substation.time_days";
         } else if (duration.toDays() / 365 < 1_000_000) {
@@ -323,6 +342,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         }
         return passiveDrain;
     }
+
 
     public String getStored() {
         if (energyBank == null) {
@@ -353,17 +373,12 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         return MANAGED_FIELD_HOLDER;
     }
 
-    @Override
-    public Widget createUIWidget() {
-        var group = new WidgetGroup(0, 0, 182 + 8, 117 + 8);
-        group.addWidget(new DraggableScrollableWidgetGroup(4, 4, 182, 117).setBackground(getScreenTexture())
-                .addWidget(new LabelWidget(4, 5, self().getBlockState().getBlock().getDescriptionId()))
-                .addWidget(new ComponentPanelWidget(4, 17, this::addDisplayText)
-                        .setMaxWidthLimit(150)
-                        .clickHandler(this::handleDisplayClick)));
-        group.setBackground(GuiTextures.BACKGROUND_INVERSE);
-        return group;
-    }
+    private BigInteger[] storage;
+    private BigInteger[] maximums;
+    @Setter
+    @Getter private BigInteger capacity;
+    private int index;
+
 
     @Override
     public ModularUI createUI(Player entityPlayer) {
@@ -395,13 +410,47 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         super.loadCustomPersistedData(tag);
         energyBank.readFromNBT(tag.getCompound("energyBank"));
     }
+    @Persisted
+    private BlockPos boundTowerPos;
 
 
-        /**
-         * Rebuild the power storage with a new list of batteries.
-         * Will use existing stored power and try to map it onto new batteries.
-         * If there was more power before the rebuild operation, it will be lost.
-         */
+
+    @Nullable
+    private TeslaTowerMachine getBoundTower() {
+        if (boundTowerPos == null || !(getLevel() instanceof ServerLevel sl)) return null;
+        BlockEntity be = getLevel().getBlockEntity(boundTowerPos);
+        if (!(be instanceof IMachineBlockEntity mbe)) return null;
+        if (!(mbe.getMetaMachine() instanceof TeslaTowerMachine tower)) return null;
+        return tower;
+    }
+
+
+    private TickableSubscription energySyncSub;
+
+
+
+    @Override
+    public void onUnload() {
+        super.onUnload();
+        if (energySyncSub != null) {
+            energySyncSub.unsubscribe();
+            energySyncSub = null;
+        }
+    }
+
+
+
+
+    public void bindToTower(TeslaTowerMachine tower) {
+        if (tower == null) return;
+        boundTowerPos = tower.self().getPos();
+        self().markDirty();
+    }
+
+
+
+
+
         public static class TeslaEnergyBank extends MachineTrait {
 
             protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
@@ -410,15 +459,16 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             private static final String NBT_STORED = "Stored";
             private static final String NBT_MAX = "Max";
 
-            // Refactored to BigInteger
             private BigInteger[] storage;
             private BigInteger[] maximums;
             @Getter
             private BigInteger capacity;
             private int index;
+            private final List<ITeslaBattery> batteries;
 
             public TeslaEnergyBank(MetaMachine machine, List<ITeslaBattery> batteries) {
                 super(machine);
+                this.batteries = new ArrayList<>(batteries);
                 storage = new BigInteger[batteries.size()];
                 maximums = new BigInteger[batteries.size()];
                 capacity = BigInteger.ZERO;
@@ -428,6 +478,10 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                     capacity = capacity.add(maximums[i]);
                 }
             }
+            public int getHighestTier() {
+                if (batteries.isEmpty()) return 0;
+                return batteries.stream().mapToInt(ITeslaBattery::getTier).max().orElse(0);
+            }
 
             public void readFromNBT(CompoundTag storageTag) {
                 int size = storageTag.getInt(NBT_SIZE);
@@ -436,7 +490,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                 capacity = BigInteger.ZERO;
                 for (int i = 0; i < size; i++) {
                     CompoundTag subtag = storageTag.getCompound(String.valueOf(i));
-                    // Convert NBT Strings back to BigInteger for safety with huge numbers
                     storage[i] = new BigInteger(subtag.getString(NBT_STORED).isEmpty() ? "0" : subtag.getString(NBT_STORED));
                     maximums[i] = new BigInteger(subtag.getString(NBT_MAX).isEmpty() ? "0" : subtag.getString(NBT_MAX));
                     capacity = capacity.add(maximums[i]);
@@ -511,6 +564,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                     return BigInteger.ZERO;
                 }
 
+
                 storage[index] = storage[index].subtract(toDrain);
                 BigInteger remaining = amount.subtract(toDrain);
 
@@ -532,7 +586,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             }
 
             public long getPassiveDrainPerTick() {
-                // Logic for passive drain using BigInteger
                 BigInteger totalDrain = BigInteger.ZERO;
                 BigInteger divisor = BigInteger.valueOf(PASSIVE_DRAIN_DIVISOR);
                 BigInteger maxPerTick = BigInteger.valueOf(PASSIVE_DRAIN_MAX_PER_STORAGE);
@@ -564,5 +617,98 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             amount++;
             return this;
         }
+    }
+    @Override
+    public InteractionResult onDataStickShiftUse(Player player, ItemStack binder) {
+        if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
+        if (!getLevel().isClientSide) {
+            ensureOwnerTeamUUID();
+            if (ownerTeamUUID != null) {
+                binder.getOrCreateTag().putUUID("TargetTeam", ownerTeamUUID);
+                player.sendSystemMessage(Component.literal("Tesla Frequency Copied.").withStyle(ChatFormatting.GREEN));
+                return InteractionResult.SUCCESS;
+            }
+        }
+        return InteractionResult.sidedSuccess(getLevel().isClientSide);
+    }
+    @Persisted
+    private int batteryTier;
+    @Persisted
+    private UUID ownerTeamUUID;
+    private void ensureOwnerTeamUUID() {
+        if (!(getLevel() instanceof ServerLevel sl)) return;
+        UUID ownerUUID = getOwnerUUID();
+        if (ownerUUID != null) {
+            ServerPlayer sp = sl.getServer().getPlayerList().getPlayer(ownerUUID);
+            if (sp != null) {
+                this.ownerTeamUUID = TeamUtils.getTeamIdOrPlayerFallback(sp);
+                self().markDirty();
+            }
+        }
+    }
+
+
+
+    @Override
+    public void addDisplayText(List<Component> textList) {
+        super.addDisplayText(textList);
+
+        if (!isFormed()) {
+            textList.add(Component.literal("Tesla Network: Inactive").withStyle(ChatFormatting.RED));
+            return;
+        }
+
+        Style GOLD = Style.EMPTY.withColor(ChatFormatting.GOLD);
+        Style AQUA = Style.EMPTY.withColor(ChatFormatting.AQUA);
+        Style GRAY = Style.EMPTY.withColor(ChatFormatting.GRAY);
+        Style GREEN = Style.EMPTY.withColor(ChatFormatting.GREEN);
+        Style RED = Style.EMPTY.withColor(ChatFormatting.RED);
+
+        textList.add(Component.literal("Tesla Network: ")
+                .append(Component.literal(isWorkingEnabled() ? "ONLINE" : "OFFLINE")
+                        .withStyle(isWorkingEnabled() ? ChatFormatting.GREEN : ChatFormatting.RED)));
+
+        textList.add(Component.literal("Team: ")
+                .append(Component.literal(ownerTeamUUID == null ? "None" : TeamUtils.getTeamName(ownerTeamUUID))
+                        .withStyle(AQUA)));
+
+        if (energyBank != null) {
+            textList.add(Component.literal("Stored: ")
+                    .append(Component.literal(FormattingUtil.formatNumbers(energyBank.getStored()))
+                            .withStyle(GOLD))
+                    .append(Component.literal(" / ").withStyle(GRAY))
+                    .append(Component.literal(FormattingUtil.formatNumbers(energyBank.getCapacity()))
+                            .withStyle(GOLD)));
+
+            textList.add(Component.literal("Battery Tier: ")
+                    .append(Component.literal(GTValues.VN[energyBank.getHighestTier()]).withStyle(AQUA)));
+        }
+    }
+
+    @Override
+    public Widget createUIWidget() {
+        var group = new WidgetGroup(0, 0, 190, 125);
+        var container = new DraggableScrollableWidgetGroup(4, 4, 182, 117).setBackground(getScreenTexture());
+
+        container.addWidget(new LabelWidget(4, 5, self().getBlockState().getBlock().getDescriptionId()));
+
+        container.addWidget(new ComponentPanelWidget(4, 17, this::addDisplayText).setMaxWidthLimit(150));
+
+        container.addWidget(new ImageWidget(140, 50, 32, 32, () -> getTeslaTierTexture(energyBank.getHighestTier())));
+
+        group.addWidget(container);
+        group.setBackground(com.gregtechceu.gtceu.api.gui.GuiTextures.BACKGROUND_INVERSE);
+        return group;
+    }
+
+    private com.lowdragmc.lowdraglib.gui.texture.IGuiTexture getTeslaTierTexture(int tier) {
+        return switch (tier) {
+            case 10 -> PhoenixGuiTextures.BATTERY_BAR_UEV;
+            case 11 -> PhoenixGuiTextures.BATTERY_BAR_UIV;
+            case 12 -> PhoenixGuiTextures.BATTERY_BAR_UXV;
+            case 13 -> PhoenixGuiTextures.BATTERY_BAR_OPV;
+            case 14 -> PhoenixGuiTextures.BATTERY_BAR_MAX;
+            default -> PhoenixGuiTextures.BATTERY_BAR_UHV;
+        };
     }
 }

@@ -1,9 +1,11 @@
 package net.phoenix.core.utils;
 
+import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 import net.minecraft.server.level.ServerPlayer;
 
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,6 +22,19 @@ public final class TeamUtils {
         return getTeam(player)
                 .map(Team::getTeamId)
                 .orElse(player.getUUID());
+    }
+    @Nullable
+    public static UUID getTeamUUID(@Nullable MachineOwner owner) {
+        if (owner == null) return null;
+
+        // Extract the UUID from the MachineOwner
+        UUID ownerUUID = owner.getUUID(); // adjust if your MachineOwner uses a different method
+        if (ownerUUID == null) return null;
+
+        // Look up the team via FTB Teams API
+        return FTBTeamsAPI.api().getManager().getTeamForPlayerID(ownerUUID)
+                .map(Team::getTeamId)
+                .orElse(ownerUUID);
     }
 
     public static String getTeamName(UUID teamId) {
