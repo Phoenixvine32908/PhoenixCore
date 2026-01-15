@@ -23,17 +23,19 @@ import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaWirelessRegistry;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.phoenixcore;
+import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.Objects;
 import java.util.UUID;
 
 public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implements IDataStickInteractable {
 
-    private static final boolean TESLA_DEBUG = false;
+    public static final boolean TESLA_DEBUG = false;
 
     // ---------------------------------------
     // Managed fields
@@ -50,21 +52,33 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     // Tick subscription for wireless hatches outside multiblock
     private TickableSubscription tickSubscription;
 
+// Inside TeslaEnergyHatchPartMachine.java
+
     @Override
     public void onLoad() {
         super.onLoad();
-        if (isWireless()) {
-            TeslaWirelessRegistry.registerHatch(this);
-            updateTickSubscription();
+        if (!getLevel().isClientSide && getLevel() instanceof ServerLevel server) {
+            // Ensure team is linked before reporting to cloud
+            autoLinkTeamIfNeeded();
+            if (ownerTeamUUID != null) {
+                TeslaTeamEnergyData.get(server).setEnergyBuffered(ownerTeamUUID, getPos(),
+                        java.math.BigInteger.valueOf(energyContainer.getEnergyStored()));
+            }
         }
     }
 
     @Override
     public void onUnload() {
         super.onUnload();
-        TeslaWirelessRegistry.unregisterHatch(this);
+        // Remove this specific coordinate from the cloud's tracking list
+        if (!getLevel().isClientSide && getLevel() instanceof ServerLevel server && ownerTeamUUID != null) {
+            TeslaTeamEnergyData.get(server).removeEndpoint(ownerTeamUUID, getPos());
+        }
+
+        // Cleanup the tick subscription
         unsubscribeFromTick();
     }
+
 
     // ---------------------------------------
     // Constructor & field holder
@@ -186,84 +200,53 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
      * Works for hatches outside the multiblock if they have a bound team.
      */
     public void tickWireless() {
-        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] tickWireless called at {}", getPos());
+        if (getLevel() == null || getLevel().isClientSide || ownerTeamUUID == null) return;
+        if (!isWireless()) return;
 
-        if (getLevel() == null) {
-            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Level is null");
-            return;
-        }
-        if (getLevel().isClientSide) {
-            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Client side, skipping");
-            return;
-        }
-        if (!isWireless()) {
-            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Not wireless. ownerTeamUUID={}, mode={}",
-                    ownerTeamUUID, PhoenixConfigs.INSTANCE.features.teslaConnectionMode);
-            return;
-        }
-        if (ownerTeamUUID == null) {
-            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] ownerTeamUUID is null");
+        ServerLevel sl = (ServerLevel) getLevel();
+        TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
+        TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(ownerTeamUUID);
+
+        // Stop if the network is manually disabled or tower is missing/unformed
+        if (!data.isOnline(ownerTeamUUID)) {
+            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA] Network offline for {}", ownerTeamUUID);
             return;
         }
 
-        if (TESLA_DEBUG)
-            phoenixcore.LOGGER.info("[TESLA DEBUG] Passed initial checks. ownerTeamUUID={}", ownerTeamUUID);
-
-        // Try to (re)bind to the team's tower if cache reference was lost (e.g. world/chunk reload).
-        if (boundTower == null && ownerTeamUUID != null) {
-            boundTower = TeslaTowerMachine.getTowerByTeam(ownerTeamUUID);
-            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Looked up tower by team, found: {}", boundTower
-            // != null);
-            if (boundTower != null) bindToTower(boundTower);
-        }
-
-        // Still unbound (tower not formed/registered yet) → try again next tick
-        if (boundTower == null) {
-            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] No tower bound yet; skipping this tick");
-            return;
-        }
-
-        if (boundTower.getEnergyBank() == null) {
-            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Energy bank is null");
-            return;
-        }
-
-        TeslaTowerMachine.TeslaEnergyBank bank = boundTower.getEnergyBank();
-
-        long stored = energyContainer.getEnergyStored();
-        long capacity = energyContainer.getEnergyCapacity();
-
-        // Use tier-based voltage (GTValues.VEX[tier])
         long voltage = com.gregtechceu.gtceu.api.GTValues.V[getTier()];
-        long amperage = 2;
-        long transferRate = voltage * amperage;
+        long transferRate = voltage * 2; // 2 Amperage
 
-        // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] IO={}, stored={}, capacity={}, transferRate={},
-        // bankStored={}",
-        // getIO(), stored, capacity, transferRate, bank.getStored());
+        if (getIO() == IO.IN) { // Machine is consuming EU (Output Hatch)
+            long space = energyContainer.getEnergyCapacity() - energyContainer.getEnergyStored();
+            java.math.BigInteger toPull = java.math.BigInteger.valueOf(Math.min(transferRate, space));
 
-        if (getIO() == IO.IN) {
-            // Output hatch: pull energy from tower → fills hatch → supplies to multiblock
-            long space = capacity - stored;
-            long toPull = Math.min(transferRate, space);
-            long pulled = bank.drain(toPull);
-            if (pulled > 0) {
-                energyContainer.changeEnergy(pulled);
+            // DRAIN DIRECTLY FROM THE SAVED DATA CLOUD
+            java.math.BigInteger pulled = teamData.drain(toPull);
+            if (pulled.signum() > 0) {
+                energyContainer.changeEnergy(pulled.longValue());
             }
-            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] OUTPUT: Tried to pull {}, actually pulled {}, new
-            // stored={}",
-            // toPull, pulled, energyContainer.getEnergyStored());
 
-        } else if (getIO() == IO.OUT) {
-            // Input hatch: push energy to tower (from generator)
-            // Use setEnergyStored() instead of changeEnergy()
-            long toPush = Math.min(transferRate, stored);
-            long accepted = bank.fill(toPush);
-            if (accepted > 0) {
-                energyContainer.changeEnergy(-accepted);
+            data.setEnergyInput(ownerTeamUUID, getPos(), pulled);
+            data.setEnergyBuffered(
+                    ownerTeamUUID,
+                    getPos(),
+                    BigInteger.valueOf(energyContainer.getEnergyStored())
+            );
+
+
+        } else if (getIO() == IO.OUT) { // Machine is producing EU (Input Hatch)
+            long stored = energyContainer.getEnergyStored();
+            java.math.BigInteger toPush = java.math.BigInteger.valueOf(Math.min(transferRate, stored));
+
+            // FILL DIRECTLY INTO THE SAVED DATA CLOUD
+            java.math.BigInteger accepted = teamData.fill(toPush);
+            if (accepted.signum() > 0) {
+                energyContainer.changeEnergy(-accepted.longValue());
             }
-            // if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] INPUT: Tried to push {}, actually pushed {}",
-            // toPush, accepted);
+
+            data.setEnergyOutput(ownerTeamUUID, getPos(), accepted);
+            // Update the cloud's view of this hatch's internal buffer for the UI/Command
+            data.setEnergyBuffered(ownerTeamUUID, getPos(), java.math.BigInteger.valueOf(energyContainer.getEnergyStored()));
         }
     }
 
@@ -307,35 +290,46 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     public InteractionResult onDataStickUse(Player player, ItemStack binder) {
         if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
 
-        if (binder.hasTag()) {
-            assert binder.getTag() != null;
-            if (binder.getTag().hasUUID("TargetTeam")) {
-                UUID binderUUID = binder.getTag().getUUID("TargetTeam");
+        var tag = binder.getTag();
+        if (tag != null && tag.hasUUID("TargetTeam")) {
+            UUID newTeamUUID = tag.getUUID("TargetTeam");
 
-                if (!Objects.requireNonNull(getLevel()).isClientSide) {
-                    if (!binderUUID.equals(ownerTeamUUID)) {
-                        ownerTeamUUID = binderUUID;
-                        boundTower = TeslaTowerMachine.getTowerByTeam(ownerTeamUUID);
-                        self().markDirty();
+            if (!getLevel().isClientSide && getLevel() instanceof ServerLevel server) {
+                // Only update if the frequency is actually different
+                if (!newTeamUUID.equals(ownerTeamUUID)) {
 
-                        // Update registry and tick subscription
-                        TeslaWirelessRegistry.unregisterHatch(this);
-                        TeslaWirelessRegistry.registerHatch(this);
-                        updateTickSubscription();
-
-                        player.sendSystemMessage(
-                                Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID)
-                                        .withStyle(ChatFormatting.AQUA));
-                    } else {
-                        player.sendSystemMessage(
-                                Component.literal("Tesla Hatch: Already synced.")
-                                        .withStyle(ChatFormatting.GRAY));
+                    // 1. CLEANUP OLD DATA: Remove this hatch from the previous team's stats
+                    if (ownerTeamUUID != null) {
+                        TeslaTeamEnergyData.get(server).removeEndpoint(ownerTeamUUID, getPos());
                     }
-                }
-                return InteractionResult.sidedSuccess(getLevel().isClientSide);
-            }
-        }
 
-        return InteractionResult.SUCCESS;
+                    // 2. LOGIC UPDATE: Switch the owner UUID
+                    this.ownerTeamUUID = newTeamUUID;
+                    this.boundTower = null; // We no longer use direct tower references in Cloud Mode
+                    self().markDirty();
+
+                    // 3. REGISTRY & TICK: Ensure the wireless system knows the team changed
+                    TeslaWirelessRegistry.unregisterHatch(this);
+                    TeslaWirelessRegistry.registerHatch(this);
+                    updateTickSubscription();
+
+                    // 4. REGISTER NEW DATA: Add this hatch to the new team's stats immediately
+                    TeslaTeamEnergyData.get(server).setEnergyBuffered(
+                            ownerTeamUUID,
+                            getPos(),
+                            java.math.BigInteger.valueOf(energyContainer.getEnergyStored())
+                    );
+
+                    player.sendSystemMessage(Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID.toString().substring(0, 8) + "...")
+                            .withStyle(ChatFormatting.AQUA));
+                } else {
+                    player.sendSystemMessage(Component.literal("Tesla Hatch: Already synced to this frequency.")
+                            .withStyle(ChatFormatting.GRAY));
+                }
+                return InteractionResult.SUCCESS;
+            }
+            return InteractionResult.sidedSuccess(getLevel().isClientSide);
+        }
+        return InteractionResult.PASS;
     }
 }

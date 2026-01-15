@@ -47,8 +47,6 @@ public class PhoenixTeslaMachines {
                     .where('D', blocks(PhoenixBlocks.INSANELY_SUPERCHARGED_TESLA_CASING.get())
                             .or(Predicates.autoAbilities(definition.getRecipeTypes()))
                             .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
-                            .or(Predicates.abilities(PhoenixPartAbility.TESLA_INPUT).setMaxGlobalLimited(10)
-                                    .setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(10)
                                     .setPreviewCount(1))
                             .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(10)
@@ -68,11 +66,11 @@ public class PhoenixTeslaMachines {
 
     public static final MachineDefinition[] TESLA_ENERGY_INPUT_HATCH = registerTieredMachines(
             "tesla_energy_input_hatch",
-            (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, IO.IN, 2),
+            (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, IO.OUT, 2),
             (tier, builder) -> builder
                     .langValue(GTValues.VNF[tier] + " Tesla Energy Input Hatch")
                     .rotationState(RotationState.ALL)
-                    .abilities(PhoenixPartAbility.TESLA_INPUT)
+                    .abilities(PartAbility.OUTPUT_ENERGY)
                     .modelProperty(GTMachineModelProperties.IS_FORMED, false)
                     .tooltips(
                             Component.translatable("gtceu.universal.tooltip.voltage_in",
@@ -92,7 +90,7 @@ public class PhoenixTeslaMachines {
                     .langValue(GTValues.VNF[tier] + " Tesla Energy Output Hatch")
                     .rotationState(RotationState.ALL)
                     .abilities(PartAbility.INPUT_ENERGY) // Acts as INPUT to multiblock (receives from tower, gives to
-                                                         // multiblock)
+                    // multiblock)
                     .modelProperty(GTMachineModelProperties.IS_FORMED, false)
                     .tooltips(
                             Component.translatable("gtceu.universal.tooltip.voltage_in",

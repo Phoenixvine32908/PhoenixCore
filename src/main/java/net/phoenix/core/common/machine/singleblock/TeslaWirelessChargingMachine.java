@@ -41,7 +41,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+/*
 public class TeslaWirelessChargerMachine extends TieredEnergyMachine
         implements IEnergyInfoProvider, IDataStickInteractable, IFancyUIProvider, IFancyUIMachine, IControllable {
 
@@ -255,3 +255,5 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
         return null;
     }
 }
+
+ */

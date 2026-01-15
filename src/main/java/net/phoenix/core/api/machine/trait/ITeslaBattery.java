@@ -16,4 +16,8 @@ public interface ITeslaBattery {
 
     @NotNull
     String getBatteryName();
+
+    // --- NEW ---
+    BigInteger getStored();
+    void setStored(BigInteger amount);
 }

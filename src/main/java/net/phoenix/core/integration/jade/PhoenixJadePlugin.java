@@ -6,6 +6,7 @@ import net.phoenix.core.integration.jade.provider.FissionMachineProvider;
 import net.phoenix.core.integration.jade.provider.HighPressurePlasmaArcFurnaceProvider;
 import net.phoenix.core.integration.jade.provider.SourceHatchProvider;
 
+import net.phoenix.core.integration.jade.provider.TeslaNetworkProvider;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
@@ -17,6 +18,7 @@ public class PhoenixJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
         // Server (NBT)
+        registration.registerBlockDataProvider(new TeslaNetworkProvider(), BlockEntity.class);
         registration.registerBlockDataProvider(new SourceHatchProvider(), BlockEntity.class);
         registration.registerBlockDataProvider(new HighPressurePlasmaArcFurnaceProvider(), BlockEntity.class);
         registration.registerBlockDataProvider(new FissionMachineProvider(), BlockEntity.class);
@@ -28,5 +30,6 @@ public class PhoenixJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(new SourceHatchProvider(), Block.class);
         registration.registerBlockComponent(new HighPressurePlasmaArcFurnaceProvider(), Block.class);
         registration.registerBlockComponent(new FissionMachineProvider(), Block.class);
+        registration.registerBlockComponent(new TeslaNetworkProvider(), Block.class);
     }
 }

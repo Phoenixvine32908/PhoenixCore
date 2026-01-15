@@ -49,10 +49,11 @@ public class TeslaBatteryBlock extends Block {
         UIV(11, BigInteger.valueOf(250_000_000_000L)),
         UXV(12, BigInteger.valueOf(1_000_000_000_000L)),
         OPV(13, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(4))),
-        MAX(13, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(16)));
+        MAX(14, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(16)));
 
         private final int tier;
         private final BigInteger capacity;
+        private BigInteger stored = BigInteger.ZERO; // ✅ Add this
 
         TeslaBatteryType(int tier, BigInteger capacity) {
             this.tier = tier;
@@ -60,28 +61,29 @@ public class TeslaBatteryBlock extends Block {
         }
 
         @Override
-        public int getTier() {
-            return tier;
+        public int getTier() { return tier; }
+
+        @Override
+        public BigInteger getCapacity() { return capacity; }
+
+        @Override
+        public String getBatteryName() { return name().toLowerCase(Locale.ROOT); }
+
+        @Override
+        public BigInteger getStored() {
+            return stored != null ? stored : BigInteger.ZERO; // defensive
         }
 
         @Override
-        public BigInteger getCapacity() {
-            return capacity;
+        public void setStored(BigInteger amount) {
+            stored = amount != null ? amount : BigInteger.ZERO;
         }
 
         @Override
-        public String getBatteryName() {
-            return name().toLowerCase(Locale.ROOT);
-        }
+        public BigInteger getMaxInput() { return BigInteger.valueOf(Long.MAX_VALUE); }
 
         @Override
-        public BigInteger getMaxInput() {
-            return BigInteger.valueOf(Long.MAX_VALUE);
-        }
-
-        @Override
-        public BigInteger getMaxOutput() {
-            return BigInteger.valueOf(Long.MAX_VALUE);
-        }
+        public BigInteger getMaxOutput() { return BigInteger.valueOf(Long.MAX_VALUE); }
     }
+
 }

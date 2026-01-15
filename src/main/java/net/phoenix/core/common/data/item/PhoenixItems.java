@@ -32,10 +32,11 @@ public class PhoenixItems {
     private static final int UHV_RELATIVE_INDEX = GTValues.UHV - PhoenixCovers.START_TIER;
     // Inside PhoenixItems.java
     public static ItemEntry<TeslaBinderItem> TESLA_BINDER = REGISTRATE
-            .item("tesla_binder", TeslaBinderItem::new) // Changed to custom class
+            .item("tesla_binder", TeslaBinderItem::new)
             .lang("Tesla Binder")
             .properties(p -> p.stacksTo(1))
-            .onRegister(c -> c.attachComponents(new DataItemBehavior(false, 0)))
+            // This line tells the item to use its OWN class logic for interactions
+            .onRegister(c -> c.attachComponents(c))
             .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/tesla_binder")))
             .register();
 
