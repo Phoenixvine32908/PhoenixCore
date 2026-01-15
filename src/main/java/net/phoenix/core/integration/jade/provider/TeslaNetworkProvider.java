@@ -1,6 +1,7 @@
 package net.phoenix.core.integration.jade.provider;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
@@ -27,51 +28,64 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
     public static final ResourceLocation UID = phoenixcore.id("tesla_network_info");
 
     @Override
-    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        CompoundTag data = accessor.getServerData();
-        if (!data.contains("TeslaTeam")) return;
+    public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
+        if (accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE) {
+            UUID team = null;
+            TeslaEnergyHatchPartMachine hatch = null;
+            TeslaTowerMachine tower = null;
 
-        String teamName = data.getString("TeamName");
-        String stored = data.getString("Stored");
-        String capacity = data.getString("Capacity");
+            if (metaBE.getMetaMachine() instanceof TeslaEnergyHatchPartMachine tHatch) {
+                hatch = tHatch;
+                team = hatch.getOwnerTeamUUID();
+            } else if (metaBE.getMetaMachine() instanceof TeslaTowerMachine tTower) {
+                tower = tTower;
+                team = tower.getOwnerUUID();
+            }
 
-        tooltip.add(Component.translatable("jade.phoenixcore.tesla_team", teamName).withStyle(ChatFormatting.AQUA));
-        tooltip.add(Component.translatable("jade.phoenixcore.tesla_stored")
-                .append(Component.literal(stored).withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" / ")
-                        .append(Component.literal(capacity).withStyle(ChatFormatting.GOLD))));
+            if (team != null && accessor.getLevel() instanceof ServerLevel sl) {
+                TeslaTeamEnergyData.TeamEnergy teamData = TeslaTeamEnergyData.get(sl).getOrCreate(team);
+                tag.putUUID("TeslaTeam", team);
+                tag.putString("TeamName", TeamUtils.getTeamName(team));
+                tag.putString("Stored", FormattingUtil.formatNumbers(teamData.stored));
+                tag.putString("Capacity", FormattingUtil.formatNumbers(teamData.capacity));
 
-        if (data.contains("InputPerSec")) {
-            tooltip.add(Component.literal("In: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(data.getLong("InputPerSec") + " EU/s").withStyle(ChatFormatting.GREEN)));
-            tooltip.add(Component.literal("Out: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(data.getLong("OutputPerSec") + " EU/s").withStyle(ChatFormatting.RED)));
+                // Add live hatch count for both Hatch and Tower views
+                tag.putInt("ActiveHatches", teamData.getLiveHatchCount(sl.getGameTime()));
+
+                if (hatch != null) {
+                    tag.putLong("LocalTransfer", hatch.getLastTransferAmount());
+                    tag.putBoolean("IsInputHatch", hatch.getIO() == IO.IN);
+                }
+            }
         }
     }
 
     @Override
-    public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
-        if (accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE) {
-            UUID teamUUID = null;
-            long in = 0, out = 0;
+    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+        CompoundTag data = accessor.getServerData();
+        if (!data.contains("TeslaTeam")) return;
 
-            if (metaBE.getMetaMachine() instanceof TeslaTowerMachine tower) {
-                teamUUID = tower.getOwnerUUID();
-                in = tower.getInputPerSec();
-                out = tower.getOutputPerSec();
-            } else if (metaBE.getMetaMachine() instanceof TeslaEnergyHatchPartMachine hatch) {
-                teamUUID = hatch.getOwnerTeamUUID();
-            }
+        tooltip.add(Component.translatable("jade.phoenixcore.tesla_team", data.getString("TeamName"))
+                .withStyle(ChatFormatting.AQUA));
 
-            if (teamUUID != null && accessor.getLevel() instanceof ServerLevel sl) {
-                TeslaTeamEnergyData.TeamEnergy teamData = TeslaTeamEnergyData.get(sl).getOrCreate(teamUUID);
-                tag.putUUID("TeslaTeam", teamUUID);
-                tag.putString("TeamName", TeamUtils.getTeamName(teamUUID));
-                tag.putString("Stored", FormattingUtil.formatNumbers(teamData.stored));
-                tag.putString("Capacity", FormattingUtil.formatNumbers(teamData.capacity));
-                tag.putLong("InputPerSec", in);
-                tag.putLong("OutputPerSec", out);
-            }
+        tooltip.add(Component.literal("Cloud: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(data.getString("Stored")).withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(" / ")
+                        .append(Component.literal(data.getString("Capacity")).withStyle(ChatFormatting.GOLD))));
+
+        // Show active connections count
+        tooltip.add(Component.literal("Active Connections: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(String.valueOf(data.getInt("ActiveHatches"))).withStyle(ChatFormatting.WHITE)));
+
+        if (data.contains("LocalTransfer")) {
+            long rate = data.getLong("LocalTransfer");
+            boolean isInput = data.getBoolean("IsInputHatch");
+
+            String label = isInput ? "Receiving: " : "Providing: ";
+            ChatFormatting color = isInput ? ChatFormatting.RED : ChatFormatting.GREEN;
+
+            tooltip.add(Component.literal(label).withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(FormattingUtil.formatNumbers(rate) + " EU/t").withStyle(color)));
         }
     }
 

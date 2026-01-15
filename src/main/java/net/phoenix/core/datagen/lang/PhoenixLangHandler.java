@@ -166,6 +166,18 @@ public class PhoenixLangHandler {
         provider.add("jade.phoenixcore.plasma_boost_active", "Plasma Boost: %s Active");
         provider.add("jade.phoenixcore.plasma_boost_duration", "Duration Multiplier: %s");
         provider.add("jade.phoenixcore.no_plasma_boost", "No Plasma Catalyst");
+        // Tesla Network Jade Keys
+        provider.add("jade.phoenixcore.tesla_stored", "Stored: ");
+        provider.add("config.jade.plugin_phoenixcore.tesla_network_info", "Tesla Network Information");
+
+        // Binder UI & Additional Keys
+        provider.add("item.phoenixcore.tesla_binder.linked", "§aLinked to: §f%s");
+        provider.add("item.phoenixcore.tesla_binder.unlinked", "§cNot Linked");
+        provider.add("item.phoenixcore.tesla_binder.frequency", "§7Frequency: §b%s");
+        provider.add("jade.phoenixcore.tesla_team", "Network: %s");
+        provider.add("jade.phoenixcore.tesla_receiving", "Receiving: %s EU/t");
+        provider.add("jade.phoenixcore.tesla_providing", "Providing: %s EU/t");
+        provider.add("jade.phoenixcore.tesla_active_connections", "Active Connections: %s");
         multiLang(provider, "tooltip.phoenixcore.shield_stability_hatch",
                 "Outputs shield stability",
                 "as a redstone signal.");

@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachi
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -192,11 +193,12 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         return mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO ||
                 mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK;
     }
+    @Getter
+    private long lastTransferRate = 0;
+    // Inside TeslaEnergyHatchPartMachine
+    @Getter
+    private long lastTransferAmount = 0; // Field for Jade to read
 
-    /**
-     * Ticks wireless energy transfer.
-     * Works for hatches outside the multiblock if they have a bound team.
-     */
     public void tickWireless() {
         if (getLevel() == null || getLevel().isClientSide || ownerTeamUUID == null) return;
         if (!isWireless()) return;
@@ -205,48 +207,38 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
         TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(ownerTeamUUID);
 
-        // Stop if the network is manually disabled or tower is missing/unformed
-        if (!data.isOnline(ownerTeamUUID)) {
-            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA] Network offline for {}", ownerTeamUUID);
-            return;
-        }
+        if (!data.isOnline(ownerTeamUUID)) return;
 
         long voltage = com.gregtechceu.gtceu.api.GTValues.V[getTier()];
-        long transferRate = voltage * 2; // 2 Amperage
+        long transferRate = voltage * 2;
+        BigInteger moved = BigInteger.ZERO;
 
-        if (getIO() == IO.IN) { // Machine is consuming EU (Output Hatch)
+        if (getIO() == IO.IN) { // Receiver
             long space = energyContainer.getEnergyCapacity() - energyContainer.getEnergyStored();
-            java.math.BigInteger toPull = java.math.BigInteger.valueOf(Math.min(transferRate, space));
+            BigInteger toPull = BigInteger.valueOf(Math.min(transferRate, space));
+            moved = teamData.drain(toPull);
 
-            // DRAIN DIRECTLY FROM THE SAVED DATA CLOUD
-            java.math.BigInteger pulled = teamData.drain(toPull);
-            if (pulled.signum() > 0) {
-                energyContainer.changeEnergy(pulled.longValue());
-            }
+            // SYNC FOR UI:
+            teamData.energyInput.put(getPos(), moved);
+            teamData.energyOutput.remove(getPos());
 
-            data.setEnergyInput(ownerTeamUUID, getPos(), pulled);
-            data.setEnergyBuffered(
-                    ownerTeamUUID,
-                    getPos(),
-                    BigInteger.valueOf(energyContainer.getEnergyStored()));
-
-        } else if (getIO() == IO.OUT) { // Machine is producing EU (Input Hatch)
+            if (moved.signum() > 0) energyContainer.changeEnergy(moved.longValue());
+        } else if (getIO() == IO.OUT) { // Transmitter
             long stored = energyContainer.getEnergyStored();
-            java.math.BigInteger toPush = java.math.BigInteger.valueOf(Math.min(transferRate, stored));
+            BigInteger toPush = BigInteger.valueOf(Math.min(transferRate, stored));
+            moved = teamData.fill(toPush);
 
-            // FILL DIRECTLY INTO THE SAVED DATA CLOUD
-            java.math.BigInteger accepted = teamData.fill(toPush);
-            if (accepted.signum() > 0) {
-                energyContainer.changeEnergy(-accepted.longValue());
-            }
+            // SYNC FOR UI:
+            teamData.energyOutput.put(getPos(), moved);
+            teamData.energyInput.remove(getPos());
 
-            data.setEnergyOutput(ownerTeamUUID, getPos(), accepted);
-            // Update the cloud's view of this hatch's internal buffer for the UI/Command
-            data.setEnergyBuffered(ownerTeamUUID, getPos(),
-                    java.math.BigInteger.valueOf(energyContainer.getEnergyStored()));
+            if (moved.signum() > 0) energyContainer.changeEnergy(-moved.longValue());
         }
-    }
 
+        this.lastTransferAmount = moved.longValue();
+        data.setEnergyBuffered(ownerTeamUUID, getPos(), BigInteger.valueOf(energyContainer.getEnergyStored()));
+        teamData.markHatchActive(getPos(), sl.getGameTime());
+    }
     // ---------------------------------------
     // Team logic
     // ---------------------------------------

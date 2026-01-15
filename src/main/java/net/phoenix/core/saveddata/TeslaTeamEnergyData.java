@@ -51,16 +51,32 @@ public class TeslaTeamEnergyData extends SavedData {
     }
 
     public static class TeamEnergy {
-
         public BigInteger stored = BigInteger.ZERO;
         public BigInteger capacity = BigInteger.ZERO;
+
+        // Track when each hatch was last active to filter out "ghost" hatches
+        public final Map<BlockPos, Long> lastSeen = new HashMap<>();
 
         public final Map<BlockPos, BigInteger> energyInput = new HashMap<>();
         public final Map<BlockPos, BigInteger> energyOutput = new HashMap<>();
         public final Map<BlockPos, BigInteger> energyBuffered = new HashMap<>();
         private ObservedMap hatchStored;
 
-        // --- NEW: CLOUD POWER LOGIC ---
+        // --- LIVE ACTIVITY LOGIC ---
+
+        /** Marks a hatch as currently active. Pass level.getGameTime() here. */
+        public void markHatchActive(BlockPos pos, long gameTime) {
+            lastSeen.put(pos, gameTime);
+        }
+
+        /** Returns count of hatches seen in the last 2 seconds (40 ticks) */
+        public int getLiveHatchCount(long currentGameTime) {
+            // Remove any hatch that hasn't reported in for 40 ticks
+            lastSeen.entrySet().removeIf(entry -> (currentGameTime - entry.getValue()) > 40);
+            return lastSeen.size();
+        }
+
+        // --- CLOUD POWER LOGIC ---
         public static final int HISTORY = 20;
         public final long[] inHistory = new long[HISTORY];
         public final long[] outHistory = new long[HISTORY];
@@ -72,7 +88,6 @@ public class TeslaTeamEnergyData extends SavedData {
             historyIdx = (historyIdx + 1) % HISTORY;
         }
 
-        /** Adds energy to the cloud, returns how much was actually accepted */
         public BigInteger fill(BigInteger amount) {
             if (amount.signum() <= 0) return BigInteger.ZERO;
             BigInteger space = capacity.subtract(stored).max(BigInteger.ZERO);
@@ -82,15 +97,9 @@ public class TeslaTeamEnergyData extends SavedData {
         }
 
         public void setStored(BigInteger amount) {
-            // Clamp the value between 0 and the current capacity
             this.stored = amount.max(BigInteger.ZERO).min(this.capacity);
         }
 
-        /**
-         * Returns all registered hatch positions for a specific team.
-         */
-
-        /** Removes energy from the cloud, returns how much was actually taken */
         public BigInteger drain(BigInteger amount) {
             if (amount.signum() <= 0) return BigInteger.ZERO;
             BigInteger toDrain = stored.min(amount);
@@ -109,7 +118,6 @@ public class TeslaTeamEnergyData extends SavedData {
             TeamEnergy e = new TeamEnergy();
             String storedStr = tag.getString("Stored");
             String capStr = tag.getString("Capacity");
-
             e.stored = (storedStr.isEmpty()) ? BigInteger.ZERO : new BigInteger(storedStr);
             e.capacity = (capStr.isEmpty()) ? BigInteger.ZERO : new BigInteger(capStr);
             return e;
