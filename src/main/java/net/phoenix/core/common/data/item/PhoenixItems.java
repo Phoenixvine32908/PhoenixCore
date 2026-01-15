@@ -3,7 +3,6 @@ package net.phoenix.core.common.data.item;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
 import com.gregtechceu.gtceu.api.item.component.ElectricStats;
-import com.gregtechceu.gtceu.common.item.DataItemBehavior;
 
 import net.phoenix.core.common.data.PhoenixCovers;
 

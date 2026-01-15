@@ -5,8 +5,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.phoenix.core.integration.jade.provider.FissionMachineProvider;
 import net.phoenix.core.integration.jade.provider.HighPressurePlasmaArcFurnaceProvider;
 import net.phoenix.core.integration.jade.provider.SourceHatchProvider;
-
 import net.phoenix.core.integration.jade.provider.TeslaNetworkProvider;
+
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;

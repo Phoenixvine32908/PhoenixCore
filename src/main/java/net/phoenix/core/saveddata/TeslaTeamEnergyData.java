@@ -1,12 +1,13 @@
 package net.phoenix.core.saveddata;
 
-import com.electronwill.nightconfig.core.utils.ObservedMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
+
+import com.electronwill.nightconfig.core.utils.ObservedMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
@@ -16,13 +17,14 @@ public class TeslaTeamEnergyData extends SavedData {
 
     private static final String DATA_NAME = "phoenix_tesla_team_energy";
 
-
     public java.util.Set<BlockPos> getEndpoints(UUID teamUUID) {
         TeamEnergy team = networks.get(teamUUID);
         if (team == null || team.hatchStored == null) return java.util.Collections.emptySet();
         return team.hatchStored.keySet();
     }
+
     public static class HatchInfo {
+
         public final BlockPos pos;
         public BigInteger input = BigInteger.ZERO;
         public BigInteger output = BigInteger.ZERO;
@@ -32,26 +34,24 @@ public class TeslaTeamEnergyData extends SavedData {
             this.pos = pos;
         }
     }
+
     public Collection<HatchInfo> getHatches(UUID team) {
         TeamEnergy e = networks.get(team);
         if (e == null) return List.of();
 
         Map<BlockPos, HatchInfo> map = new HashMap<>();
 
-        e.energyBuffered.forEach((pos, buf) ->
-                map.computeIfAbsent(pos, HatchInfo::new).buffered = buf);
+        e.energyBuffered.forEach((pos, buf) -> map.computeIfAbsent(pos, HatchInfo::new).buffered = buf);
 
-        e.energyInput.forEach((pos, in) ->
-                map.computeIfAbsent(pos, HatchInfo::new).input = in);
+        e.energyInput.forEach((pos, in) -> map.computeIfAbsent(pos, HatchInfo::new).input = in);
 
-        e.energyOutput.forEach((pos, out) ->
-                map.computeIfAbsent(pos, HatchInfo::new).output = out);
+        e.energyOutput.forEach((pos, out) -> map.computeIfAbsent(pos, HatchInfo::new).output = out);
 
         return map.values();
     }
 
-
     public static class TeamEnergy {
+
         public BigInteger stored = BigInteger.ZERO;
         public BigInteger capacity = BigInteger.ZERO;
 
@@ -80,14 +80,15 @@ public class TeslaTeamEnergyData extends SavedData {
             stored = stored.add(toFill);
             return toFill;
         }
+
         public void setStored(BigInteger amount) {
             // Clamp the value between 0 and the current capacity
             this.stored = amount.max(BigInteger.ZERO).min(this.capacity);
         }
+
         /**
          * Returns all registered hatch positions for a specific team.
          */
-
 
         /** Removes energy from the cloud, returns how much was actually taken */
         public BigInteger drain(BigInteger amount) {

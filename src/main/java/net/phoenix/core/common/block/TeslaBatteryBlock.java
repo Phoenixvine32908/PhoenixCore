@@ -61,13 +61,19 @@ public class TeslaBatteryBlock extends Block {
         }
 
         @Override
-        public int getTier() { return tier; }
+        public int getTier() {
+            return tier;
+        }
 
         @Override
-        public BigInteger getCapacity() { return capacity; }
+        public BigInteger getCapacity() {
+            return capacity;
+        }
 
         @Override
-        public String getBatteryName() { return name().toLowerCase(Locale.ROOT); }
+        public String getBatteryName() {
+            return name().toLowerCase(Locale.ROOT);
+        }
 
         @Override
         public BigInteger getStored() {
@@ -80,10 +86,13 @@ public class TeslaBatteryBlock extends Block {
         }
 
         @Override
-        public BigInteger getMaxInput() { return BigInteger.valueOf(Long.MAX_VALUE); }
+        public BigInteger getMaxInput() {
+            return BigInteger.valueOf(Long.MAX_VALUE);
+        }
 
         @Override
-        public BigInteger getMaxOutput() { return BigInteger.valueOf(Long.MAX_VALUE); }
+        public BigInteger getMaxOutput() {
+            return BigInteger.valueOf(Long.MAX_VALUE);
+        }
     }
-
 }

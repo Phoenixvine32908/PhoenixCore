@@ -14,7 +14,6 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.network.chat.Component;
-import net.phoenix.core.api.machine.PhoenixPartAbility;
 import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;

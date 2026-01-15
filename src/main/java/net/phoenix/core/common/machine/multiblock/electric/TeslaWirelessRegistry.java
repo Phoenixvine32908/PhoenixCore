@@ -6,8 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static software.bernie.geckolib.util.ClientUtils.getLevel;
-
 public final class TeslaWirelessRegistry {
 
     // Map team UUID → set of wireless hatches for that team
@@ -24,7 +22,6 @@ public final class TeslaWirelessRegistry {
         if (hatch.getOwnerTeamUUID() == null) return;
         TEAM_HATCHES.computeIfAbsent(hatch.getOwnerTeamUUID(), k -> new HashSet<>()).add(hatch);
     }
-
 
     public static void unregisterHatch(TeslaEnergyHatchPartMachine hatch) {
         if (hatch.getOwnerTeamUUID() == null) return;

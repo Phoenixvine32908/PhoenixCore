@@ -18,9 +18,7 @@ import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.trait.MachineTrait;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.misc.EnergyContainerList;
-import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
@@ -36,7 +34,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -46,7 +43,6 @@ import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.machine.multiblock.UniqueWorkableElectricMultiblockMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
-import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.phoenixcore;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
@@ -64,119 +60,119 @@ import javax.annotation.Nullable;
 import static net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine.TESLA_DEBUG;
 
 public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
-                                                               implements IEnergyInfoProvider, IFancyUIMachine, IDataStickInteractable {
+                               implements IEnergyInfoProvider, IFancyUIMachine, IDataStickInteractable {
 
-        protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-                                    TeslaTowerMachine.class, UniqueWorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
+    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
+            TeslaTowerMachine.class, UniqueWorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
 
-        // Inside your constructor
-        public TeslaTowerMachine(IMachineBlockEntity holder) {
-                super(holder);
-                this.energyBank = new TeslaEnergyBank(this, List.of());
-                // Use a standard subscribeServerTick instead of the conditional handler
-                // to ensure it never "falls asleep"
-                subscribeServerTick(this::transferEnergyTick);
+    // Inside your constructor
+    public TeslaTowerMachine(IMachineBlockEntity holder) {
+        super(holder);
+        this.energyBank = new TeslaEnergyBank(this, List.of());
+        // Use a standard subscribeServerTick instead of the conditional handler
+        // to ensure it never "falls asleep"
+        subscribeServerTick(this::transferEnergyTick);
+    }
+
+    public static final int MAX_BATTERY_LAYERS = 18;
+    public static final int MIN_CASINGS = 14;
+
+    public static final String TTB_BATTERY_HEADER = "TTBatteries_";
+
+    private static final BigInteger BIG_INTEGER_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+
+    private IMaintenanceMachine maintenance;
+
+    @Getter
+    private TeslaTowerMachine.TeslaEnergyBank energyBank;
+    private EnergyContainerList inputHatches;
+    private EnergyContainerList outputHatches;
+
+    private long netInLastSec;
+    @Getter
+    private long inputPerSec;
+    private long netOutLastSec;
+    @Getter
+    private long outputPerSec;
+
+    protected ConditionalSubscriptionHandler tickSubscription;
+
+    @Override
+    public void onStructureFormed() {
+        super.onStructureFormed();
+
+        // 1. Establish Identity First
+        if (!getLevel().isClientSide) {
+            ensureOwnerTeamUUID();
         }
 
-        public static final int MAX_BATTERY_LAYERS = 18;
-        public static final int MIN_CASINGS = 14;
-
-
-        public static final String TTB_BATTERY_HEADER = "TTBatteries_";
-
-        private static final BigInteger BIG_INTEGER_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
-
-        private IMaintenanceMachine maintenance;
-
-        @Getter
-        private TeslaTowerMachine.TeslaEnergyBank energyBank;
-        private EnergyContainerList inputHatches;
-        private EnergyContainerList outputHatches;
-
-        private long netInLastSec;
-        @Getter
-        private long inputPerSec;
-        private long netOutLastSec;
-        @Getter
-        private long outputPerSec;
-
-        protected ConditionalSubscriptionHandler tickSubscription;
-
-        @Override
-        public void onStructureFormed() {
-                super.onStructureFormed();
-
-                // 1. Establish Identity First
-                if (!getLevel().isClientSide) {
-                        ensureOwnerTeamUUID();
-                }
-
-                // 2. Register for wireless logic
-                if (ownerTeamUUID != null) {
-                        registerTower(this);
-                }
-                TeslaWirelessRegistry.registerTower(this);
-
-                this.maintenance = null;
-                List<IEnergyContainer> inputs = new ArrayList<>();
-                List<IEnergyContainer> outputs = new ArrayList<>();
-
-                // Handle Parts
-                for (IMultiPart part : getParts()) {
-                        if (part instanceof IMaintenanceMachine maintenanceMachine) {
-                                this.maintenance = maintenanceMachine;
-                        }
-
-                        // Wired energy containers (Standard GT hatches)
-                        var handlerLists = part.getRecipeHandlers();
-                        for (var handlerList : handlerLists) {
-                                IO io = handlerList.getHandlerIO();
-                                if (io == IO.NONE) continue;
-                                var containers = handlerList.getCapability(EURecipeCapability.CAP).stream()
-                                                .filter(IEnergyContainer.class::isInstance)
-                                                .map(IEnergyContainer.class::cast)
-                                                .toList();
-                                if (io.support(IO.IN)) inputs.addAll(containers);
-                                if (io.support(IO.OUT)) outputs.addAll(containers);
-                        }
-
-                        // Tesla wired hatches (Special phoenix hatches)
-                        if (part instanceof TeslaEnergyHatchPartMachine hatch && !hatch.isWireless()) {
-                                if (hatch.getIO() == IO.IN) inputs.add(hatch.getEnergyContainer());
-                                else if (hatch.getIO() == IO.OUT) outputs.add(hatch.getEnergyContainer());
-                        }
-                }
-
-                this.inputHatches = new EnergyContainerList(inputs);
-                this.outputHatches = new EnergyContainerList(outputs);
-
-                // 3. Collect batteries from MatchContext
-                List<ITeslaBattery> batteries = new ArrayList<>();
-                for (Map.Entry<String, Object> entry : getMultiblockState().getMatchContext().entrySet()) {
-                        if (entry.getKey().startsWith(TTB_BATTERY_HEADER) && entry.getValue() instanceof BatteryMatchWrapper wrapper) {
-                                for (int i = 0; i < wrapper.amount; i++) batteries.add(wrapper.partType);
-                        }
-                }
-
-                if (batteries.isEmpty()) {
-                        onStructureInvalid();
-                        return;
-                }
-
-                // 4. Initialize Energy Bank (The Trait GT sees)
-                if (this.energyBank == null) {
-                        this.energyBank = new TeslaEnergyBank(this, batteries);
-                } else {
-                        this.energyBank = energyBank.rebuild(batteries);
-                }
-
-                updateBatteryTier();
-
-                // 5. Cloud Handshake
-                if (!getLevel().isClientSide && ownerTeamUUID != null) {
-                        syncToTeslaSavedData(); // Pull energy from cloud into the batteries we just built
-                }
+        // 2. Register for wireless logic
+        if (ownerTeamUUID != null) {
+            registerTower(this);
         }
+        TeslaWirelessRegistry.registerTower(this);
+
+        this.maintenance = null;
+        List<IEnergyContainer> inputs = new ArrayList<>();
+        List<IEnergyContainer> outputs = new ArrayList<>();
+
+        // Handle Parts
+        for (IMultiPart part : getParts()) {
+            if (part instanceof IMaintenanceMachine maintenanceMachine) {
+                this.maintenance = maintenanceMachine;
+            }
+
+            // Wired energy containers (Standard GT hatches)
+            var handlerLists = part.getRecipeHandlers();
+            for (var handlerList : handlerLists) {
+                IO io = handlerList.getHandlerIO();
+                if (io == IO.NONE) continue;
+                var containers = handlerList.getCapability(EURecipeCapability.CAP).stream()
+                        .filter(IEnergyContainer.class::isInstance)
+                        .map(IEnergyContainer.class::cast)
+                        .toList();
+                if (io.support(IO.IN)) inputs.addAll(containers);
+                if (io.support(IO.OUT)) outputs.addAll(containers);
+            }
+
+            // Tesla wired hatches (Special phoenix hatches)
+            if (part instanceof TeslaEnergyHatchPartMachine hatch && !hatch.isWireless()) {
+                if (hatch.getIO() == IO.IN) inputs.add(hatch.getEnergyContainer());
+                else if (hatch.getIO() == IO.OUT) outputs.add(hatch.getEnergyContainer());
+            }
+        }
+
+        this.inputHatches = new EnergyContainerList(inputs);
+        this.outputHatches = new EnergyContainerList(outputs);
+
+        // 3. Collect batteries from MatchContext
+        List<ITeslaBattery> batteries = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : getMultiblockState().getMatchContext().entrySet()) {
+            if (entry.getKey().startsWith(TTB_BATTERY_HEADER) &&
+                    entry.getValue() instanceof BatteryMatchWrapper wrapper) {
+                for (int i = 0; i < wrapper.amount; i++) batteries.add(wrapper.partType);
+            }
+        }
+
+        if (batteries.isEmpty()) {
+            onStructureInvalid();
+            return;
+        }
+
+        // 4. Initialize Energy Bank (The Trait GT sees)
+        if (this.energyBank == null) {
+            this.energyBank = new TeslaEnergyBank(this, batteries);
+        } else {
+            this.energyBank = energyBank.rebuild(batteries);
+        }
+
+        updateBatteryTier();
+
+        // 5. Cloud Handshake
+        if (!getLevel().isClientSide && ownerTeamUUID != null) {
+            syncToTeslaSavedData(); // Pull energy from cloud into the batteries we just built
+        }
+    }
 
     protected void transferEnergyTick() {
         if (getLevel().isClientSide) return;
@@ -223,543 +219,541 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         // 3. NO wired output, NO passive drain, NO tower-side mutation
     }
 
-
     /** Corrected energy transfer for a single wireless hatch */
-        private void tickWirelessHatch(TeslaEnergyHatchPartMachine hatch) {
-                IEnergyContainer container = hatch.getEnergyContainer();
-                TeslaEnergyBank bank = this.energyBank;
+    private void tickWirelessHatch(TeslaEnergyHatchPartMachine hatch) {
+        IEnergyContainer container = hatch.getEnergyContainer();
+        TeslaEnergyBank bank = this.energyBank;
 
-                long stored = container.getEnergyStored();
-                long capacity = container.getEnergyCapacity();
-                long transferRate = container.getInputVoltage() * container.getInputAmperage();
+        long stored = container.getEnergyStored();
+        long capacity = container.getEnergyCapacity();
+        long transferRate = container.getInputVoltage() * container.getInputAmperage();
 
-                if (hatch.getIO() == IO.IN) {
-                        long space = capacity - stored;
-                        long toPull = Math.min(transferRate, space);
-                        long pulled = bank.drain(toPull);
-                        container.changeEnergy(pulled);
-                } else if (hatch.getIO() == IO.OUT) {
-                        long toPush = Math.min(transferRate, stored);
-                        long accepted = bank.fill(toPush);
-                        container.changeEnergy(-accepted);
-                }
+        if (hatch.getIO() == IO.IN) {
+            long space = capacity - stored;
+            long toPull = Math.min(transferRate, space);
+            long pulled = bank.drain(toPull);
+            container.changeEnergy(pulled);
+        } else if (hatch.getIO() == IO.OUT) {
+            long toPush = Math.min(transferRate, stored);
+            long accepted = bank.fill(toPush);
+            container.changeEnergy(-accepted);
+        }
+    }
+
+    private static final Map<UUID, TeslaTowerMachine> TEAM_TOWER_MAP = new HashMap<>();
+
+    public static void registerTower(TeslaTowerMachine tower) {
+        if (tower.ownerTeamUUID != null) {
+            TEAM_TOWER_MAP.put(tower.ownerTeamUUID, tower);
+        }
+    }
+
+    public static void unregisterTower(TeslaTowerMachine tower) {
+        if (tower.ownerTeamUUID != null) {
+            TEAM_TOWER_MAP.remove(tower.ownerTeamUUID);
+        }
+    }
+
+    public static TeslaTowerMachine getTowerByTeam(UUID team) {
+        return TEAM_TOWER_MAP.get(team);
+    }
+
+    @Override
+    public void onStructureInvalid() {
+        inputHatches = null;
+        outputHatches = null;
+
+        TeslaWirelessRegistry.unregisterTower(this);
+
+        unregisterTower(this);
+
+        netInLastSec = 0;
+        inputPerSec = 0;
+        netOutLastSec = 0;
+        outputPerSec = 0;
+        super.onStructureInvalid();
+    }
+
+    private static MutableComponent getTimeToFillDrainText(BigInteger timeToFillSeconds) {
+        if (timeToFillSeconds.compareTo(BIG_INTEGER_MAX_LONG) > 0) {
+            timeToFillSeconds = BIG_INTEGER_MAX_LONG;
         }
 
-        private static final Map<UUID, TeslaTowerMachine> TEAM_TOWER_MAP = new HashMap<>();
-
-        public static void registerTower(TeslaTowerMachine tower) {
-                if (tower.ownerTeamUUID != null) {
-                        TEAM_TOWER_MAP.put(tower.ownerTeamUUID, tower);
-                }
+        Duration duration = Duration.ofSeconds(timeToFillSeconds.longValue());
+        String key;
+        long fillTime;
+        if (duration.getSeconds() <= 180) {
+            fillTime = duration.getSeconds();
+            key = "gtceu.multiblock.power_substation.time_seconds";
+        } else if (duration.toMinutes() <= 180) {
+            fillTime = duration.toMinutes();
+            key = "gtceu.multiblock.power_substation.time_minutes";
+        } else if (duration.toHours() <= 72) {
+            fillTime = duration.toHours();
+            key = "gtceu.multiblock.power_substation.time_hours";
+        } else if (duration.toDays() <= 730) {
+            fillTime = duration.toDays();
+            key = "gtceu.multiblock.power_substation.time_days";
+        } else if (duration.toDays() / 365 < 1_000_000) {
+            fillTime = duration.toDays() / 365;
+            key = "gtceu.multiblock.power_substation.time_years";
+        } else {
+            return Component.translatable("gtceu.multiblock.power_substation.time_forever");
         }
 
-        public static void unregisterTower(TeslaTowerMachine tower) {
-                if (tower.ownerTeamUUID != null) {
-                        TEAM_TOWER_MAP.remove(tower.ownerTeamUUID);
-                }
+        return Component.translatable(key, FormattingUtil.formatNumbers(fillTime));
+    }
+
+    public String getStored() {
+        if (energyBank == null) {
+            return "0";
         }
+        return FormattingUtil.formatNumbers(energyBank.getStored());
+    }
 
-        public static TeslaTowerMachine getTowerByTeam(UUID team) {
-                return TEAM_TOWER_MAP.get(team);
+    public String getCapacity() {
+        if (energyBank == null) {
+            return "0";
         }
+        return FormattingUtil.formatNumbers(energyBank.getCapacity());
+    }
 
-        @Override
-        public void onStructureInvalid() {
-                inputHatches = null;
-                outputHatches = null;
+    @Override
+    public EnergyInfo getEnergyInfo() {
+        return new EnergyInfo(energyBank.getCapacity(), energyBank.getStored());
+    }
 
-                TeslaWirelessRegistry.unregisterTower(this);
+    @Override
+    public boolean supportsBigIntEnergyValues() {
+        return true;
+    }
 
-                unregisterTower(this);
+    @Override
+    public @NotNull ManagedFieldHolder getFieldHolder() {
+        return MANAGED_FIELD_HOLDER;
+    }
 
-                netInLastSec = 0;
-                inputPerSec = 0;
-                netOutLastSec = 0;
-                outputPerSec = 0;
-                super.onStructureInvalid();
+    private BigInteger[] storage;
+    private BigInteger[] maximums;
+    @Setter
+    @Getter
+    private BigInteger capacity;
+    private int index;
+
+    @Override
+    public ModularUI createUI(Player entityPlayer) {
+        return new ModularUI(198, 208, this, entityPlayer).widget(new FancyMachineUIWidget(this, 198, 208));
+    }
+
+    @Override
+    public List<IFancyUIProvider> getSubTabs() {
+        return getParts().stream().filter(IFancyUIProvider.class::isInstance).map(IFancyUIProvider.class::cast)
+                .toList();
+    }
+
+    @Override
+    public void attachTooltips(TooltipsPanel tooltipsPanel) {
+        for (IMultiPart part : getParts()) {
+            part.attachFancyTooltipsToController(this, tooltipsPanel);
         }
+    }
 
-        private static MutableComponent getTimeToFillDrainText(BigInteger timeToFillSeconds) {
-                if (timeToFillSeconds.compareTo(BIG_INTEGER_MAX_LONG) > 0) {
-                        timeToFillSeconds = BIG_INTEGER_MAX_LONG;
-                }
+    @Override
+    public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
+        super.saveCustomPersistedData(tag, forDrop);
+        CompoundTag bankTag = energyBank.writeToNBT(new CompoundTag());
+        tag.put("energyBank", bankTag);
+    }
 
-                Duration duration = Duration.ofSeconds(timeToFillSeconds.longValue());
-                String key;
-                long fillTime;
-                if (duration.getSeconds() <= 180) {
-                        fillTime = duration.getSeconds();
-                        key = "gtceu.multiblock.power_substation.time_seconds";
-                } else if (duration.toMinutes() <= 180) {
-                        fillTime = duration.toMinutes();
-                        key = "gtceu.multiblock.power_substation.time_minutes";
-                } else if (duration.toHours() <= 72) {
-                        fillTime = duration.toHours();
-                        key = "gtceu.multiblock.power_substation.time_hours";
-                } else if (duration.toDays() <= 730) {
-                        fillTime = duration.toDays();
-                        key = "gtceu.multiblock.power_substation.time_days";
-                } else if (duration.toDays() / 365 < 1_000_000) {
-                        fillTime = duration.toDays() / 365;
-                        key = "gtceu.multiblock.power_substation.time_years";
-                } else {
-                        return Component.translatable("gtceu.multiblock.power_substation.time_forever");
-                }
+    @Override
+    public void loadCustomPersistedData(@NotNull CompoundTag tag) {
+        super.loadCustomPersistedData(tag);
+        energyBank.readFromNBT(tag.getCompound("energyBank"));
+        updateBatteryTier();
+    }
 
-                return Component.translatable(key, FormattingUtil.formatNumbers(fillTime));
+    private void updateBatteryTier() {
+        int newTier = energyBank.getHighestTier();
+        if (newTier != batteryTier) {
+            batteryTier = newTier;
+            onChanged(); // 🔥 THIS is what you were missing
         }
+    }
 
+    @Persisted
+    private BlockPos boundTowerPos;
 
-        public String getStored() {
-                if (energyBank == null) {
-                        return "0";
-                }
-                return FormattingUtil.formatNumbers(energyBank.getStored());
+    @Nullable
+    private TeslaTowerMachine getBoundTower() {
+        if (boundTowerPos == null || !(getLevel() instanceof ServerLevel sl)) return null;
+        BlockEntity be = getLevel().getBlockEntity(boundTowerPos);
+        if (!(be instanceof IMachineBlockEntity mbe)) return null;
+        if (!(mbe.getMetaMachine() instanceof TeslaTowerMachine tower)) return null;
+        return tower;
+    }
+
+    private TickableSubscription energySyncSub;
+
+    @Override
+    public void onUnload() {
+        super.onUnload();
+        if (energySyncSub != null) {
+            energySyncSub.unsubscribe();
+            energySyncSub = null;
         }
+    }
 
-        public String getCapacity() {
-                if (energyBank == null) {
-                        return "0";
-                }
-                return FormattingUtil.formatNumbers(energyBank.getCapacity());
-        }
+    public void bindToTower(TeslaTowerMachine tower) {
+        if (tower == null) return;
+        boundTowerPos = tower.self().getPos();
+        self().markDirty();
+    }
 
-        @Override
-        public EnergyInfo getEnergyInfo() {
-                return new EnergyInfo(energyBank.getCapacity(), energyBank.getStored());
-        }
+    private void pushEnergyToSavedData() {
+        if (this.getLevel() instanceof ServerLevel server && ownerTeamUUID != null) {
+            TeslaTeamEnergyData data = TeslaTeamEnergyData.get(server);
+            TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(ownerTeamUUID);
 
-        @Override
-        public boolean supportsBigIntEnergyValues() {
-                return true;
-        }
+            // Get the real values from your Tower's internal Bank trait
+            teamData.stored = this.energyBank.getStored();
+            teamData.capacity = this.energyBank.getCapacity();
 
-        @Override
-        public @NotNull ManagedFieldHolder getFieldHolder() {
-                return MANAGED_FIELD_HOLDER;
+            // This is what the command sees!
+            data.setDirty();
         }
+    }
+
+    private void syncToTeslaSavedData() {
+        if (this.getLevel() instanceof ServerLevel serverLevel && ownerTeamUUID != null) {
+            TeslaTeamEnergyData data = TeslaTeamEnergyData.get(serverLevel);
+            TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(ownerTeamUUID);
+
+            // 1. Tower tells the cloud its current battery capacity
+            teamData.capacity = this.energyBank.getCapacity();
+
+            // 2. Tower PULLS its stored value from the Cloud.
+            // This makes cross-dim work: if a hatch in the Nether drained the cloud,
+            // the tower now updates its physical batteries to match.
+            this.energyBank.setStored(teamData.stored);
+
+            // 3. Mark the network status
+            data.setOnline(ownerTeamUUID, isWorkingEnabled() && isFormed());
+            data.setDirty();
+        }
+    }
+
+    public static class TeslaEnergyBank extends MachineTrait {
+
+        protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
+                TeslaTowerMachine.TeslaEnergyBank.class);
+        private static final String NBT_SIZE = "Size";
+        private static final String NBT_STORED = "Stored";
+        private static final String NBT_MAX = "Max";
 
         private BigInteger[] storage;
         private BigInteger[] maximums;
-        @Setter
         @Getter
         private BigInteger capacity;
         private int index;
+        private final List<ITeslaBattery> batteries;
 
-        @Override
-        public ModularUI createUI(Player entityPlayer) {
-                return new ModularUI(198, 208, this, entityPlayer).widget(new FancyMachineUIWidget(this, 198, 208));
+        public TeslaEnergyBank(MetaMachine machine, List<ITeslaBattery> batteries) {
+            super(machine);
+            this.batteries = new ArrayList<>(batteries);
+            storage = new BigInteger[batteries.size()];
+            maximums = new BigInteger[batteries.size()];
+            capacity = BigInteger.ZERO;
+            for (int i = 0; i < batteries.size(); i++) {
+                maximums[i] = batteries.get(i).getCapacity();
+                storage[i] = BigInteger.ZERO;
+                capacity = capacity.add(maximums[i]);
+            }
+        }
+
+        public void setStored(BigInteger totalAmount) {
+            if (totalAmount == null || storage == null || storage.length == 0) return;
+            BigInteger remaining = totalAmount.max(BigInteger.ZERO).min(this.capacity);
+            for (int i = 0; i < storage.length; i++) {
+                BigInteger toPut = remaining.min(maximums[i]);
+                storage[i] = toPut;
+                remaining = remaining.subtract(toPut);
+            }
+            this.index = 0;
+            while (index < storage.length - 1 && storage[index].equals(maximums[index])) {
+                index++;
+            }
+        }
+
+        public int getHighestTier() {
+            if (batteries.isEmpty()) return 0;
+            return batteries.stream().mapToInt(ITeslaBattery::getTier).max().orElse(0);
+        }
+
+        public void readFromNBT(CompoundTag storageTag) {
+            int size = storageTag.getInt(NBT_SIZE);
+            storage = new BigInteger[size];
+            maximums = new BigInteger[size];
+            capacity = BigInteger.ZERO;
+            for (int i = 0; i < size; i++) {
+                CompoundTag subtag = storageTag.getCompound(String.valueOf(i));
+                storage[i] = new BigInteger(
+                        subtag.getString(NBT_STORED).isEmpty() ? "0" : subtag.getString(NBT_STORED));
+                maximums[i] = new BigInteger(subtag.getString(NBT_MAX).isEmpty() ? "0" : subtag.getString(NBT_MAX));
+                capacity = capacity.add(maximums[i]);
+            }
+        }
+
+        public CompoundTag writeToNBT(CompoundTag compound) {
+            compound.putInt(NBT_SIZE, storage.length);
+            for (int i = 0; i < storage.length; i++) {
+                CompoundTag subtag = new CompoundTag();
+                subtag.putString(NBT_STORED, storage[i].toString());
+                subtag.putString(NBT_MAX, maximums[i].toString());
+                compound.put(String.valueOf(i), subtag);
+            }
+            return compound;
+        }
+
+        public TeslaTowerMachine.TeslaEnergyBank rebuild(@NotNull List<ITeslaBattery> batteries) {
+            TeslaTowerMachine.TeslaEnergyBank newStorage = new TeslaTowerMachine.TeslaEnergyBank(this.machine,
+                    batteries);
+            for (BigInteger stored : storage) {
+                newStorage.fill(stored);
+            }
+            return newStorage;
+        }
+
+        /** Overloaded fill for long (standard GTCEu hatches) **/
+        public long fill(long amount) {
+            BigInteger filled = fill(BigInteger.valueOf(amount));
+            return filled.longValue();
+        }
+
+        public BigInteger fill(BigInteger amount) {
+            if (amount.signum() < 0) return BigInteger.ZERO;
+
+            if (index < storage.length && storage[index].equals(maximums[index])) {
+                if (index < storage.length - 1) index++;
+            }
+
+            BigInteger space = maximums[index].subtract(storage[index]);
+            BigInteger toFill = amount.min(space);
+
+            if (toFill.equals(BigInteger.ZERO) && index == storage.length - 1) {
+                return BigInteger.ZERO;
+            }
+
+            storage[index] = storage[index].add(toFill);
+            BigInteger remaining = amount.subtract(toFill);
+
+            if (remaining.signum() > 0 && index < storage.length - 1) {
+                return toFill.add(fill(remaining));
+            }
+
+            return toFill;
+        }
+
+        /** Overloaded drain for long **/
+        public long drain(long amount) {
+            BigInteger drained = drain(BigInteger.valueOf(amount));
+            return drained.longValue();
+        }
+
+        public BigInteger drain(BigInteger amount) {
+            if (amount.signum() < 0) return BigInteger.ZERO;
+
+            if (index >= 0 && storage[index].equals(BigInteger.ZERO)) {
+                if (index > 0) index--;
+            }
+
+            BigInteger toDrain = storage[index].min(amount);
+
+            if (toDrain.equals(BigInteger.ZERO) && index == 0) {
+                return BigInteger.ZERO;
+            }
+
+            storage[index] = storage[index].subtract(toDrain);
+            BigInteger remaining = amount.subtract(toDrain);
+
+            if (remaining.signum() > 0 && index > 0) {
+                return toDrain.add(drain(remaining));
+            }
+
+            return toDrain;
+        }
+
+        public BigInteger getStored() {
+            BigInteger total = BigInteger.ZERO;
+            for (BigInteger b : storage) total = total.add(b);
+            return total;
+        }
+
+        public boolean hasEnergy() {
+            return getStored().signum() > 0;
         }
 
         @Override
-        public List<IFancyUIProvider> getSubTabs() {
-                return getParts().stream().filter(IFancyUIProvider.class::isInstance).map(IFancyUIProvider.class::cast)
-                                .toList();
+        public ManagedFieldHolder getFieldHolder() {
+            return MANAGED_FIELD_HOLDER;
+        }
+    }
+
+    @Getter
+    public static class BatteryMatchWrapper {
+
+        private final ITeslaBattery partType;
+        private int amount;
+
+        public BatteryMatchWrapper(ITeslaBattery partType) {
+            this.partType = partType;
         }
 
-        @Override
-        public void attachTooltips(TooltipsPanel tooltipsPanel) {
-                for (IMultiPart part : getParts()) {
-                        part.attachFancyTooltipsToController(this, tooltipsPanel);
-                }
+        public TeslaTowerMachine.BatteryMatchWrapper increment() {
+            amount++;
+            return this;
         }
+    }
 
-        @Override
-        public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
-                super.saveCustomPersistedData(tag, forDrop);
-                CompoundTag bankTag = energyBank.writeToNBT(new CompoundTag());
-                tag.put("energyBank", bankTag);
-        }
+    @Override
+    public InteractionResult onDataStickUse(Player player, ItemStack binder) {
+        if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
 
-        @Override
-        public void loadCustomPersistedData(@NotNull CompoundTag tag) {
-                super.loadCustomPersistedData(tag);
-                energyBank.readFromNBT(tag.getCompound("energyBank"));
-                updateBatteryTier();
+        var tag = binder.getTag();
+        if (!getLevel().isClientSide && tag != null && tag.hasUUID("TargetTeam")) {
+            // Apply frequency
+            this.ownerTeamUUID = tag.getUUID("TargetTeam");
 
-        }
-        private void updateBatteryTier() {
-                int newTier = energyBank.getHighestTier();
-                if (newTier != batteryTier) {
-                        batteryTier = newTier;
-                        onChanged(); // 🔥 THIS is what you were missing
-                }
-        }
+            // Force immediate registration
+            registerTower(this);
 
-
-        @Persisted
-        private BlockPos boundTowerPos;
-
-        @Nullable
-        private TeslaTowerMachine getBoundTower() {
-                if (boundTowerPos == null || !(getLevel() instanceof ServerLevel sl)) return null;
-                BlockEntity be = getLevel().getBlockEntity(boundTowerPos);
-                if (!(be instanceof IMachineBlockEntity mbe)) return null;
-                if (!(mbe.getMetaMachine() instanceof TeslaTowerMachine tower)) return null;
-                return tower;
-        }
-
-        private TickableSubscription energySyncSub;
-
-        @Override
-        public void onUnload() {
-                super.onUnload();
-                if (energySyncSub != null) {
-                        energySyncSub.unsubscribe();
-                        energySyncSub = null;
-                }
-        }
-
-        public void bindToTower(TeslaTowerMachine tower) {
-                if (tower == null) return;
-                boundTowerPos = tower.self().getPos();
+            if (isFormed()) {
+                syncToTeslaSavedData(); // Connect the battery bank to this cloud frequency
                 self().markDirty();
+            }
+
+            player.sendSystemMessage(
+                    Component.literal("Tower frequency set to: " + ownerTeamUUID.toString().substring(0, 8))
+                            .withStyle(ChatFormatting.AQUA));
+            return InteractionResult.SUCCESS;
         }
-        private void pushEnergyToSavedData() {
-                if (this.getLevel() instanceof ServerLevel server && ownerTeamUUID != null) {
-                        TeslaTeamEnergyData data = TeslaTeamEnergyData.get(server);
-                        TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(ownerTeamUUID);
+        return InteractionResult.sidedSuccess(getLevel().isClientSide);
+    }
 
-                        // Get the real values from your Tower's internal Bank trait
-                        teamData.stored = this.energyBank.getStored();
-                        teamData.capacity = this.energyBank.getCapacity();
+    @Override
+    public InteractionResult onDataStickShiftUse(Player player, ItemStack binder) {
+        if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
 
-                        // This is what the command sees!
-                        data.setDirty();
+        if (!getLevel().isClientSide) {
+            ensureOwnerTeamUUID(); // Make sure the tower knows who it belongs to
+            if (this.ownerTeamUUID != null) {
+                var tag = binder.getOrCreateTag();
+                tag.putUUID("TargetTeam", this.ownerTeamUUID);
+                tag.putString("TeamName", player.getName().getString() + "'s Network");
+
+                if (!tag.contains("OwnerName")) {
+                    tag.putString("OwnerName", player.getName().getString());
                 }
+
+                syncToTeslaSavedData();
+                player.sendSystemMessage(Component.literal("Tower frequency copied to Binder.")
+                        .withStyle(ChatFormatting.GREEN));
+                return InteractionResult.SUCCESS;
+            }
         }
-        private void syncToTeslaSavedData() {
-                if (this.getLevel() instanceof ServerLevel serverLevel && ownerTeamUUID != null) {
-                        TeslaTeamEnergyData data = TeslaTeamEnergyData.get(serverLevel);
-                        TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(ownerTeamUUID);
+        return InteractionResult.sidedSuccess(getLevel().isClientSide);
+    }
 
-                        // 1. Tower tells the cloud its current battery capacity
-                        teamData.capacity = this.energyBank.getCapacity();
+    @Persisted
+    @DescSynced
+    private int batteryTier;
+    @Persisted
+    private UUID ownerTeamUUID;
 
-                        // 2. Tower PULLS its stored value from the Cloud.
-                        // This makes cross-dim work: if a hatch in the Nether drained the cloud,
-                        // the tower now updates its physical batteries to match.
-                        this.energyBank.setStored(teamData.stored);
+    private void ensureOwnerTeamUUID() {
+        if (!(getLevel() instanceof ServerLevel sl)) return;
 
-                        // 3. Mark the network status
-                        data.setOnline(ownerTeamUUID, isWorkingEnabled() && isFormed());
-                        data.setDirty();
-                }
+        // 1. If we already have a persistent UUID from NBT, we're good
+        if (this.ownerTeamUUID != null) return;
+
+        // 2. Try to get the UUID of the player who placed this block
+        UUID ownerUUID = getOwnerUUID();
+        if (ownerUUID != null) {
+            // 3. Use TeamUtils to find the Team/Player ID even if they are offline
+            this.ownerTeamUUID = TeamUtils.getTeamIdOrPlayerFallback(ownerUUID);
+
+            // 4. Mark for save so it persists across restarts
+            self().markDirty();
+
+            // 5. Log for debugging
+            if (TESLA_DEBUG) {
+                phoenixcore.LOGGER.info("Tesla Tower at {} auto-assigned to Team {}",
+                        getPos().toShortString(), ownerTeamUUID);
+            }
         }
+    }
 
+    @Override
+    public void addDisplayText(List<Component> textList) {
+        super.addDisplayText(textList);
 
-        public static class TeslaEnergyBank extends MachineTrait {
-
-                protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
-                                                TeslaTowerMachine.TeslaEnergyBank.class);
-                private static final String NBT_SIZE = "Size";
-                private static final String NBT_STORED = "Stored";
-                private static final String NBT_MAX = "Max";
-
-                private BigInteger[] storage;
-                private BigInteger[] maximums;
-                @Getter
-                private BigInteger capacity;
-                private int index;
-                private final List<ITeslaBattery> batteries;
-
-                public TeslaEnergyBank(MetaMachine machine, List<ITeslaBattery> batteries) {
-                        super(machine);
-                        this.batteries = new ArrayList<>(batteries);
-                        storage = new BigInteger[batteries.size()];
-                        maximums = new BigInteger[batteries.size()];
-                        capacity = BigInteger.ZERO;
-                        for (int i = 0; i < batteries.size(); i++) {
-                                maximums[i] = batteries.get(i).getCapacity();
-                                storage[i] = BigInteger.ZERO;
-                                capacity = capacity.add(maximums[i]);
-                        }
-                }
-                public void setStored(BigInteger totalAmount) {
-                        if (totalAmount == null || storage == null || storage.length == 0) return;
-                        BigInteger remaining = totalAmount.max(BigInteger.ZERO).min(this.capacity);
-                        for (int i = 0; i < storage.length; i++) {
-                                BigInteger toPut = remaining.min(maximums[i]);
-                                storage[i] = toPut;
-                                remaining = remaining.subtract(toPut);
-                        }
-                        this.index = 0;
-                        while (index < storage.length - 1 && storage[index].equals(maximums[index])) {
-                                index++;
-                        }
-                }
-
-                public int getHighestTier() {
-                        if (batteries.isEmpty()) return 0;
-                        return batteries.stream().mapToInt(ITeslaBattery::getTier).max().orElse(0);
-                }
-
-                public void readFromNBT(CompoundTag storageTag) {
-                        int size = storageTag.getInt(NBT_SIZE);
-                        storage = new BigInteger[size];
-                        maximums = new BigInteger[size];
-                        capacity = BigInteger.ZERO;
-                        for (int i = 0; i < size; i++) {
-                                CompoundTag subtag = storageTag.getCompound(String.valueOf(i));
-                                storage[i] = new BigInteger(
-                                                                        subtag.getString(NBT_STORED).isEmpty() ? "0" : subtag.getString(NBT_STORED));
-                                maximums[i] = new BigInteger(subtag.getString(NBT_MAX).isEmpty() ? "0" : subtag.getString(NBT_MAX));
-                                capacity = capacity.add(maximums[i]);
-                        }
-                }
-
-                public CompoundTag writeToNBT(CompoundTag compound) {
-                        compound.putInt(NBT_SIZE, storage.length);
-                        for (int i = 0; i < storage.length; i++) {
-                                CompoundTag subtag = new CompoundTag();
-                                subtag.putString(NBT_STORED, storage[i].toString());
-                                subtag.putString(NBT_MAX, maximums[i].toString());
-                                compound.put(String.valueOf(i), subtag);
-                        }
-                        return compound;
-                }
-
-                public TeslaTowerMachine.TeslaEnergyBank rebuild(@NotNull List<ITeslaBattery> batteries) {
-                        TeslaTowerMachine.TeslaEnergyBank newStorage = new TeslaTowerMachine.TeslaEnergyBank(this.machine,
-                                                            batteries);
-                        for (BigInteger stored : storage) {
-                                newStorage.fill(stored);
-                        }
-                        return newStorage;
-                }
-
-                /** Overloaded fill for long (standard GTCEu hatches) **/
-                        public long fill(long amount) {
-                        BigInteger filled = fill(BigInteger.valueOf(amount));
-                        return filled.longValue();
-                }
-
-                public BigInteger fill(BigInteger amount) {
-                        if (amount.signum() < 0) return BigInteger.ZERO;
-
-                        if (index < storage.length && storage[index].equals(maximums[index])) {
-                                if (index < storage.length - 1) index++;
-                        }
-
-                        BigInteger space = maximums[index].subtract(storage[index]);
-                        BigInteger toFill = amount.min(space);
-
-                        if (toFill.equals(BigInteger.ZERO) && index == storage.length - 1) {
-                                return BigInteger.ZERO;
-                        }
-
-                        storage[index] = storage[index].add(toFill);
-                        BigInteger remaining = amount.subtract(toFill);
-
-                        if (remaining.signum() > 0 && index < storage.length - 1) {
-                                return toFill.add(fill(remaining));
-                        }
-
-                        return toFill;
-                }
-
-                /** Overloaded drain for long **/
-                        public long drain(long amount) {
-                        BigInteger drained = drain(BigInteger.valueOf(amount));
-                        return drained.longValue();
-                }
-
-                public BigInteger drain(BigInteger amount) {
-                        if (amount.signum() < 0) return BigInteger.ZERO;
-
-                        if (index >= 0 && storage[index].equals(BigInteger.ZERO)) {
-                                if (index > 0) index--;
-                        }
-
-                        BigInteger toDrain = storage[index].min(amount);
-
-                        if (toDrain.equals(BigInteger.ZERO) && index == 0) {
-                                return BigInteger.ZERO;
-                        }
-
-                        storage[index] = storage[index].subtract(toDrain);
-                        BigInteger remaining = amount.subtract(toDrain);
-
-                        if (remaining.signum() > 0 && index > 0) {
-                                return toDrain.add(drain(remaining));
-                        }
-
-                        return toDrain;
-                }
-
-                public BigInteger getStored() {
-                        BigInteger total = BigInteger.ZERO;
-                        for (BigInteger b : storage) total = total.add(b);
-                        return total;
-                }
-
-                public boolean hasEnergy() {
-                        return getStored().signum() > 0;
-                }
-
-
-
-                @Override
-                public ManagedFieldHolder getFieldHolder() {
-                        return MANAGED_FIELD_HOLDER;
-                }
+        if (!isFormed()) {
+            textList.add(Component.literal("Tesla Network: Inactive").withStyle(ChatFormatting.RED));
+            return;
         }
 
-        @Getter
-        public static class BatteryMatchWrapper {
+        Style GOLD = Style.EMPTY.withColor(ChatFormatting.GOLD);
+        Style AQUA = Style.EMPTY.withColor(ChatFormatting.AQUA);
+        Style GRAY = Style.EMPTY.withColor(ChatFormatting.GRAY);
+        Style GREEN = Style.EMPTY.withColor(ChatFormatting.GREEN);
+        Style RED = Style.EMPTY.withColor(ChatFormatting.RED);
 
-                private final ITeslaBattery partType;
-                private int amount;
+        textList.add(Component.literal("Tesla Network: ")
+                .append(Component.literal(isWorkingEnabled() ? "ONLINE" : "OFFLINE")
+                        .withStyle(isWorkingEnabled() ? ChatFormatting.GREEN : ChatFormatting.RED)));
 
-                public BatteryMatchWrapper(ITeslaBattery partType) {
-                        this.partType = partType;
-                }
+        textList.add(Component.literal("Team: ")
+                .append(Component.literal(ownerTeamUUID == null ? "None" : TeamUtils.getTeamName(ownerTeamUUID))
+                        .withStyle(AQUA)));
 
-                public TeslaTowerMachine.BatteryMatchWrapper increment() {
-                        amount++;
-                        return this;
-                }
+        if (energyBank != null) {
+            textList.add(Component.literal("Stored: ")
+                    .append(Component.literal(FormattingUtil.formatNumbers(energyBank.getStored()))
+                            .withStyle(GOLD))
+                    .append(Component.literal(" / ").withStyle(GRAY))
+                    .append(Component.literal(FormattingUtil.formatNumbers(energyBank.getCapacity()))
+                            .withStyle(GOLD)));
+
+            textList.add(Component.literal("Battery Tier: ")
+                    .append(Component.literal(GTValues.VN[energyBank.getHighestTier()]).withStyle(AQUA)));
         }
+    }
 
-        @Override
-        public InteractionResult onDataStickUse(Player player, ItemStack binder) {
-                if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
+    @Override
+    public @NotNull Widget createUIWidget() {
+        var group = new WidgetGroup(0, 0, 190, 125);
+        var container = new DraggableScrollableWidgetGroup(4, 4, 182, 117)
+                .setBackground(getScreenTexture());
 
-                var tag = binder.getTag();
-                if (!getLevel().isClientSide && tag != null && tag.hasUUID("TargetTeam")) {
-                        // Apply frequency
-                        this.ownerTeamUUID = tag.getUUID("TargetTeam");
+        container.addWidget(new ImageWidget(140, 70, 32, 32,
+                () -> getTeslaTierTexture(batteryTier)));
 
-                        // Force immediate registration
-                        registerTower(this);
+        container.addWidget(new LabelWidget(4, 5, self().getBlockState().getBlock().getDescriptionId()));
+        container.addWidget(new ComponentPanelWidget(4, 17, this::addDisplayText).setMaxWidthLimit(150));
 
-                        if (isFormed()) {
-                                syncToTeslaSavedData(); // Connect the battery bank to this cloud frequency
-                                self().markDirty();
-                        }
+        group.addWidget(container);
 
-                        player.sendSystemMessage(Component.literal("Tower frequency set to: " + ownerTeamUUID.toString().substring(0, 8))
-                                                            .withStyle(ChatFormatting.AQUA));
-                        return InteractionResult.SUCCESS;
-                }
-                return InteractionResult.sidedSuccess(getLevel().isClientSide);
-        }
+        group.setBackground(com.gregtechceu.gtceu.api.gui.GuiTextures.BACKGROUND_INVERSE);
+        return group;
+    }
 
-        @Override
-        public InteractionResult onDataStickShiftUse(Player player, ItemStack binder) {
-                if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
-
-                if (!getLevel().isClientSide) {
-                        ensureOwnerTeamUUID(); // Make sure the tower knows who it belongs to
-                        if (this.ownerTeamUUID != null) {
-                                var tag = binder.getOrCreateTag();
-                                tag.putUUID("TargetTeam", this.ownerTeamUUID);
-                                tag.putString("TeamName", player.getName().getString() + "'s Network");
-
-                                if (!tag.contains("OwnerName")) {
-                                        tag.putString("OwnerName", player.getName().getString());
-                                }
-
-                                syncToTeslaSavedData();
-                                player.sendSystemMessage(Component.literal("Tower frequency copied to Binder.")
-                                                                        .withStyle(ChatFormatting.GREEN));
-                                return InteractionResult.SUCCESS;
-                        }
-                }
-                return InteractionResult.sidedSuccess(getLevel().isClientSide);
-        }
-
-        @Persisted
-        @DescSynced
-        private int batteryTier;
-        @Persisted
-        private UUID ownerTeamUUID;
-
-        private void ensureOwnerTeamUUID() {
-                if (!(getLevel() instanceof ServerLevel sl)) return;
-
-                // 1. If we already have a persistent UUID from NBT, we're good
-                if (this.ownerTeamUUID != null) return;
-
-                // 2. Try to get the UUID of the player who placed this block
-                UUID ownerUUID = getOwnerUUID();
-                if (ownerUUID != null) {
-                        // 3. Use TeamUtils to find the Team/Player ID even if they are offline
-                        this.ownerTeamUUID = TeamUtils.getTeamIdOrPlayerFallback(ownerUUID);
-
-                        // 4. Mark for save so it persists across restarts
-                        self().markDirty();
-
-                        // 5. Log for debugging
-                        if (TESLA_DEBUG) {
-                                phoenixcore.LOGGER.info("Tesla Tower at {} auto-assigned to Team {}",
-                                                                        getPos().toShortString(), ownerTeamUUID);
-                        }
-                }
-        }
-
-        @Override
-        public void addDisplayText(List<Component> textList) {
-                super.addDisplayText(textList);
-
-                if (!isFormed()) {
-                        textList.add(Component.literal("Tesla Network: Inactive").withStyle(ChatFormatting.RED));
-                        return;
-                }
-
-                Style GOLD = Style.EMPTY.withColor(ChatFormatting.GOLD);
-                Style AQUA = Style.EMPTY.withColor(ChatFormatting.AQUA);
-                Style GRAY = Style.EMPTY.withColor(ChatFormatting.GRAY);
-                Style GREEN = Style.EMPTY.withColor(ChatFormatting.GREEN);
-                Style RED = Style.EMPTY.withColor(ChatFormatting.RED);
-
-                textList.add(Component.literal("Tesla Network: ")
-                                                .append(Component.literal(isWorkingEnabled() ? "ONLINE" : "OFFLINE")
-                                                                .withStyle(isWorkingEnabled() ? ChatFormatting.GREEN : ChatFormatting.RED)));
-
-                textList.add(Component.literal("Team: ")
-                                                .append(Component.literal(ownerTeamUUID == null ? "None" : TeamUtils.getTeamName(ownerTeamUUID))
-                                                                .withStyle(AQUA)));
-
-                if (energyBank != null) {
-                        textList.add(Component.literal("Stored: ")
-                                                            .append(Component.literal(FormattingUtil.formatNumbers(energyBank.getStored()))
-                                                                            .withStyle(GOLD))
-                                        .append(Component.literal(" / ").withStyle(GRAY))
-                                        .append(Component.literal(FormattingUtil.formatNumbers(energyBank.getCapacity()))
-                                                                            .withStyle(GOLD)));
-
-                        textList.add(Component.literal("Battery Tier: ")
-                                                            .append(Component.literal(GTValues.VN[energyBank.getHighestTier()]).withStyle(AQUA)));
-                }
-        }
-
-        @Override
-        public @NotNull Widget createUIWidget() {
-                var group = new WidgetGroup(0, 0, 190, 125);
-                var container = new DraggableScrollableWidgetGroup(4, 4, 182, 117)
-                                .setBackground(getScreenTexture());
-
-                container.addWidget(new ImageWidget(140, 70, 32, 32,
-                                                () -> getTeslaTierTexture(batteryTier)));
-
-                container.addWidget(new LabelWidget(4, 5, self().getBlockState().getBlock().getDescriptionId()));
-                container.addWidget(new ComponentPanelWidget(4, 17, this::addDisplayText).setMaxWidthLimit(150));
-
-                group.addWidget(container);
-
-                group.setBackground(com.gregtechceu.gtceu.api.gui.GuiTextures.BACKGROUND_INVERSE);
-                return group;
-        }
-
-        private com.lowdragmc.lowdraglib.gui.texture.IGuiTexture getTeslaTierTexture(int tier) {
-                return switch (tier) {
-                        case 10 -> PhoenixGuiTextures.BATTERY_BAR_UEV;
-                        case 11 -> PhoenixGuiTextures.BATTERY_BAR_UIV;
-                        case 12 -> PhoenixGuiTextures.BATTERY_BAR_UXV;
-                        case 13 -> PhoenixGuiTextures.BATTERY_BAR_OPV;
-                        case 14 -> PhoenixGuiTextures.BATTERY_BAR_MAX;
-                        default -> PhoenixGuiTextures.BATTERY_BAR_UHV;
-                };
-        }
-} 
+    private com.lowdragmc.lowdraglib.gui.texture.IGuiTexture getTeslaTierTexture(int tier) {
+        return switch (tier) {
+            case 10 -> PhoenixGuiTextures.BATTERY_BAR_UEV;
+            case 11 -> PhoenixGuiTextures.BATTERY_BAR_UIV;
+            case 12 -> PhoenixGuiTextures.BATTERY_BAR_UXV;
+            case 13 -> PhoenixGuiTextures.BATTERY_BAR_OPV;
+            case 14 -> PhoenixGuiTextures.BATTERY_BAR_MAX;
+            default -> PhoenixGuiTextures.BATTERY_BAR_UHV;
+        };
+    }
+}

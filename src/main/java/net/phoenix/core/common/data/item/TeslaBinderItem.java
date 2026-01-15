@@ -8,11 +8,13 @@ import com.gregtechceu.gtceu.api.item.component.IItemUIFactory;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
+
 import com.lowdragmc.lowdraglib.gui.factory.HeldItemUIFactory;
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -33,6 +35,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class TeslaBinderItem extends ComponentItem
-        implements IItemUIFactory, IInteractionItem, IAddInformation {
+                             implements IItemUIFactory, IInteractionItem, IAddInformation {
 
     public TeslaBinderItem(Properties properties) {
         super(properties);
@@ -130,9 +133,11 @@ public class TeslaBinderItem extends ComponentItem
 
         if (player.level() instanceof ServerLevel server) {
             TeslaTeamEnergyData.get(server).getOrCreate(uuid);
-            server.sendParticles(ParticleTypes.ENCHANT, player.getX(), player.getY() + 1.1, player.getZ(), 20, 0.2, 0.2, 0.2, 0.02);
+            server.sendParticles(ParticleTypes.ENCHANT, player.getX(), player.getY() + 1.1, player.getZ(), 20, 0.2, 0.2,
+                    0.2, 0.02);
             player.playSound(SoundEvents.PLAYER_LEVELUP, 0.5f, 1.5f);
-            player.sendSystemMessage(Component.literal("Tesla frequency set to personal network.").withStyle(ChatFormatting.GREEN));
+            player.sendSystemMessage(
+                    Component.literal("Tesla frequency set to personal network.").withStyle(ChatFormatting.GREEN));
         }
     }
 
@@ -151,24 +156,27 @@ public class TeslaBinderItem extends ComponentItem
 
             // "Bound to Player: PlayerName" (Always animated)
             tooltip.add(Component.literal("Bound to Player: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(stack.getTag().getString("OwnerName")).withStyle(Style.EMPTY.withColor(color))));
+                    .append(Component.literal(stack.getTag().getString("OwnerName"))
+                            .withStyle(Style.EMPTY.withColor(color))));
 
             // "Bound to Team: Network Name" (Always animated)
             if (stack.getTag().contains("TeamName")) {
                 tooltip.add(Component.literal("Bound to Team: ").withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(stack.getTag().getString("TeamName")).withStyle(Style.EMPTY.withColor(color))));
+                        .append(Component.literal(stack.getTag().getString("TeamName"))
+                                .withStyle(Style.EMPTY.withColor(color))));
             }
         } else {
-            tooltip.add(Component.literal("Shift + Right-Click to bind to your frequency.").withStyle(ChatFormatting.DARK_GRAY));
+            tooltip.add(Component.literal("Shift + Right-Click to bind to your frequency.")
+                    .withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 
     private int getAnimatedColor(int color1, int color2, int duration) {
         float time = (System.currentTimeMillis() % duration) / (float) duration;
         float phase = (float) Math.sin(time * 2 * Math.PI) * 0.5f + 0.5f;
-        int r = (int)(((color1 >> 16) & 0xFF) + (((color2 >> 16) & 0xFF) - ((color1 >> 16) & 0xFF)) * phase);
-        int g = (int)(((color1 >> 8) & 0xFF) + (((color2 >> 8) & 0xFF) - ((color1 >> 8) & 0xFF)) * phase);
-        int b = (int)((color1 & 0xFF) + ((color2 & 0xFF) - (color1 & 0xFF)) * phase);
+        int r = (int) (((color1 >> 16) & 0xFF) + (((color2 >> 16) & 0xFF) - ((color1 >> 16) & 0xFF)) * phase);
+        int g = (int) (((color1 >> 8) & 0xFF) + (((color2 >> 8) & 0xFF) - ((color1 >> 8) & 0xFF)) * phase);
+        int b = (int) ((color1 & 0xFF) + ((color2 & 0xFF) - (color1 & 0xFF)) * phase);
         return (r << 16) | (g << 8) | b;
     }
 
@@ -205,16 +213,14 @@ public class TeslaBinderItem extends ComponentItem
                     textList.add(Component.literal("Network: ")
                             .withStyle(ChatFormatting.GRAY)
                             .append(Component.literal(
-                                            stack.getTag().getString("TeamName"))
+                                    stack.getTag().getString("TeamName"))
                                     .withStyle(ChatFormatting.AQUA)));
 
                     textList.add(Component.literal("Status: ")
                             .withStyle(ChatFormatting.GRAY)
                             .append(Component.literal(
-                                            data.isOnline(teamUUID) ? "ONLINE" : "OFFLINE")
-                                    .withStyle(data.isOnline(teamUUID)
-                                            ? ChatFormatting.GREEN
-                                            : ChatFormatting.RED)));
+                                    data.isOnline(teamUUID) ? "ONLINE" : "OFFLINE")
+                                    .withStyle(data.isOnline(teamUUID) ? ChatFormatting.GREEN : ChatFormatting.RED)));
 
                     textList.add(Component.empty());
 
@@ -222,13 +228,13 @@ public class TeslaBinderItem extends ComponentItem
                     textList.add(Component.literal("Stored EU: ")
                             .withStyle(ChatFormatting.GRAY)
                             .append(Component.literal(
-                                            FormattingUtil.formatNumbers(team.stored))
+                                    FormattingUtil.formatNumbers(team.stored))
                                     .withStyle(ChatFormatting.GOLD)));
 
                     textList.add(Component.literal("Capacity: ")
                             .withStyle(ChatFormatting.GRAY)
                             .append(Component.literal(
-                                            FormattingUtil.formatNumbers(team.capacity))
+                                    FormattingUtil.formatNumbers(team.capacity))
                                     .withStyle(ChatFormatting.YELLOW)));
 
                     textList.add(Component.empty());
@@ -251,21 +257,18 @@ public class TeslaBinderItem extends ComponentItem
                     for (var hatch : hatches) {
                         boolean isOutput = hatch.output.signum() > 0;
 
-                        MutableComponent line =
-                                Component.literal(isOutput ? "OUT " : "IN  ")
-                                        .withStyle(isOutput
-                                                ? ChatFormatting.RED
-                                                : ChatFormatting.GREEN)
-                                        .append(Component.literal(
-                                                        String.format(
-                                                                " @ %d %d %d",
-                                                                hatch.pos.getX(),
-                                                                hatch.pos.getY(),
-                                                                hatch.pos.getZ()))
-                                                .withStyle(ChatFormatting.GRAY))
-                                        .append(Component.literal(
-                                                        " (" + FormattingUtil.formatNumbers(hatch.buffered) + " EU)")
-                                                .withStyle(ChatFormatting.GOLD));
+                        MutableComponent line = Component.literal(isOutput ? "OUT " : "IN  ")
+                                .withStyle(isOutput ? ChatFormatting.RED : ChatFormatting.GREEN)
+                                .append(Component.literal(
+                                        String.format(
+                                                " @ %d %d %d",
+                                                hatch.pos.getX(),
+                                                hatch.pos.getY(),
+                                                hatch.pos.getZ()))
+                                        .withStyle(ChatFormatting.GRAY))
+                                .append(Component.literal(
+                                        " (" + FormattingUtil.formatNumbers(hatch.buffered) + " EU)")
+                                        .withStyle(ChatFormatting.GOLD));
 
                         textList.add(line);
                     }

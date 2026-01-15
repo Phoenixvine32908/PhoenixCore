@@ -30,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigInteger;
-import java.util.Objects;
 import java.util.UUID;
 
 public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implements IDataStickInteractable {
@@ -52,7 +51,7 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     // Tick subscription for wireless hatches outside multiblock
     private TickableSubscription tickSubscription;
 
-// Inside TeslaEnergyHatchPartMachine.java
+    // Inside TeslaEnergyHatchPartMachine.java
 
     @Override
     public void onLoad() {
@@ -78,7 +77,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         // Cleanup the tick subscription
         unsubscribeFromTick();
     }
-
 
     // ---------------------------------------
     // Constructor & field holder
@@ -230,9 +228,7 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
             data.setEnergyBuffered(
                     ownerTeamUUID,
                     getPos(),
-                    BigInteger.valueOf(energyContainer.getEnergyStored())
-            );
-
+                    BigInteger.valueOf(energyContainer.getEnergyStored()));
 
         } else if (getIO() == IO.OUT) { // Machine is producing EU (Input Hatch)
             long stored = energyContainer.getEnergyStored();
@@ -246,7 +242,8 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
 
             data.setEnergyOutput(ownerTeamUUID, getPos(), accepted);
             // Update the cloud's view of this hatch's internal buffer for the UI/Command
-            data.setEnergyBuffered(ownerTeamUUID, getPos(), java.math.BigInteger.valueOf(energyContainer.getEnergyStored()));
+            data.setEnergyBuffered(ownerTeamUUID, getPos(),
+                    java.math.BigInteger.valueOf(energyContainer.getEnergyStored()));
         }
     }
 
@@ -317,10 +314,11 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
                     TeslaTeamEnergyData.get(server).setEnergyBuffered(
                             ownerTeamUUID,
                             getPos(),
-                            java.math.BigInteger.valueOf(energyContainer.getEnergyStored())
-                    );
+                            java.math.BigInteger.valueOf(energyContainer.getEnergyStored()));
 
-                    player.sendSystemMessage(Component.literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID.toString().substring(0, 8) + "...")
+                    player.sendSystemMessage(Component
+                            .literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID.toString().substring(0, 8) +
+                                    "...")
                             .withStyle(ChatFormatting.AQUA));
                 } else {
                     player.sendSystemMessage(Component.literal("Tesla Hatch: Already synced to this frequency.")

@@ -19,5 +19,6 @@ public interface ITeslaBattery {
 
     // --- NEW ---
     BigInteger getStored();
+
     void setStored(BigInteger amount);
 }

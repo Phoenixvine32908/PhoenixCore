@@ -1,6 +1,5 @@
 package net.phoenix.core.commands;
 
-import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -9,6 +8,8 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
+
+import com.mojang.brigadier.CommandDispatcher;
 
 import java.util.UUID;
 
@@ -22,8 +23,7 @@ public class TeslaDebugCommand {
         dispatcher.register(
                 Commands.literal("tesla_energy_debug")
                         .requires(src -> src.hasPermission(2))
-                        .executes(ctx -> run(ctx.getSource()))
-        );
+                        .executes(ctx -> run(ctx.getSource())));
     }
 
     private static int run(CommandSourceStack source) {
@@ -45,17 +45,14 @@ public class TeslaDebugCommand {
 
             boolean online = data.isOnline(team);
 
-            source.sendSuccess(() ->
-                    Component.literal("Team: " + team + " (" + (online ? "ONLINE" : "OFFLINE") + ")"), false);
+            source.sendSuccess(() -> Component.literal("Team: " + team + " (" + (online ? "ONLINE" : "OFFLINE") + ")"),
+                    false);
 
-            source.sendSuccess(() ->
-                    Component.literal("  Stored: " + e.stored), false);
+            source.sendSuccess(() -> Component.literal("  Stored: " + e.stored), false);
 
-            source.sendSuccess(() ->
-                    Component.literal("  Capacity: " + e.capacity), false);
+            source.sendSuccess(() -> Component.literal("  Capacity: " + e.capacity), false);
 
-            source.sendSuccess(() ->
-                    Component.literal("  Hatches: " + data.getHatchCount(team)), false);
+            source.sendSuccess(() -> Component.literal("  Hatches: " + data.getHatchCount(team)), false);
         }
 
         return 1;
