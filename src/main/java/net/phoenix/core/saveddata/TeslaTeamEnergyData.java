@@ -3,11 +3,11 @@ package net.phoenix.core.saveddata;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 
-import com.electronwill.nightconfig.core.utils.ObservedMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
@@ -16,12 +16,10 @@ import java.util.*;
 public class TeslaTeamEnergyData extends SavedData {
 
     private static final String DATA_NAME = "phoenix_tesla_team_energy";
+    private final Map<UUID, TeamEnergy> networks = new HashMap<>();
+    private final Set<UUID> onlineNetworks = new HashSet<>();
 
-    public java.util.Set<BlockPos> getEndpoints(UUID teamUUID) {
-        TeamEnergy team = networks.get(teamUUID);
-        if (team == null || team.hatchStored == null) return java.util.Collections.emptySet();
-        return team.hatchStored.keySet();
-    }
+    // --- DATA TRANSFER OBJECTS ---
 
     public static class HatchInfo {
 
@@ -29,63 +27,37 @@ public class TeslaTeamEnergyData extends SavedData {
         public BigInteger input = BigInteger.ZERO;
         public BigInteger output = BigInteger.ZERO;
         public BigInteger buffered = BigInteger.ZERO;
+        public boolean isPhysicalOutput = false;
+        public boolean isSoulLinked = false;
 
         public HatchInfo(BlockPos pos) {
             this.pos = pos;
         }
     }
 
-    public Collection<HatchInfo> getHatches(UUID team) {
-        TeamEnergy e = networks.get(team);
-        if (e == null) return List.of();
-
-        Map<BlockPos, HatchInfo> map = new HashMap<>();
-
-        e.energyBuffered.forEach((pos, buf) -> map.computeIfAbsent(pos, HatchInfo::new).buffered = buf);
-
-        e.energyInput.forEach((pos, in) -> map.computeIfAbsent(pos, HatchInfo::new).input = in);
-
-        e.energyOutput.forEach((pos, out) -> map.computeIfAbsent(pos, HatchInfo::new).output = out);
-
-        return map.values();
-    }
+    // --- INTERNAL TEAM CLASS ---
 
     public static class TeamEnergy {
+
         public BigInteger stored = BigInteger.ZERO;
         public BigInteger capacity = BigInteger.ZERO;
 
-        // Track when each hatch was last active to filter out "ghost" hatches
         public final Map<BlockPos, Long> lastSeen = new HashMap<>();
-
         public final Map<BlockPos, BigInteger> energyInput = new HashMap<>();
         public final Map<BlockPos, BigInteger> energyOutput = new HashMap<>();
         public final Map<BlockPos, BigInteger> energyBuffered = new HashMap<>();
-        private ObservedMap hatchStored;
+        public final Map<BlockPos, Boolean> hatchIsOutput = new HashMap<>();
 
-        // --- LIVE ACTIVITY LOGIC ---
+        // Stores independent machines (Single Blocks)
+        public final Set<BlockPos> soulLinkedMachines = new HashSet<>();
 
-        /** Marks a hatch as currently active. Pass level.getGameTime() here. */
         public void markHatchActive(BlockPos pos, long gameTime) {
             lastSeen.put(pos, gameTime);
         }
 
-        /** Returns count of hatches seen in the last 2 seconds (40 ticks) */
         public int getLiveHatchCount(long currentGameTime) {
-            // Remove any hatch that hasn't reported in for 40 ticks
             lastSeen.entrySet().removeIf(entry -> (currentGameTime - entry.getValue()) > 40);
             return lastSeen.size();
-        }
-
-        // --- CLOUD POWER LOGIC ---
-        public static final int HISTORY = 20;
-        public final long[] inHistory = new long[HISTORY];
-        public final long[] outHistory = new long[HISTORY];
-        public int historyIdx;
-
-        public void pushHistory(long in, long out) {
-            inHistory[historyIdx] = in;
-            outHistory[historyIdx] = out;
-            historyIdx = (historyIdx + 1) % HISTORY;
         }
 
         public BigInteger fill(BigInteger amount) {
@@ -94,10 +66,6 @@ public class TeslaTeamEnergyData extends SavedData {
             BigInteger toFill = amount.min(space);
             stored = stored.add(toFill);
             return toFill;
-        }
-
-        public void setStored(BigInteger amount) {
-            this.stored = amount.max(BigInteger.ZERO).min(this.capacity);
         }
 
         public BigInteger drain(BigInteger amount) {
@@ -109,63 +77,72 @@ public class TeslaTeamEnergyData extends SavedData {
 
         public CompoundTag save() {
             CompoundTag tag = new CompoundTag();
-            tag.putString("Stored", stored != null ? stored.toString() : "0");
-            tag.putString("Capacity", capacity != null ? capacity.toString() : "0");
+            tag.putString("Stored", stored.toString());
+            tag.putString("Capacity", capacity.toString());
+
+            // Physical Hatches
+            ListTag hatchIOList = new ListTag();
+            hatchIsOutput.forEach((pos, isOut) -> {
+                CompoundTag entry = new CompoundTag();
+                entry.putLong("p", pos.asLong());
+                entry.putBoolean("o", isOut);
+                hatchIOList.add(entry);
+            });
+            tag.put("HatchIO", hatchIOList);
+
+            // Buffer Data
+            ListTag bufferList = new ListTag();
+            energyBuffered.forEach((pos, buf) -> {
+                CompoundTag entry = new CompoundTag();
+                entry.putLong("p", pos.asLong());
+                entry.putString("b", buf.toString());
+                bufferList.add(entry);
+            });
+            tag.put("Buffers", bufferList);
+
+            // Soul Links (Single Blocks)
+            ListTag soulList = new ListTag();
+            soulLinkedMachines.forEach(pos -> soulList.add(LongTag.valueOf(pos.asLong())));
+            tag.put("SoulLinks", soulList);
+
             return tag;
         }
 
         public static TeamEnergy load(CompoundTag tag) {
             TeamEnergy e = new TeamEnergy();
-            String storedStr = tag.getString("Stored");
-            String capStr = tag.getString("Capacity");
-            e.stored = (storedStr.isEmpty()) ? BigInteger.ZERO : new BigInteger(storedStr);
-            e.capacity = (capStr.isEmpty()) ? BigInteger.ZERO : new BigInteger(capStr);
+            e.stored = new BigInteger(tag.getString("Stored").isEmpty() ? "0" : tag.getString("Stored"));
+            e.capacity = new BigInteger(tag.getString("Capacity").isEmpty() ? "0" : tag.getString("Capacity"));
+
+            if (tag.contains("HatchIO")) {
+                ListTag list = tag.getList("HatchIO", Tag.TAG_COMPOUND);
+                for (int i = 0; i < list.size(); i++) {
+                    CompoundTag entry = list.getCompound(i);
+                    e.hatchIsOutput.put(BlockPos.of(entry.getLong("p")), entry.getBoolean("o"));
+                }
+            }
+
+            if (tag.contains("Buffers")) {
+                ListTag list = tag.getList("Buffers", Tag.TAG_COMPOUND);
+                for (int i = 0; i < list.size(); i++) {
+                    CompoundTag entry = list.getCompound(i);
+                    e.energyBuffered.put(BlockPos.of(entry.getLong("p")), new BigInteger(entry.getString("b")));
+                }
+            }
+
+            if (tag.contains("SoulLinks")) {
+                ListTag list = tag.getList("SoulLinks", Tag.TAG_LONG);
+                for (int i = 0; i < list.size(); i++) {
+                    e.soulLinkedMachines.add(BlockPos.of(((LongTag) list.get(i)).getAsLong()));
+                }
+            }
             return e;
         }
-
-        public void updateFromTower(BigInteger stored, BigInteger capacity) {
-            this.stored = stored;
-            this.capacity = capacity;
-        }
     }
 
-    private final Map<UUID, TeamEnergy> networks = new HashMap<>();
-    private final Set<UUID> onlineNetworks = new HashSet<>();
-
-    // --- NEW: UTILITY FOR CLEAN DEBUG COMMAND ---
-
-    /** Clears the EU/t traffic maps so old hatches don't stay in the debug list */
-    public void clearLiveStats(UUID team) {
-        TeamEnergy e = networks.get(team);
-        if (e != null) {
-            e.energyInput.clear();
-            e.energyOutput.clear();
-            // Note: We keep energyBuffered as that tracks if a hatch physically exists
-        }
-    }
+    // --- WRAPPER & HELPER METHODS ---
 
     public Map<UUID, TeamEnergy> getNetworksView() {
         return Collections.unmodifiableMap(networks);
-    }
-
-    public TeamEnergy getTeamEnergy(UUID team) {
-        return networks.get(team);
-    }
-
-    public Set<UUID> getOnlineNetworks() {
-        return Collections.unmodifiableSet(onlineNetworks);
-    }
-
-    public int getHatchCount(UUID team) {
-        TeamEnergy e = networks.get(team);
-        if (e == null) return 0;
-
-        Set<BlockPos> uniquePositions = new HashSet<>();
-        uniquePositions.addAll(e.energyInput.keySet());
-        uniquePositions.addAll(e.energyOutput.keySet());
-        uniquePositions.addAll(e.energyBuffered.keySet());
-
-        return uniquePositions.size();
     }
 
     public TeamEnergy getOrCreate(UUID team) {
@@ -175,28 +152,51 @@ public class TeslaTeamEnergyData extends SavedData {
         });
     }
 
-    // Keep this for legacy support or manual adjustments
-    public BigInteger addEnergy(UUID team, BigInteger amount) {
+    public void setEnergyBuffered(UUID team, BlockPos pos, BigInteger stored, boolean isOutput) {
         TeamEnergy e = getOrCreate(team);
-        BigInteger before = e.stored;
-        e.stored = before.add(amount).max(BigInteger.ZERO).min(e.capacity);
-        setDirty();
-        return e.stored.subtract(before);
-    }
-
-    public void setEnergyInput(UUID team, BlockPos pos, BigInteger euPerTick) {
-        getOrCreate(team).energyInput.put(pos, euPerTick);
+        e.energyBuffered.put(pos, stored);
+        e.hatchIsOutput.put(pos, isOutput);
         setDirty();
     }
 
-    public void setEnergyOutput(UUID team, BlockPos pos, BigInteger euPerTick) {
-        getOrCreate(team).energyOutput.put(pos, euPerTick);
+    public boolean toggleSoulLink(UUID team, BlockPos pos) {
+        TeamEnergy e = getOrCreate(team);
+        boolean removed = e.soulLinkedMachines.remove(pos);
+        if (!removed) {
+            e.soulLinkedMachines.add(pos.immutable());
+        }
         setDirty();
+        return !removed;
     }
 
-    public void setEnergyBuffered(UUID team, BlockPos pos, BigInteger stored) {
-        getOrCreate(team).energyBuffered.put(pos, stored);
-        setDirty();
+    public Collection<HatchInfo> getHatches(UUID team) {
+        TeamEnergy e = networks.get(team);
+        if (e == null) return List.of();
+
+        Map<BlockPos, HatchInfo> map = new HashMap<>();
+
+        // 1. Process Physical Hatches
+        e.energyBuffered.forEach((pos, buf) -> {
+            HatchInfo info = map.computeIfAbsent(pos, HatchInfo::new);
+            info.buffered = buf;
+            info.isPhysicalOutput = e.hatchIsOutput.getOrDefault(pos, false);
+        });
+
+        // 2. Process Soul Linked Machines (Single Blocks)
+        e.soulLinkedMachines.forEach(pos -> {
+            HatchInfo info = map.computeIfAbsent(pos, HatchInfo::new);
+            info.isSoulLinked = true;
+        });
+
+        // 3. Sync live I/O activity
+        e.energyInput.forEach((pos, in) -> {
+            if (map.containsKey(pos)) map.get(pos).input = in;
+        });
+        e.energyOutput.forEach((pos, out) -> {
+            if (map.containsKey(pos)) map.get(pos).output = out;
+        });
+
+        return map.values();
     }
 
     public void removeEndpoint(UUID team, BlockPos pos) {
@@ -205,21 +205,23 @@ public class TeslaTeamEnergyData extends SavedData {
             e.energyInput.remove(pos);
             e.energyOutput.remove(pos);
             e.energyBuffered.remove(pos);
+            e.hatchIsOutput.remove(pos);
+            e.soulLinkedMachines.remove(pos);
             setDirty();
         }
     }
 
     public void setOnline(UUID team, boolean online) {
-        if (online) {
-            if (onlineNetworks.add(team)) setDirty();
-        } else {
-            if (onlineNetworks.remove(team)) setDirty();
+        if (online ? onlineNetworks.add(team) : onlineNetworks.remove(team)) {
+            setDirty();
         }
     }
 
     public boolean isOnline(UUID team) {
         return onlineNetworks.contains(team);
     }
+
+    // --- SAVED DATA OVERRIDES ---
 
     @Override
     public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
@@ -228,7 +230,7 @@ public class TeslaTeamEnergyData extends SavedData {
             CompoundTag teamTag = new CompoundTag();
             teamTag.putUUID("Team", entry.getKey());
             teamTag.put("Energy", entry.getValue().save());
-            teamTag.putBoolean("IsOnline", onlineNetworks.contains(entry.getKey()));
+            teamTag.putBoolean("Online", onlineNetworks.contains(entry.getKey()));
             list.add(teamTag);
         }
         tag.put("Networks", list);
@@ -242,7 +244,7 @@ public class TeslaTeamEnergyData extends SavedData {
             CompoundTag teamTag = list.getCompound(i);
             UUID teamUUID = teamTag.getUUID("Team");
             data.networks.put(teamUUID, TeamEnergy.load(teamTag.getCompound("Energy")));
-            if (teamTag.getBoolean("IsOnline")) {
+            if (teamTag.getBoolean("Online")) {
                 data.onlineNetworks.add(teamUUID);
             }
         }
@@ -250,7 +252,6 @@ public class TeslaTeamEnergyData extends SavedData {
     }
 
     public static TeslaTeamEnergyData get(ServerLevel level) {
-        // ALWAYS use the Overworld (Level.OVERWORLD) to ensure global dimension-independent data
         ServerLevel overworld = level.getServer().getLevel(ServerLevel.OVERWORLD);
         return (overworld == null ? level : overworld).getDataStorage().computeIfAbsent(
                 TeslaTeamEnergyData::load,

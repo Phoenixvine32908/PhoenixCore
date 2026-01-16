@@ -67,7 +67,7 @@ public class PhoenixTeslaMachines {
             "tesla_energy_input_hatch",
             (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, IO.OUT, 2),
             (tier, builder) -> builder
-                    .langValue(GTValues.VNF[tier] + " Tesla Energy Input Hatch")
+                    .langValue(GTValues.VNF[tier] + " Tesla Energy Uplink Hatch")
                     .rotationState(RotationState.ALL)
                     .abilities(PartAbility.OUTPUT_ENERGY)
                     .modelProperty(GTMachineModelProperties.IS_FORMED, false)
@@ -86,7 +86,7 @@ public class PhoenixTeslaMachines {
             "tesla_energy_output_hatch",
             (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, IO.IN, 2),
             (tier, builder) -> builder
-                    .langValue(GTValues.VNF[tier] + " Tesla Energy Output Hatch")
+                    .langValue(GTValues.VNF[tier] + " Tesla Energy Downlink Hatch")
                     .rotationState(RotationState.ALL)
                     .abilities(PartAbility.INPUT_ENERGY) // Acts as INPUT to multiblock (receives from tower, gives to
                     // multiblock)

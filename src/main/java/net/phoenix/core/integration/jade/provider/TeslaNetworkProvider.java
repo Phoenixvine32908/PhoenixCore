@@ -32,28 +32,40 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
         if (accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE) {
             UUID team = null;
             TeslaEnergyHatchPartMachine hatch = null;
-            TeslaTowerMachine tower = null;
 
             if (metaBE.getMetaMachine() instanceof TeslaEnergyHatchPartMachine tHatch) {
                 hatch = tHatch;
                 team = hatch.getOwnerTeamUUID();
             } else if (metaBE.getMetaMachine() instanceof TeslaTowerMachine tTower) {
-                tower = tTower;
-                team = tower.getOwnerUUID();
+                team = tTower.getOwnerUUID();
             }
 
             if (team != null && accessor.getLevel() instanceof ServerLevel sl) {
-                TeslaTeamEnergyData.TeamEnergy teamData = TeslaTeamEnergyData.get(sl).getOrCreate(team);
+                TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
+                TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(team);
+
                 tag.putUUID("TeslaTeam", team);
                 tag.putString("TeamName", TeamUtils.getTeamName(team));
                 tag.putString("Stored", FormattingUtil.formatNumbers(teamData.stored));
                 tag.putString("Capacity", FormattingUtil.formatNumbers(teamData.capacity));
-
-                // Add live hatch count for both Hatch and Tower views
                 tag.putInt("ActiveHatches", teamData.getLiveHatchCount(sl.getGameTime()));
 
                 if (hatch != null) {
-                    tag.putLong("LocalTransfer", hatch.getLastTransferAmount());
+                    // Logic fix: Ensure we capture transfer even if it's currently 'pushing'
+                    long transfer = hatch.getLastTransferAmount();
+
+                    // If the hatch reports 0 but we know the team data is moving energy,
+                    // we pull the value directly from the team's live map as a fallback
+                    if (transfer == 0) {
+                        transfer = teamData.energyInput.getOrDefault(hatch.getPos(), java.math.BigInteger.ZERO)
+                                .longValue();
+                        if (transfer == 0) {
+                            transfer = teamData.energyOutput.getOrDefault(hatch.getPos(), java.math.BigInteger.ZERO)
+                                    .longValue();
+                        }
+                    }
+
+                    tag.putLong("LocalTransfer", transfer);
                     tag.putBoolean("IsInputHatch", hatch.getIO() == IO.IN);
                 }
             }
@@ -65,24 +77,33 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
         CompoundTag data = accessor.getServerData();
         if (!data.contains("TeslaTeam")) return;
 
+        // Header
         tooltip.add(Component.translatable("jade.phoenixcore.tesla_team", data.getString("TeamName"))
                 .withStyle(ChatFormatting.AQUA));
 
+        // Cloud Storage
         tooltip.add(Component.literal("Cloud: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(data.getString("Stored")).withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" / ")
-                        .append(Component.literal(data.getString("Capacity")).withStyle(ChatFormatting.GOLD))));
+                .append(Component.literal(" / ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.literal(data.getString("Capacity") + " EU").withStyle(ChatFormatting.YELLOW)));
 
-        // Show active connections count
+        // Connections
         tooltip.add(Component.literal("Active Connections: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(String.valueOf(data.getInt("ActiveHatches"))).withStyle(ChatFormatting.WHITE)));
+                .append(Component.literal(String.valueOf(data.getInt("ActiveHatches")))
+                        .withStyle(ChatFormatting.WHITE)));
 
+        // Transfer Rate Logic
         if (data.contains("LocalTransfer")) {
             long rate = data.getLong("LocalTransfer");
             boolean isInput = data.getBoolean("IsInputHatch");
 
-            String label = isInput ? "Receiving: " : "Providing: ";
-            ChatFormatting color = isInput ? ChatFormatting.RED : ChatFormatting.GREEN;
+            // Corrected meaning:
+            // IO.IN = pulling from tower = providing to machine
+            // IO.OUT = pushing to tower = charging network
+            boolean isChargingNetwork = !isInput;
+
+            String label = isChargingNetwork ? "Charging Network: " : "Providing to Machine: ";
+            ChatFormatting color = isChargingNetwork ? ChatFormatting.GREEN : ChatFormatting.RED;
 
             tooltip.add(Component.literal(label).withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(FormattingUtil.formatNumbers(rate) + " EU/t").withStyle(color)));

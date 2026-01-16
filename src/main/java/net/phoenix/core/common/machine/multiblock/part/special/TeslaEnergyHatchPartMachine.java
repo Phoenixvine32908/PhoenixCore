@@ -8,10 +8,10 @@ import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
 
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
-import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -27,6 +27,7 @@ import net.phoenix.core.phoenixcore;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,16 +54,25 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     private TickableSubscription tickSubscription;
 
     // Inside TeslaEnergyHatchPartMachine.java
+    @Getter
+    @Persisted // This ensures it saves to the block's NBT
+    @DescSynced // This ensures Jade/Client knows the name without opening the UI
+    private String customName = "";
+
+    public void setCustomName(String name) {
+        this.customName = name;
+        self().markDirty();
+    }
 
     @Override
     public void onLoad() {
         super.onLoad();
         if (!getLevel().isClientSide && getLevel() instanceof ServerLevel server) {
-            // Ensure team is linked before reporting to cloud
             autoLinkTeamIfNeeded();
             if (ownerTeamUUID != null) {
+                // Pass the physical IO state on load
                 TeslaTeamEnergyData.get(server).setEnergyBuffered(ownerTeamUUID, getPos(),
-                        java.math.BigInteger.valueOf(energyContainer.getEnergyStored()));
+                        BigInteger.valueOf(energyContainer.getEnergyStored()), getIO() == IO.OUT);
             }
         }
     }
@@ -193,6 +203,7 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         return mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.TEAM_AUTO ||
                 mode == PhoenixConfigs.FeatureConfigs.TeslaConnectionMode.DATA_STICK;
     }
+
     @Getter
     private long lastTransferRate = 0;
     // Inside TeslaEnergyHatchPartMachine
@@ -206,39 +217,43 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         ServerLevel sl = (ServerLevel) getLevel();
         TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
         TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(ownerTeamUUID);
-
         if (!data.isOnline(ownerTeamUUID)) return;
 
+        // FIX: Use the actual amperage rating of the hatch (e.g., 4, 8, 16)
         long voltage = com.gregtechceu.gtceu.api.GTValues.V[getTier()];
-        long transferRate = voltage * 2;
+        long transferRate = voltage * getAmperage(); // Dynamic transfer!
+
         BigInteger moved = BigInteger.ZERO;
 
-        if (getIO() == IO.IN) { // Receiver
+        if (getIO() == IO.IN) {
             long space = energyContainer.getEnergyCapacity() - energyContainer.getEnergyStored();
+            // Pull from cloud into Hatch
             BigInteger toPull = BigInteger.valueOf(Math.min(transferRate, space));
             moved = teamData.drain(toPull);
 
-            // SYNC FOR UI:
             teamData.energyInput.put(getPos(), moved);
             teamData.energyOutput.remove(getPos());
 
             if (moved.signum() > 0) energyContainer.changeEnergy(moved.longValue());
-        } else if (getIO() == IO.OUT) { // Transmitter
+        } else {
             long stored = energyContainer.getEnergyStored();
+            // Push from Hatch into cloud
             BigInteger toPush = BigInteger.valueOf(Math.min(transferRate, stored));
             moved = teamData.fill(toPush);
 
-            // SYNC FOR UI:
             teamData.energyOutput.put(getPos(), moved);
             teamData.energyInput.remove(getPos());
 
             if (moved.signum() > 0) energyContainer.changeEnergy(-moved.longValue());
         }
 
-        this.lastTransferAmount = moved.longValue();
-        data.setEnergyBuffered(ownerTeamUUID, getPos(), BigInteger.valueOf(energyContainer.getEnergyStored()));
+        // Update the cloud buffer tracking
+        data.setEnergyBuffered(ownerTeamUUID, getPos(),
+                BigInteger.valueOf(energyContainer.getEnergyStored()), getIO() == IO.OUT);
+
         teamData.markHatchActive(getPos(), sl.getGameTime());
     }
+
     // ---------------------------------------
     // Team logic
     // ---------------------------------------
@@ -303,10 +318,13 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
                     updateTickSubscription();
 
                     // 4. REGISTER NEW DATA: Add this hatch to the new team's stats immediately
+                    // Inside the if (!newTeamUUID.equals(ownerTeamUUID)) block
                     TeslaTeamEnergyData.get(server).setEnergyBuffered(
                             ownerTeamUUID,
                             getPos(),
-                            java.math.BigInteger.valueOf(energyContainer.getEnergyStored()));
+                            java.math.BigInteger.valueOf(energyContainer.getEnergyStored()),
+                            getIO() == IO.OUT // Pass the physical state
+                    );
 
                     player.sendSystemMessage(Component
                             .literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID.toString().substring(0, 8) +

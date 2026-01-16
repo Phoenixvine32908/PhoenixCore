@@ -9,10 +9,7 @@ import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.fancy.FancyMachineUIWidget;
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyUIProvider;
 import com.gregtechceu.gtceu.api.gui.fancy.TooltipsPanel;
-import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.api.machine.TickableSubscription;
+import com.gregtechceu.gtceu.api.machine.*;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine;
@@ -174,6 +171,49 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         }
     }
 
+    private void pushToSoulLinkedMachines(ServerLevel level, TeslaTeamEnergyData.TeamEnergy team) {
+        if (team.soulLinkedMachines.isEmpty() || energyBank.getStored().equals(BigInteger.ZERO)) return;
+
+        for (BlockPos targetPos : team.soulLinkedMachines) {
+            if (!level.isLoaded(targetPos)) continue;
+
+            MetaMachine machine = MetaMachine.getMachine(level, targetPos);
+
+            if (machine instanceof TieredEnergyMachine tieredMachine) {
+                var energy = tieredMachine.energyContainer;
+
+                if (energy != null && energy.getInputVoltage() > 0) {
+                    long capacity = energy.getEnergyCapacity();
+                    long stored = energy.getEnergyStored();
+
+                    if (stored < capacity) {
+                        long demand = capacity - stored;
+
+                        // FIX: Allow the tower to push up to the machine's max supported amperage
+                        // For your World Accelerator, this will now be 8 Amps instead of 1!
+                        long voltage = energy.getInputVoltage();
+                        long maxAmps = energy.getInputAmperage();
+                        long transferLimit = voltage * maxAmps;
+
+                        long toInject = Math.min(demand, transferLimit);
+                        long injected = energyBank.drain(toInject);
+
+                        if (injected > 0) {
+                            energy.changeEnergy(injected);
+
+                            // Visual feedback
+                            if (level.getGameTime() % 10 == 0) {
+                                level.sendParticles(net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK,
+                                        targetPos.getX() + 0.5, targetPos.getY() + 1.1, targetPos.getZ() + 0.5,
+                                        5, 0.2, 0.2, 0.2, 0.05);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     protected void transferEnergyTick() {
         if (getLevel().isClientSide) return;
         if (!isWorkingEnabled() || !isFormed()) return;
@@ -211,8 +251,9 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                     inputHatches.changeEnergy(-accepted);
                     netInLastSec += accepted;
                 }
-
+                pushToSoulLinkedMachines(sl, team);
                 data.setDirty();
+
             }
         }
 

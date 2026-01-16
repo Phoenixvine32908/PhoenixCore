@@ -30,29 +30,32 @@ public class TeslaUICommand {
         ServerLevel level = source.getLevel();
         TeslaTeamEnergyData data = TeslaTeamEnergyData.get(level);
 
-        source.sendSuccess(() -> Component.literal("=== Tesla Team Energy Data ==="), false);
+        source.sendSuccess(() -> Component.literal("§6=== Tesla Team Energy Data ==="), false);
 
         var networks = data.getNetworksView();
 
         if (networks.isEmpty()) {
-            source.sendSuccess(() -> Component.literal("No networks found."), false);
+            source.sendSuccess(() -> Component.literal("§cNo networks found."), false);
             return 1;
         }
 
         for (var entry : networks.entrySet()) {
             UUID team = entry.getKey();
-            var e = entry.getValue();
+            TeslaTeamEnergyData.TeamEnergy e = entry.getValue();
 
             boolean online = data.isOnline(team);
+            String status = online ? "§aONLINE" : "§7OFFLINE";
 
-            source.sendSuccess(() -> Component.literal("Team: " + team + " (" + (online ? "ONLINE" : "OFFLINE") + ")"),
-                    false);
+            source.sendSuccess(() -> Component.literal("§eTeam: §f" + team + " (" + status + "§f)"), false);
+            source.sendSuccess(() -> Component.literal("  §7Stored: §b" + e.stored), false);
+            source.sendSuccess(() -> Component.literal("  §7Capacity: §b" + e.capacity), false);
 
-            source.sendSuccess(() -> Component.literal("  Stored: " + e.stored), false);
+            // Fix: Use the size of the maps inside the TeamEnergy object
+            int hatchCount = e.energyBuffered.size();
+            int soulLinkCount = e.soulLinkedMachines.size();
 
-            source.sendSuccess(() -> Component.literal("  Capacity: " + e.capacity), false);
-
-            source.sendSuccess(() -> Component.literal("  Hatches: " + data.getHatchCount(team)), false);
+            source.sendSuccess(() -> Component.literal("  §7Physical Hatches: §f" + hatchCount), false);
+            source.sendSuccess(() -> Component.literal("  §dSoul-Linked Machines: §f" + soulLinkCount), false);
         }
 
         return 1;
