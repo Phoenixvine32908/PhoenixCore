@@ -23,4 +23,9 @@ public class PhoenixGuiTextures {
             "phoenixcore:textures/gui/widget/tesla/opv_battery.png");
     public static final ResourceTexture BATTERY_BAR_MAX = new ResourceTexture(
             "phoenixcore:textures/gui/widget/tesla/max_battery.png");
+
+    // Ui Textures
+    public static final ResourceTexture TESLA_BACKGROUND = new ResourceTexture(
+            "phoenixcore:textures/gui/widget/tesla/tesla_background.png"
+    );
 }

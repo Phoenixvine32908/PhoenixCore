@@ -13,11 +13,13 @@ import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
+import net.phoenix.core.common.machine.singleblock.TeslaWirelessChargerMachine;
 import net.phoenix.core.phoenixcore;
 
 import static com.gregtechceu.gtceu.api.pattern.Predicates.blocks;
@@ -99,6 +101,23 @@ public class PhoenixTeslaMachines {
                                     FormattingUtil.formatNumbers(GTValues.V[tier] * 64L * 2)),
                             Component.translatable("tooltip.phoenixcore.tesla_hatch.output"))
                     .overlayTieredHullModel("tesla_hatches/tesla_output")
+                    .register(),
+            GTValues.ALL_TIERS);
+    public static final MachineDefinition[] TESLA_WIRELESS_CHARGER = registerTieredMachines(
+            "tesla_wireless_charger",
+            TeslaWirelessChargerMachine::new,
+            (tier, builder) -> builder
+                    .langValue(GTValues.VNF[tier] + " Tesla Wireless Charger")
+                    .rotationState(RotationState.ALL)
+                    .tooltips(
+                            Component.translatable("gtceu.universal.tooltip.voltage_in",
+                                    FormattingUtil.formatNumbers(GTValues.V[tier]), GTValues.VNF[tier]),
+                            Component.translatable("gtceu.universal.tooltip.amperage_in", 4),
+                            Component.literal("Wireless Range: ").withStyle(ChatFormatting.GRAY)
+                                    .append(Component.literal(tier >= GTValues.LuV ? "Global (Cross-Dimensional)" : (8 * (tier + 1)) + "m")
+                                            .withStyle(ChatFormatting.AQUA)),
+                            Component.literal("Charges armor and tools from the Team Energy Cloud").withStyle(ChatFormatting.GREEN))
+                    .overlayTieredHullModel("tesla_hatches/tesla_output") // Reusing output overlay for aesthetic consistency
                     .register(),
             GTValues.ALL_TIERS);
 

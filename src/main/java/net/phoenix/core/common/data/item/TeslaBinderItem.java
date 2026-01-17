@@ -19,9 +19,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -44,6 +46,8 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static net.phoenix.core.api.gui.PhoenixGuiTextures.TESLA_BACKGROUND;
+
 public class TeslaBinderItem extends ComponentItem
                              implements IItemUIFactory, IInteractionItem, IAddInformation {
 
@@ -55,50 +59,69 @@ public class TeslaBinderItem extends ComponentItem
     public boolean onEntitySwing(@NotNull ItemStack stack, @NotNull LivingEntity entity) {
         return false;
     }
+    @Override
+    public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack stack,
+                                                           @NotNull Player player,
+                                                           @NotNull LivingEntity interactionTarget,
+                                                           @NotNull InteractionHand hand) {
+        return InteractionResult.PASS;
+    }
 
     @Override
     public @NotNull InteractionResult onItemUseFirst(@NotNull ItemStack itemStack, UseOnContext context) {
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
 
-        MetaMachine machine = MetaMachine.getMachine(context.getLevel(), context.getClickedPos());
+        // Use the level from context safely
+        Level level = context.getLevel();
+        BlockPos clickedPos = context.getClickedPos();
+        MetaMachine machine = MetaMachine.getMachine(level, clickedPos);
 
-        // 1. HIGH PRIORITY: Tesla Multiblock Parts (Tower/Hatch)
+        // 1. Tesla Multiblock Parts (Tower/Hatch)
         if (machine instanceof IDataStickInteractable interactable) {
-            if (player.isShiftKeyDown()) {
-                return interactable.onDataStickShiftUse(player, itemStack);
-            } else {
-                return interactable.onDataStickUse(player, itemStack);
-            }
+            return player.isShiftKeyDown() ?
+                    interactable.onDataStickShiftUse(player, itemStack) :
+                    interactable.onDataStickUse(player, itemStack);
         }
 
-        // 2. MEDIUM PRIORITY: Single-Block Soul Linking
-        if (!context.getLevel().isClientSide && machine != null) {
-            // GOATED CHECK: Ensure it's a Tiered Machine AND has an internal energy buffer.
-            // This excludes Multiblock Controllers (like EBF) because they don't have this trait.
-            if (machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) {
+        // 2. Single-Block Soul Linking (Server Side only)
+        if (!level.isClientSide && machine != null) {
+            if (level instanceof ServerLevel serverLevel &&
+                    machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) {
 
-                CompoundTag tag = itemStack.getTag();
-                if (tag != null && tag.hasUUID("TargetTeam")) {
+                CompoundTag tag = itemStack.getOrCreateTag();
+                if (tag.hasUUID("TargetTeam")) {
                     UUID teamUUID = tag.getUUID("TargetTeam");
-                    ServerLevel level = (ServerLevel) context.getLevel();
+                    TeslaTeamEnergyData data = TeslaTeamEnergyData.get(serverLevel);
 
-                    TeslaTeamEnergyData data = TeslaTeamEnergyData.get(level);
-
-                    // Use toggleSoulLink to handle both Adding and Removing in one click
-                    boolean isNowLinked = data.toggleSoulLink(teamUUID, context.getClickedPos());
+                    // Toggle the link in the Global Saved Data
+                    boolean isNowLinked = data.toggleSoulLink(teamUUID, clickedPos);
 
                     if (isNowLinked) {
                         player.sendSystemMessage(
                                 Component.literal("Core Synchronized: Machine linked to soul frequency.")
                                         .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.ITALIC));
-                        level.playSound(null, context.getClickedPos(), SoundEvents.BEACON_POWER_SELECT,
+                        serverLevel.playSound(null, clickedPos, SoundEvents.BEACON_POWER_SELECT,
                                 SoundSource.PLAYERS, 1f, 1.5f);
                     } else {
+                        // --- INSTANT UNLINK FIX ---
+                        // Manually remove the machine from the Item's NBT cache so the UI updates instantly
+                        if (tag.contains("MachineData")) {
+                            ListTag machineList = tag.getList("MachineData", Tag.TAG_COMPOUND);
+                            long targetPosLong = clickedPos.asLong();
+
+                            for (int i = 0; i < machineList.size(); i++) {
+                                if (machineList.getCompound(i).getLong("pos") == targetPosLong) {
+                                    machineList.remove(i);
+                                    break;
+                                }
+                            }
+                        }
+
                         player.sendSystemMessage(
                                 Component.literal("Connection Severed: Machine removed from soul network.")
                                         .withStyle(ChatFormatting.GRAY));
-                        level.playSound(null, context.getClickedPos(), SoundEvents.BEACON_DEACTIVATE,
+                        serverLevel.playSound(null, clickedPos, SoundEvents.BEACON_DEACTIVATE,
                                 SoundSource.PLAYERS, 1f, 0.8f);
                     }
                     return InteractionResult.SUCCESS;
@@ -110,7 +133,6 @@ public class TeslaBinderItem extends ComponentItem
                     return InteractionResult.FAIL;
                 }
             } else {
-                // Feedback if the player tries to link a Multiblock Controller or non-electric block
                 player.sendSystemMessage(Component.literal("Invalid Target: Machine has no internal soul-buffer.")
                         .withStyle(ChatFormatting.RED));
                 return InteractionResult.FAIL;
@@ -125,7 +147,6 @@ public class TeslaBinderItem extends ComponentItem
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
 
-        // 3. LOW PRIORITY: Shift + Right Click on standard blocks to bind the tool to the player
         if (player.isShiftKeyDown()) {
             if (!context.getLevel().isClientSide) {
                 bindToPlayer(player, context.getItemInHand());
@@ -182,8 +203,11 @@ public class TeslaBinderItem extends ComponentItem
 
     @Override
     public @NotNull Component getName(ItemStack stack) {
-        if (stack.hasTag() && stack.getTag().contains("TargetTeam")) {
-            return Component.literal("Tesla Binder (Bound)").withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC);
+        if (stack.hasTag()) {
+            assert stack.getTag() != null;
+            if (stack.getTag().contains("TargetTeam")) {
+                return Component.literal("Tesla Binder (Bound)").withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC);
+            }
         }
         return super.getName(stack);
     }
@@ -191,7 +215,7 @@ public class TeslaBinderItem extends ComponentItem
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip,
                                 @NotNull TooltipFlag flag) {
-        if (stack.hasTag() && stack.getTag().contains("OwnerName")) {
+        if (stack.hasTag() && Objects.requireNonNull(stack.getTag()).contains("OwnerName")) {
             int color = getAnimatedColor(0xA330FF, 0xFF66CC, 2000);
 
             // "Bound to Player: PlayerName" (Always animated)
@@ -222,11 +246,15 @@ public class TeslaBinderItem extends ComponentItem
 
     @Override
     public ModularUI createUI(HeldItemUIFactory.HeldItemHolder holder, Player player) {
-        ListTag hatchListData = holder.getHeld().getOrCreateTag().getList("HatchData", 10);
+        ItemStack stack = holder.getHeld();
+        CompoundTag tag = stack.getOrCreateTag();
 
-        // Dynamic Height Calculation
-        int listHeight = Math.min(130, Math.max(40, hatchListData.size() * 18 + 4));
-        // Added 10px buffer for the new header group
+        // GUARDS: Ensure lists exist to avoid null pointers
+        ListTag hatchListData = tag.getList("HatchData", Tag.TAG_COMPOUND);
+        ListTag machineListData = tag.getList("MachineData", Tag.TAG_COMPOUND);
+
+        int totalEntries = hatchListData.size() + machineListData.size();
+        int listHeight = Math.min(130, Math.max(40, totalEntries * 18 + 4));
         int windowHeight = 95 + listHeight;
 
         ModularUI ui = new ModularUI(230, windowHeight, holder, player).background(GuiTextures.BACKGROUND);
@@ -234,10 +262,9 @@ public class TeslaBinderItem extends ComponentItem
         WidgetGroup detailLayer = new WidgetGroup(0, 0, 230, windowHeight);
         detailLayer.setVisible(false);
 
-        // --- DETAIL VIEW ---
+        // --- DETAIL VIEW PANEL ---
         Consumer<CompoundTag> openDetail = (hTag) -> {
             detailLayer.clearAllWidgets();
-            // Header in Detail View
             WidgetGroup detailHeader = new WidgetGroup(5, 5, 220, 20);
             detailLayer.addWidget(detailHeader);
 
@@ -246,143 +273,217 @@ public class TeslaBinderItem extends ComponentItem
                 mainLayer.setVisible(true);
             }).setButtonTexture(GuiTextures.BUTTON_LEFT));
 
-            detailHeader
-                    .addWidget(new LabelWidget(25, 4, "Hatch Details").setTextColor(ChatFormatting.GOLD.getColor()));
+            detailHeader.addWidget(new LabelWidget(25, 4, "Device Details").setTextColor(ChatFormatting.GOLD.getColor()));
 
             WidgetGroup detailDisplay = new WidgetGroup(5, 30, 220, 55);
+            // Detail view keeps the dark GT display for contrast
             detailDisplay.setBackground(GuiTextures.DISPLAY);
             detailLayer.addWidget(detailDisplay);
 
-            detailLayer.addWidget(new ComponentPanelWidget(12, 35, list -> {
-                list.add(Component.literal("Buffer: ").withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(hTag.getString("buf")).withStyle(ChatFormatting.YELLOW)));
-                list.add(Component.literal("Flow: ").withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(hTag.getString("transfer")).withStyle(ChatFormatting.AQUA)));
-                list.add(hTag.getBoolean("isOut") ? Component.literal("Mode: IN").withStyle(ChatFormatting.RED) :
-                        Component.literal("Mode: OUT").withStyle(ChatFormatting.GREEN));
+            detailLayer.addWidget(new ComponentPanelWidget(12, 40, list -> {
+                // Machine name is now the pre-translated string from NBT
+                String name = hTag.contains("name") ? hTag.getString("name") : "Tesla Component";
+                list.add(Component.literal(name).withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
+
+                list.add(Component.empty());
+
+                if (hTag.contains("buf")) {
+                    list.add(Component.literal("Internal Buffer: ").withStyle(ChatFormatting.GRAY)
+                            .append(Component.literal(hTag.getString("buf") + " EU").withStyle(ChatFormatting.YELLOW)));
+                }
+
+                // UI FORMATTING: Append " EU/t" here once.
+                // The NBT string now contains ONLY the number and sign (e.g., "-32")
+                String flowValue = hTag.getString("transfer");
+                list.add(Component.literal("Network Flow: ").withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(flowValue + " EU/t").withStyle(ChatFormatting.AQUA)));
+
+                if (hTag.contains("isOut")) {
+                    list.add(hTag.getBoolean("isOut") ?
+                            Component.literal("Link Mode: PULL").withStyle(ChatFormatting.RED) :
+                            Component.literal("Link Mode: PUSH").withStyle(ChatFormatting.GREEN));
+                }
             }));
 
             mainLayer.setVisible(false);
             detailLayer.setVisible(true);
         };
 
-        // --- GROUPED HEADER ---
-        // Title Label (Outside the box)
-        // 0x8F00FF is the Hex code for Electric Violet
-        mainLayer.addWidget(new LabelWidget(8, 6, "Tesla Network Management")
-                .setTextColor(0xB000FF));
+        // --- MAIN UI HEADER ---
+        mainLayer.addWidget(new LabelWidget(8, 6, "Tesla Network Management").setTextColor(0xB000FF));
 
-        // Header Background Group (Lines 1-3)
         WidgetGroup headerGroup = new WidgetGroup(5, 18, 220, 48);
-        headerGroup.setBackground(GuiTextures.DISPLAY); // The dark inset background
+        // CUSTOM TEXTURE: Using your new PhoenixCore tesla background
+        headerGroup.setBackground(TESLA_BACKGROUND);
         mainLayer.addWidget(headerGroup);
 
         headerGroup.addWidget(new ComponentPanelWidget(5, 4, textList -> {
-            CompoundTag tag = holder.getHeld().getOrCreateTag();
             textList.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(tag.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
             textList.add(Component.literal("Stored: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(tag.getString("StoredEU") + " EU").withStyle(ChatFormatting.GOLD)));
-            textList.add(Component.literal("Capacity: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(tag.getString("CapacityEU") + " EU").withStyle(ChatFormatting.YELLOW)));
         }));
 
-        // --- THE LIST (Now starting at Y=70 to accommodate the box padding) ---
-        WidgetGroup listDisplay = new WidgetGroup(5, 70, 220, listHeight);
-        listDisplay.setBackground(GuiTextures.DISPLAY);
-        mainLayer.addWidget(listDisplay);
-
+        // --- LIST GROUP ---
+        // Draggable area for all your machines and hatches
         DraggableScrollableWidgetGroup listGroup = new DraggableScrollableWidgetGroup(7, 72, 216, listHeight - 4);
+        // Keep standard GT display texture for the scrolling list for readability
+        listGroup.setBackground(GuiTextures.DISPLAY);
         mainLayer.addWidget(listGroup);
 
         int currentY = 0;
+
+        // 1. ADD HATCHES (Multiblocks)
         for (int i = 0; i < hatchListData.size(); i++) {
             CompoundTag hTag = hatchListData.getCompound(i);
-            BlockPos hPos = BlockPos.of(hTag.getLong("pos"));
-            boolean isOut = hTag.getBoolean("isOut");
-            double dist = Math.sqrt(player.blockPosition().distSqr(hPos));
+            currentY = addListRow(listGroup, hTag, player, openDetail, currentY, true);
+        }
 
-            WidgetGroup row = new WidgetGroup(0, currentY, 210, 18);
-            row.addWidget(new ButtonWidget(0, 0, 190, 18, GuiTextures.BUTTON, c -> openDetail.accept(hTag)));
-            row.addWidget(new LabelWidget(4, 4, () -> (isOut ? "§a[I]§r " : "§c[O]§r ") + hPos.getX() + "," +
-                    hPos.getZ() + " §7" + (int) dist + "m"));
-
-            row.addWidget(new ButtonWidget(192, 0, 18, 18, GuiTextures.BUTTON, c -> {
-                if (player.level().isClientSide) TeslaHighlightRenderer.highlight(hPos, 200);
-                player.playSound(SoundEvents.UI_BUTTON_CLICK.get(), 0.3f, 1.5f);
-            }));
-            row.addWidget(new ImageWidget(193, 1, 16, 16, GuiTextures.IO_CONFIG_COVER_SETTINGS));
-
-            listGroup.addWidget(row);
-            currentY += 19;
+        // 2. ADD SINGLE-BLOCK MACHINES (Using your Mixin data)
+        for (int i = 0; i < machineListData.size(); i++) {
+            CompoundTag mTag = machineListData.getCompound(i);
+            currentY = addListRow(listGroup, mTag, player, openDetail, currentY, false);
         }
 
         ui.widget(mainLayer).widget(detailLayer);
         return ui;
     }
 
+    private int addListRow(WidgetGroup group, CompoundTag data, Player player, Consumer<CompoundTag> clickAction, int y, boolean isHatch) {
+        BlockPos pos = BlockPos.of(data.getLong("pos"));
+
+        // Name formatting
+        String displayName = isHatch ?
+                (data.getBoolean("isOut") ? "§a[I]§r Hatch" : "§c[O]§r Hatch") :
+                "§d[S]§r " + data.getString("name");
+
+        double dist = Math.sqrt(player.blockPosition().distSqr(pos));
+
+        WidgetGroup row = new WidgetGroup(0, y, 210, 18);
+
+        // Main Detail Button
+        row.addWidget(new ButtonWidget(0, 0, 190, 18, GuiTextures.BUTTON, c -> clickAction.accept(data)));
+        row.addWidget(new LabelWidget(4, 4, displayName + " §7" + (int)dist + "m"));
+
+        // Highlight Button (Fixed: Added Gear Image back)
+        row.addWidget(new ButtonWidget(192, 0, 18, 18, GuiTextures.BUTTON, c -> {
+            if (player.level().isClientSide) TeslaHighlightRenderer.highlight(pos, 200);
+            player.playSound(SoundEvents.UI_BUTTON_CLICK.get(), 0.3f, 1.5f);
+        }));
+        // RESTORED: This puts the magnifying glass/gear icon on the button
+        row.addWidget(new ImageWidget(193, 1, 16, 16, GuiTextures.IO_CONFIG_COVER_SETTINGS));
+
+        group.addWidget(row);
+        return y + 19;
+    }
+
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId,
-                              boolean isSelected) {
-        // Only process on server and when the item is being held/selected
-        if (!level.isClientSide && isSelected && entity instanceof Player player) {
-            CompoundTag tag = stack.getOrCreateTag();
+    public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
+        if (level.isClientSide || !isSelected || level.getGameTime() % 20 != 0 || !(entity instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
 
-            // Ensure the binder has a frequency/team assigned
-            if (tag.contains("TargetTeam")) {
-                UUID teamUUID = tag.getUUID("TargetTeam");
-                TeslaTeamEnergyData data = TeslaTeamEnergyData.get((ServerLevel) level);
-                TeslaTeamEnergyData.TeamEnergy team = data.getOrCreate(teamUUID);
+        CompoundTag tag = stack.getOrCreateTag();
+        if (tag.hasUUID("TargetTeam")) {
+            UUID teamUUID = tag.getUUID("TargetTeam");
+            TeslaTeamEnergyData data = TeslaTeamEnergyData.get((ServerLevel) level);
+            TeslaTeamEnergyData.TeamEnergy team = data.getOrCreate(teamUUID);
 
-                // 1. UPDATE NETWORK GLOBALS
-                // Stored and Capacity are BigInteger, so we format them for the UI scroller/labels
-                tag.putString("StoredEU", FormattingUtil.formatNumbers(team.stored));
-                tag.putString("CapacityEU", FormattingUtil.formatNumbers(team.capacity));
+            tag.putString("StoredEU", FormattingUtil.formatNumbers(team.stored));
+            tag.putString("CapacityEU", FormattingUtil.formatNumbers(team.capacity));
 
-                // Helpful for UI header: "PlayerName's Network"
-                tag.putString("TeamName", player.getName().getString() + "'s Network");
+            long totalNetFlow = 0;
 
-                // 2. UPDATE HATCH LIST DATA
-                ListTag hatchList = new ListTag();
+            // 2. Process Hatches (Multiblock Parts)
+            ListTag hatchList = new ListTag();
+            for (TeslaTeamEnergyData.HatchInfo hatch : data.getHatches(teamUUID)) {
+                if (hatch.isSoulLinked) continue;
 
-                // data.getHatches() now correctly populates HatchInfo.isPhysicalOutput
-                // from the hatchIsOutput map in TeslaTeamEnergyData
-                for (TeslaTeamEnergyData.HatchInfo hatch : data.getHatches(teamUUID)) {
-                    CompoundTag hTag = new CompoundTag();
+                CompoundTag hTag = new CompoundTag();
+                hTag.putLong("pos", hatch.pos.asLong());
+                hTag.putBoolean("isOut", hatch.isPhysicalOutput);
+                hTag.putString("buf", FormattingUtil.formatNumbers(hatch.buffered));
 
-                    // Position for the "Highlight" button and distance calculation
-                    hTag.putLong("pos", hatch.pos.asLong());
+                BigInteger transfer = hatch.isPhysicalOutput ?
+                        team.energyOutput.getOrDefault(hatch.pos, BigInteger.ZERO) :
+                        team.energyInput.getOrDefault(hatch.pos, BigInteger.ZERO);
 
-                    // Logic Fix: Use the physical state stored in HatchInfo
-                    // This ensures [I] or [O] stays correct even when idle
-                    boolean isOut = hatch.isPhysicalOutput;
-                    hTag.putBoolean("isOut", isOut);
+                long hatchFlow = transfer.longValue();
+                totalNetFlow += (hatch.isPhysicalOutput ? -hatchFlow : hatchFlow);
 
-                    // Transfer rate: Pull from the live activity maps
-                    // We use the boolean to know which map to check
-                    BigInteger transfer = isOut ?
-                            team.energyOutput.getOrDefault(hatch.pos, BigInteger.ZERO) :
-                            team.energyInput.getOrDefault(hatch.pos, BigInteger.ZERO);
+                String flowSign = (hatchFlow == 0) ? "" : (hatch.isPhysicalOutput ? "-" : "+");
+                hTag.putString("transfer", flowSign + FormattingUtil.formatNumbers(hatchFlow));
+                hatchList.add(hTag);
+            }
+            tag.put("HatchData", hatchList);
 
-                    hTag.putString("transfer", FormattingUtil.formatNumbers(transfer.longValue()));
+            // 3. Process Single-Blocks (Machines using Mixin)
+            ListTag machineList = new ListTag();
+            List<BlockPos> toRemove = new ArrayList<>();
 
-                    // Buffered energy inside the specific hatch
-                    hTag.putString("buf", FormattingUtil.formatNumbers(hatch.buffered));
+            for (BlockPos mPos : team.soulLinkedMachines) {
+                if (level.isLoaded(mPos)) {
+                    MetaMachine machine = MetaMachine.getMachine(level, mPos);
 
-                    hatchList.add(hTag);
+                    if (machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) {
+                        CompoundTag mTag = new CompoundTag();
+                        mTag.putLong("pos", mPos.asLong());
+                        mTag.putString("name", machine.getDefinition().getLangValue());
+                        mTag.putString("buf", FormattingUtil.formatNumbers(tiered.energyContainer.getEnergyStored()));
+
+                        if (machine instanceof TeslaBinderItem.ITeslaFlowTracker tracker) {
+                            long machineDelta = tracker.phoenixCore$getTeslaFlow();
+                            long networkPerspective = -machineDelta;
+                            totalNetFlow += networkPerspective;
+
+                            // UPDATE PERSISTENCE IN DATA CLASS
+                            team.machineLastEnergy.put(mPos, tiered.energyContainer.getEnergyStored());
+                            team.machineCurrentFlow.put(mPos, machineDelta);
+                            data.setDirty();
+
+                            String flowStr = (networkPerspective == 0) ? "0" :
+                                    (networkPerspective > 0 ? "+" : "") + FormattingUtil.formatNumbers(networkPerspective);
+                            mTag.putString("transfer", flowStr);
+                        } else {
+                            mTag.putString("transfer", "0");
+                        }
+                        machineList.add(mTag);
+                    } else if (machine == null) {
+                        toRemove.add(mPos);
+                    }
                 }
+            }
 
-                // Push the updated list to the item NBT
-                tag.put("HatchData", hatchList);
+            if (!toRemove.isEmpty()) {
+                for (BlockPos pos : toRemove) {
+                    team.soulLinkedMachines.remove(pos);
+                    team.machineLastEnergy.remove(pos);
+                    team.machineCurrentFlow.remove(pos);
+                }
+                data.setDirty();
+            }
+
+            tag.put("MachineData", machineList);
+            tag.putLong("NetFlow", totalNetFlow);
+
+            stack.setTag(tag);
+            if (serverPlayer.containerMenu != null) {
+                serverPlayer.containerMenu.broadcastChanges();
             }
         }
     }
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        // If the slot changed, do the animation.
-        // If the item itself changed (e.g., from binder to pickaxe), do the animation.
-        // If only NBT changed, return false (stop the bobbing).
         return slotChanged || oldStack.getItem() != newStack.getItem();
+    }
+    public interface ITeslaFlowTracker {
+        /**
+         * Gets the EU/t delta calculated by the Mixin.
+         */
+        default long phoenixCore$getTeslaFlow() {
+            return 0L;
+        }
+        void phoenixCore$resetTeslaFlow();
     }
 }

@@ -178,19 +178,40 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             if (!level.isLoaded(targetPos)) continue;
 
             MetaMachine machine = MetaMachine.getMachine(level, targetPos);
+            if (machine == null) continue;
 
+            // SPECIAL CASE: The Charger Machine
+            if (machine instanceof com.gregtechceu.gtceu.common.machine.electric.ChargerMachine charger) {
+                var energy = charger.energyContainer;
+                if (energy != null) {
+                    // The charger needs 'acceptEnergyFromNetwork' to trigger its internal item-charging loop.
+                    // We pass 'null' for the side to bypass physical cable checks.
+                    long voltage = energy.getInputVoltage();
+                    long amperage = energy.getInputAmperage();
+
+                    // Calculate how much we can actually provide from our bank
+                    long available = energyBank.getStored().longValue();
+                    long maxTransfer = voltage * amperage;
+                    long toPush = Math.min(available, maxTransfer);
+
+                    // This call triggers the code that loops through items in the charger's slots
+                    long accepted = energy.acceptEnergyFromNetwork(null, voltage, (long) Math.ceil((double)toPush / voltage));
+
+                    if (accepted > 0) {
+                        energyBank.drain(accepted * voltage);
+                    }
+                }
+                continue; // Skip the standard logic for the charger
+            }
+
+            // STANDARD CASE: All other Tiered Machines
             if (machine instanceof TieredEnergyMachine tieredMachine) {
                 var energy = tieredMachine.energyContainer;
 
                 if (energy != null && energy.getInputVoltage() > 0) {
-                    long capacity = energy.getEnergyCapacity();
-                    long stored = energy.getEnergyStored();
+                    long demand = energy.getEnergyCanBeInserted();
 
-                    if (stored < capacity) {
-                        long demand = capacity - stored;
-
-                        // FIX: Allow the tower to push up to the machine's max supported amperage
-                        // For your World Accelerator, this will now be 8 Amps instead of 1!
+                    if (demand > 0) {
                         long voltage = energy.getInputVoltage();
                         long maxAmps = energy.getInputAmperage();
                         long transferLimit = voltage * maxAmps;
@@ -199,7 +220,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                         long injected = energyBank.drain(toInject);
 
                         if (injected > 0) {
-                            energy.changeEnergy(injected);
+                            energy.addEnergy(injected);
 
                             // Visual feedback
                             if (level.getGameTime() % 10 == 0) {
