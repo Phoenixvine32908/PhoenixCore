@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.block.property.GTBlockStateProperties;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 
+import com.gregtechceu.gtceu.common.machine.electric.ChargerMachine;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
@@ -17,6 +18,10 @@ import net.phoenix.core.phoenixcore;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
+
+import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties.CHARGER_STATE;
+import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.SIDED_SIDED_OVERLAY_MODEL;
+import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.tieredHullTextures;
 
 public class PhoenixMachineModels {
 
@@ -49,6 +54,49 @@ public class PhoenixMachineModels {
             builder.addReplaceableTextures("bottom", "top", "side");
         };
     }
+    public static final ResourceLocation WIRELESS_CHARGER_IDLE = phoenixcore.id("block/machines/part/wireless_charger/overlay_front");
+    public static final ResourceLocation WIRELESS_CHARGER_RUNNING = phoenixcore.id("lock/machines/part/wireless_charger/overlay_front_active");
+    public static final ResourceLocation WIRELESS_CHARGER_RUNNING_EMISSIVE = phoenixcore.id("block/machines/part/wireless_charger/overlay_front_active_emissive");
+    public static final ResourceLocation WIRELESS_CHARGER_FINISHED = phoenixcore.id("block/machines/part/wireless_charger/overlay_front");
+    public static final ResourceLocation WIRELESS_CHARGER_FINISHED_EMISSIVE = phoenixcore.id("block/machines/part/wireless_charger/charger/overlay_front_emissive");
+    public static final ResourceLocation WIRELESS_CHARGER_TOP = phoenixcore.id("block/machines/part/wireless_charger/overlay_top");
+    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE = phoenixcore.id("block/machines/part/wireless_charger/charger/overlay_front_top_active");
+    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE_EMISSIVE = phoenixcore.id("block/machines/part/wireless_charger/charger/overlay_front_top_active_emissive");
+
+    public static MachineBuilder.ModelInitializer createWirelessChargerModel() {
+        return (ctx, prov, builder) -> {
+            builder.forAllStatesModels(renderState -> {
+                ChargerMachine.State state = renderState.getValue(CHARGER_STATE);
+
+                BlockModelBuilder model = prov.models().nested()
+                        .parent(prov.models().getExistingFile(SIDED_SIDED_OVERLAY_MODEL));
+                tieredHullTextures(model, builder.getOwner().getTier());
+
+                switch (state) {
+                    case IDLE -> {
+                        model.texture("overlay_front", WIRELESS_CHARGER_IDLE);
+                        model.texture("overlay_top", WIRELESS_CHARGER_TOP);
+                        model.texture("overlay_top", WIRELESS_CHARGER_TOP);
+                    }
+                    case RUNNING -> {
+                        model.texture("overlay_front", WIRELESS_CHARGER_RUNNING);
+                        model.texture("overlay_front_emissive", WIRELESS_CHARGER_RUNNING_EMISSIVE);
+                        model.texture("overlay_top", WIRELESS_CHARGER_TOP_ACTIVE);
+                        model.texture("overlay_top", WIRELESS_CHARGER_TOP_ACTIVE_EMISSIVE);
+                    }
+                    case FINISHED -> {
+                        model.texture("overlay_front", WIRELESS_CHARGER_FINISHED);
+                        model.texture("overlay_front_emissive", WIRELESS_CHARGER_FINISHED_EMISSIVE);
+                        model.texture("overlay_top", WIRELESS_CHARGER_TOP);
+                        model.texture("overlay_top", WIRELESS_CHARGER_TOP);
+                    }
+
+                }
+                return model;
+            });
+        };
+    }
+
 
     public static NonNullBiConsumer<DataGenContext<Block, TeslaBatteryBlock>, RegistrateBlockstateProvider> createTeslaBlockModel(ITeslaBattery batteryData) {
         return (ctx, prov) -> {

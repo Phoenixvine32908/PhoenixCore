@@ -27,6 +27,7 @@ import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
 import net.phoenix.core.common.machine.singleblock.TeslaWirelessChargerMachine;
 import net.phoenix.core.common.registry.PhoenixRegistration;
+import net.phoenix.core.datagen.models.PhoenixMachineModels;
 import net.phoenix.core.phoenixcore;
 
 import java.util.Locale;
@@ -128,7 +129,7 @@ public class PhoenixTeslaMachines {
                 (tier, builder) -> builder
                         .rotationState(RotationState.ALL)
                         .modelProperty(GTMachineModelProperties.CHARGER_STATE, ChargerMachine.State.IDLE)
-                        .model(GTMachineModels.createChargerModel())
+                        .model(PhoenixMachineModels.createWirelessChargerModel())
                         .langValue("%s Tesla Wireless Charger".formatted(
                                 VCF[tier] + GTValues.VOLTAGE_NAMES[tier] + ChatFormatting.RESET))
                         .tooltips(
