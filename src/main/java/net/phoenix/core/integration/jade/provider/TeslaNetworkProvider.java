@@ -1,14 +1,17 @@
 package net.phoenix.core.integration.jade.provider;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
-import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
 import net.phoenix.core.phoenixcore;
@@ -31,42 +34,54 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         if (accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE) {
             UUID team = null;
-            TeslaEnergyHatchPartMachine hatch = null;
+            BlockPos pos = accessor.getPosition();
+            long transferRate = 0;
+            int mode = -1; // 0 = Providing (Uplink), 1 = Taking (Downlink/Machine)
 
-            if (metaBE.getMetaMachine() instanceof TeslaEnergyHatchPartMachine tHatch) {
-                hatch = tHatch;
-                team = hatch.getOwnerTeamUUID();
-            } else if (metaBE.getMetaMachine() instanceof TeslaTowerMachine tTower) {
-                team = tTower.getOwnerUUID();
-            }
+            if (accessor.getLevel() instanceof ServerLevel sl) {
+                // --- CROSS-DIMENSION FIX ---
+                // We always pull data from the Overworld where the TeslaTeamEnergyData is centralized.
+                MinecraftServer server = sl.getServer();
+                ServerLevel overworld = server.getLevel(Level.OVERWORLD);
+                if (overworld == null) return;
 
-            if (team != null && accessor.getLevel() instanceof ServerLevel sl) {
-                TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
-                TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(team);
+                TeslaTeamEnergyData data = TeslaTeamEnergyData.get(overworld);
 
-                tag.putUUID("TeslaTeam", team);
-                tag.putString("TeamName", TeamUtils.getTeamName(team));
-                tag.putString("Stored", FormattingUtil.formatNumbers(teamData.stored));
-                tag.putString("Capacity", FormattingUtil.formatNumbers(teamData.capacity));
-                tag.putInt("ActiveHatches", teamData.getLiveHatchCount(sl.getGameTime()));
-
-                if (hatch != null) {
-                    // Logic fix: Ensure we capture transfer even if it's currently 'pushing'
-                    long transfer = hatch.getLastTransferAmount();
-
-                    // If the hatch reports 0 but we know the team data is moving energy,
-                    // we pull the value directly from the team's live map as a fallback
-                    if (transfer == 0) {
-                        transfer = teamData.energyInput.getOrDefault(hatch.getPos(), java.math.BigInteger.ZERO)
-                                .longValue();
-                        if (transfer == 0) {
-                            transfer = teamData.energyOutput.getOrDefault(hatch.getPos(), java.math.BigInteger.ZERO)
-                                    .longValue();
+                // 1. Identify Endpoint and Perspective
+                if (metaBE.getMetaMachine() instanceof TeslaEnergyHatchPartMachine hatch) {
+                    team = hatch.getOwnerTeamUUID();
+                    if (team != null) {
+                        mode = hatch.isUplink() ? 0 : 1;
+                        TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(team);
+                        transferRate = teamData.machineDisplayFlow.getOrDefault(pos, 0L);
+                    }
+                } else if (metaBE.getMetaMachine() instanceof TeslaTowerMachine tower) {
+                    team = tower.getOwnerUUID();
+                } else {
+                    // Reverse lookup for Soul-Linked (Single) Machines
+                    // This works across dimensions because we are checking the global data maps
+                    for (var entry : data.getNetworksView().entrySet()) {
+                        if (entry.getValue().soulLinkedMachines.contains(pos)) {
+                            team = entry.getKey();
+                            mode = 1;
+                            transferRate = entry.getValue().machineDisplayFlow.getOrDefault(pos, 0L);
+                            break;
                         }
                     }
+                }
 
-                    tag.putLong("LocalTransfer", transfer);
-                    tag.putBoolean("IsInputHatch", hatch.getIO() == IO.IN);
+                // 2. Wrap Data for Client
+                if (team != null) {
+                    TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(team);
+                    tag.putUUID("TeslaTeam", team);
+                    tag.putString("TeamName", TeamUtils.getTeamName(team));
+                    tag.putString("Stored", FormattingUtil.formatNumbers(teamData.stored));
+                    tag.putString("Capacity", FormattingUtil.formatNumbers(teamData.capacity));
+                    tag.putLong("LocalTransfer", transferRate);
+                    tag.putInt("TransferMode", mode);
+
+                    // Use sl.getGameTime() for local connection checks
+                    tag.putInt("ActiveHatches", teamData.getLiveHatchCount(sl.getGameTime()));
                 }
             }
         }
@@ -78,34 +93,33 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
         if (!data.contains("TeslaTeam")) return;
 
         // Header
-        tooltip.add(Component.translatable("jade.phoenixcore.tesla_team", data.getString("TeamName"))
-                .withStyle(ChatFormatting.AQUA));
+        tooltip.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(data.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
 
-        // Cloud Storage
+        // Cloud Buffer Info
+        String stored = data.getString("Stored");
+        String capacity = data.getString("Capacity");
         tooltip.add(Component.literal("Cloud: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(data.getString("Stored")).withStyle(ChatFormatting.GOLD))
-                .append(Component.literal(" / ").withStyle(ChatFormatting.DARK_GRAY))
-                .append(Component.literal(data.getString("Capacity") + " EU").withStyle(ChatFormatting.YELLOW)));
+                .append(Component.literal(stored).withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(" / " + capacity + " EU").withStyle(ChatFormatting.YELLOW)));
 
-        // Connections
-        tooltip.add(Component.literal("Active Connections: ").withStyle(ChatFormatting.GRAY)
+        // Connections Count
+        tooltip.add(Component.literal("Connections: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.valueOf(data.getInt("ActiveHatches")))
                         .withStyle(ChatFormatting.WHITE)));
 
-        // Transfer Rate Logic
-        if (data.contains("LocalTransfer")) {
+        // I/O Information (Fixed color bleeding)
+        if (data.contains("TransferMode") && data.getInt("TransferMode") != -1) {
             long rate = data.getLong("LocalTransfer");
-            boolean isInput = data.getBoolean("IsInputHatch");
+            int mode = data.getInt("TransferMode");
 
-            // Corrected meaning:
-            // IO.IN = pulling from tower = providing to machine
-            // IO.OUT = pushing to tower = charging network
-            boolean isChargingNetwork = !isInput;
+            MutableComponent label = (mode == 0) ?
+                    Component.literal("Providing: ") :
+                    Component.literal("Taking: ");
 
-            String label = isChargingNetwork ? "Charging Network: " : "Providing to Machine: ";
-            ChatFormatting color = isChargingNetwork ? ChatFormatting.GREEN : ChatFormatting.RED;
+            ChatFormatting color = (mode == 0) ? ChatFormatting.GREEN : ChatFormatting.RED;
 
-            tooltip.add(Component.literal(label).withStyle(ChatFormatting.GRAY)
+            tooltip.add(label.withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(FormattingUtil.formatNumbers(rate) + " EU/t").withStyle(color)));
         }
     }

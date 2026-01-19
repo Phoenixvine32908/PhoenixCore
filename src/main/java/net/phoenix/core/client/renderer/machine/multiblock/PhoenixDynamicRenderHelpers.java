@@ -2,10 +2,7 @@ package net.phoenix.core.client.renderer.machine.multiblock;
 
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 
-import net.phoenix.core.client.renderer.machine.ArtificialStarRender;
-import net.phoenix.core.client.renderer.machine.CustomFluidRender;
-import net.phoenix.core.client.renderer.machine.EyeOfHarmonyRender;
-import net.phoenix.core.client.renderer.machine.PlasmaArcFurnaceRender;
+import net.phoenix.core.client.renderer.machine.*;
 
 public class PhoenixDynamicRenderHelpers {
 
@@ -23,5 +20,9 @@ public class PhoenixDynamicRenderHelpers {
 
     public static DynamicRender<?, ?> getCustomFluidRenderer() {
         return CustomFluidRender.INSTANCE;
+    }
+
+    public static DynamicRender<?, ?> getHelicalFusionRenderer() {
+        return HelicalFusionRenderer.INSTANCE;
     }
 }

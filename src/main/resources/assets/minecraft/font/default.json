@@ -1,0 +1,10 @@
+{
+  "providers": [{
+    "type": "bitmap",
+    "file": "phoenixcore:font/YOURFILE.png",
+    "ascent": 7,
+    "chars": [
+      "🜁🜂🜃🜄☼☿♃♄🜊🜍"
+    ]
+  }]
+}

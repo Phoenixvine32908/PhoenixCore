@@ -3,14 +3,20 @@ package net.phoenix.core.common.machine;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.data.RotationState;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
+import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
+import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
+import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
+import com.gregtechceu.gtceu.common.machine.electric.ChargerMachine;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
@@ -20,8 +26,14 @@ import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
 import net.phoenix.core.common.machine.singleblock.TeslaWirelessChargerMachine;
+import net.phoenix.core.common.registry.PhoenixRegistration;
 import net.phoenix.core.phoenixcore;
 
+import java.util.Locale;
+import java.util.function.BiFunction;
+
+import static com.gregtechceu.gtceu.api.GTValues.VCF;
+import static com.gregtechceu.gtceu.api.GTValues.VOLTAGE_NAMES;
 import static com.gregtechceu.gtceu.api.pattern.Predicates.blocks;
 import static com.gregtechceu.gtceu.api.pattern.Predicates.controller;
 import static net.phoenix.core.common.machine.PhoenixMachines.registerTieredMachines;
@@ -103,23 +115,65 @@ public class PhoenixTeslaMachines {
                     .overlayTieredHullModel("tesla_hatches/tesla_output")
                     .register(),
             GTValues.ALL_TIERS);
-    public static final MachineDefinition[] TESLA_WIRELESS_CHARGER = registerTieredMachines(
-            "tesla_wireless_charger",
-            TeslaWirelessChargerMachine::new,
-            (tier, builder) -> builder
-                    .langValue(GTValues.VNF[tier] + " Tesla Wireless Charger")
-                    .rotationState(RotationState.ALL)
-                    .tooltips(
-                            Component.translatable("gtceu.universal.tooltip.voltage_in",
-                                    FormattingUtil.formatNumbers(GTValues.V[tier]), GTValues.VNF[tier]),
-                            Component.translatable("gtceu.universal.tooltip.amperage_in", 4),
-                            Component.literal("Wireless Range: ").withStyle(ChatFormatting.GRAY)
-                                    .append(Component.literal(tier >= GTValues.LuV ? "Global (Cross-Dimensional)" : (8 * (tier + 1)) + "m")
-                                            .withStyle(ChatFormatting.AQUA)),
-                            Component.literal("Charges armor and tools from the Team Energy Cloud").withStyle(ChatFormatting.GREEN))
-                    .overlayTieredHullModel("tesla_hatches/tesla_output") // Reusing output overlay for aesthetic consistency
-                    .register(),
-            GTValues.ALL_TIERS);
+
+    public static MachineDefinition[] registerWirelessCharger(
+            GTRegistrate registrate,
+            String name,
+            BiFunction<IMachineBlockEntity, Integer, TeslaWirelessChargerMachine> factory
+    ) {
+        return registerChargerTieredMachines(
+                registrate,
+                name,
+                (holder, tier) -> factory.apply(holder, tier),
+                (tier, builder) -> builder
+                        .rotationState(RotationState.ALL)
+                        .modelProperty(GTMachineModelProperties.CHARGER_STATE, ChargerMachine.State.IDLE)
+                        .model(GTMachineModels.createChargerModel())
+                        .langValue("%s Tesla Wireless Charger".formatted(
+                                VCF[tier] + GTValues.VOLTAGE_NAMES[tier] + ChatFormatting.RESET))
+                        .tooltips(
+                                Component.translatable("gtceu.universal.tooltip.voltage_in",
+                                        FormattingUtil.formatNumbers(GTValues.V[tier]),
+                                        GTValues.VNF[tier]),
+                                Component.translatable("gtceu.universal.tooltip.amperage_in", 4),
+                                Component.literal("Wireless Range: ").withStyle(ChatFormatting.GRAY)
+                                        .append(Component.literal(
+                                                        tier >= GTValues.LuV ? "Global (Cross-Dimensional)" :
+                                                                (8 * (tier + 1)) + "m")
+                                                .withStyle(ChatFormatting.AQUA)),
+                                Component.literal("Charges armor and tools from the Team Energy Cloud")
+                                        .withStyle(ChatFormatting.GREEN))
+                        .register(),
+                GTValues.ALL_TIERS
+        );
+    }
+    public static MachineDefinition[] registerChargerTieredMachines(
+            GTRegistrate registrate,
+            String name,
+            BiFunction<IMachineBlockEntity, Integer, MetaMachine> machineFactory,
+            BiFunction<Integer, MachineBuilder<MachineDefinition>, MachineDefinition> definitionBuilder,
+            int... tiers
+    ) {
+        MachineDefinition[] definitions = new MachineDefinition[GTValues.TIER_COUNT];
+
+        for (int tier : tiers) {
+            var builder = registrate
+                    .machine(GTValues.VN[tier].toLowerCase(Locale.ROOT) + "_" + name,
+                            holder -> machineFactory.apply(holder, tier))
+                    .tier(tier);
+
+            definitions[tier] = definitionBuilder.apply(tier, builder);
+        }
+
+        return definitions;
+    }
+    public static final MachineDefinition[] TESLA_WIRELESS_CHARGER =
+            registerWirelessCharger(
+                    PhoenixRegistration.REGISTRATE,
+                    "tesla_wireless_charger",
+                    TeslaWirelessChargerMachine::new
+            );
+
 
     /*
      * private static MachineDefinition[] registerTeslaEnergyHatch(String name,

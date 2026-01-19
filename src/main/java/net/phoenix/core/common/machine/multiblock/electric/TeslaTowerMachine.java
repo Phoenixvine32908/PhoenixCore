@@ -172,57 +172,57 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     }
 
     private void pushToSoulLinkedMachines(ServerLevel level, TeslaTeamEnergyData.TeamEnergy team) {
+        // Early exit if no machines are linked or the battery is empty
         if (team.soulLinkedMachines.isEmpty() || energyBank.getStored().equals(BigInteger.ZERO)) return;
 
         for (BlockPos targetPos : team.soulLinkedMachines) {
+            // 1. Check if chunk is loaded to prevent lag/errors
             if (!level.isLoaded(targetPos)) continue;
+
+            // 2. Ping the machine as "Active" for Jade and the Tower UI
+            // This ensures the machine shows up in 'Active Connections'
+            team.markHatchActive(targetPos, level.getGameTime());
 
             MetaMachine machine = MetaMachine.getMachine(level, targetPos);
             if (machine == null) continue;
 
-            // SPECIAL CASE: The Charger Machine
+            long injectedThisTick = 0;
+
+            // 3. Handle Charger Machines (e.g., Battery Chargers)
             if (machine instanceof com.gregtechceu.gtceu.common.machine.electric.ChargerMachine charger) {
                 var energy = charger.energyContainer;
                 if (energy != null) {
-                    // The charger needs 'acceptEnergyFromNetwork' to trigger its internal item-charging loop.
-                    // We pass 'null' for the side to bypass physical cable checks.
                     long voltage = energy.getInputVoltage();
-                    long amperage = energy.getInputAmperage();
-
-                    // Calculate how much we can actually provide from our bank
                     long available = energyBank.getStored().longValue();
-                    long maxTransfer = voltage * amperage;
+                    long maxTransfer = voltage * energy.getInputAmperage();
                     long toPush = Math.min(available, maxTransfer);
 
-                    // This call triggers the code that loops through items in the charger's slots
-                    long accepted = energy.acceptEnergyFromNetwork(null, voltage, (long) Math.ceil((double)toPush / voltage));
-
+                    // GTCEu logic for packets
+                    long accepted = energy.acceptEnergyFromNetwork(null, voltage,
+                            (long) Math.ceil((double) toPush / voltage));
                     if (accepted > 0) {
-                        energyBank.drain(accepted * voltage);
+                        injectedThisTick = accepted * voltage;
+                        energyBank.drain(injectedThisTick);
                     }
                 }
-                continue; // Skip the standard logic for the charger
             }
-
-            // STANDARD CASE: All other Tiered Machines
-            if (machine instanceof TieredEnergyMachine tieredMachine) {
+            // 4. Handle Standard Tiered Machines (Processing Machines, etc.)
+            else if (machine instanceof TieredEnergyMachine tieredMachine) {
                 var energy = tieredMachine.energyContainer;
-
                 if (energy != null && energy.getInputVoltage() > 0) {
                     long demand = energy.getEnergyCanBeInserted();
-
                     if (demand > 0) {
                         long voltage = energy.getInputVoltage();
-                        long maxAmps = energy.getInputAmperage();
-                        long transferLimit = voltage * maxAmps;
+                        long transferLimit = voltage * energy.getInputAmperage();
 
                         long toInject = Math.min(demand, transferLimit);
-                        long injected = energyBank.drain(toInject);
+                        // Drain from the internal battery bank trait
+                        injectedThisTick = energyBank.drain(toInject);
 
-                        if (injected > 0) {
-                            energy.addEnergy(injected);
+                        if (injectedThisTick > 0) {
+                            energy.addEnergy(injectedThisTick);
 
-                            // Visual feedback
+                            // Visual Feedback
                             if (level.getGameTime() % 10 == 0) {
                                 level.sendParticles(net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK,
                                         targetPos.getX() + 0.5, targetPos.getY() + 1.1, targetPos.getZ() + 0.5,
@@ -232,6 +232,12 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                     }
                 }
             }
+
+            // 5. Accumulate the flow for the 20-tick display cycle
+            if (injectedThisTick > 0) {
+                // Using merge ensures we don't overwrite values from other energy events in the same tick
+                team.machineCurrentFlow.merge(targetPos, injectedThisTick, Long::sum);
+            }
         }
     }
 
@@ -239,66 +245,97 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         if (getLevel().isClientSide) return;
         if (!isWorkingEnabled() || !isFormed()) return;
 
-        // 1. Every second: cloud → tower sync + UI stats
-        if (getLevel().getGameTime() % 20 == 0) {
-            syncToTeslaSavedData(); // cloud → tower
+        ServerLevel sl = (ServerLevel) getLevel();
 
+        // 1. Every 20 ticks (1 second): Aggregate, Average, and Sync
+        if (sl.getGameTime() % 20 == 0) {
+            syncToTeslaSavedData(); // Push Tower internal buffer to the Cloud
+
+            if (ownerTeamUUID != null) {
+                TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
+                TeslaTeamEnergyData.TeamEnergy team = data.getOrCreate(ownerTeamUUID);
+
+                // --- A. GHOSTING FIX: MASTER RESET ---
+                // We clear old display averages for all known endpoints first.
+                // If they don't move energy this second, they will correctly show 0.
+                for (var hatch : data.getHatches(ownerTeamUUID)) {
+                    team.machineDisplayFlow.put(hatch.pos, 0L);
+                }
+                for (BlockPos soulPos : team.soulLinkedMachines) {
+                    team.machineDisplayFlow.put(soulPos, 0L);
+                }
+
+                long totalWirelessInput = 0;
+                long totalWirelessOutput = 0;
+
+                // --- B. PROCESS WIRELESS HATCHES (Current Real-time Data) ---
+
+                // Uplinks (Providing: Hatch -> Cloud)
+                for (var entry : team.energyOutput.entrySet()) {
+                    long accumulated = entry.getValue().longValue();
+                    totalWirelessInput += accumulated;
+                    // Overwrite the 0 with the actual 1s average
+                    team.machineDisplayFlow.put(entry.getKey(), accumulated / 20);
+                }
+
+                // Downlinks (Taking: Cloud -> Hatch)
+                for (var entry : team.energyInput.entrySet()) {
+                    long accumulated = entry.getValue().longValue();
+                    totalWirelessOutput += accumulated;
+                    // Overwrite the 0 with the actual 1s average
+                    team.machineDisplayFlow.put(entry.getKey(), accumulated / 20);
+                }
+
+                // --- C. PROCESS SOUL-LINKED MACHINES ---
+                long totalSoulLinkedOutput = 0;
+                for (BlockPos mPos : team.soulLinkedMachines) {
+                    long accumulated = team.machineCurrentFlow.getOrDefault(mPos, 0L);
+                    long averagePerTick = accumulated / 20;
+
+                    team.machineDisplayFlow.put(mPos, averagePerTick);
+                    totalSoulLinkedOutput += accumulated;
+
+                    team.machineCurrentFlow.put(mPos, 0L); // Reset machine-specific accumulator
+                }
+
+                // --- D. UPDATE GLOBAL TOTALS (EU/t) ---
+                team.lastNetInput = (netInLastSec + totalWirelessInput) / 20;
+                team.lastNetOutput = (netOutLastSec + totalWirelessOutput + totalSoulLinkedOutput) / 20;
+
+                // --- E. CLEANUP ---
+                team.energyInput.clear();
+                team.energyOutput.clear();
+                data.setDirty();
+            }
+
+            // Reset local wired accumulators
             inputPerSec = netInLastSec;
             outputPerSec = netOutLastSec;
             netInLastSec = 0;
             netOutLastSec = 0;
         }
 
-        // 2. Wired INPUT ONLY (no output, no drain)
-        if (inputHatches != null) {
+        // 2. Every Tick: Wired Energy Logic
+        if (inputHatches != null && ownerTeamUUID != null) {
+            TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
+            TeslaTeamEnergyData.TeamEnergy team = data.getOrCreate(ownerTeamUUID);
 
             long incoming = inputHatches.getEnergyStored();
-            if (incoming > 0 && ownerTeamUUID != null && getLevel() instanceof ServerLevel sl) {
-
-                TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
-                TeslaTeamEnergyData.TeamEnergy team = data.getOrCreate(ownerTeamUUID);
-
-                // Cloud capacity
+            if (incoming > 0) {
                 BigInteger before = team.stored;
                 BigInteger toAdd = BigInteger.valueOf(incoming);
-
-                // Add to cloud
                 BigInteger newStored = before.add(toAdd).min(team.capacity);
                 team.stored = newStored;
 
-                // How much was actually accepted?
                 long accepted = newStored.subtract(before).longValue();
                 if (accepted > 0) {
                     inputHatches.changeEnergy(-accepted);
                     netInLastSec += accepted;
                 }
-                pushToSoulLinkedMachines(sl, team);
-                data.setDirty();
-
             }
-        }
 
-        // 3. NO wired output, NO passive drain, NO tower-side mutation
-    }
-
-    /** Corrected energy transfer for a single wireless hatch */
-    private void tickWirelessHatch(TeslaEnergyHatchPartMachine hatch) {
-        IEnergyContainer container = hatch.getEnergyContainer();
-        TeslaEnergyBank bank = this.energyBank;
-
-        long stored = container.getEnergyStored();
-        long capacity = container.getEnergyCapacity();
-        long transferRate = container.getInputVoltage() * container.getInputAmperage();
-
-        if (hatch.getIO() == IO.IN) {
-            long space = capacity - stored;
-            long toPull = Math.min(transferRate, space);
-            long pulled = bank.drain(toPull);
-            container.changeEnergy(pulled);
-        } else if (hatch.getIO() == IO.OUT) {
-            long toPush = Math.min(transferRate, stored);
-            long accepted = bank.fill(toPush);
-            container.changeEnergy(-accepted);
+            pushToSoulLinkedMachines(sl, team);
+            data.setDirty();
         }
     }
 
@@ -403,7 +440,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     private int index;
 
     @Override
-    public ModularUI createUI(Player entityPlayer) {
+    public @NotNull ModularUI createUI(Player entityPlayer) {
         return new ModularUI(198, 208, this, entityPlayer).widget(new FancyMachineUIWidget(this, 198, 208));
     }
 
@@ -756,8 +793,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
     @Override
     public void addDisplayText(List<Component> textList) {
-        super.addDisplayText(textList);
-
         if (!isFormed()) {
             textList.add(Component.literal("Tesla Network: Inactive").withStyle(ChatFormatting.RED));
             return;
@@ -765,28 +800,96 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
         Style GOLD = Style.EMPTY.withColor(ChatFormatting.GOLD);
         Style AQUA = Style.EMPTY.withColor(ChatFormatting.AQUA);
-        Style GRAY = Style.EMPTY.withColor(ChatFormatting.GRAY);
         Style GREEN = Style.EMPTY.withColor(ChatFormatting.GREEN);
         Style RED = Style.EMPTY.withColor(ChatFormatting.RED);
 
+        // 1. Online / Offline Status
         textList.add(Component.literal("Tesla Network: ")
                 .append(Component.literal(isWorkingEnabled() ? "ONLINE" : "OFFLINE")
                         .withStyle(isWorkingEnabled() ? ChatFormatting.GREEN : ChatFormatting.RED)));
 
+        // 2. Team Name
         textList.add(Component.literal("Team: ")
                 .append(Component.literal(ownerTeamUUID == null ? "None" : TeamUtils.getTeamName(ownerTeamUUID))
                         .withStyle(AQUA)));
 
+        // 3. Stored & Capacity (Using your working energyBank logic)
         if (energyBank != null) {
             textList.add(Component.literal("Stored: ")
-                    .append(Component.literal(FormattingUtil.formatNumbers(energyBank.getStored()))
-                            .withStyle(GOLD))
-                    .append(Component.literal(" / ").withStyle(GRAY))
-                    .append(Component.literal(FormattingUtil.formatNumbers(energyBank.getCapacity()))
+                    .append(Component
+                            .literal(formatTeslaValue(FormattingUtil.formatNumbers(energyBank.getStored()), false) +
+                                    " EU")
                             .withStyle(GOLD)));
 
+            textList.add(Component.literal("Capacity: ")
+                    .append(Component
+                            .literal(formatTeslaValue(FormattingUtil.formatNumbers(energyBank.getCapacity()), false) +
+                                    " EU")
+                            .withStyle(ChatFormatting.YELLOW)));
+        }
+
+        // 4. Input & Output (The Network Flow)
+        // We check if we are on Server to get real data; on Client, we show 0 or cached data
+        long inputVal = 0;
+        long outputVal = 0;
+
+        if (!getLevel().isClientSide && getLevel() instanceof ServerLevel serverLevel && ownerTeamUUID != null) {
+            var team = TeslaTeamEnergyData.get(serverLevel).getOrCreate(ownerTeamUUID);
+            // Ensure these field names match what you have in your TeamEnergy class
+            inputVal = team.lastNetInput;
+            outputVal = team.lastNetOutput;
+        }
+
+        textList.add(Component.literal("Total Input: ")
+                .append(Component
+                        .literal("+" + formatTeslaValue(FormattingUtil.formatNumbers(inputVal), false) + " EU/t")
+                        .withStyle(GREEN)));
+
+        textList.add(Component.literal("Total Output: ")
+                .append(Component
+                        .literal("-" + formatTeslaValue(FormattingUtil.formatNumbers(outputVal), false) + " EU/t")
+                        .withStyle(RED)));
+
+        // 5. Battery Tier
+        if (energyBank != null) {
             textList.add(Component.literal("Battery Tier: ")
                     .append(Component.literal(GTValues.VN[energyBank.getHighestTier()]).withStyle(AQUA)));
+        }
+    }
+
+    private String formatTeslaValue(String valueStr, boolean forceScientific) {
+        if (valueStr == null || valueStr.isEmpty()) return "0";
+        try {
+            // 1. Clean the string so Double.parseDouble can read it
+            // We strip: GT color codes (§), commas (,), plus/minus, and any "suffix" letters like k, M, G
+            String cleanValue = valueStr.replaceAll("[§][0-9a-fk-or]", "")
+                    .replace(",", "")
+                    .replace("+", "")
+                    .replace("-", "")
+                    .replaceAll("[a-zA-Z]", "") // Strips 'k', 'M', 'G' if FormattingUtil added them
+                    .trim();
+
+            double value = Double.parseDouble(cleanValue);
+            if (value == 0) return "0";
+
+            // 2. Handle Force Scientific (Used in the scrollable list rows to save space)
+            if (forceScientific && value >= 1000) {
+                return String.format("%.1e", value);
+            }
+
+            // 3. Handle the "1 Trillion" Threshold for the Header
+            // Above 1 Trillion: Use 3-decimal scientific notation (e.g., 1.250e+12)
+            if (value >= 1_000_000_000_000L) {
+                return String.format("%.3e", value);
+            }
+
+            // 4. Below 1 Trillion: Use standard formatting with COMMAS
+            // We use String.format with %,.0f to add thousands separators
+            return String.format("%,.0f", value);
+
+        } catch (NumberFormatException ignored) {
+            // If parsing fails, return the original string stripped of colors
+            return valueStr.replaceAll("[§][0-9a-fk-or]", "");
         }
     }
 

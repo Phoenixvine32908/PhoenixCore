@@ -8,13 +8,13 @@ import com.gregtechceu.gtceu.api.item.component.IItemUIFactory;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TieredEnergyMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
-import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import com.lowdragmc.lowdraglib.gui.factory.HeldItemUIFactory;
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.*;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -22,6 +22,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -38,11 +39,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.phoenix.core.client.renderer.TeslaHighlightRenderer;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
+import net.phoenix.core.utils.TeamUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -59,6 +60,7 @@ public class TeslaBinderItem extends ComponentItem
     public boolean onEntitySwing(@NotNull ItemStack stack, @NotNull LivingEntity entity) {
         return false;
     }
+
     @Override
     public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack stack,
                                                            @NotNull Player player,
@@ -95,7 +97,8 @@ public class TeslaBinderItem extends ComponentItem
                     TeslaTeamEnergyData data = TeslaTeamEnergyData.get(serverLevel);
 
                     // Toggle the link in the Global Saved Data
-                    boolean isNowLinked = data.toggleSoulLink(teamUUID, clickedPos);
+                    // Pass 'level' as the second argument
+                    boolean isNowLinked = data.toggleSoulLink(teamUUID, level, clickedPos);
 
                     if (isNowLinked) {
                         player.sendSystemMessage(
@@ -244,246 +247,376 @@ public class TeslaBinderItem extends ComponentItem
         return (r << 16) | (g << 8) | b;
     }
 
+    private String formatTeslaValue(String valueStr, boolean forceScientific) {
+        if (valueStr == null || valueStr.isEmpty()) return "0";
+        try {
+            String cleanValue = valueStr.replaceAll("[§][0-9a-fk-or]", "")
+
+                    .replace(",", "").replace("+", "").replace("-", "").trim();
+
+            double value = Double.parseDouble(cleanValue);
+
+            if (value == 0) return "0";
+            if (forceScientific && value >= 1000) {
+
+                return String.format("%.1e", value);
+            }
+            if (value >= 1_000_000_000_000L) {
+
+                return String.format("%.3e", value);
+            }
+            return String.format("%,.0f", value);
+        } catch (NumberFormatException ignored) {
+            return valueStr.replaceAll("[§][0-9a-fk-or]", "");
+        }
+    }
+
     @Override
     public ModularUI createUI(HeldItemUIFactory.HeldItemHolder holder, Player player) {
         ItemStack stack = holder.getHeld();
         CompoundTag tag = stack.getOrCreateTag();
 
-        // GUARDS: Ensure lists exist to avoid null pointers
-        ListTag hatchListData = tag.getList("HatchData", Tag.TAG_COMPOUND);
-        ListTag machineListData = tag.getList("MachineData", Tag.TAG_COMPOUND);
+        if (!tag.contains("FilterMode")) tag.putInt("FilterMode", 0);
+        int filterMode = tag.getInt("FilterMode");
 
-        int totalEntries = hatchListData.size() + machineListData.size();
-        int listHeight = Math.min(130, Math.max(40, totalEntries * 18 + 4));
-        int windowHeight = 95 + listHeight;
+        int windowWidth = 260;
+        int windowHeight = 280;
 
-        ModularUI ui = new ModularUI(230, windowHeight, holder, player).background(GuiTextures.BACKGROUND);
-        WidgetGroup mainLayer = new WidgetGroup(0, 0, 230, windowHeight);
-        WidgetGroup detailLayer = new WidgetGroup(0, 0, 230, windowHeight);
+        ModularUI ui = new ModularUI(windowWidth, windowHeight, holder, player).background(GuiTextures.BACKGROUND);
+        WidgetGroup mainLayer = new WidgetGroup(0, 0, windowWidth, windowHeight);
+        WidgetGroup detailLayer = new WidgetGroup(0, 0, windowWidth, windowHeight);
         detailLayer.setVisible(false);
 
-        // --- DETAIL VIEW PANEL ---
+        // --- SHARED DETAIL LOGIC ---
         Consumer<CompoundTag> openDetail = (hTag) -> {
             detailLayer.clearAllWidgets();
-            WidgetGroup detailHeader = new WidgetGroup(5, 5, 220, 20);
-            detailLayer.addWidget(detailHeader);
-
-            detailHeader.addWidget(new ButtonWidget(0, 0, 18, 18, GuiTextures.BUTTON, c -> {
+            detailLayer.addWidget(new ButtonWidget(5, 5, 18, 18, GuiTextures.BUTTON_LEFT, c -> {
                 detailLayer.setVisible(false);
                 mainLayer.setVisible(true);
-            }).setButtonTexture(GuiTextures.BUTTON_LEFT));
+            }));
 
-            detailHeader.addWidget(new LabelWidget(25, 4, "Device Details").setTextColor(ChatFormatting.GOLD.getColor()));
+            boolean isHatch = hTag.contains("isOut");
+            String hardwareTitle;
+            ChatFormatting titleColor;
 
-            WidgetGroup detailDisplay = new WidgetGroup(5, 30, 220, 55);
-            // Detail view keeps the dark GT display for contrast
-            detailDisplay.setBackground(GuiTextures.DISPLAY);
-            detailLayer.addWidget(detailDisplay);
+            if (isHatch) {
+                boolean isUplink = hTag.getBoolean("isOut");
+                hardwareTitle = isUplink ? "Tesla Uplink" : "Tesla Downlink";
+                titleColor = isUplink ? ChatFormatting.GREEN : ChatFormatting.RED;
+            } else {
+                hardwareTitle = hTag.contains("name") ? hTag.getString("name") : "Soul Consumer";
+                titleColor = ChatFormatting.LIGHT_PURPLE;
+            }
 
-            detailLayer.addWidget(new ComponentPanelWidget(12, 40, list -> {
-                // Machine name is now the pre-translated string from NBT
-                String name = hTag.contains("name") ? hTag.getString("name") : "Tesla Component";
-                list.add(Component.literal(name).withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
+            detailLayer
+                    .addWidget(new LabelWidget(28, 9, hardwareTitle + " Details").setTextColor(titleColor.getColor()));
 
-                list.add(Component.empty());
+            WidgetGroup displayBox = new WidgetGroup(5, 30, windowWidth - 10, 90);
+            displayBox.setBackground(GuiTextures.DISPLAY);
+            displayBox.addWidget(new ComponentPanelWidget(8, 8, list -> {
+                list.add(Component.literal(hardwareTitle).withStyle(titleColor, ChatFormatting.BOLD));
+                BlockPos p = BlockPos.of(hTag.getLong("pos"));
+                list.add(Component.literal("Location: ").withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(String.format("%d, %d, %d", p.getX(), p.getY(), p.getZ()))
+                                .withStyle(ChatFormatting.WHITE)));
 
                 if (hTag.contains("buf")) {
+                    // Keep the detailed formatter here for the specific machine buffer
                     list.add(Component.literal("Internal Buffer: ").withStyle(ChatFormatting.GRAY)
-                            .append(Component.literal(hTag.getString("buf") + " EU").withStyle(ChatFormatting.YELLOW)));
+                            .append(Component.literal(formatTeslaValue(hTag.getString("buf"), false))
+                                    .withStyle(ChatFormatting.GOLD))
+                            .append(Component.literal(" EU").withStyle(ChatFormatting.GOLD)));
                 }
 
-                // UI FORMATTING: Append " EU/t" here once.
-                // The NBT string now contains ONLY the number and sign (e.g., "-32")
-                String flowValue = hTag.getString("transfer");
-                list.add(Component.literal("Network Flow: ").withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(flowValue + " EU/t").withStyle(ChatFormatting.AQUA)));
+                long flowVal = Long.parseLong(hTag.getString("transfer").isEmpty() ? "0" : hTag.getString("transfer"));
+                String sign = isHatch ? (hTag.getBoolean("isOut") ? "+" : "-") : "-";
 
-                if (hTag.contains("isOut")) {
-                    list.add(hTag.getBoolean("isOut") ?
-                            Component.literal("Link Mode: PULL").withStyle(ChatFormatting.RED) :
-                            Component.literal("Link Mode: PUSH").withStyle(ChatFormatting.GREEN));
-                }
+                list.add(Component.literal("Current Flow: ").withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(sign + formatTeslaValue(hTag.getString("transfer"), false))
+                                .withStyle(flowVal > 0 ? titleColor : ChatFormatting.WHITE))
+                        .append(" EU/t"));
+
+                String statusText = (flowVal > 0) ? "OPERATIONAL" : "IDLE / NO LOAD";
+                list.add(Component.literal("Status: ").withStyle(ChatFormatting.GRAY)
+                        .append(Component.literal(statusText)
+                                .withStyle(flowVal > 0 ? ChatFormatting.AQUA : ChatFormatting.DARK_GRAY)));
             }));
+            detailLayer.addWidget(displayBox);
+
+            int btnX = 5;
+            int btnY = 125;
+            int btnW = windowWidth - 10;
+            detailLayer.addWidget(new ButtonWidget(btnX, btnY, btnW, 18, GuiTextures.BUTTON, c -> {
+                if (player.level().isClientSide)
+                    TeslaHighlightRenderer.highlight(BlockPos.of(hTag.getLong("pos")), 200);
+            }));
+            detailLayer.addWidget(new LabelWidget(btnX + (btnW / 2) - 45, btnY + 5, "§bHighlight Device"));
 
             mainLayer.setVisible(false);
             detailLayer.setVisible(true);
         };
 
-        // --- MAIN UI HEADER ---
+        // --- MAIN HEADER (BigInt Compatible) ---
         mainLayer.addWidget(new LabelWidget(8, 6, "Tesla Network Management").setTextColor(0xB000FF));
 
-        WidgetGroup headerGroup = new WidgetGroup(5, 18, 220, 48);
-        // CUSTOM TEXTURE: Using your new PhoenixCore tesla background
-        headerGroup.setBackground(TESLA_BACKGROUND);
-        mainLayer.addWidget(headerGroup);
-
-        headerGroup.addWidget(new ComponentPanelWidget(5, 4, textList -> {
-            textList.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY)
+        WidgetGroup header = new WidgetGroup(5, 18, windowWidth - 10, 80);
+        header.setBackground(TESLA_BACKGROUND);
+        header.addWidget(new ComponentPanelWidget(5, 4, text -> {
+            text.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(tag.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
-            textList.add(Component.literal("Stored: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(tag.getString("StoredEU") + " EU").withStyle(ChatFormatting.GOLD)));
-        }));
 
-        // --- LIST GROUP ---
-        // Draggable area for all your machines and hatches
-        DraggableScrollableWidgetGroup listGroup = new DraggableScrollableWidgetGroup(7, 72, 216, listHeight - 4);
-        // Keep standard GT display texture for the scrolling list for readability
+            text.add(Component.literal("Stored:   ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(compactTeslaValue(tag.getString("StoredEU")))
+                            .withStyle(ChatFormatting.GOLD))
+                    .append(" EU"));
+
+            text.add(Component.literal("Capacity: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(compactTeslaValue(tag.getString("CapacityEU")))
+                            .withStyle(ChatFormatting.YELLOW))
+                    .append(" EU"));
+
+            text.add(Component.literal("Net Input: ").withStyle(ChatFormatting.GRAY).append(Component
+                    .literal("+" + compactTeslaValue(tag.getString("NetInput"))).withStyle(ChatFormatting.GREEN))
+                    .append(" EU/t"));
+            text.add(Component
+                    .literal("Net Output: ").withStyle(ChatFormatting.GRAY).append(Component
+                            .literal("-" + compactTeslaValue(tag.getString("NetOutput"))).withStyle(ChatFormatting.RED))
+                    .append(" EU/t"));
+        }));
+        mainLayer.addWidget(header);
+
+        // --- LIST & FILTER LOGIC ---
+        String[] filters = { "ALL", "[I]", "[O]", "[S]" };
+        for (int i = 0; i < filters.length; i++) {
+            int targetMode = i;
+            mainLayer.addWidget(new ButtonWidget(7 + (i * 62), 102, 60, 18, GuiTextures.BUTTON, c -> {
+                stack.getOrCreateTag().putInt("FilterMode", targetMode);
+                if (player instanceof ServerPlayer sp) HeldItemUIFactory.INSTANCE.openUI(holder, sp);
+            }));
+            LabelWidget fl = new LabelWidget(7 + (i * 62) + 18, 106, filters[i]);
+            if (filterMode == targetMode) fl.setTextColor(ChatFormatting.YELLOW.getColor());
+            mainLayer.addWidget(fl);
+        }
+
+        DraggableScrollableWidgetGroup listGroup = new DraggableScrollableWidgetGroup(7, 125, windowWidth - 14, 145);
         listGroup.setBackground(GuiTextures.DISPLAY);
         mainLayer.addWidget(listGroup);
 
+        ListTag hatchData = tag.getList("HatchData", Tag.TAG_COMPOUND);
+        ListTag machineData = tag.getList("MachineData", Tag.TAG_COMPOUND);
         int currentY = 0;
 
-        // 1. ADD HATCHES (Multiblocks)
-        for (int i = 0; i < hatchListData.size(); i++) {
-            CompoundTag hTag = hatchListData.getCompound(i);
-            currentY = addListRow(listGroup, hTag, player, openDetail, currentY, true);
+        for (int i = 0; i < hatchData.size(); i++) {
+            CompoundTag hTag = hatchData.getCompound(i);
+            if (filterMode == 0 || (filterMode == 1 && hTag.getBoolean("isOut")) ||
+                    (filterMode == 2 && !hTag.getBoolean("isOut"))) {
+                currentY = addListRow(listGroup, hTag, player, openDetail, currentY, true, windowWidth);
+            }
+        }
+        if (filterMode == 0 || filterMode == 3) {
+            for (int i = 0; i < machineData.size(); i++) {
+                currentY = addListRow(listGroup, machineData.getCompound(i), player, openDetail, currentY, false,
+                        windowWidth);
+            }
         }
 
-        // 2. ADD SINGLE-BLOCK MACHINES (Using your Mixin data)
-        for (int i = 0; i < machineListData.size(); i++) {
-            CompoundTag mTag = machineListData.getCompound(i);
-            currentY = addListRow(listGroup, mTag, player, openDetail, currentY, false);
-        }
-
-        ui.widget(mainLayer).widget(detailLayer);
+        ui.widget(mainLayer);
+        ui.widget(detailLayer);
         return ui;
     }
 
-    private int addListRow(WidgetGroup group, CompoundTag data, Player player, Consumer<CompoundTag> clickAction, int y, boolean isHatch) {
-        BlockPos pos = BlockPos.of(data.getLong("pos"));
+    private int addListRow(WidgetGroup group, CompoundTag data, Player player, Consumer<CompoundTag> clickAction, int y,
+                           boolean isHatch, int windowWidth) {
+        BlockPos pos = BlockPos.of(data.getLong("pos")).immutable();
+        var font = Minecraft.getInstance().font;
 
-        // Name formatting
-        String displayName = isHatch ?
-                (data.getBoolean("isOut") ? "§a[I]§r Hatch" : "§c[O]§r Hatch") :
-                "§d[S]§r " + data.getString("name");
+        // Fixed Hatch Logic: isOut = true is Input to network
+        boolean isInput = data.getBoolean("isOut");
+        String typeLabel = isHatch ? (isInput ? "[I]" : "[O]") : "[S]";
+        String colorCode = isHatch ? (isInput ? "§a" : "§c") : "§d";
+        String sign = isHatch ? (isInput ? "+" : "-") : "-";
 
-        double dist = Math.sqrt(player.blockPosition().distSqr(pos));
+        String statusIcon;
+        boolean hasFlow = !data.getString("transfer").equals("0");
+        if (!hasFlow) {
+            statusIcon = "§7△";
+        } else if (isHatch) {
+            statusIcon = isInput ? "§2▲" : "§4▼"; // Input = Green Up, Output = Red Down
+        } else {
+            statusIcon = "§b⚡";
+        }
 
-        WidgetGroup row = new WidgetGroup(0, y, 210, 18);
+        String rawName = data.contains("name") ? data.getString("name") : (isHatch ? "Tesla Hatch" : "Soul Machine");
+        String flowStr = " §8(" + colorCode + sign + compactTeslaValue(data.getString("transfer")) + "§8)";
 
-        // Main Detail Button
-        row.addWidget(new ButtonWidget(0, 0, 190, 18, GuiTextures.BUTTON, c -> clickAction.accept(data)));
-        row.addWidget(new LabelWidget(4, 4, displayName + " §7" + (int)dist + "m"));
+        int totalAvailableWidth = windowWidth - 110;
+        int tailWidth = font.width(flowStr);
+        int headWidth = font.width(statusIcon + " " + colorCode + typeLabel + "§r ");
+        int availableForName = totalAvailableWidth - tailWidth - headWidth;
 
-        // Highlight Button (Fixed: Added Gear Image back)
-        row.addWidget(new ButtonWidget(192, 0, 18, 18, GuiTextures.BUTTON, c -> {
+        String displayName = rawName;
+        if (font.width(displayName) > availableForName) {
+            while (font.width(displayName + "..") > availableForName && displayName.length() > 1) {
+                displayName = displayName.substring(0, displayName.length() - 1);
+            }
+            displayName += "..";
+        }
+
+        String finalRowText = String.format("%s %s%s§r %s%s", statusIcon, colorCode, typeLabel, displayName, flowStr);
+
+        int rowWidth = windowWidth - 20;
+        WidgetGroup row = new WidgetGroup(0, y, rowWidth, 18);
+        row.addWidget(new ButtonWidget(0, 0, rowWidth - 22, 18, GuiTextures.BUTTON, c -> clickAction.accept(data)));
+        row.addWidget(new LabelWidget(4, 5, finalRowText));
+        row.addWidget(new LabelWidget(rowWidth - 68, 5, getDistanceString(pos, player, data)));
+
+        int gearX = rowWidth - 18;
+        row.addWidget(new ButtonWidget(gearX, 0, 18, 18, GuiTextures.BUTTON, c -> {
             if (player.level().isClientSide) TeslaHighlightRenderer.highlight(pos, 200);
-            player.playSound(SoundEvents.UI_BUTTON_CLICK.get(), 0.3f, 1.5f);
         }));
-        // RESTORED: This puts the magnifying glass/gear icon on the button
-        row.addWidget(new ImageWidget(193, 1, 16, 16, GuiTextures.IO_CONFIG_COVER_SETTINGS));
+        row.addWidget(new ImageWidget(gearX + 1, 1, 16, 16, GuiTextures.IO_CONFIG_COVER_SETTINGS));
 
         group.addWidget(row);
         return y + 19;
     }
 
-    @Override
-    public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
-        if (level.isClientSide || !isSelected || level.getGameTime() % 20 != 0 || !(entity instanceof ServerPlayer serverPlayer)) {
-            return;
+    // Helper to keep the main method clean
+    private String getDistanceString(BlockPos pos, Player player, CompoundTag data) {
+        if (data.contains("dim") && !player.level().dimension().location().toString().equals(data.getString("dim"))) {
+            String dim = data.getString("dim");
+            return "§8" + (dim.contains(":") ? dim.split(":")[1] : dim);
         }
+        return "§7" + (int) Math.sqrt(player.blockPosition().distSqr(pos)) + "m";
+    }
+
+    private String compactTeslaValue(String value) {
+        try {
+            if (value == null || value.isEmpty()) return "0";
+            java.math.BigInteger n = new java.math.BigInteger(value);
+
+            if (n.equals(java.math.BigInteger.ZERO)) return "0";
+
+            // Handle negatives
+            boolean negative = n.signum() == -1;
+            if (negative) n = n.abs();
+
+            // 1,000 as a BigInteger
+            java.math.BigInteger thousand = java.math.BigInteger.valueOf(1000);
+
+            if (n.compareTo(thousand) < 0) return (negative ? "-" : "") + n.toString();
+
+            String[] suffixes = new String[] { "", "k", "M", "G", "T", "P", "E", "Z", "Y" };
+            int tier = 0;
+
+            // Use BigDecimal for high-precision division
+            java.math.BigDecimal dN = new java.math.BigDecimal(n);
+            java.math.BigDecimal dThousand = new java.math.BigDecimal(1000);
+
+            while (dN.compareTo(dThousand) >= 0 && tier < suffixes.length - 1) {
+                dN = dN.divide(dThousand, 2, java.math.RoundingMode.HALF_UP);
+                tier++;
+            }
+
+            // Final formatting: 1.5M, 100k, etc.
+            String result;
+            if (dN.compareTo(java.math.BigDecimal.valueOf(100)) >= 0) {
+                result = String.format("%.0f%s", dN, suffixes[tier]);
+            } else {
+                result = String.format("%.1f%s", dN, suffixes[tier]);
+            }
+
+            return (negative ? "-" : "") + result;
+        } catch (Exception e) {
+            return "0";
+        }
+    }
+
+    @Override
+    public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId,
+                              boolean isSelected) {
+        if (level.isClientSide || !(entity instanceof ServerPlayer serverPlayer)) return;
+
+        // Pulse check (Every 5 ticks) to keep UI responsive but save CPU
+        if (level.getGameTime() % 5 != 0) return;
+
+        boolean isUIOpen = serverPlayer.containerMenu instanceof com.lowdragmc.lowdraglib.gui.modular.ModularUIContainer;
+        if (!isSelected && !isUIOpen) return;
 
         CompoundTag tag = stack.getOrCreateTag();
         if (tag.hasUUID("TargetTeam")) {
             UUID teamUUID = tag.getUUID("TargetTeam");
-            TeslaTeamEnergyData data = TeslaTeamEnergyData.get((ServerLevel) level);
-            TeslaTeamEnergyData.TeamEnergy team = data.getOrCreate(teamUUID);
+            ServerLevel overworld = serverPlayer.server.getLevel(Level.OVERWORLD);
+            if (overworld == null) return;
 
-            tag.putString("StoredEU", FormattingUtil.formatNumbers(team.stored));
-            tag.putString("CapacityEU", FormattingUtil.formatNumbers(team.capacity));
+            TeslaTeamEnergyData globalData = TeslaTeamEnergyData.get(overworld);
+            TeslaTeamEnergyData.TeamEnergy team = globalData.getOrCreate(teamUUID);
 
-            long totalNetFlow = 0;
+            // --- GLOBAL NETWORK STATS ---
+            tag.putString("StoredEU", team.stored.toString());
+            tag.putString("CapacityEU", team.capacity.toString());
+            tag.putString("TeamName", TeamUtils.getTeamName(teamUUID));
+            tag.putString("NetInput", String.valueOf(team.lastNetInput));
+            tag.putString("NetOutput", String.valueOf(team.lastNetOutput));
 
-            // 2. Process Hatches (Multiblock Parts)
+            // --- SECTION: PHYSICAL HATCHES (Uplink/Downlink) ---
             ListTag hatchList = new ListTag();
-            for (TeslaTeamEnergyData.HatchInfo hatch : data.getHatches(teamUUID)) {
+            for (TeslaTeamEnergyData.HatchInfo hatch : globalData.getHatches(teamUUID)) {
                 if (hatch.isSoulLinked) continue;
-
                 CompoundTag hTag = new CompoundTag();
                 hTag.putLong("pos", hatch.pos.asLong());
                 hTag.putBoolean("isOut", hatch.isPhysicalOutput);
-                hTag.putString("buf", FormattingUtil.formatNumbers(hatch.buffered));
+                hTag.putString("dim", hatch.dimension.location().toString());
 
-                BigInteger transfer = hatch.isPhysicalOutput ?
-                        team.energyOutput.getOrDefault(hatch.pos, BigInteger.ZERO) :
-                        team.energyInput.getOrDefault(hatch.pos, BigInteger.ZERO);
+                // Sync Hatch Buffer
+                hTag.putString("buf", hatch.buffered.toString());
 
-                long hatchFlow = transfer.longValue();
-                totalNetFlow += (hatch.isPhysicalOutput ? -hatchFlow : hatchFlow);
-
-                String flowSign = (hatchFlow == 0) ? "" : (hatch.isPhysicalOutput ? "-" : "+");
-                hTag.putString("transfer", flowSign + FormattingUtil.formatNumbers(hatchFlow));
+                long flow = team.machineDisplayFlow.getOrDefault(hatch.pos, 0L);
+                hTag.putString("transfer", String.valueOf(flow));
                 hatchList.add(hTag);
             }
             tag.put("HatchData", hatchList);
 
-            // 3. Process Single-Blocks (Machines using Mixin)
+            // --- SECTION: SOUL CONSUMERS (Singleblocks) ---
             ListTag machineList = new ListTag();
             List<BlockPos> toRemove = new ArrayList<>();
-
             for (BlockPos mPos : team.soulLinkedMachines) {
-                if (level.isLoaded(mPos)) {
-                    MetaMachine machine = MetaMachine.getMachine(level, mPos);
+                ResourceKey<Level> mDim = team.getMachineDimension(mPos);
+                ServerLevel mLevel = serverPlayer.server.getLevel(mDim != null ? mDim : Level.OVERWORLD);
 
-                    if (machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) {
-                        CompoundTag mTag = new CompoundTag();
-                        mTag.putLong("pos", mPos.asLong());
+                CompoundTag mTag = new CompoundTag();
+                mTag.putLong("pos", mPos.asLong());
+                mTag.putString("dim", mDim != null ? mDim.location().toString() : "minecraft:overworld");
+
+                if (mLevel != null && mLevel.isLoaded(mPos)) {
+                    MetaMachine machine = MetaMachine.getMachine(mLevel, mPos);
+                    if (machine != null) {
                         mTag.putString("name", machine.getDefinition().getLangValue());
-                        mTag.putString("buf", FormattingUtil.formatNumbers(tiered.energyContainer.getEnergyStored()));
-
-                        if (machine instanceof TeslaBinderItem.ITeslaFlowTracker tracker) {
-                            long machineDelta = tracker.phoenixCore$getTeslaFlow();
-                            long networkPerspective = -machineDelta;
-                            totalNetFlow += networkPerspective;
-
-                            // UPDATE PERSISTENCE IN DATA CLASS
-                            team.machineLastEnergy.put(mPos, tiered.energyContainer.getEnergyStored());
-                            team.machineCurrentFlow.put(mPos, machineDelta);
-                            data.setDirty();
-
-                            String flowStr = (networkPerspective == 0) ? "0" :
-                                    (networkPerspective > 0 ? "+" : "") + FormattingUtil.formatNumbers(networkPerspective);
-                            mTag.putString("transfer", flowStr);
-                        } else {
-                            mTag.putString("transfer", "0");
+                        // Sync Machine Buffer
+                        if (machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) {
+                            mTag.putString("buf", String.valueOf(tiered.energyContainer.getEnergyStored()));
                         }
-                        machineList.add(mTag);
-                    } else if (machine == null) {
+                    } else {
                         toRemove.add(mPos);
+                        continue;
                     }
+                } else {
+                    mTag.putString("name", "§8[Unloaded]§r");
                 }
+                mTag.putString("transfer", String.valueOf(team.machineDisplayFlow.getOrDefault(mPos, 0L)));
+                machineList.add(mTag);
             }
 
             if (!toRemove.isEmpty()) {
-                for (BlockPos pos : toRemove) {
-                    team.soulLinkedMachines.remove(pos);
-                    team.machineLastEnergy.remove(pos);
-                    team.machineCurrentFlow.remove(pos);
-                }
-                data.setDirty();
+                for (BlockPos pos : toRemove) globalData.removeMachineFromAllTeams(pos);
+                globalData.setDirty();
             }
-
             tag.put("MachineData", machineList);
-            tag.putLong("NetFlow", totalNetFlow);
-
-            stack.setTag(tag);
-            if (serverPlayer.containerMenu != null) {
-                serverPlayer.containerMenu.broadcastChanges();
-            }
+            serverPlayer.containerMenu.broadcastChanges();
         }
     }
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return slotChanged || oldStack.getItem() != newStack.getItem();
-    }
-    public interface ITeslaFlowTracker {
-        /**
-         * Gets the EU/t delta calculated by the Mixin.
-         */
-        default long phoenixCore$getTeslaFlow() {
-            return 0L;
-        }
-        void phoenixCore$resetTeslaFlow();
     }
 }

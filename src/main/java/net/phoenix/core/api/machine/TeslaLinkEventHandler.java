@@ -2,6 +2,7 @@ package net.phoenix.core.api.machine;
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TieredEnergyMachine;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.level.BlockEvent;

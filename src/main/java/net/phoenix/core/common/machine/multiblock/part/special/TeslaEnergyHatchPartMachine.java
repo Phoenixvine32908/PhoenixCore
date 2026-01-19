@@ -46,6 +46,22 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
 
     @Persisted
     private UUID ownerTeamUUID;
+    // Inside TeslaEnergyHatchPartMachine.java
+
+    /**
+     * @return true if this hatch PUSHES energy TO the cloud (Network Input/Uplink)
+     */
+    public boolean isUplink() {
+        // If physical IO is OUT, it pushes energy out of its internal buffer into the cloud.
+        return getIO() == IO.OUT;
+    }
+
+    /**
+     * @return true if this hatch PULLS energy FROM the cloud (Network Output/Downlink)
+     */
+    public boolean isDownlink() {
+        return getIO() == IO.IN;
+    }
 
     // Cached reference to tower (not persisted)
     private TeslaTowerMachine boundTower;
@@ -69,10 +85,14 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         super.onLoad();
         if (!getLevel().isClientSide && getLevel() instanceof ServerLevel server) {
             autoLinkTeamIfNeeded();
-            if (ownerTeamUUID != null) {
-                // Pass the physical IO state on load
-                TeslaTeamEnergyData.get(server).setEnergyBuffered(ownerTeamUUID, getPos(),
-                        BigInteger.valueOf(energyContainer.getEnergyStored()), getIO() == IO.OUT);
+            if (ownerTeamUUID != null && getLevel() instanceof ServerLevel serverLevel) {
+                // Pass the Level object to capture the dimension for cross-dimension support
+                TeslaTeamEnergyData.get(serverLevel).setEnergyBuffered(
+                        ownerTeamUUID,
+                        getLevel(), // The missing argument
+                        getPos(),
+                        java.math.BigInteger.valueOf(energyContainer.getEnergyStored()),
+                        getIO() == IO.OUT);
             }
         }
     }
@@ -219,39 +239,40 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(ownerTeamUUID);
         if (!data.isOnline(ownerTeamUUID)) return;
 
-        // FIX: Use the actual amperage rating of the hatch (e.g., 4, 8, 16)
+        // 1. ALWAYS mark as active so the Tower knows we are still connected
+        teamData.markHatchActive(getPos(), sl.getGameTime());
+
         long voltage = com.gregtechceu.gtceu.api.GTValues.V[getTier()];
-        long transferRate = voltage * getAmperage(); // Dynamic transfer!
+        long transferLimit = voltage * getAmperage();
 
         BigInteger moved = BigInteger.ZERO;
 
         if (getIO() == IO.IN) {
             long space = energyContainer.getEnergyCapacity() - energyContainer.getEnergyStored();
-            // Pull from cloud into Hatch
-            BigInteger toPull = BigInteger.valueOf(Math.min(transferRate, space));
-            moved = teamData.drain(toPull);
-
-            teamData.energyInput.put(getPos(), moved);
-            teamData.energyOutput.remove(getPos());
-
-            if (moved.signum() > 0) energyContainer.changeEnergy(moved.longValue());
+            if (space > 0) { // Only attempt move if there is space
+                BigInteger toPull = BigInteger.valueOf(Math.min(transferLimit, space));
+                moved = teamData.drain(toPull);
+                if (moved.signum() > 0) {
+                    energyContainer.changeEnergy(moved.longValue());
+                    teamData.energyInput.merge(getPos(), moved, BigInteger::add);
+                }
+            }
         } else {
             long stored = energyContainer.getEnergyStored();
-            // Push from Hatch into cloud
-            BigInteger toPush = BigInteger.valueOf(Math.min(transferRate, stored));
-            moved = teamData.fill(toPush);
-
-            teamData.energyOutput.put(getPos(), moved);
-            teamData.energyInput.remove(getPos());
-
-            if (moved.signum() > 0) energyContainer.changeEnergy(-moved.longValue());
+            if (stored > 0) { // Only attempt move if there is energy
+                BigInteger toPush = BigInteger.valueOf(Math.min(transferLimit, stored));
+                moved = teamData.fill(toPush);
+                if (moved.signum() > 0) {
+                    energyContainer.changeEnergy(-moved.longValue());
+                    teamData.energyOutput.merge(getPos(), moved, BigInteger::add);
+                }
+            }
         }
 
-        // Update the cloud buffer tracking
-        data.setEnergyBuffered(ownerTeamUUID, getPos(),
+        // Update buffer for UI
+        // Add getLevel() after the team UUID
+        data.setEnergyBuffered(ownerTeamUUID, getLevel(), getPos(),
                 BigInteger.valueOf(energyContainer.getEnergyStored()), getIO() == IO.OUT);
-
-        teamData.markHatchActive(getPos(), sl.getGameTime());
     }
 
     // ---------------------------------------
@@ -319,12 +340,12 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
 
                     // 4. REGISTER NEW DATA: Add this hatch to the new team's stats immediately
                     // Inside the if (!newTeamUUID.equals(ownerTeamUUID)) block
-                    TeslaTeamEnergyData.get(server).setEnergyBuffered(
+                    TeslaTeamEnergyData.get((ServerLevel) getLevel()).setEnergyBuffered(
                             ownerTeamUUID,
+                            getLevel(), // This is the new required argument
                             getPos(),
                             java.math.BigInteger.valueOf(energyContainer.getEnergyStored()),
-                            getIO() == IO.OUT // Pass the physical state
-                    );
+                            getIO() == IO.OUT);
 
                     player.sendSystemMessage(Component
                             .literal("Tesla Hatch: Connected to frequency " + ownerTeamUUID.toString().substring(0, 8) +

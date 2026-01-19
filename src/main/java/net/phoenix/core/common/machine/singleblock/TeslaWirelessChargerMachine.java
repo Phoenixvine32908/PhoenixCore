@@ -9,13 +9,18 @@ import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.TieredEnergyMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
+import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
+import com.gregtechceu.gtceu.common.machine.electric.ChargerMachine.State;
+
 import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
+import com.lowdragmc.lowdraglib.syncdata.annotation.RequireRerender;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -26,6 +31,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
+
 import top.theillusivec4.curios.api.CuriosApi;
 
 import java.math.BigInteger;
@@ -33,16 +39,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class TeslaWirelessChargerMachine extends TieredEnergyMachine implements IDataStickInteractable, IFancyUIMachine {
+public class TeslaWirelessChargerMachine extends TieredEnergyMachine
+                                         implements IDataStickInteractable, IFancyUIMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             TeslaWirelessChargerMachine.class, TieredEnergyMachine.MANAGED_FIELD_HOLDER);
 
-    @Persisted @DescSynced
+    @Persisted
+    @DescSynced
     private UUID boundTeam;
 
     @DescSynced
-    private long lastTransferred = 0L; // Fixed: Use long for syncing
+    private long lastTransferred = 0L;
+
+    @DescSynced
+    @RequireRerender
+    private State state = State.IDLE;
 
     private final List<UUID> playersInRange = new ArrayList<>();
     private TickableSubscription tickSubs;
@@ -64,22 +76,30 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine implements 
         }
     }
 
-    private void tickCharge() {
-        if (!(getLevel() instanceof ServerLevel level) || boundTeam == null) return;
+    private void changeState(State newState) {
+        if (this.state != newState) {
+            this.state = newState;
+            setRenderState(getRenderState().setValue(GTMachineModelProperties.CHARGER_STATE, newState));
+        }
+    }
 
-        // Performance: Only run once per 10 ticks (0.5 seconds)
+    private void tickCharge() {
+        if (!(getLevel() instanceof ServerLevel level) || boundTeam == null) {
+            changeState(State.IDLE);
+            return;
+        }
+
         if (getOffsetTimer() % 10 != 0) return;
 
         TeslaTeamEnergyData data = TeslaTeamEnergyData.get(level);
         TeslaTeamEnergyData.TeamEnergy network = data.getOrCreate(boundTeam);
 
-        // Stop if the soul network is dry
         if (network.stored.signum() <= 0) {
             this.lastTransferred = 0L;
+            changeState(State.IDLE);
             return;
         }
 
-        // 1. Gather all players on the linked team
         List<Player> playersToCharge = new ArrayList<>();
         for (Player player : level.getServer().getPlayerList().getPlayers()) {
             if (TeamUtils.isPlayerOnTeam(player, boundTeam)) {
@@ -91,16 +111,11 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine implements 
 
         long movedThisCycle = 0L;
         long voltage = GTValues.V[getTier()];
-
-        // 4A is the standard output for GT Battery Chargers
         long ampsPerTick = 4;
         long ticksInBatch = 10;
-
-        // Total EU we can push to a player in this 10-tick "batch"
-        long maxBatchTransfer = voltage * ampsPerTick * ticksInBatch;
+        int totalPulses = (int) (ampsPerTick * ticksInBatch);
 
         for (Player player : playersToCharge) {
-            // Collect all target inventories (Main + Curios)
             List<IItemHandler> inventories = new ArrayList<>();
             inventories.add(new net.minecraftforge.items.wrapper.PlayerMainInvWrapper(player.getInventory()));
             CuriosApi.getCuriosInventory(player).ifPresent(h -> inventories.add(h.getEquippedCurios()));
@@ -111,44 +126,39 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine implements 
                     if (stack.isEmpty()) continue;
 
                     IElectricItem electric = GTCapabilityHelper.getElectricItem(stack);
-
-                    // Item must be chargeable and equal or lower tier than the charger
                     if (electric != null && electric.chargeable() && electric.getTier() <= getTier()) {
-
-                        // Safety: Ensure we don't overflow long if network is massive
-                        long availableInNetwork = network.stored.min(BigInteger.valueOf(maxBatchTransfer)).longValue();
-
-                        // Loop 10 times to simulate 1 tick's worth of 4A charging per iteration.
-                        // This bypasses many items' internal 1A/tick limiters.
                         long itemAcceptedTotal = 0;
-                        for (int t = 0; t < ticksInBatch; t++) {
-                            long tickOffer = Math.min(availableInNetwork - itemAcceptedTotal, voltage * ampsPerTick);
-                            if (tickOffer <= 0) break;
+                        for (int p = 0; p < totalPulses; p++) {
+                            long networkCanProvide = network.stored.min(BigInteger.valueOf(voltage)).longValue();
+                            long itemRemainingLimit = (voltage * totalPulses) - itemAcceptedTotal;
+                            long pulseOffer = Math.min(networkCanProvide, Math.min(voltage, itemRemainingLimit));
 
-                            long accepted = electric.charge(tickOffer, getTier(), false, false);
+                            if (pulseOffer <= 0) break;
+
+                            long accepted = electric.charge(pulseOffer, getTier(), false, false);
                             if (accepted > 0) {
                                 itemAcceptedTotal += accepted;
+                                network.drain(BigInteger.valueOf(accepted));
+                                movedThisCycle += accepted;
                             } else {
-                                break; // Item is full or won't accept more
+                                break;
                             }
-                        }
-
-                        if (itemAcceptedTotal > 0) {
-                            network.drain(BigInteger.valueOf(itemAcceptedTotal));
-                            movedThisCycle += itemAcceptedTotal;
                         }
                     }
                 }
             }
         }
 
-        // 2. Sync Stats
-        // Divide by 10 so the UI displays the average EU/tick rate over the last second.
         this.lastTransferred = movedThisCycle / ticksInBatch;
 
-        // 3. Mark for Save
+        // Render Logic: RUNNING if energy moves, FINISHED if players present but full, IDLE otherwise
         if (movedThisCycle > 0) {
             data.setDirty();
+            changeState(State.RUNNING);
+        } else if (!playersToCharge.isEmpty()) {
+            changeState(State.FINISHED);
+        } else {
+            changeState(State.IDLE);
         }
     }
 
@@ -163,7 +173,9 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine implements 
         playersInRange.removeIf(uuid -> {
             if (!nearbyUUIDs.contains(uuid)) {
                 Player p = getLevel().getPlayerByUUID(uuid);
-                if (p != null) p.displayClientMessage(Component.literal("Tesla Field Disconnected").withStyle(ChatFormatting.GRAY), true);
+                if (p != null)
+                    p.displayClientMessage(Component.literal("Tesla Field Disconnected").withStyle(ChatFormatting.GRAY),
+                            true);
                 return true;
             }
             return false;
@@ -190,22 +202,31 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine implements 
     }
 
     private void addDisplayText(List<Component> text) {
-        text.add(Component.literal(GTValues.VNF[getTier()] + " Wireless Charger").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+        text.add(Component.literal(GTValues.VNF[getTier()] + " Wireless Charger").withStyle(ChatFormatting.GOLD,
+                ChatFormatting.BOLD));
         text.add(Component.empty());
 
         if (boundTeam == null) {
             text.add(Component.literal("STATUS: ").append(Component.literal("UNBOUND").withStyle(ChatFormatting.RED)));
         } else {
-            text.add(Component.literal("NETWORK: ").append(Component.literal(boundTeam.toString().substring(0,8)).withStyle(ChatFormatting.AQUA)));
-
-            // Updated Range Text
-            text.add(Component.literal("RANGE: ").append(Component.literal("Omnipresent (Global)").withStyle(ChatFormatting.LIGHT_PURPLE)));
+            text.add(Component.literal("NETWORK: ")
+                    .append(Component.literal(boundTeam.toString().substring(0, 8)).withStyle(ChatFormatting.AQUA)));
+            text.add(Component.literal("RANGE: ")
+                    .append(Component.literal("Omnipresent (Global)").withStyle(ChatFormatting.LIGHT_PURPLE)));
 
             String rate = com.gregtechceu.gtceu.utils.FormattingUtil.formatNumbers(lastTransferred);
-            text.add(Component.literal("OUTPUT: ").append(Component.literal(rate + " EU/t").withStyle(ChatFormatting.GREEN)));
+            text.add(Component.literal("OUTPUT: ")
+                    .append(Component.literal(rate + " EU/t").withStyle(ChatFormatting.GREEN)));
         }
     }
 
-    @Override public IGuiTexture getTabIcon() { return GuiTextures.CHARGER_OVERLAY; }
-    @Override public Component getTitle() { return Component.literal("Tesla Field Generator"); }
+    @Override
+    public IGuiTexture getTabIcon() {
+        return GuiTextures.CHARGER_OVERLAY;
+    }
+
+    @Override
+    public Component getTitle() {
+        return Component.literal("Tesla Field Generator");
+    }
 }
