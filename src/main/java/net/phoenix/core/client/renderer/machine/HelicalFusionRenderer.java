@@ -1,240 +1,182 @@
 package net.phoenix.core.client.renderer.machine;
 
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
+import com.gregtechceu.gtceu.GTCEu;
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.client.renderer.GTRenderTypes;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
+import com.gregtechceu.gtceu.client.util.RenderBufferHelper;
 
+
+import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionReactorMachine;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.FastColor;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.serialization.Codec;
+
 import org.jetbrains.annotations.NotNull;
 
-public class HelicalFusionRenderer
-                                   extends DynamicRender<WorkableElectricMultiblockMachine, HelicalFusionRenderer> {
+public class HelicalFusionRenderer extends DynamicRender<FusionReactorMachine, HelicalFusionRenderer> {
 
     public static final HelicalFusionRenderer INSTANCE = new HelicalFusionRenderer();
     public static final Codec<HelicalFusionRenderer> CODEC = Codec.unit(INSTANCE);
-    public static final DynamicRenderType<WorkableElectricMultiblockMachine, HelicalFusionRenderer> TYPE = new DynamicRenderType<>(
-            CODEC);
+    public static final DynamicRenderType<FusionReactorMachine, HelicalFusionRenderer> TYPE =
+            new DynamicRenderType<>(CODEC);
+
+    private static final float FADEOUT = 60f;
+    private float delta = 0f;
+    private int lastColor = -1;
+
+    private HelicalFusionRenderer() {}
 
     @Override
-    public @NotNull DynamicRenderType<WorkableElectricMultiblockMachine, HelicalFusionRenderer> getType() {
+    public @NotNull DynamicRenderType<FusionReactorMachine, HelicalFusionRenderer> getType() {
         return TYPE;
     }
 
     @Override
-    public boolean shouldRender(WorkableElectricMultiblockMachine machine, @NotNull Vec3 cameraPos) {
-        return machine.isFormed() && machine.getRecipeLogic() != null && machine.getRecipeLogic().isWorking();
+    public boolean shouldRender(FusionReactorMachine machine, Vec3 cameraPos) {
+        return machine.isFormed() && (machine.getRecipeLogic().isWorking() || delta > 0);
     }
 
     @Override
-    public void render(
-                       WorkableElectricMultiblockMachine machine,
-                       float partialTick,
-                       @NotNull PoseStack poseStack,
-                       MultiBufferSource buffer,
-                       int packedLight,
-                       int packedOverlay) {
+    public void render(FusionReactorMachine machine, float partialTick,
+                       PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
+
+        RecipeLogic logic = machine.getRecipeLogic();
+        if (!machine.isFormed() || !machine.getRecipeLogic().isWorking()) return;
+
+        int recipeColor = machine.getColor(); // <-- this gets the color from the active recipe
+
+        lastColor = recipeColor;
+        delta = FADEOUT;
+
+
+        if (logic.isWorking()) {
+            lastColor = recipeColor;
+            delta = FADEOUT;
+        } else {
+            float alphaFactor = delta / FADEOUT;
+            lastColor = FastColor.ARGB32.color(
+                    Mth.floor(alphaFactor * 255),
+                    FastColor.ARGB32.red(lastColor),
+                    FastColor.ARGB32.green(lastColor),
+                    FastColor.ARGB32.blue(lastColor)
+            );
+            delta -= Minecraft.getInstance().getDeltaFrameTime();
+        }
+
+        float r = FastColor.ARGB32.red(lastColor) / 255f;
+        float g = FastColor.ARGB32.green(lastColor) / 255f;
+        float b = FastColor.ARGB32.blue(lastColor) / 255f;
+        float a = FastColor.ARGB32.alpha(lastColor) / 255f;
+
         VertexConsumer vc = buffer.getBuffer(GTRenderTypes.getLightRing());
 
-        float time = machine.getOffsetTimer() + partialTick;
+        float time = (machine.getOffsetTimer() + partialTick) * 0.02f;
 
         poseStack.pushPose();
-        PoseStack.Pose pose = poseStack.last();
+        poseStack.translate(0.5, 0.5, 0.5);
 
-        int segments = 128;      // smooth
-        float radius = 4.0f;    // loop size
-        float thickness = 0.7f; // TRUE thickness
-
-        // Render TWO counter-rotating bands
-        renderBand(vc, pose, segments, radius, thickness, time, +1);
-        renderBand(vc, pose, segments, radius, thickness, time, -1);
+        // Dual interleaved Lissajous curves (phase = 0 and π)
+        renderCurve(vc, poseStack, time, 0f, r, g, b, a);
+        renderCurve(vc, poseStack, time, Mth.PI, r, g, b, a);
 
         poseStack.popPose();
     }
 
-    /* ========================================================= */
+    private void renderCurve(VertexConsumer vc, PoseStack stack, float time, float phase, float r, float g, float b, float a) {
+        final int segments = 200;
+        final float radius = 0.3f;
 
-    private static void renderBand(
-                                   VertexConsumer vc,
-                                   PoseStack.Pose pose,
-                                   int segments,
-                                   float radius,
-                                   float thickness,
-                                   float time,
-                                   int direction) {
         for (int i = 0; i < segments; i++) {
-            float t0 = (float) i / segments;
-            float t1 = (float) (i + 1) / segments;
+            float t0 = (float)i / segments * Mth.TWO_PI + phase;
+            float t1 = (float)(i + 1) / segments * Mth.TWO_PI + phase;
 
-            BandSection a = bandSection(t0, radius, thickness, time, direction);
-            BandSection b = bandSection(t1, radius, thickness, time, direction);
+            Vec3 p0 = lissajousPoint(t0, time);
+            Vec3 p1 = lissajousPoint(t1, time);
 
-            float hue = (time * 0.02f + t0 * 2f) % 1f;
-            float[] rgb = hsvToRgb(hue, 0.8f, 1.0f);
-
-            float shimmer = Mth.sin(time * 0.3f + t0 * 20f) * 0.15f + 0.85f;
-            float r = rgb[0] * shimmer;
-            float g = rgb[1] * shimmer;
-            float bCol = rgb[2] * shimmer;
-
-            // OUTER
-            emitQuad(vc, pose, a.outerTop, a.outerBottom, b.outerBottom, b.outerTop, r, g, bCol, 0.9f);
-            // INNER
-            emitQuad(vc, pose, b.innerTop, b.innerBottom, a.innerBottom, a.innerTop, r, g, bCol, 0.9f);
-            // TOP
-            emitQuad(vc, pose, a.outerTop, b.outerTop, b.innerTop, a.innerTop, r, g, bCol, 0.9f);
-            // BOTTOM
-            emitQuad(vc, pose, a.innerBottom, b.innerBottom, b.outerBottom, a.outerBottom, r, g, bCol, 0.9f);
+            renderSegment(stack, vc, p0, p1, radius, r, g, b, a);
         }
     }
 
-    /* ========================================================= */
+    private Vec3 lissajousPoint(float t, float time) {
+        float x = 2f * Mth.cos(4f * t);
+        float y = 2f * Mth.sin(4f * t);
+        float z = 17f * Mth.cos(t);
 
-    private static class BandSection {
+        float cos = Mth.cos(time);
+        float sin = Mth.sin(time);
 
-        Vec3 outerTop, outerBottom;
-        Vec3 innerTop, innerBottom;
+        float xr = x * cos - y * sin;
+        float yr = x * sin + y * cos;
+
+        return new Vec3(xr, yr, z * 0.15f);
     }
 
-    private static BandSection bandSection(
-                                           float t,
-                                           float radius,
-                                           float thickness,
-                                           float time,
-                                           int direction) {
-        float n = 4.0f; // corner sharpness
-        float angle = t * Mth.TWO_PI;
+    private void renderSegment(PoseStack stack, VertexConsumer vc, Vec3 p0, Vec3 p1, float thickness, float r, float g, float b, float a) {
+        Vec3 dir = p1.subtract(p0).normalize();
+        Vec3 up = new Vec3(0,0,1);
+        Vec3 side = dir.cross(up).normalize().scale(thickness);
 
-        float cx = (float) (Math.signum(Math.cos(angle)) *
-                Math.pow(Math.abs(Math.cos(angle)), 2.0 / n) * radius);
-        float cz = (float) (Math.signum(Math.sin(angle)) *
-                Math.pow(Math.abs(Math.sin(angle)), 2.0 / n) * radius);
-
-        Vec3 center = new Vec3(cx, 0, cz);
-
-        Vec3 tangent = new Vec3(
-                -Mth.sin(angle),
-                0,
-                Mth.cos(angle)).normalize();
-
-        Vec3 up = new Vec3(0, 1, 0);
-        float twist = angle * direction + time * 0.25f;
-        Vec3 normal = tangent.cross(up)
-                .scale(Mth.cos(twist))
-                .add(up.scale(Mth.sin(twist)))
-                .normalize();
-
-        float inner = thickness * 0.9f;
-
-        BandSection s = new BandSection();
-        s.outerTop = center.add(normal.scale(thickness));
-        s.outerBottom = center.subtract(normal.scale(thickness));
-        s.innerTop = center.add(normal.scale(inner));
-        s.innerBottom = center.subtract(normal.scale(inner));
-
-        return s;
+        var pose = stack.last();
+        vc.vertex(pose.pose(), (float)(p0.x - side.x), (float)(p0.y - side.y), (float)(p0.z - side.z))
+                .color(r,g,b,a).endVertex();
+        vc.vertex(pose.pose(), (float)(p0.x + side.x), (float)(p0.y + side.y), (float)(p0.z + side.z))
+                .color(r,g,b,a).endVertex();
+        vc.vertex(pose.pose(), (float)(p1.x + side.x), (float)(p1.y + side.y), (float)(p1.z + side.z))
+                .color(r,g,b,a).endVertex();
+        vc.vertex(pose.pose(), (float)(p1.x - side.x), (float)(p1.y - side.y), (float)(p1.z - side.z))
+                .color(r,g,b,a).endVertex();
     }
 
-    /* ========================================================= */
-
-    private static void emitQuad(
-                                 VertexConsumer vc,
-                                 PoseStack.Pose pose,
-                                 Vec3 a, Vec3 b, Vec3 c, Vec3 d,
-                                 float r, float g, float bCol, float aCol) {
-        Vec3 normal = a.add(b).add(c).add(d).scale(0.25).normalize();
-
-        vertex(vc, pose, a, normal, r, g, bCol, aCol);
-        vertex(vc, pose, b, normal, r, g, bCol, aCol);
-        vertex(vc, pose, c, normal, r, g, bCol, aCol);
-        vertex(vc, pose, d, normal, r, g, bCol, aCol);
+    @Override
+    public boolean shouldRenderOffScreen(FusionReactorMachine machine) {
+        return true;
     }
 
-    private static void vertex(
-                               VertexConsumer vc,
-                               PoseStack.Pose pose,
-                               Vec3 v,
-                               Vec3 n,
-                               float r, float g, float b, float a) {
-        vc.vertex(pose.pose(), (float) v.x, (float) v.y, (float) v.z)
-                .color(r, g, b, a)
-                .normal(pose.normal(), (float) n.x, (float) n.y, (float) n.z)
-                .endVertex();
+    @Override
+    public int getViewDistance() {
+        return 128;
     }
 
-    /* ========================================================= */
-
-    private static float[] hsvToRgb(float h, float s, float v) {
-        float r = 0, g = 0, b = 0;
-        int i = (int) (h * 6);
-        float f = h * 6 - i;
-        float p = v * (1 - s);
-        float q = v * (1 - f * s);
-        float t = v * (1 - (1 - f) * s);
-        switch (i % 6) {
-            case 0 -> {
-                r = v;
-                g = t;
-                b = p;
-            }
-            case 1 -> {
-                r = q;
-                g = v;
-                b = p;
-            }
-            case 2 -> {
-                r = p;
-                g = v;
-                b = t;
-            }
-            case 3 -> {
-                r = p;
-                g = q;
-                b = v;
-            }
-            case 4 -> {
-                r = t;
-                g = p;
-                b = v;
-            }
-            case 5 -> {
-                r = v;
-                g = p;
-                b = q;
-            }
-        }
-        return new float[] { r, g, b };
+    @Override
+    public AABB getRenderBoundingBox(FusionReactorMachine machine) {
+        return new AABB(machine.getPos()).inflate(16, 24, 16);
     }
 }
 
+
+
+
+
 /*
  * public class HelicalFusionRenderer
- * extends DynamicRender<WorkableElectricMultiblockMachine, HelicalFusionRenderer> {
+ * extends DynamicRender<FusionReactorMachine, HelicalFusionRenderer> {
  * 
  * public static final HelicalFusionRenderer INSTANCE = new HelicalFusionRenderer();
  * public static final Codec<HelicalFusionRenderer> CODEC = Codec.unit(INSTANCE);
- * public static final DynamicRenderType<WorkableElectricMultiblockMachine, HelicalFusionRenderer> TYPE =
+ * public static final DynamicRenderType<FusionReactorMachine, HelicalFusionRenderer> TYPE =
  * new DynamicRenderType<>(CODEC);
  * 
  * @Override
- * public @NotNull DynamicRenderType<WorkableElectricMultiblockMachine, HelicalFusionRenderer> getType() {
+ * public @NotNull DynamicRenderType<FusionReactorMachine, HelicalFusionRenderer> getType() {
  * return TYPE;
  * }
  * 
  * @Override
- * public boolean shouldRender(WorkableElectricMultiblockMachine machine, @NotNull Vec3 cameraPos) {
+ * public boolean shouldRender(FusionReactorMachine machine, @NotNull Vec3 cameraPos) {
  * return machine.isFormed() && machine.getRecipeLogic() != null && machine.getRecipeLogic().isWorking();
  * }
  * 
  * @Override
  * public void render(
- * WorkableElectricMultiblockMachine machine,
+ * FusionReactorMachine machine,
  * float partialTick,
  * 
  * @NotNull PoseStack poseStack,

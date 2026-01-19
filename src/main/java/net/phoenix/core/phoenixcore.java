@@ -69,7 +69,7 @@ public class phoenixcore {
                             .displayItems(new GTCreativeModeTabs.RegistrateDisplayItemsGenerator(phoenixcore.MOD_ID,
                                     REGISTRATE))
                             .title(REGISTRATE.addLang("itemGroup", phoenixcore.id("creative_tab"),
-                                    "PhoenixCore (CoreMod)"))
+                                    "phoenixcore (CoreMod)"))
                             .icon(PhoenixMachines.HIGH_YEILD_PHOTON_EMISSION_REGULATER::asStack)
                             .build())
             .register();

@@ -280,7 +280,7 @@ public class TeslaBinderItem extends ComponentItem
         int filterMode = tag.getInt("FilterMode");
 
         int windowWidth = 260;
-        int windowHeight = 280;
+        int windowHeight = 300;
 
         ModularUI ui = new ModularUI(windowWidth, windowHeight, holder, player).background(GuiTextures.BACKGROUND);
         WidgetGroup mainLayer = new WidgetGroup(0, 0, windowWidth, windowHeight);
@@ -295,11 +295,17 @@ public class TeslaBinderItem extends ComponentItem
                 mainLayer.setVisible(true);
             }));
 
+            // Identify Type
             boolean isHatch = hTag.contains("isOut");
+            boolean isCharger = hTag.getBoolean("isCharger");
+
             String hardwareTitle;
             ChatFormatting titleColor;
 
-            if (isHatch) {
+            if (isCharger) {
+                hardwareTitle = "Wireless Charger";
+                titleColor = ChatFormatting.AQUA;
+            } else if (isHatch) {
                 boolean isUplink = hTag.getBoolean("isOut");
                 hardwareTitle = isUplink ? "Tesla Uplink" : "Tesla Downlink";
                 titleColor = isUplink ? ChatFormatting.GREEN : ChatFormatting.RED;
@@ -308,20 +314,20 @@ public class TeslaBinderItem extends ComponentItem
                 titleColor = ChatFormatting.LIGHT_PURPLE;
             }
 
-            detailLayer
-                    .addWidget(new LabelWidget(28, 9, hardwareTitle + " Details").setTextColor(titleColor.getColor()));
+            detailLayer.addWidget(new LabelWidget(28, 9, hardwareTitle + " Details").setTextColor(titleColor.getColor()));
 
-            WidgetGroup displayBox = new WidgetGroup(5, 30, windowWidth - 10, 90);
+            WidgetGroup displayBox = new WidgetGroup(5, 30, windowWidth - 10, 95);
             displayBox.setBackground(GuiTextures.DISPLAY);
             displayBox.addWidget(new ComponentPanelWidget(8, 8, list -> {
                 list.add(Component.literal(hardwareTitle).withStyle(titleColor, ChatFormatting.BOLD));
+
                 BlockPos p = BlockPos.of(hTag.getLong("pos"));
                 list.add(Component.literal("Location: ").withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(String.format("%d, %d, %d", p.getX(), p.getY(), p.getZ()))
                                 .withStyle(ChatFormatting.WHITE)));
 
-                if (hTag.contains("buf")) {
-                    // Keep the detailed formatter here for the specific machine buffer
+                // Chargers do not use energy containers; only show buffer for Hatches and Soul Machines
+                if (!isCharger && hTag.contains("buf")) {
                     list.add(Component.literal("Internal Buffer: ").withStyle(ChatFormatting.GRAY)
                             .append(Component.literal(formatTeslaValue(hTag.getString("buf"), false))
                                     .withStyle(ChatFormatting.GOLD))
@@ -330,8 +336,9 @@ public class TeslaBinderItem extends ComponentItem
 
                 long flowVal = Long.parseLong(hTag.getString("transfer").isEmpty() ? "0" : hTag.getString("transfer"));
                 String sign = isHatch ? (hTag.getBoolean("isOut") ? "+" : "-") : "-";
+                String flowLabel = isCharger ? "Wireless Output: " : "Current Flow: ";
 
-                list.add(Component.literal("Current Flow: ").withStyle(ChatFormatting.GRAY)
+                list.add(Component.literal(flowLabel).withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(sign + formatTeslaValue(hTag.getString("transfer"), false))
                                 .withStyle(flowVal > 0 ? titleColor : ChatFormatting.WHITE))
                         .append(" EU/t"));
@@ -343,80 +350,70 @@ public class TeslaBinderItem extends ComponentItem
             }));
             detailLayer.addWidget(displayBox);
 
-            int btnX = 5;
-            int btnY = 125;
-            int btnW = windowWidth - 10;
-            detailLayer.addWidget(new ButtonWidget(btnX, btnY, btnW, 18, GuiTextures.BUTTON, c -> {
+            int btnY = 130;
+            detailLayer.addWidget(new ButtonWidget(5, btnY, windowWidth - 10, 18, GuiTextures.BUTTON, c -> {
                 if (player.level().isClientSide)
                     TeslaHighlightRenderer.highlight(BlockPos.of(hTag.getLong("pos")), 200);
             }));
-            detailLayer.addWidget(new LabelWidget(btnX + (btnW / 2) - 45, btnY + 5, "§bHighlight Device"));
+            detailLayer.addWidget(new LabelWidget(windowWidth / 2 - 45, btnY + 5, "§bHighlight Device"));
 
             mainLayer.setVisible(false);
             detailLayer.setVisible(true);
         };
 
-        // --- MAIN HEADER (BigInt Compatible) ---
+        // --- MAIN HEADER ---
         mainLayer.addWidget(new LabelWidget(8, 6, "Tesla Network Management").setTextColor(0xB000FF));
 
         WidgetGroup header = new WidgetGroup(5, 18, windowWidth - 10, 80);
         header.setBackground(TESLA_BACKGROUND);
         header.addWidget(new ComponentPanelWidget(5, 4, text -> {
-            text.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(tag.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
-
-            text.add(Component.literal("Stored:   ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(compactTeslaValue(tag.getString("StoredEU")))
-                            .withStyle(ChatFormatting.GOLD))
-                    .append(" EU"));
-
-            text.add(Component.literal("Capacity: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(compactTeslaValue(tag.getString("CapacityEU")))
-                            .withStyle(ChatFormatting.YELLOW))
-                    .append(" EU"));
-
-            text.add(Component.literal("Net Input: ").withStyle(ChatFormatting.GRAY).append(Component
-                    .literal("+" + compactTeslaValue(tag.getString("NetInput"))).withStyle(ChatFormatting.GREEN))
-                    .append(" EU/t"));
-            text.add(Component
-                    .literal("Net Output: ").withStyle(ChatFormatting.GRAY).append(Component
-                            .literal("-" + compactTeslaValue(tag.getString("NetOutput"))).withStyle(ChatFormatting.RED))
-                    .append(" EU/t"));
+            text.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY).append(Component.literal(tag.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
+            text.add(Component.literal("Stored:   ").withStyle(ChatFormatting.GRAY).append(Component.literal(compactTeslaValue(tag.getString("StoredEU"))).withStyle(ChatFormatting.GOLD)).append(" EU"));
+            text.add(Component.literal("Capacity: ").withStyle(ChatFormatting.GRAY).append(Component.literal(compactTeslaValue(tag.getString("CapacityEU"))).withStyle(ChatFormatting.YELLOW)).append(" EU"));
+            text.add(Component.literal("Net Input: ").withStyle(ChatFormatting.GRAY).append(Component.literal("+" + compactTeslaValue(tag.getString("NetInput"))).withStyle(ChatFormatting.GREEN)).append(" EU/t"));
+            text.add(Component.literal("Net Output: ").withStyle(ChatFormatting.GRAY).append(Component.literal("-" + compactTeslaValue(tag.getString("NetOutput"))).withStyle(ChatFormatting.RED)).append(" EU/t"));
         }));
         mainLayer.addWidget(header);
 
         // --- LIST & FILTER LOGIC ---
-        String[] filters = { "ALL", "[I]", "[O]", "[S]" };
+        String[] filters = { "ALL", "[I]", "[O]", "[S]", "[C]" };
+        int btnWidth = 48;
         for (int i = 0; i < filters.length; i++) {
             int targetMode = i;
-            mainLayer.addWidget(new ButtonWidget(7 + (i * 62), 102, 60, 18, GuiTextures.BUTTON, c -> {
+            mainLayer.addWidget(new ButtonWidget(7 + (i * (btnWidth + 2)), 102, btnWidth, 18, GuiTextures.BUTTON, c -> {
                 stack.getOrCreateTag().putInt("FilterMode", targetMode);
                 if (player instanceof ServerPlayer sp) HeldItemUIFactory.INSTANCE.openUI(holder, sp);
             }));
-            LabelWidget fl = new LabelWidget(7 + (i * 62) + 18, 106, filters[i]);
+            LabelWidget fl = new LabelWidget(7 + (i * (btnWidth + 2)) + (btnWidth/2 - 8), 106, filters[i]);
             if (filterMode == targetMode) fl.setTextColor(ChatFormatting.YELLOW.getColor());
             mainLayer.addWidget(fl);
         }
 
-        DraggableScrollableWidgetGroup listGroup = new DraggableScrollableWidgetGroup(7, 125, windowWidth - 14, 145);
+        DraggableScrollableWidgetGroup listGroup = new DraggableScrollableWidgetGroup(7, 125, windowWidth - 14, 165);
         listGroup.setBackground(GuiTextures.DISPLAY);
         mainLayer.addWidget(listGroup);
 
         ListTag hatchData = tag.getList("HatchData", Tag.TAG_COMPOUND);
         ListTag machineData = tag.getList("MachineData", Tag.TAG_COMPOUND);
+        ListTag chargerData = tag.getList("ChargerData", Tag.TAG_COMPOUND);
         int currentY = 0;
 
+        // Rendering order: Hatches -> Soul Machines -> Wireless Chargers
         for (int i = 0; i < hatchData.size(); i++) {
             CompoundTag hTag = hatchData.getCompound(i);
-            if (filterMode == 0 || (filterMode == 1 && hTag.getBoolean("isOut")) ||
-                    (filterMode == 2 && !hTag.getBoolean("isOut"))) {
-                currentY = addListRow(listGroup, hTag, player, openDetail, currentY, true, windowWidth);
+            boolean isInput = hTag.getBoolean("isOut");
+            if (filterMode == 0 || (filterMode == 1 && isInput) || (filterMode == 2 && !isInput)) {
+                currentY = addListRow(listGroup, hTag, player, openDetail, currentY, "hatch", windowWidth);
             }
         }
         if (filterMode == 0 || filterMode == 3) {
             for (int i = 0; i < machineData.size(); i++) {
-                currentY = addListRow(listGroup, machineData.getCompound(i), player, openDetail, currentY, false,
-                        windowWidth);
+                currentY = addListRow(listGroup, machineData.getCompound(i), player, openDetail, currentY, "machine", windowWidth);
+            }
+        }
+        if (filterMode == 0 || filterMode == 4) {
+            for (int i = 0; i < chargerData.size(); i++) {
+                currentY = addListRow(listGroup, chargerData.getCompound(i), player, openDetail, currentY, "charger", windowWidth);
             }
         }
 
@@ -424,29 +421,50 @@ public class TeslaBinderItem extends ComponentItem
         ui.widget(detailLayer);
         return ui;
     }
-
     private int addListRow(WidgetGroup group, CompoundTag data, Player player, Consumer<CompoundTag> clickAction, int y,
-                           boolean isHatch, int windowWidth) {
+                           String type, int windowWidth) {
         BlockPos pos = BlockPos.of(data.getLong("pos")).immutable();
         var font = Minecraft.getInstance().font;
 
-        // Fixed Hatch Logic: isOut = true is Input to network
-        boolean isInput = data.getBoolean("isOut");
-        String typeLabel = isHatch ? (isInput ? "[I]" : "[O]") : "[S]";
-        String colorCode = isHatch ? (isInput ? "§a" : "§c") : "§d";
-        String sign = isHatch ? (isInput ? "+" : "-") : "-";
+        String typeLabel;
+        String colorCode;
+        String sign = "-";
+
+        // Configuration based on type
+        switch (type) {
+            case "hatch" -> {
+                boolean isInput = data.getBoolean("isOut");
+                typeLabel = isInput ? "[I]" : "[O]";
+                colorCode = isInput ? "§a" : "§c";
+                sign = isInput ? "+" : "-";
+            }
+            case "charger" -> {
+                typeLabel = "[C]";
+                colorCode = "§b"; // Aqua
+                sign = "-";
+            }
+            default -> { // Soul Machine
+                typeLabel = "[S]";
+                colorCode = "§d"; // Light Purple
+                sign = "-";
+            }
+        }
 
         String statusIcon;
         boolean hasFlow = !data.getString("transfer").equals("0");
         if (!hasFlow) {
-            statusIcon = "§7△";
-        } else if (isHatch) {
-            statusIcon = isInput ? "§2▲" : "§4▼"; // Input = Green Up, Output = Red Down
+            statusIcon = "§7△"; // Idle
+        } else if (type.equals("hatch")) {
+            statusIcon = data.getBoolean("isOut") ? "§2▲" : "§4▼";
+        } else if (type.equals("charger")) {
+            statusIcon = "§3波"; // Unique Wireless Wave icon
         } else {
-            statusIcon = "§b⚡";
+            statusIcon = "§b⚡"; // Standard Bolt
         }
 
-        String rawName = data.contains("name") ? data.getString("name") : (isHatch ? "Tesla Hatch" : "Soul Machine");
+        String rawName = data.contains("name") ? data.getString("name") :
+                (type.equals("hatch") ? "Tesla Hatch" : (type.equals("charger") ? "Wireless Charger" : "Soul Machine"));
+
         String flowStr = " §8(" + colorCode + sign + compactTeslaValue(data.getString("transfer")) + "§8)";
 
         int totalAvailableWidth = windowWidth - 110;
@@ -466,10 +484,15 @@ public class TeslaBinderItem extends ComponentItem
 
         int rowWidth = windowWidth - 20;
         WidgetGroup row = new WidgetGroup(0, y, rowWidth, 18);
+
+        // Main interaction button
         row.addWidget(new ButtonWidget(0, 0, rowWidth - 22, 18, GuiTextures.BUTTON, c -> clickAction.accept(data)));
         row.addWidget(new LabelWidget(4, 5, finalRowText));
+
+        // Distance label
         row.addWidget(new LabelWidget(rowWidth - 68, 5, getDistanceString(pos, player, data)));
 
+        // Quick Highlight button (Gear icon)
         int gearX = rowWidth - 18;
         row.addWidget(new ButtonWidget(gearX, 0, 18, 18, GuiTextures.BUTTON, c -> {
             if (player.level().isClientSide) TeslaHighlightRenderer.highlight(pos, 200);
@@ -532,8 +555,7 @@ public class TeslaBinderItem extends ComponentItem
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId,
-                              boolean isSelected) {
+    public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
         if (level.isClientSide || !(entity instanceof ServerPlayer serverPlayer)) return;
 
         // Pulse check (Every 5 ticks) to keep UI responsive but save CPU
@@ -551,14 +573,17 @@ public class TeslaBinderItem extends ComponentItem
             TeslaTeamEnergyData globalData = TeslaTeamEnergyData.get(overworld);
             TeslaTeamEnergyData.TeamEnergy team = globalData.getOrCreate(teamUUID);
 
-            // --- GLOBAL NETWORK STATS ---
+            // --- 1. GLOBAL NETWORK STATS ---
             tag.putString("StoredEU", team.stored.toString());
             tag.putString("CapacityEU", team.capacity.toString());
             tag.putString("TeamName", TeamUtils.getTeamName(teamUUID));
             tag.putString("NetInput", String.valueOf(team.lastNetInput));
             tag.putString("NetOutput", String.valueOf(team.lastNetOutput));
 
-            // --- SECTION: PHYSICAL HATCHES (Uplink/Downlink) ---
+            // Track invalid positions to clean up the network data
+            List<BlockPos> toRemove = new ArrayList<>();
+
+            // --- 2. PHYSICAL HATCHES (Uplinks/Downlinks) ---
             ListTag hatchList = new ListTag();
             for (TeslaTeamEnergyData.HatchInfo hatch : globalData.getHatches(teamUUID)) {
                 if (hatch.isSoulLinked) continue;
@@ -566,19 +591,14 @@ public class TeslaBinderItem extends ComponentItem
                 hTag.putLong("pos", hatch.pos.asLong());
                 hTag.putBoolean("isOut", hatch.isPhysicalOutput);
                 hTag.putString("dim", hatch.dimension.location().toString());
-
-                // Sync Hatch Buffer
                 hTag.putString("buf", hatch.buffered.toString());
-
-                long flow = team.machineDisplayFlow.getOrDefault(hatch.pos, 0L);
-                hTag.putString("transfer", String.valueOf(flow));
+                hTag.putString("transfer", String.valueOf(team.machineDisplayFlow.getOrDefault(hatch.pos, 0L)));
                 hatchList.add(hTag);
             }
             tag.put("HatchData", hatchList);
 
-            // --- SECTION: SOUL CONSUMERS (Singleblocks) ---
+            // --- 3. SOUL CONSUMERS (Wired Singleblocks) ---
             ListTag machineList = new ListTag();
-            List<BlockPos> toRemove = new ArrayList<>();
             for (BlockPos mPos : team.soulLinkedMachines) {
                 ResourceKey<Level> mDim = team.getMachineDimension(mPos);
                 ServerLevel mLevel = serverPlayer.server.getLevel(mDim != null ? mDim : Level.OVERWORLD);
@@ -591,12 +611,11 @@ public class TeslaBinderItem extends ComponentItem
                     MetaMachine machine = MetaMachine.getMachine(mLevel, mPos);
                     if (machine != null) {
                         mTag.putString("name", machine.getDefinition().getLangValue());
-                        // Sync Machine Buffer
                         if (machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) {
                             mTag.putString("buf", String.valueOf(tiered.energyContainer.getEnergyStored()));
                         }
                     } else {
-                        toRemove.add(mPos);
+                        toRemove.add(mPos); // Machine was broken/removed
                         continue;
                     }
                 } else {
@@ -605,12 +624,40 @@ public class TeslaBinderItem extends ComponentItem
                 mTag.putString("transfer", String.valueOf(team.machineDisplayFlow.getOrDefault(mPos, 0L)));
                 machineList.add(mTag);
             }
+            tag.put("MachineData", machineList);
 
+            // --- 4. WIRELESS CHARGERS [C] ---
+            ListTag chargerList = new ListTag();
+            for (BlockPos cPos : team.activeChargers) {
+                CompoundTag cTag = new CompoundTag();
+                cTag.putLong("pos", cPos.asLong());
+                cTag.putBoolean("isCharger", true); // Trigger for UI labeling
+
+                // Try to find machine in current level or overworld
+                MetaMachine machine = MetaMachine.getMachine(level, cPos);
+                if (machine == null) machine = MetaMachine.getMachine(overworld, cPos);
+
+                if (machine != null) {
+                    cTag.putString("name", machine.getDefinition().getLangValue());
+                    // Note: Buffers are skipped for chargers per your request
+                } else {
+                    // If the machine isn't loaded/found, we provide a fallback name
+                    cTag.putString("name", "Tesla Field Generator");
+                }
+
+                // Sync flow from the team's shared transfer map
+                long flow = team.machineDisplayFlow.getOrDefault(cPos, 0L);
+                cTag.putString("transfer", String.valueOf(flow));
+                chargerList.add(cTag);
+            }
+            tag.put("ChargerData", chargerList);
+
+            // --- 5. CLEANUP ---
             if (!toRemove.isEmpty()) {
                 for (BlockPos pos : toRemove) globalData.removeMachineFromAllTeams(pos);
                 globalData.setDirty();
             }
-            tag.put("MachineData", machineList);
+
             serverPlayer.containerMenu.broadcastChanges();
         }
     }

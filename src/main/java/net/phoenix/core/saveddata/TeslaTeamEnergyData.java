@@ -142,6 +142,16 @@ public class TeslaTeamEnergyData extends SavedData {
 
             return tag;
         }
+        // Inside TeslaTeamEnergyData.TeamEnergy class
+        public final Set<BlockPos> activeChargers = new HashSet<>();
+
+        public void addCharger(BlockPos pos) {
+            activeChargers.add(pos);
+        }
+
+        public void removeCharger(BlockPos pos) {
+            activeChargers.remove(pos);
+        }
 
         public static TeamEnergy load(CompoundTag tag) {
             TeamEnergy e = new TeamEnergy();

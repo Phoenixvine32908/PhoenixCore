@@ -8,8 +8,9 @@
         "parent": "gtceu:block/machine/template/sided/sided",
         "textures": {
           "bottom": "gtceu:block/casings/voltage/iv/bottom",
-          "overlay_front": "gtceu:block/machines/charger/overlay_charger_finished",
-          "overlay_front_emissive": "gtceu:block/machines/charger/overlay_charger_finished_emissive",
+          "overlay_front": "phoenixcore:block/machine/part/wireless_charger/overlay_front",
+          "overlay_front_emissive": "phoenixcore:block/machine/part/wireless_charger/overlay_front_emissive",
+          "overlay_top": "phoenixcore:block/machine/part/wireless_charger/overlay_top",
           "side": "gtceu:block/casings/voltage/iv/side",
           "top": "gtceu:block/casings/voltage/iv/top"
         }
@@ -20,7 +21,8 @@
         "parent": "gtceu:block/machine/template/sided/sided",
         "textures": {
           "bottom": "gtceu:block/casings/voltage/iv/bottom",
-          "overlay_front": "gtceu:block/machines/charger/overlay_charger_idle",
+          "overlay_front": "phoenixcore:block/machine/part/wireless_charger/overlay_front",
+          "overlay_top": "phoenixcore:block/machine/part/wireless_charger/overlay_top",
           "side": "gtceu:block/casings/voltage/iv/side",
           "top": "gtceu:block/casings/voltage/iv/top"
         }
@@ -31,8 +33,10 @@
         "parent": "gtceu:block/machine/template/sided/sided",
         "textures": {
           "bottom": "gtceu:block/casings/voltage/iv/bottom",
-          "overlay_front": "gtceu:block/machines/charger/overlay_charger_running",
-          "overlay_front_emissive": "gtceu:block/machines/charger/overlay_charger_running_emissive",
+          "overlay_front": "phoenixcore:block/machine/part/wireless_charger/overlay_front_active",
+          "overlay_front_emissive": "phoenixcore:block/machine/part/wireless_charger/overlay_front_active_emissive",
+          "overlay_top": "phoenixcore:block/machine/part/wireless_charger/overlay_top_active",
+          "overlay_top_emissive": "phoenixcore:block/machine/part/wireless_charger/overlay_top_active_emissive",
           "side": "gtceu:block/casings/voltage/iv/side",
           "top": "gtceu:block/casings/voltage/iv/top"
         }

@@ -14,25 +14,33 @@ import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
+import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
+import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
+import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderHelper;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
+import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionReactorMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.FluidHatchPartMachine;
 import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
+import com.gregtechceu.gtceu.integration.kjs.helpers.MachineModifiers;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.phoenix.core.phoenixcore;
 import net.phoenix.core.api.machine.PhoenixPartAbility;
 import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
@@ -49,8 +57,9 @@ import net.phoenix.core.common.machine.multiblock.part.special.ShieldSensorHatch
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.models.PhoenixMachineModels;
-import net.phoenix.core.phoenixcore;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.BiFunction;
 
@@ -60,8 +69,12 @@ import static com.gregtechceu.gtceu.api.capability.recipe.IO.OUT;
 import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties.IS_FORMED;
 import static com.gregtechceu.gtceu.api.pattern.Predicates.*;
 import static com.gregtechceu.gtceu.common.data.GTBlocks.*;
+import static com.gregtechceu.gtceu.common.data.GTRecipeModifiers.BATCH_MODE;
+import static com.gregtechceu.gtceu.common.data.GTRecipeModifiers.DEFAULT_ENVIRONMENT_REQUIREMENT;
 import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.ELECTRIC_TIERS;
+import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.registerTieredMultis;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
+import static com.gregtechceu.gtceu.utils.FormattingUtil.toRomanNumeral;
 import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_INPUT;
 import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_OUTPUT;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
@@ -212,6 +225,67 @@ public class PhoenixMachines {
             .model(PhoenixMachineModels.createOverlayFillLevelCasingMachineModel("stability_hatch",
                     "casings/microverse"))
             .register();
+
+    public static final MachineDefinition PHOENIXWARE_FUSION_MK1 = REGISTRATE.multiblock("phoenixware_fusion_mk1", holder -> new FusionReactorMachine(holder, GTValues.UIV))
+            .rotationState(RotationState.NON_Y_AXIS)
+            .recipeType(PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1)
+            .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_NON_PERFECT, MachineModifiers.FUSION_REACTOR, GTRecipeModifiers.BATCH_MODE)
+            .appearanceBlock(PhoenixBlocks.INSANELY_SUPERCHARGED_TESLA_CASING) // Reference your Java block entry
+            .pattern(definition -> FactoryBlockPattern.start()
+                    .aisle("########BBCCCBB########", "########DDEEEDD########", "########DDEEEDD########", "########DDEEEDD########", "########BBCCCBB########")
+                    .aisle("######BBBBBBBBBBB######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######", "######BBBBBBBBBBB######")
+                    .aisle("####BBBBBBBBBBBBBBB####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####", "####BBBBBBBBBBBBBBB####")
+                    .aisle("###BBBBBBBBBBBBBBBBB###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###", "###BBBBBBBBBBBBBBBBB###")
+                    .aisle("##BBBBBBBBBBBBBBBBBBB##", "##GAAAAAAAAAAAAAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAAAAAAAAAAAAAG##", "##BBBBBBBBBBBBBBBBBBB##")
+                    .aisle("##BBBBBBBBIIIBBBBBBBB##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAHHAAAHHAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##", "##BBBBBBBBIIIBBBBBBBB##")
+                    .aisle("#BBBBBBBBIIEIIBBBBBBBB#", "#FAAAAAAHHAAAHHAAAAAAG#", "#FAAAAAHAAHHHAAHAAAAAG#", "#FAAAAAAHHAAAHHAAAAAAG#", "#BBBBBBBBIIEIIBBBBBBBB#")
+                    .aisle("#BBBBBBBIIEJEIIBBBBBBB#", "#FAAAAAHAAAAAAAHAAAAAG#", "#FAAAAHFHHAKAHHFHAAAAG#", "#FAAAAAHAAAAAAAHAAAAAG#", "#BBBBBBBIIEJEIIBBBBBBB#")
+                    .aisle("BBBBBBBIIEJJJEIIBBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHKAAKAAKHAHAAAAD", "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBBIIEJJJEIIBBBBBBB")
+                    .aisle("BBBBBBIIEJJJJJEIIBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHAKAKAKAHAHAAAAD", "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBIIEJJJJJEIIBBBBBB")
+                    .aisle("CBBBBIIEJJJCJJJEIIBBBBC", "EAAAAHAAAAAAAAAAAHAAAAE", "EAAAHAHAAAKKKAAAHAHAAAE", "EAAAAHAAAAAAAAAAAHAAAAE", "CBBBBIIEJJJCJJJEIIBBBBC")
+                    .aisle("CBBBBIEJJJCCCJJJEIBBBBC", "EAAAAHAAAAAKAAAAAHAAAAE", "EAAAHAHKKKKLKKKKHAHAAAE", "EAAAAHAAAAAKAAAAAHAAAAE", "CBBBBIEJJJCCCJJJEIBBBBC")
+                    .aisle("CBBBBIIEJJJCJJJEIIBBBBC", "EAAAAHAAAAAAAAAAAHAAAAE", "EAAAHAHAAAKKKAAAHAHAAAE", "EAAAAHAAAAAAAAAAAHAAAAE", "CBBBBIIEJJJCJJJEIIBBBBC")
+                    .aisle("BBBBBBIIEJJJJJEIIBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHAKAKAKAHAHAAAAD", "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBIIEJJJJJEIIBBBBBB")
+                    .aisle("BBBBBBBIIEJJJEIIBBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHKAAKAAKHAHAAAAD", "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBBIIEJJJEIIBBBBBBB")
+                    .aisle("#BBBBBBBIIEJEIIBBBBBBB#", "#FAAAAAHAAAAAAAHAAAAAG#", "#FAAAAHFHHAKAHHFHAAAAG#", "#FAAAAAHAAAAAAAHAAAAAG#", "#BBBBBBBIIEJEIIBBBBBBB#")
+                    .aisle("#BBBBBBBBIIEIIBBBBBBBB#", "#FAAAAAAHHAAAHHAAAAAAG#", "#FAAAAAHAAHHHAAHAAAAAG#", "#FAAAAAAHHAAAHHAAAAAAG#", "#BBBBBBBBIIEIIBBBBBBBB#")
+                    .aisle("##BBBBBBBBIIIBBBBBBBB##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAHHAAAHHAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##", "##BBBBBBBBIIIBBBBBBBB##")
+                    .aisle("##BBBBBBBBBBBBBBBBBBB##", "##GAAAAAAAAAAAAAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAAAAAAAAAAAAAG##", "##BBBBBBBBBBBBBBBBBBB##")
+                    .aisle("###BBBBBBBBBBBBBBBBB###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###", "###BBBBBBBBBBBBBBBBB###")
+                    .aisle("####BBBBBBBBBBBBBBB####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####", "####BBBBBBBBBBBBBBB####")
+                    .aisle("######BBBBBBBBBBB######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######", "######BBBBBBBBBBB######")
+                    .aisle("########BBCCCBB########", "########DDEEEDD########", "########DDENEDD########", "########DDEEEDD########", "########BBCCCBB########")
+                    .where("N", Predicates.controller(Predicates.blocks(definition.get())))
+                    .where("A", Predicates.air())
+                    .where("#", Predicates.any())
+                    .where("B", Predicates.blocks(PhoenixBlocks.INSANELY_SUPERCHARGED_TESLA_CASING.get()))
+                    .where("C", Predicates.blocks(ADVANCED_COMPUTER_CASING.get()))
+                    .where("D", Predicates.blocks(COMPUTER_CASING.get()))
+                    .where("E", Predicates.blocks(FUSION_COIL.get()).setMinGlobalLimited(10)
+                            .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
+                            .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
+                            .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS))
+                            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
+                            .or(Predicates.blocks(GTMachines.ENERGY_INPUT_HATCH[GTValues.ZPM].get()).setMaxGlobalLimited(2)))
+                    .where("F", Predicates.blocks(SUPERCONDUCTING_COIL.get()))
+                    .where("G", Predicates.blocks(FUSION_GLASS.get()))
+                    .where("H", Predicates.blocks(PhoenixBlocks.AKASHIC_COIL_BLOCK.get()))
+                    .where("I", Predicates.blocks(CASING_STEEL_SOLID.get()))
+                    .where("J", Predicates.blocks(CASING_STAINLESS_CLEAN.get())) // Robust casing
+                    .where("K", Predicates.blocks(CASING_TUNGSTENSTEEL_ROBUST.get()))
+                    .where("L", Predicates.blocks(CASING_PRIMITIVE_BRICKS.get()))
+                    .build())
+            .modelProperty(GTMachineModelProperties.RECIPE_LOGIC_STATUS, RecipeLogic.Status.IDLE)
+            .model(createWorkableCasingMachineModel(
+                    // Replace the fusion casing texture with your Tesla Casing texture
+                    new ResourceLocation(phoenixcore.MOD_ID, "block/casings/multiblock/tesla_casing"),
+                    // Keep the fusion reactor overlay (or change to your own)
+                    GTCEu.id("block/multiblock/fusion_reactor"))
+                    .andThen(b -> b.addDynamicRenderer(PhoenixDynamicRenderHelpers::getHelicalFusionRenderer)))
+            .hasBER(true)
+            .register();
+
+
 
     static {
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {
@@ -988,6 +1062,7 @@ public class PhoenixMachines {
                             phoenixcore.id("block/fission/fissile_reaction_safe_casing"),
                             GTCEu.id("block/multiblock/fusion_reactor")))
             .register();
+
     public static final MultiblockMachineDefinition PRESSURIZED_FISSION_REACTOR = REGISTRATE
             .multiblock("pressurized_fission_reactor", FissionWorkableElectricMultiblockMachine::new)
             .langValue("§bPressurized Fission Reactor")
@@ -1066,7 +1141,7 @@ public class PhoenixMachines {
             .recipeType(PhoenixRecipeTypes.HEAT_EXCHANGER_RECIPES)
             .recipeModifiers(
                     GTRecipeModifiers.ELECTRIC_OVERCLOCK.apply(OverclockingLogic.NON_PERFECT_OVERCLOCK_SUBTICK),
-                    GTRecipeModifiers.BATCH_MODE)
+                    BATCH_MODE)
             .appearanceBlock(PhoenixBlocks.FISSILE_HEAT_SAFE_CASING)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("BBBBBBB", "BCCCCCB", "BCCCCCB", "BCCCCCB", "BBBBBBB")
@@ -1091,7 +1166,7 @@ public class PhoenixMachines {
             .multiblock("alchemical_imbuer", WorkableElectricMultiblockMachine::new)
             .langValue("§5Alchemical Imbuer")
             .recipeTypes(PhoenixRecipeTypes.SOURCE_EXTRACTION_RECIPES, PhoenixRecipeTypes.SOURCE_IMBUEMENT_RECIPES) // PhoenixRecipeTypes.SOURCE_IMBUMENT_RECIPES)//"SOURCE_IMBUMENT_RECIPES","SOURCE_EXTRACTION_RECIPES")
-            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT_SUBTICK, GTRecipeModifiers.BATCH_MODE)
+            .recipeModifiers(GTRecipeModifiers.OC_NON_PERFECT_SUBTICK, BATCH_MODE)
             .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
             .rotationState(RotationState.NON_Y_AXIS)
             .pattern(definition -> FactoryBlockPattern.start()

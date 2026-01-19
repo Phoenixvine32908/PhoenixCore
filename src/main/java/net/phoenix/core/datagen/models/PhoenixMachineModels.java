@@ -8,12 +8,12 @@ import com.gregtechceu.gtceu.common.machine.electric.ChargerMachine;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
+import net.phoenix.core.phoenixcore;
 import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.common.block.TeslaBatteryBlock;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
-import net.phoenix.core.phoenixcore;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
@@ -54,14 +54,14 @@ public class PhoenixMachineModels {
             builder.addReplaceableTextures("bottom", "top", "side");
         };
     }
-    public static final ResourceLocation WIRELESS_CHARGER_IDLE = phoenixcore.id("block/machines/part/wireless_charger/overlay_front");
-    public static final ResourceLocation WIRELESS_CHARGER_RUNNING = phoenixcore.id("lock/machines/part/wireless_charger/overlay_front_active");
-    public static final ResourceLocation WIRELESS_CHARGER_RUNNING_EMISSIVE = phoenixcore.id("block/machines/part/wireless_charger/overlay_front_active_emissive");
-    public static final ResourceLocation WIRELESS_CHARGER_FINISHED = phoenixcore.id("block/machines/part/wireless_charger/overlay_front");
-    public static final ResourceLocation WIRELESS_CHARGER_FINISHED_EMISSIVE = phoenixcore.id("block/machines/part/wireless_charger/charger/overlay_front_emissive");
-    public static final ResourceLocation WIRELESS_CHARGER_TOP = phoenixcore.id("block/machines/part/wireless_charger/overlay_top");
-    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE = phoenixcore.id("block/machines/part/wireless_charger/charger/overlay_front_top_active");
-    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE_EMISSIVE = phoenixcore.id("block/machines/part/wireless_charger/charger/overlay_front_top_active_emissive");
+    public static final ResourceLocation WIRELESS_CHARGER_IDLE = phoenixcore.id("block/machine/part/wireless_charger/overlay_front");
+    public static final ResourceLocation WIRELESS_CHARGER_RUNNING = phoenixcore.id("block/machine/part/wireless_charger/overlay_front_active");
+    public static final ResourceLocation WIRELESS_CHARGER_RUNNING_EMISSIVE = phoenixcore.id("block/machine/part/wireless_charger/overlay_front_active_emissive");
+    public static final ResourceLocation WIRELESS_CHARGER_FINISHED = phoenixcore.id("block/machine/part/wireless_charger/overlay_front");
+    public static final ResourceLocation WIRELESS_CHARGER_FINISHED_EMISSIVE = phoenixcore.id("block/machine/part/wireless_charger/overlay_front_emissive");
+    public static final ResourceLocation WIRELESS_CHARGER_TOP = phoenixcore.id("block/machine/part/wireless_charger/overlay_top");
+    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE = phoenixcore.id("block/machine/part/wireless_charger/overlay_top_active");
+    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE_EMISSIVE = phoenixcore.id("block/machine/part/wireless_charger/overlay_top_active_emissive");
 
     public static MachineBuilder.ModelInitializer createWirelessChargerModel() {
         return (ctx, prov, builder) -> {
@@ -82,12 +82,11 @@ public class PhoenixMachineModels {
                         model.texture("overlay_front", WIRELESS_CHARGER_RUNNING);
                         model.texture("overlay_front_emissive", WIRELESS_CHARGER_RUNNING_EMISSIVE);
                         model.texture("overlay_top", WIRELESS_CHARGER_TOP_ACTIVE);
-                        model.texture("overlay_top", WIRELESS_CHARGER_TOP_ACTIVE_EMISSIVE);
+                        model.texture("overlay_top_emissive", WIRELESS_CHARGER_TOP_ACTIVE_EMISSIVE);
                     }
                     case FINISHED -> {
                         model.texture("overlay_front", WIRELESS_CHARGER_FINISHED);
                         model.texture("overlay_front_emissive", WIRELESS_CHARGER_FINISHED_EMISSIVE);
-                        model.texture("overlay_top", WIRELESS_CHARGER_TOP);
                         model.texture("overlay_top", WIRELESS_CHARGER_TOP);
                     }
 

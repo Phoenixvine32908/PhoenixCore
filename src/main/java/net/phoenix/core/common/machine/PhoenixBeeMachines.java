@@ -122,12 +122,8 @@ public class PhoenixBeeMachines {
                     .build())
             .model(
                     createWorkableCasingMachineModel(
-                            phoenixcore.id("block/phoenix_enriched_tritanium_casing"),
-                            GTCEu.id("block/multiblock/fusion_reactor"))
-                            .andThen(d -> d
-                                    .addDynamicRenderer(
-                                            PhoenixDynamicRenderHelpers::getHelicalFusionRenderer)))
-            .hasBER(true)
+                            GTCEu.id("block/casings/gcym/high_temperature_smelting_casing"),
+                            GTCEu.id("block/multiblock/large_miner")))
             .register();
 
     public static final MultiblockMachineDefinition SWARM_NURTURER = REGISTRATE

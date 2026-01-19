@@ -73,6 +73,7 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
         super.onLoad();
         if (!isRemote()) {
             tickSubs = subscribeServerTick(tickSubs, this::tickCharge);
+            registerToNetwork(); // Add this
         }
     }
 
@@ -89,76 +90,84 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
             return;
         }
 
-        if (getOffsetTimer() % 10 != 0) return;
-
+        // Move the data/network definitions to the top so they are accessible everywhere
         TeslaTeamEnergyData data = TeslaTeamEnergyData.get(level);
         TeslaTeamEnergyData.TeamEnergy network = data.getOrCreate(boundTeam);
 
-        if (network.stored.signum() <= 0) {
-            this.lastTransferred = 0L;
-            changeState(State.IDLE);
-            return;
-        }
-
-        List<Player> playersToCharge = new ArrayList<>();
-        for (Player player : level.getServer().getPlayerList().getPlayers()) {
-            if (TeamUtils.isPlayerOnTeam(player, boundTeam)) {
-                playersToCharge.add(player);
+        // Only run the expensive charging math every 10 ticks
+        if (getOffsetTimer() % 10 == 0) {
+            if (network.stored.signum() <= 0) {
+                this.lastTransferred = 0L;
+                // Update the display map immediately if we ran out of power
+                network.machineDisplayFlow.put(getPos(), 0L);
+                changeState(State.IDLE);
+                return;
             }
-        }
 
-        handleRangeNotifications(playersToCharge);
+            List<Player> playersToCharge = new ArrayList<>();
+            for (Player player : level.getServer().getPlayerList().getPlayers()) {
+                if (TeamUtils.isPlayerOnTeam(player, boundTeam)) {
+                    playersToCharge.add(player);
+                }
+            }
 
-        long movedThisCycle = 0L;
-        long voltage = GTValues.V[getTier()];
-        long ampsPerTick = 4;
-        long ticksInBatch = 10;
-        int totalPulses = (int) (ampsPerTick * ticksInBatch);
+            handleRangeNotifications(playersToCharge);
 
-        for (Player player : playersToCharge) {
-            List<IItemHandler> inventories = new ArrayList<>();
-            inventories.add(new net.minecraftforge.items.wrapper.PlayerMainInvWrapper(player.getInventory()));
-            CuriosApi.getCuriosInventory(player).ifPresent(h -> inventories.add(h.getEquippedCurios()));
+            long movedThisCycle = 0L;
+            long voltage = GTValues.V[getTier()];
+            long ampsPerTick = 4;
+            long ticksInBatch = 10;
+            int totalPulses = (int) (ampsPerTick * ticksInBatch);
 
-            for (IItemHandler handler : inventories) {
-                for (int i = 0; i < handler.getSlots(); i++) {
-                    ItemStack stack = handler.getStackInSlot(i);
-                    if (stack.isEmpty()) continue;
+            for (Player player : playersToCharge) {
+                List<IItemHandler> inventories = new ArrayList<>();
+                inventories.add(new net.minecraftforge.items.wrapper.PlayerMainInvWrapper(player.getInventory()));
+                CuriosApi.getCuriosInventory(player).ifPresent(h -> inventories.add(h.getEquippedCurios()));
 
-                    IElectricItem electric = GTCapabilityHelper.getElectricItem(stack);
-                    if (electric != null && electric.chargeable() && electric.getTier() <= getTier()) {
-                        long itemAcceptedTotal = 0;
-                        for (int p = 0; p < totalPulses; p++) {
-                            long networkCanProvide = network.stored.min(BigInteger.valueOf(voltage)).longValue();
-                            long itemRemainingLimit = (voltage * totalPulses) - itemAcceptedTotal;
-                            long pulseOffer = Math.min(networkCanProvide, Math.min(voltage, itemRemainingLimit));
+                for (IItemHandler handler : inventories) {
+                    for (int i = 0; i < handler.getSlots(); i++) {
+                        ItemStack stack = handler.getStackInSlot(i);
+                        if (stack.isEmpty()) continue;
 
-                            if (pulseOffer <= 0) break;
+                        IElectricItem electric = GTCapabilityHelper.getElectricItem(stack);
+                        if (electric != null && electric.chargeable() && electric.getTier() <= getTier()) {
+                            long itemAcceptedTotal = 0;
+                            for (int p = 0; p < totalPulses; p++) {
+                                long networkCanProvide = network.stored.min(BigInteger.valueOf(voltage)).longValue();
+                                long itemRemainingLimit = (voltage * totalPulses) - itemAcceptedTotal;
+                                long pulseOffer = Math.min(networkCanProvide, Math.min(voltage, itemRemainingLimit));
 
-                            long accepted = electric.charge(pulseOffer, getTier(), false, false);
-                            if (accepted > 0) {
-                                itemAcceptedTotal += accepted;
-                                network.drain(BigInteger.valueOf(accepted));
-                                movedThisCycle += accepted;
-                            } else {
-                                break;
+                                if (pulseOffer <= 0) break;
+
+                                long accepted = electric.charge(pulseOffer, getTier(), false, false);
+                                if (accepted > 0) {
+                                    itemAcceptedTotal += accepted;
+                                    network.drain(BigInteger.valueOf(accepted));
+                                    movedThisCycle += accepted;
+                                } else {
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        this.lastTransferred = movedThisCycle / ticksInBatch;
+            // Calculate the rate
+            this.lastTransferred = movedThisCycle / ticksInBatch;
 
-        // Render Logic: RUNNING if energy moves, FINISHED if players present but full, IDLE otherwise
-        if (movedThisCycle > 0) {
-            data.setDirty();
-            changeState(State.RUNNING);
-        } else if (!playersToCharge.isEmpty()) {
-            changeState(State.FINISHED);
-        } else {
-            changeState(State.IDLE);
+            // PUSH to the network display map here, right after calculation
+            network.machineDisplayFlow.put(getPos(), this.lastTransferred);
+
+            // Render Logic
+            if (movedThisCycle > 0) {
+                data.setDirty();
+                changeState(State.RUNNING);
+            } else if (!playersToCharge.isEmpty()) {
+                changeState(State.FINISHED);
+            } else {
+                changeState(State.IDLE);
+            }
         }
     }
 
@@ -182,11 +191,35 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
         });
     }
 
+
+    @Override
+    public void onUnload() {
+        super.onUnload();
+        if (boundTeam != null && getLevel() instanceof ServerLevel level) {
+            TeslaTeamEnergyData.get(level).getOrCreate(boundTeam).machineDisplayFlow.remove(getPos());
+        }
+    }
+
+    private void registerToNetwork() {
+        if (!isRemote() && boundTeam != null && getLevel() instanceof ServerLevel level) {
+            TeslaTeamEnergyData.get(level).getOrCreate(boundTeam).addCharger(getPos());
+        }
+    }
+
+    private void unregisterFromNetwork() {
+        if (!isRemote() && boundTeam != null && getLevel() instanceof ServerLevel level) {
+            TeslaTeamEnergyData.get(level).getOrCreate(boundTeam).removeCharger(getPos());
+        }
+    }
+
+    // Update your onDataStickUse to handle re-registration
     @Override
     public InteractionResult onDataStickUse(Player player, ItemStack stick) {
         if (!stick.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
         if (!isRemote()) {
+            unregisterFromNetwork(); // Remove from old team
             this.boundTeam = stick.getOrCreateTag().getUUID("TargetTeam");
+            registerToNetwork();    // Add to new team
             player.sendSystemMessage(Component.literal("Charger Synchronized").withStyle(ChatFormatting.LIGHT_PURPLE));
             this.markDirty();
         }
