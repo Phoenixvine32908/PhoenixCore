@@ -16,12 +16,10 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
-import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
-import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderHelper;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionReactorMachine;
@@ -33,14 +31,11 @@ import com.gregtechceu.gtceu.integration.kjs.helpers.MachineModifiers;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.phoenix.core.phoenixcore;
 import net.phoenix.core.api.machine.PhoenixPartAbility;
 import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
@@ -57,9 +52,8 @@ import net.phoenix.core.common.machine.multiblock.part.special.ShieldSensorHatch
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.models.PhoenixMachineModels;
+import net.phoenix.core.phoenixcore;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.function.BiFunction;
 
@@ -70,11 +64,8 @@ import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelPropertie
 import static com.gregtechceu.gtceu.api.pattern.Predicates.*;
 import static com.gregtechceu.gtceu.common.data.GTBlocks.*;
 import static com.gregtechceu.gtceu.common.data.GTRecipeModifiers.BATCH_MODE;
-import static com.gregtechceu.gtceu.common.data.GTRecipeModifiers.DEFAULT_ENVIRONMENT_REQUIREMENT;
 import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.ELECTRIC_TIERS;
-import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.registerTieredMultis;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
-import static com.gregtechceu.gtceu.utils.FormattingUtil.toRomanNumeral;
 import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_INPUT;
 import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_OUTPUT;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
@@ -226,35 +217,60 @@ public class PhoenixMachines {
                     "casings/microverse"))
             .register();
 
-    public static final MachineDefinition PHOENIXWARE_FUSION_MK1 = REGISTRATE.multiblock("phoenixware_fusion_mk1", holder -> new FusionReactorMachine(holder, GTValues.UIV))
+    public static final MachineDefinition PHOENIXWARE_FUSION_MK1 = REGISTRATE
+            .multiblock("phoenixware_fusion_mk1", holder -> new FusionReactorMachine(holder, GTValues.UIV))
             .rotationState(RotationState.NON_Y_AXIS)
             .recipeType(PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1)
-            .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_NON_PERFECT, MachineModifiers.FUSION_REACTOR, GTRecipeModifiers.BATCH_MODE)
+            .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_NON_PERFECT,
+                    MachineModifiers.FUSION_REACTOR, GTRecipeModifiers.BATCH_MODE)
             .appearanceBlock(PhoenixBlocks.INSANELY_SUPERCHARGED_TESLA_CASING) // Reference your Java block entry
             .pattern(definition -> FactoryBlockPattern.start()
-                    .aisle("########BBCCCBB########", "########DDEEEDD########", "########DDEEEDD########", "########DDEEEDD########", "########BBCCCBB########")
-                    .aisle("######BBBBBBBBBBB######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######", "######BBBBBBBBBBB######")
-                    .aisle("####BBBBBBBBBBBBBBB####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####", "####BBBBBBBBBBBBBBB####")
-                    .aisle("###BBBBBBBBBBBBBBBBB###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###", "###BBBBBBBBBBBBBBBBB###")
-                    .aisle("##BBBBBBBBBBBBBBBBBBB##", "##GAAAAAAAAAAAAAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAAAAAAAAAAAAAG##", "##BBBBBBBBBBBBBBBBBBB##")
-                    .aisle("##BBBBBBBBIIIBBBBBBBB##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAHHAAAHHAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##", "##BBBBBBBBIIIBBBBBBBB##")
-                    .aisle("#BBBBBBBBIIEIIBBBBBBBB#", "#FAAAAAAHHAAAHHAAAAAAG#", "#FAAAAAHAAHHHAAHAAAAAG#", "#FAAAAAAHHAAAHHAAAAAAG#", "#BBBBBBBBIIEIIBBBBBBBB#")
-                    .aisle("#BBBBBBBIIEJEIIBBBBBBB#", "#FAAAAAHAAAAAAAHAAAAAG#", "#FAAAAHFHHAKAHHFHAAAAG#", "#FAAAAAHAAAAAAAHAAAAAG#", "#BBBBBBBIIEJEIIBBBBBBB#")
-                    .aisle("BBBBBBBIIEJJJEIIBBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHKAAKAAKHAHAAAAD", "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBBIIEJJJEIIBBBBBBB")
-                    .aisle("BBBBBBIIEJJJJJEIIBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHAKAKAKAHAHAAAAD", "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBIIEJJJJJEIIBBBBBB")
-                    .aisle("CBBBBIIEJJJCJJJEIIBBBBC", "EAAAAHAAAAAAAAAAAHAAAAE", "EAAAHAHAAAKKKAAAHAHAAAE", "EAAAAHAAAAAAAAAAAHAAAAE", "CBBBBIIEJJJCJJJEIIBBBBC")
-                    .aisle("CBBBBIEJJJCCCJJJEIBBBBC", "EAAAAHAAAAAKAAAAAHAAAAE", "EAAAHAHKKKKLKKKKHAHAAAE", "EAAAAHAAAAAKAAAAAHAAAAE", "CBBBBIEJJJCCCJJJEIBBBBC")
-                    .aisle("CBBBBIIEJJJCJJJEIIBBBBC", "EAAAAHAAAAAAAAAAAHAAAAE", "EAAAHAHAAAKKKAAAHAHAAAE", "EAAAAHAAAAAAAAAAAHAAAAE", "CBBBBIIEJJJCJJJEIIBBBBC")
-                    .aisle("BBBBBBIIEJJJJJEIIBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHAKAKAKAHAHAAAAD", "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBIIEJJJJJEIIBBBBBB")
-                    .aisle("BBBBBBBIIEJJJEIIBBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHKAAKAAKHAHAAAAD", "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBBIIEJJJEIIBBBBBBB")
-                    .aisle("#BBBBBBBIIEJEIIBBBBBBB#", "#FAAAAAHAAAAAAAHAAAAAG#", "#FAAAAHFHHAKAHHFHAAAAG#", "#FAAAAAHAAAAAAAHAAAAAG#", "#BBBBBBBIIEJEIIBBBBBBB#")
-                    .aisle("#BBBBBBBBIIEIIBBBBBBBB#", "#FAAAAAAHHAAAHHAAAAAAG#", "#FAAAAAHAAHHHAAHAAAAAG#", "#FAAAAAAHHAAAHHAAAAAAG#", "#BBBBBBBBIIEIIBBBBBBBB#")
-                    .aisle("##BBBBBBBBIIIBBBBBBBB##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAHHAAAHHAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##", "##BBBBBBBBIIIBBBBBBBB##")
-                    .aisle("##BBBBBBBBBBBBBBBBBBB##", "##GAAAAAAAAAAAAAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAAAAAAAAAAAAAG##", "##BBBBBBBBBBBBBBBBBBB##")
-                    .aisle("###BBBBBBBBBBBBBBBBB###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###", "###BBBBBBBBBBBBBBBBB###")
-                    .aisle("####BBBBBBBBBBBBBBB####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####", "####BBBBBBBBBBBBBBB####")
-                    .aisle("######BBBBBBBBBBB######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######", "######BBBBBBBBBBB######")
-                    .aisle("########BBCCCBB########", "########DDEEEDD########", "########DDENEDD########", "########DDEEEDD########", "########BBCCCBB########")
+                    .aisle("########BBCCCBB########", "########DDEEEDD########", "########DDEEEDD########",
+                            "########DDEEEDD########", "########BBCCCBB########")
+                    .aisle("######BBBBBBBBBBB######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######",
+                            "######FFAAAAAAAFF######", "######BBBBBBBBBBB######")
+                    .aisle("####BBBBBBBBBBBBBBB####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####",
+                            "####GGAAAAAAAAAAAGG####", "####BBBBBBBBBBBBBBB####")
+                    .aisle("###BBBBBBBBBBBBBBBBB###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###",
+                            "###GAAAAAAAAAAAAAAAG###", "###BBBBBBBBBBBBBBBBB###")
+                    .aisle("##BBBBBBBBBBBBBBBBBBB##", "##GAAAAAAAAAAAAAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##",
+                            "##GAAAAAAAAAAAAAAAAAG##", "##BBBBBBBBBBBBBBBBBBB##")
+                    .aisle("##BBBBBBBBIIIBBBBBBBB##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAHHAAAHHAAAAAG##",
+                            "##GAAAAAAAHHHAAAAAAAG##", "##BBBBBBBBIIIBBBBBBBB##")
+                    .aisle("#BBBBBBBBIIEIIBBBBBBBB#", "#FAAAAAAHHAAAHHAAAAAAG#", "#FAAAAAHAAHHHAAHAAAAAG#",
+                            "#FAAAAAAHHAAAHHAAAAAAG#", "#BBBBBBBBIIEIIBBBBBBBB#")
+                    .aisle("#BBBBBBBIIEJEIIBBBBBBB#", "#FAAAAAHAAAAAAAHAAAAAG#", "#FAAAAHFHHAKAHHFHAAAAG#",
+                            "#FAAAAAHAAAAAAAHAAAAAG#", "#BBBBBBBIIEJEIIBBBBBBB#")
+                    .aisle("BBBBBBBIIEJJJEIIBBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHKAAKAAKHAHAAAAD",
+                            "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBBIIEJJJEIIBBBBBBB")
+                    .aisle("BBBBBBIIEJJJJJEIIBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHAKAKAKAHAHAAAAD",
+                            "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBIIEJJJJJEIIBBBBBB")
+                    .aisle("CBBBBIIEJJJCJJJEIIBBBBC", "EAAAAHAAAAAAAAAAAHAAAAE", "EAAAHAHAAAKKKAAAHAHAAAE",
+                            "EAAAAHAAAAAAAAAAAHAAAAE", "CBBBBIIEJJJCJJJEIIBBBBC")
+                    .aisle("CBBBBIEJJJCCCJJJEIBBBBC", "EAAAAHAAAAAKAAAAAHAAAAE", "EAAAHAHKKKKLKKKKHAHAAAE",
+                            "EAAAAHAAAAAKAAAAAHAAAAE", "CBBBBIEJJJCCCJJJEIBBBBC")
+                    .aisle("CBBBBIIEJJJCJJJEIIBBBBC", "EAAAAHAAAAAAAAAAAHAAAAE", "EAAAHAHAAAKKKAAAHAHAAAE",
+                            "EAAAAHAAAAAAAAAAAHAAAAE", "CBBBBIIEJJJCJJJEIIBBBBC")
+                    .aisle("BBBBBBIIEJJJJJEIIBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHAKAKAKAHAHAAAAD",
+                            "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBIIEJJJJJEIIBBBBBB")
+                    .aisle("BBBBBBBIIEJJJEIIBBBBBBB", "DAAAAAHAAAAAAAAAHAAAAAD", "DAAAAHAHKAAKAAKHAHAAAAD",
+                            "DAAAAAHAAAAAAAAAHAAAAAD", "BBBBBBBIIEJJJEIIBBBBBBB")
+                    .aisle("#BBBBBBBIIEJEIIBBBBBBB#", "#FAAAAAHAAAAAAAHAAAAAG#", "#FAAAAHFHHAKAHHFHAAAAG#",
+                            "#FAAAAAHAAAAAAAHAAAAAG#", "#BBBBBBBIIEJEIIBBBBBBB#")
+                    .aisle("#BBBBBBBBIIEIIBBBBBBBB#", "#FAAAAAAHHAAAHHAAAAAAG#", "#FAAAAAHAAHHHAAHAAAAAG#",
+                            "#FAAAAAAHHAAAHHAAAAAAG#", "#BBBBBBBBIIEIIBBBBBBBB#")
+                    .aisle("##BBBBBBBBIIIBBBBBBBB##", "##GAAAAAAAHHHAAAAAAAG##", "##GAAAAAHHAAAHHAAAAAG##",
+                            "##GAAAAAAAHHHAAAAAAAG##", "##BBBBBBBBIIIBBBBBBBB##")
+                    .aisle("##BBBBBBBBBBBBBBBBBBB##", "##GAAAAAAAAAAAAAAAAAG##", "##GAAAAAAAHHHAAAAAAAG##",
+                            "##GAAAAAAAAAAAAAAAAAG##", "##BBBBBBBBBBBBBBBBBBB##")
+                    .aisle("###BBBBBBBBBBBBBBBBB###", "###GAAAAAAAAAAAAAAAG###", "###GAAAAAAAAAAAAAAAG###",
+                            "###GAAAAAAAAAAAAAAAG###", "###BBBBBBBBBBBBBBBBB###")
+                    .aisle("####BBBBBBBBBBBBBBB####", "####GGAAAAAAAAAAAGG####", "####GGAAAAAAAAAAAGG####",
+                            "####GGAAAAAAAAAAAGG####", "####BBBBBBBBBBBBBBB####")
+                    .aisle("######BBBBBBBBBBB######", "######FFAAAAAAAFF######", "######FFAAAAAAAFF######",
+                            "######FFAAAAAAAFF######", "######BBBBBBBBBBB######")
+                    .aisle("########BBCCCBB########", "########DDEEEDD########", "########DDENEDD########",
+                            "########DDEEEDD########", "########BBCCCBB########")
                     .where("N", Predicates.controller(Predicates.blocks(definition.get())))
                     .where("A", Predicates.air())
                     .where("#", Predicates.any())
@@ -266,7 +282,8 @@ public class PhoenixMachines {
                             .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS))
                             .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
-                            .or(Predicates.blocks(GTMachines.ENERGY_INPUT_HATCH[GTValues.ZPM].get()).setMaxGlobalLimited(2)))
+                            .or(Predicates.blocks(GTMachines.ENERGY_INPUT_HATCH[GTValues.ZPM].get())
+                                    .setMaxGlobalLimited(2)))
                     .where("F", Predicates.blocks(SUPERCONDUCTING_COIL.get()))
                     .where("G", Predicates.blocks(FUSION_GLASS.get()))
                     .where("H", Predicates.blocks(PhoenixBlocks.AKASHIC_COIL_BLOCK.get()))
@@ -284,8 +301,6 @@ public class PhoenixMachines {
                     .andThen(b -> b.addDynamicRenderer(PhoenixDynamicRenderHelpers::getHelicalFusionRenderer)))
             .hasBER(true)
             .register();
-
-
 
     static {
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {

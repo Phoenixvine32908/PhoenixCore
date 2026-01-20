@@ -164,6 +164,14 @@ public class PhoenixMachineRecipes {
                 .addData("required_cooling", 5000)
                 .outputFluids(SodiumPotassium.getFluid(16))
                 .save(provider);
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("carbon_and_helium_3_to_oxygen_plasma")
+                .inputFluids(GTMaterials.Carbon.getFluid(16))
+                .inputFluids(GTMaterials.Helium3.getFluid(125))
+                .outputFluids(GTMaterials.Oxygen.getFluid(FluidStorageKeys.PLASMA, 125))
+                .duration(32)
+                .EUt(4096)
+                .fusionStartEU(180_000_000)
+                .save(provider);
         PhoenixRecipeTypes.HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES.recipeBuilder("honey_chamber_tet")
                 .inputFluids(Acetone.getFluid(16))
                 .duration(600)

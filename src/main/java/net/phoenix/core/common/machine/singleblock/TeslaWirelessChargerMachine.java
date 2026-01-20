@@ -191,7 +191,6 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
         });
     }
 
-
     @Override
     public void onUnload() {
         super.onUnload();
@@ -212,17 +211,27 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
         }
     }
 
-    // Update your onDataStickUse to handle re-registration
     @Override
     public InteractionResult onDataStickUse(Player player, ItemStack stick) {
         if (!stick.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
-        if (!isRemote()) {
-            unregisterFromNetwork(); // Remove from old team
-            this.boundTeam = stick.getOrCreateTag().getUUID("TargetTeam");
-            registerToNetwork();    // Add to new team
+        if (isRemote()) return InteractionResult.SUCCESS;
+
+        UUID stickTeam = stick.getOrCreateTag().getUUID("TargetTeam");
+
+        // If the machine is already bound to this team, unbind it
+        if (this.boundTeam != null && this.boundTeam.equals(stickTeam)) {
+            unregisterFromNetwork(); // Remove from global data
+            this.boundTeam = null;
+            player.sendSystemMessage(Component.literal("Charger Unbound").withStyle(ChatFormatting.YELLOW));
+        } else {
+            // Otherwise, bind/re-bind it
+            unregisterFromNetwork();
+            this.boundTeam = stickTeam;
+            registerToNetwork();
             player.sendSystemMessage(Component.literal("Charger Synchronized").withStyle(ChatFormatting.LIGHT_PURPLE));
-            this.markDirty();
         }
+
+        this.markDirty();
         return InteractionResult.SUCCESS;
     }
 

@@ -5,8 +5,8 @@ import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.phoenix.core.phoenixcore;
 import net.phoenix.core.common.machine.multiblock.FissionWorkableElectricMultiblockMachine;
+import net.phoenix.core.phoenixcore;
 
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;

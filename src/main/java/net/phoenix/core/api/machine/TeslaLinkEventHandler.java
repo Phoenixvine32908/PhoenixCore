@@ -18,15 +18,13 @@ public class TeslaLinkEventHandler {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
 
         BlockPos brokenPos = event.getPos();
-        // Check if the block being broken is a MetaMachine
         MetaMachine machine = MetaMachine.getMachine(level, brokenPos);
 
+        // If it's a TieredMachine, it could be a Soul Consumer or a Wireless Charger
         if (machine instanceof TieredEnergyMachine) {
             TeslaTeamEnergyData data = TeslaTeamEnergyData.get(level);
-            // We need to find which team this machine belongs to.
-            // Since we don't want to iterate every team every time a block breaks,
-            // your SavedData should ideally have a reverse-lookup Map<BlockPos, UUID>
-            // or we just call a global cleanup method.
+
+            // This should remove it from soulLinkedMachines AND activeChargers
             data.removeMachineFromAllTeams(brokenPos);
         }
     }

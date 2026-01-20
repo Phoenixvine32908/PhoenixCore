@@ -142,6 +142,7 @@ public class TeslaTeamEnergyData extends SavedData {
 
             return tag;
         }
+
         // Inside TeslaTeamEnergyData.TeamEnergy class
         public final Set<BlockPos> activeChargers = new HashSet<>();
 
@@ -258,11 +259,19 @@ public class TeslaTeamEnergyData extends SavedData {
 
     public void removeMachineFromAllTeams(BlockPos pos) {
         networks.values().forEach(team -> {
+            // 1. Remove from wired machines (Soul Consumers)
             team.soulLinkedMachines.remove(pos);
             team.posToDimension.remove(pos);
+
+            // 2. Remove from wireless chargers [C]
+            team.activeChargers.remove(pos);
+
+            // 3. Clear the display flow cache so the UI doesn't "ghost" old numbers
             team.machineDisplayFlow.remove(pos);
         });
-        setDirty();
+
+        // Mark for saving to disk
+        this.setDirty();
     }
 
     // --- ONLINE STATE METHODS ---

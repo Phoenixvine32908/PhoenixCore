@@ -38,6 +38,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.phoenix.core.client.renderer.TeslaHighlightRenderer;
+import net.phoenix.core.common.machine.singleblock.TeslaWirelessChargerMachine;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
 
@@ -295,7 +296,6 @@ public class TeslaBinderItem extends ComponentItem
                 mainLayer.setVisible(true);
             }));
 
-            // Identify Type
             boolean isHatch = hTag.contains("isOut");
             boolean isCharger = hTag.getBoolean("isCharger");
 
@@ -326,22 +326,21 @@ public class TeslaBinderItem extends ComponentItem
                         .append(Component.literal(String.format("%d, %d, %d", p.getX(), p.getY(), p.getZ()))
                                 .withStyle(ChatFormatting.WHITE)));
 
-                // Chargers do not use energy containers; only show buffer for Hatches and Soul Machines
                 if (!isCharger && hTag.contains("buf")) {
+                    // Using compactTeslaValue for consistency; it handles the space before 'EU'
                     list.add(Component.literal("Internal Buffer: ").withStyle(ChatFormatting.GRAY)
-                            .append(Component.literal(formatTeslaValue(hTag.getString("buf"), false))
-                                    .withStyle(ChatFormatting.GOLD))
-                            .append(Component.literal(" EU").withStyle(ChatFormatting.GOLD)));
+                            .append(Component.literal(compactTeslaValue(hTag.getString("buf")) + "EU")
+                                    .withStyle(ChatFormatting.GOLD)));
                 }
 
-                long flowVal = Long.parseLong(hTag.getString("transfer").isEmpty() ? "0" : hTag.getString("transfer"));
+                String transferStr = hTag.getString("transfer");
+                long flowVal = Long.parseLong(transferStr.isEmpty() ? "0" : transferStr);
                 String sign = isHatch ? (hTag.getBoolean("isOut") ? "+" : "-") : "-";
                 String flowLabel = isCharger ? "Wireless Output: " : "Current Flow: ";
 
                 list.add(Component.literal(flowLabel).withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(sign + formatTeslaValue(hTag.getString("transfer"), false))
-                                .withStyle(flowVal > 0 ? titleColor : ChatFormatting.WHITE))
-                        .append(" EU/t"));
+                        .append(Component.literal(sign + compactTeslaValue(transferStr) + "EU/t")
+                                .withStyle(flowVal > 0 ? titleColor : ChatFormatting.WHITE)));
 
                 String statusText = (flowVal > 0) ? "OPERATIONAL" : "IDLE / NO LOAD";
                 list.add(Component.literal("Status: ").withStyle(ChatFormatting.GRAY)
@@ -367,11 +366,21 @@ public class TeslaBinderItem extends ComponentItem
         WidgetGroup header = new WidgetGroup(5, 18, windowWidth - 10, 80);
         header.setBackground(TESLA_BACKGROUND);
         header.addWidget(new ComponentPanelWidget(5, 4, text -> {
-            text.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY).append(Component.literal(tag.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
-            text.add(Component.literal("Stored:   ").withStyle(ChatFormatting.GRAY).append(Component.literal(compactTeslaValue(tag.getString("StoredEU"))).withStyle(ChatFormatting.GOLD)).append(" EU"));
-            text.add(Component.literal("Capacity: ").withStyle(ChatFormatting.GRAY).append(Component.literal(compactTeslaValue(tag.getString("CapacityEU"))).withStyle(ChatFormatting.YELLOW)).append(" EU"));
-            text.add(Component.literal("Net Input: ").withStyle(ChatFormatting.GRAY).append(Component.literal("+" + compactTeslaValue(tag.getString("NetInput"))).withStyle(ChatFormatting.GREEN)).append(" EU/t"));
-            text.add(Component.literal("Net Output: ").withStyle(ChatFormatting.GRAY).append(Component.literal("-" + compactTeslaValue(tag.getString("NetOutput"))).withStyle(ChatFormatting.RED)).append(" EU/t"));
+            text.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(tag.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
+
+            // compactTeslaValue now provides the leading space for k, M, G etc.
+            text.add(Component.literal("Stored: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(compactTeslaValue(tag.getString("StoredEU")) + "EU").withStyle(ChatFormatting.GOLD)));
+
+            text.add(Component.literal("Capacity: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal(compactTeslaValue(tag.getString("CapacityEU")) + "EU").withStyle(ChatFormatting.YELLOW)));
+
+            text.add(Component.literal("Net Input: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("+" + compactTeslaValue(tag.getString("NetInput")) + "EU/t").withStyle(ChatFormatting.GREEN)));
+
+            text.add(Component.literal("Net Output: ").withStyle(ChatFormatting.GRAY)
+                    .append(Component.literal("-" + compactTeslaValue(tag.getString("NetOutput")) + "EU/t").withStyle(ChatFormatting.RED)));
         }));
         mainLayer.addWidget(header);
 
@@ -384,7 +393,7 @@ public class TeslaBinderItem extends ComponentItem
                 stack.getOrCreateTag().putInt("FilterMode", targetMode);
                 if (player instanceof ServerPlayer sp) HeldItemUIFactory.INSTANCE.openUI(holder, sp);
             }));
-            LabelWidget fl = new LabelWidget(7 + (i * (btnWidth + 2)) + (btnWidth/2 - 8), 106, filters[i]);
+            LabelWidget fl = new LabelWidget(7 + (i * (btnWidth + 2)) + (btnWidth / 2 - 8), 106, filters[i]);
             if (filterMode == targetMode) fl.setTextColor(ChatFormatting.YELLOW.getColor());
             mainLayer.addWidget(fl);
         }
@@ -398,7 +407,6 @@ public class TeslaBinderItem extends ComponentItem
         ListTag chargerData = tag.getList("ChargerData", Tag.TAG_COMPOUND);
         int currentY = 0;
 
-        // Rendering order: Hatches -> Soul Machines -> Wireless Chargers
         for (int i = 0; i < hatchData.size(); i++) {
             CompoundTag hTag = hatchData.getCompound(i);
             boolean isInput = hTag.getBoolean("isOut");
@@ -421,6 +429,7 @@ public class TeslaBinderItem extends ComponentItem
         ui.widget(detailLayer);
         return ui;
     }
+
     private int addListRow(WidgetGroup group, CompoundTag data, Player player, Consumer<CompoundTag> clickAction, int y,
                            String type, int windowWidth) {
         BlockPos pos = BlockPos.of(data.getLong("pos")).immutable();
@@ -428,7 +437,7 @@ public class TeslaBinderItem extends ComponentItem
 
         String typeLabel;
         String colorCode;
-        String sign = "-";
+        String sign;
 
         // Configuration based on type
         switch (type) {
@@ -440,33 +449,38 @@ public class TeslaBinderItem extends ComponentItem
             }
             case "charger" -> {
                 typeLabel = "[C]";
-                colorCode = "§b"; // Aqua
+                colorCode = "§b";
                 sign = "-";
             }
             default -> { // Soul Machine
                 typeLabel = "[S]";
-                colorCode = "§d"; // Light Purple
+                colorCode = "§d";
                 sign = "-";
             }
         }
 
         String statusIcon;
-        boolean hasFlow = !data.getString("transfer").equals("0");
-        if (!hasFlow) {
-            statusIcon = "§7△"; // Idle
+        String transferRaw = data.getString("transfer");
+        boolean hasFlow = !transferRaw.equals("0") && !transferRaw.isEmpty();
+
+        if (type.equals("charger")) {
+            statusIcon = hasFlow ? "§3波" : "§7波";
+        } else if (!hasFlow) {
+            statusIcon = "§7△";
         } else if (type.equals("hatch")) {
             statusIcon = data.getBoolean("isOut") ? "§2▲" : "§4▼";
-        } else if (type.equals("charger")) {
-            statusIcon = "§3波"; // Unique Wireless Wave icon
         } else {
-            statusIcon = "§b⚡"; // Standard Bolt
+            statusIcon = "§b⚡";
         }
 
         String rawName = data.contains("name") ? data.getString("name") :
                 (type.equals("hatch") ? "Tesla Hatch" : (type.equals("charger") ? "Wireless Charger" : "Soul Machine"));
 
-        String flowStr = " §8(" + colorCode + sign + compactTeslaValue(data.getString("transfer")) + "§8)";
+        // UPDATED: Now utilizes the space provided by compactTeslaValue and appends EU
+        // Result looks like: " (+1.2 MEU)"
+        String flowStr = " §8(" + colorCode + sign + compactTeslaValue(transferRaw) + "EU§8)";
 
+        // Adjusting width calculations for the new string lengths
         int totalAvailableWidth = windowWidth - 110;
         int tailWidth = font.width(flowStr);
         int headWidth = font.width(statusIcon + " " + colorCode + typeLabel + "§r ");
@@ -514,24 +528,25 @@ public class TeslaBinderItem extends ComponentItem
 
     private String compactTeslaValue(String value) {
         try {
-            if (value == null || value.isEmpty()) return "0";
+            if (value == null || value.isEmpty()) return "0 ";
             java.math.BigInteger n = new java.math.BigInteger(value);
 
-            if (n.equals(java.math.BigInteger.ZERO)) return "0";
+            if (n.equals(java.math.BigInteger.ZERO)) return "0 ";
 
-            // Handle negatives
             boolean negative = n.signum() == -1;
             if (negative) n = n.abs();
 
-            // 1,000 as a BigInteger
             java.math.BigInteger thousand = java.math.BigInteger.valueOf(1000);
 
-            if (n.compareTo(thousand) < 0) return (negative ? "-" : "") + n.toString();
+            // If less than 1000, we still return a trailing space for consistency with suffixes
+            if (n.compareTo(thousand) < 0) {
+                return (negative ? "-" : "") + n.toString() + " ";
+            }
 
-            String[] suffixes = new String[] { "", "k", "M", "G", "T", "P", "E", "Z", "Y" };
+            // SI Prefixes with a leading space as per htmlcsjs's nitpick
+            String[] suffixes = new String[] { " ", " k", " M", " G", " T", " P", " Ei", " Z", " Y" };
             int tier = 0;
 
-            // Use BigDecimal for high-precision division
             java.math.BigDecimal dN = new java.math.BigDecimal(n);
             java.math.BigDecimal dThousand = new java.math.BigDecimal(1000);
 
@@ -540,8 +555,8 @@ public class TeslaBinderItem extends ComponentItem
                 tier++;
             }
 
-            // Final formatting: 1.5M, 100k, etc.
             String result;
+            // If the number is 100 or greater (e.g., 100.2 k), drop the decimal for cleaner UI
             if (dN.compareTo(java.math.BigDecimal.valueOf(100)) >= 0) {
                 result = String.format("%.0f%s", dN, suffixes[tier]);
             } else {
@@ -550,12 +565,13 @@ public class TeslaBinderItem extends ComponentItem
 
             return (negative ? "-" : "") + result;
         } catch (Exception e) {
-            return "0";
+            return "0 ";
         }
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
+    public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId,
+                              boolean isSelected) {
         if (level.isClientSide || !(entity instanceof ServerPlayer serverPlayer)) return;
 
         // Pulse check (Every 5 ticks) to keep UI responsive but save CPU
@@ -627,36 +643,43 @@ public class TeslaBinderItem extends ComponentItem
             tag.put("MachineData", machineList);
 
             // --- 4. WIRELESS CHARGERS [C] ---
+            // --- SECTION: WIRELESS CHARGERS [C] ---
             ListTag chargerList = new ListTag();
+            List<BlockPos> deadChargers = new ArrayList<>(); // Track chargers to remove
+
             for (BlockPos cPos : team.activeChargers) {
                 CompoundTag cTag = new CompoundTag();
                 cTag.putLong("pos", cPos.asLong());
-                cTag.putBoolean("isCharger", true); // Trigger for UI labeling
+                cTag.putBoolean("isCharger", true);
 
-                // Try to find machine in current level or overworld
+                // Check if machine actually exists and is the right type
                 MetaMachine machine = MetaMachine.getMachine(level, cPos);
                 if (machine == null) machine = MetaMachine.getMachine(overworld, cPos);
 
-                if (machine != null) {
+                if (machine instanceof TeslaWirelessChargerMachine) {
                     cTag.putString("name", machine.getDefinition().getLangValue());
-                    // Note: Buffers are skipped for chargers per your request
+                    long flow = team.machineDisplayFlow.getOrDefault(cPos, 0L);
+                    cTag.putString("transfer", String.valueOf(flow));
+                    chargerList.add(cTag);
                 } else {
-                    // If the machine isn't loaded/found, we provide a fallback name
-                    cTag.putString("name", "Tesla Field Generator");
+                    // If the block is gone or replaced by something else, mark for removal
+                    if (level.isLoaded(cPos) || overworld.isLoaded(cPos)) {
+                        deadChargers.add(cPos);
+                    } else {
+                        // If chunk is just unloaded, keep it but show as unloaded
+                        cTag.putString("name", "§8[Unloaded Charger]§r");
+                        cTag.putString("transfer", "0");
+                        chargerList.add(cTag);
+                    }
                 }
-
-                // Sync flow from the team's shared transfer map
-                long flow = team.machineDisplayFlow.getOrDefault(cPos, 0L);
-                cTag.putString("transfer", String.valueOf(flow));
-                chargerList.add(cTag);
             }
-            tag.put("ChargerData", chargerList);
 
-            // --- 5. CLEANUP ---
-            if (!toRemove.isEmpty()) {
-                for (BlockPos pos : toRemove) globalData.removeMachineFromAllTeams(pos);
+            // Cleanup dead chargers
+            if (!deadChargers.isEmpty()) {
+                for (BlockPos p : deadChargers) team.removeCharger(p);
                 globalData.setDirty();
             }
+            tag.put("ChargerData", chargerList);
 
             serverPlayer.containerMenu.broadcastChanges();
         }

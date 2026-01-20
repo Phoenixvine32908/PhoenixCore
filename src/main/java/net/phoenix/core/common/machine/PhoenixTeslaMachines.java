@@ -15,7 +15,6 @@ import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
-import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
 import com.gregtechceu.gtceu.common.machine.electric.ChargerMachine;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
@@ -118,10 +117,9 @@ public class PhoenixTeslaMachines {
             GTValues.ALL_TIERS);
 
     public static MachineDefinition[] registerWirelessCharger(
-            GTRegistrate registrate,
-            String name,
-            BiFunction<IMachineBlockEntity, Integer, TeslaWirelessChargerMachine> factory
-    ) {
+                                                              GTRegistrate registrate,
+                                                              String name,
+                                                              BiFunction<IMachineBlockEntity, Integer, TeslaWirelessChargerMachine> factory) {
         return registerChargerTieredMachines(
                 registrate,
                 name,
@@ -139,22 +137,21 @@ public class PhoenixTeslaMachines {
                                 Component.translatable("gtceu.universal.tooltip.amperage_in", 4),
                                 Component.literal("Wireless Range: ").withStyle(ChatFormatting.GRAY)
                                         .append(Component.literal(
-                                                        tier >= GTValues.LuV ? "Global (Cross-Dimensional)" :
-                                                                (8 * (tier + 1)) + "m")
+                                                tier >= GTValues.LuV ? "Global (Cross-Dimensional)" :
+                                                        (8 * (tier + 1)) + "m")
                                                 .withStyle(ChatFormatting.AQUA)),
                                 Component.literal("Charges armor and tools from the Team Energy Cloud")
                                         .withStyle(ChatFormatting.GREEN))
                         .register(),
-                GTValues.ALL_TIERS
-        );
+                GTValues.ALL_TIERS);
     }
+
     public static MachineDefinition[] registerChargerTieredMachines(
-            GTRegistrate registrate,
-            String name,
-            BiFunction<IMachineBlockEntity, Integer, MetaMachine> machineFactory,
-            BiFunction<Integer, MachineBuilder<MachineDefinition>, MachineDefinition> definitionBuilder,
-            int... tiers
-    ) {
+                                                                    GTRegistrate registrate,
+                                                                    String name,
+                                                                    BiFunction<IMachineBlockEntity, Integer, MetaMachine> machineFactory,
+                                                                    BiFunction<Integer, MachineBuilder<MachineDefinition>, MachineDefinition> definitionBuilder,
+                                                                    int... tiers) {
         MachineDefinition[] definitions = new MachineDefinition[GTValues.TIER_COUNT];
 
         for (int tier : tiers) {
@@ -168,13 +165,11 @@ public class PhoenixTeslaMachines {
 
         return definitions;
     }
-    public static final MachineDefinition[] TESLA_WIRELESS_CHARGER =
-            registerWirelessCharger(
-                    PhoenixRegistration.REGISTRATE,
-                    "tesla_wireless_charger",
-                    TeslaWirelessChargerMachine::new
-            );
 
+    public static final MachineDefinition[] TESLA_WIRELESS_CHARGER = registerWirelessCharger(
+            PhoenixRegistration.REGISTRATE,
+            "tesla_wireless_charger",
+            TeslaWirelessChargerMachine::new);
 
     /*
      * private static MachineDefinition[] registerTeslaEnergyHatch(String name,
