@@ -81,7 +81,7 @@ public class PhoenixMachines {
     public static MachineDefinition HIGH_YEILD_PHOTON_EMISSION_REGULATER = null;
 
     static {
-       REGISTRATE.creativeModeTab(() -> PhoenixCore.PHOENIX_CREATIVE_TAB);
+        REGISTRATE.creativeModeTab(() -> PhoenixCore.PHOENIX_CREATIVE_TAB);
     }
 
     static {

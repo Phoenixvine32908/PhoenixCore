@@ -23,8 +23,7 @@ public class PhoenixRenderTypes extends RenderType {
                     .setTransparencyState(RenderStateShard.ADDITIVE_TRANSPARENCY)
                     .setLayeringState(RenderStateShard.NO_LAYERING)
                     .setCullState(RenderStateShard.NO_CULL)
-                    .createCompositeState(false)
-    );
+                    .createCompositeState(false));
 
     // ------------------------------------------------------------
     // NEW: Honey Fog RenderType (quad-compatible, soft translucent)
@@ -46,8 +45,7 @@ public class PhoenixRenderTypes extends RenderType {
                     .setCullState(RenderStateShard.NO_CULL)
                     // depth test ON so fog stays inside chamber
                     .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                    .createCompositeState(false)
-    );
+                    .createCompositeState(false));
 
     private PhoenixRenderTypes(String name, VertexFormat format, VertexFormat.Mode mode,
                                int bufferSize, boolean affectsCrumbling, boolean sortOnUpload,

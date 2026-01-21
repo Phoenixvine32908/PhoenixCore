@@ -20,6 +20,7 @@ import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
@@ -27,7 +28,6 @@ import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchP
 import net.phoenix.core.common.machine.singleblock.TeslaWirelessChargerMachine;
 import net.phoenix.core.common.registry.PhoenixRegistration;
 import net.phoenix.core.datagen.models.PhoenixMachineModels;
-import net.phoenix.core.PhoenixCore;
 
 import java.util.Locale;
 import java.util.function.BiFunction;
@@ -94,16 +94,19 @@ public class PhoenixTeslaMachines {
                 name + "_" + amperage + "a",
                 (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, io, amperage),
                 (tier, builder) -> builder
-                        .langValue(GTValues.VNF[tier] + " Tesla Energy " + (io == IO.OUT ? "Uplink" : "Downlink") + " Hatch " + amperage + "A")
+                        .langValue(GTValues.VNF[tier] + " Tesla Energy " + (io == IO.OUT ? "Uplink" : "Downlink") +
+                                " Hatch " + amperage + "A")
                         .rotationState(RotationState.ALL)
                         .abilities(ability)
                         .modelProperty(GTMachineModelProperties.IS_FORMED, false)
                         .tooltips(
                                 Component.translatable("gtceu.universal.tooltip.voltage_in",
                                         FormattingUtil.formatNumbers(GTValues.V[tier]), GTValues.VNF[tier]),
-                                Component.translatable("gtceu.universal.tooltip.amperage_" + (io == IO.OUT ? "in" : "out"), amperage),
+                                Component.translatable(
+                                        "gtceu.universal.tooltip.amperage_" + (io == IO.OUT ? "in" : "out"), amperage),
                                 Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
-                                        FormattingUtil.formatNumbers(GTValues.V[tier] * (io == IO.OUT ? 16L : 64L) * amperage)),
+                                        FormattingUtil.formatNumbers(
+                                                GTValues.V[tier] * (io == IO.OUT ? 16L : 64L) * amperage)),
                                 Component.translatable("tooltip.PhoenixCore.tesla_hatch." + iomode))
                         .overlayTieredHullModel(getTeslaOverlay(iomode, amperage))
                         .register(),
@@ -112,15 +115,23 @@ public class PhoenixTeslaMachines {
 
     // Registrations
 
-    public static final MachineDefinition[] TESLA_INPUT_2A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 2, PartAbility.OUTPUT_ENERGY);
-    public static final MachineDefinition[] TESLA_INPUT_4A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 4, PartAbility.OUTPUT_ENERGY);
-    public static final MachineDefinition[] TESLA_INPUT_16A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 16, PartAbility.OUTPUT_ENERGY);
-    public static final MachineDefinition[] TESLA_INPUT_64A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 64, PartAbility.OUTPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_INPUT_2A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 2,
+            PartAbility.OUTPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_INPUT_4A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 4,
+            PartAbility.OUTPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_INPUT_16A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 16,
+            PartAbility.OUTPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_INPUT_64A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 64,
+            PartAbility.OUTPUT_ENERGY);
 
-    public static final MachineDefinition[] TESLA_OUTPUT_2A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 2, PartAbility.INPUT_ENERGY);
-    public static final MachineDefinition[] TESLA_OUTPUT_4A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 4, PartAbility.INPUT_ENERGY);
-    public static final MachineDefinition[] TESLA_OUTPUT_16A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 16, PartAbility.INPUT_ENERGY);
-    public static final MachineDefinition[] TESLA_OUTPUT_64A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 64, PartAbility.INPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_OUTPUT_2A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 2,
+            PartAbility.INPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_OUTPUT_4A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 4,
+            PartAbility.INPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_OUTPUT_16A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN,
+            16, PartAbility.INPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_OUTPUT_64A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN,
+            64, PartAbility.INPUT_ENERGY);
 
     public static MachineDefinition[] registerWirelessCharger(
                                                               GTRegistrate registrate,

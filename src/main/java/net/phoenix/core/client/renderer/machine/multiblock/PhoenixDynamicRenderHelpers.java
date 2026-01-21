@@ -25,8 +25,8 @@ public class PhoenixDynamicRenderHelpers {
     public static DynamicRender<?, ?> getHelicalFusionRenderer() {
         return HelicalFusionRenderer.INSTANCE;
     }
+
     public static DynamicRender<?, ?> getHoneyChamberRenderer() {
         return HoneyChamberDynamicRender.INSTANCE;
     }
-
 }

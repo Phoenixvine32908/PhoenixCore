@@ -314,7 +314,8 @@ public class TeslaBinderItem extends ComponentItem
                 titleColor = ChatFormatting.LIGHT_PURPLE;
             }
 
-            detailLayer.addWidget(new LabelWidget(28, 9, hardwareTitle + " Details").setTextColor(titleColor.getColor()));
+            detailLayer
+                    .addWidget(new LabelWidget(28, 9, hardwareTitle + " Details").setTextColor(titleColor.getColor()));
 
             WidgetGroup displayBox = new WidgetGroup(5, 30, windowWidth - 10, 95);
             displayBox.setBackground(GuiTextures.DISPLAY);
@@ -371,16 +372,20 @@ public class TeslaBinderItem extends ComponentItem
 
             // compactTeslaValue now provides the leading space for k, M, G etc.
             text.add(Component.literal("Stored: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(compactTeslaValue(tag.getString("StoredEU")) + "EU").withStyle(ChatFormatting.GOLD)));
+                    .append(Component.literal(compactTeslaValue(tag.getString("StoredEU")) + "EU")
+                            .withStyle(ChatFormatting.GOLD)));
 
             text.add(Component.literal("Capacity: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(compactTeslaValue(tag.getString("CapacityEU")) + "EU").withStyle(ChatFormatting.YELLOW)));
+                    .append(Component.literal(compactTeslaValue(tag.getString("CapacityEU")) + "EU")
+                            .withStyle(ChatFormatting.YELLOW)));
 
             text.add(Component.literal("Net Input: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("+" + compactTeslaValue(tag.getString("NetInput")) + "EU/t").withStyle(ChatFormatting.GREEN)));
+                    .append(Component.literal("+" + compactTeslaValue(tag.getString("NetInput")) + "EU/t")
+                            .withStyle(ChatFormatting.GREEN)));
 
             text.add(Component.literal("Net Output: ").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal("-" + compactTeslaValue(tag.getString("NetOutput")) + "EU/t").withStyle(ChatFormatting.RED)));
+                    .append(Component.literal("-" + compactTeslaValue(tag.getString("NetOutput")) + "EU/t")
+                            .withStyle(ChatFormatting.RED)));
         }));
         mainLayer.addWidget(header);
 
@@ -416,12 +421,14 @@ public class TeslaBinderItem extends ComponentItem
         }
         if (filterMode == 0 || filterMode == 3) {
             for (int i = 0; i < machineData.size(); i++) {
-                currentY = addListRow(listGroup, machineData.getCompound(i), player, openDetail, currentY, "machine", windowWidth);
+                currentY = addListRow(listGroup, machineData.getCompound(i), player, openDetail, currentY, "machine",
+                        windowWidth);
             }
         }
         if (filterMode == 0 || filterMode == 4) {
             for (int i = 0; i < chargerData.size(); i++) {
-                currentY = addListRow(listGroup, chargerData.getCompound(i), player, openDetail, currentY, "charger", windowWidth);
+                currentY = addListRow(listGroup, chargerData.getCompound(i), player, openDetail, currentY, "charger",
+                        windowWidth);
             }
         }
 

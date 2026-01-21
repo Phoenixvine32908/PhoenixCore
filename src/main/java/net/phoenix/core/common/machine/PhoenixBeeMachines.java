@@ -17,10 +17,10 @@ import com.gregtechceu.gtceu.common.data.GTRecipeModifiers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.machine.multiblock.electric.HoneyCrystallizationChamberMachine;
-import net.phoenix.core.PhoenixCore;
 
 import static com.gregtechceu.gtceu.api.pattern.Predicates.*;
 import static com.gregtechceu.gtceu.api.pattern.Predicates.blocks;
@@ -29,7 +29,6 @@ import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.createWor
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 
 public class PhoenixBeeMachines {
-
 
     public static final MultiblockMachineDefinition HONEY_CRYSTALLIZATION_CHAMBER = REGISTRATE
             .multiblock("honey_crystallization_chamber", HoneyCrystallizationChamberMachine::new)
@@ -159,8 +158,6 @@ public class PhoenixBeeMachines {
                             GTCEu.id("block/casings/solid/machine_casing_clean_stainless_steel"),
                             GTCEu.id("block/multiblock/large_miner")))
             .register();
-
-
 
     public static final MultiblockMachineDefinition APIS_PROGENITOR = REGISTRATE
             .multiblock("apis_progenitor", WorkableElectricMultiblockMachine::new)

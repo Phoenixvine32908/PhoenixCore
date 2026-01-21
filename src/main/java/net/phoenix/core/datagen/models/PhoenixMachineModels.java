@@ -8,12 +8,12 @@ import com.gregtechceu.gtceu.common.machine.electric.ChargerMachine;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.common.block.TeslaBatteryBlock;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
-import net.phoenix.core.PhoenixCore;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;

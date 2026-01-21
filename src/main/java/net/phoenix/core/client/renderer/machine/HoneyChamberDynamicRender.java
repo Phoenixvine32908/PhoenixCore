@@ -1,12 +1,12 @@
 package net.phoenix.core.client.renderer.machine;
 
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
+import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.client.renderer.block.FluidBlockRenderer;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
 import com.gregtechceu.gtceu.client.util.RenderUtil;
 import com.gregtechceu.gtceu.config.ConfigHolder;
-import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
@@ -14,31 +14,30 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.RenderTypeHelper;
+import net.phoenix.core.client.renderer.PhoenixRenderTypes;
+import net.phoenix.core.common.machine.multiblock.electric.HoneyCrystallizationChamberMachine;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.serialization.Codec;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-
-import net.phoenix.core.client.renderer.PhoenixRenderTypes;
-import net.phoenix.core.common.machine.multiblock.electric.HoneyCrystallizationChamberMachine;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizationChamberMachine, HoneyChamberDynamicRender> {
+public class HoneyChamberDynamicRender extends
+                                       DynamicRender<HoneyCrystallizationChamberMachine, HoneyChamberDynamicRender> {
 
     public static final HoneyChamberDynamicRender INSTANCE = new HoneyChamberDynamicRender();
     public static final Codec<HoneyChamberDynamicRender> CODEC = Codec.unit(HoneyChamberDynamicRender::new);
-    public static final DynamicRenderType<HoneyCrystallizationChamberMachine, HoneyChamberDynamicRender> TYPE =
-            new DynamicRenderType<>(CODEC);
+    public static final DynamicRenderType<HoneyCrystallizationChamberMachine, HoneyChamberDynamicRender> TYPE = new DynamicRenderType<>(
+            CODEC);
 
     // --- Expanded Configuration ---
     private static final int STRAND_COUNT = 8; // Slightly more strands
@@ -76,7 +75,6 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
     public void render(@NotNull HoneyCrystallizationChamberMachine machine, float partialTick,
                        @NotNull PoseStack stack, @NotNull MultiBufferSource buffer,
                        int packedLight, int packedOverlay) {
-
         if (!machine.isFormed()) return;
 
         float time = (machine.getOffsetTimer() + partialTick) * 0.02f;
@@ -103,8 +101,8 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
         stack.popPose();
     }
 
-
-    private void renderFluid(HoneyCrystallizationChamberMachine machine, PoseStack stack, MultiBufferSource buffer, int packedOverlay) {
+    private void renderFluid(HoneyCrystallizationChamberMachine machine, PoseStack stack, MultiBufferSource buffer,
+                             int packedOverlay) {
         if (!ConfigHolder.INSTANCE.client.renderer.renderFluids) return;
         var offsets = machine.getFluidOffsets();
         if (offsets == null) return;
@@ -175,7 +173,8 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
         return new Vec3(radius * Mth.cos(angle), y, radius * Mth.sin(angle));
     }
 
-    private void quadLine(VertexConsumer vc, Matrix4f pose, Vec3 start, Vec3 end, float width, float r, float g, float b, float a) {
+    private void quadLine(VertexConsumer vc, Matrix4f pose, Vec3 start, Vec3 end, float width, float r, float g,
+                          float b, float a) {
         Vec3 dir = end.subtract(start).normalize();
         Vec3 up = Math.abs(dir.y) > 0.9 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
         Vec3 side = dir.cross(up).normalize().scale(width);
@@ -187,7 +186,7 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
     }
 
     private void vertex(VertexConsumer vc, Matrix4f pose, Vec3 p, float r, float g, float b, float a) {
-        vc.vertex(pose, (float)p.x, (float)p.y, (float)p.z).color(r, g, b, a).endVertex();
+        vc.vertex(pose, (float) p.x, (float) p.y, (float) p.z).color(r, g, b, a).endVertex();
     }
 
     private void renderBees(PoseStack stack, VertexConsumer vc, float time, float progress) {
@@ -207,7 +206,8 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
         for (MoteParticle mote : motes) {
             mote.update(time);
             float distFactor = (float) Mth.clamp(1.0 - (mote.pos.length() / FIELD_RADIUS), 0.0, 1.0);
-            float alpha = (0.1f + 0.3f * progress) * distFactor * (0.6f + 0.4f * Mth.sin(time * 2f + mote.flickerPhase));
+            float alpha = (0.1f + 0.3f * progress) * distFactor *
+                    (0.6f + 0.4f * Mth.sin(time * 2f + mote.flickerPhase));
 
             Vec3 p = mote.pos;
             quadLine(vc, pose, p.subtract(0, 0.03, 0), p.add(0, 0.03, 0), 0.015f, 1.0f, 0.9f, 0.4f, alpha);
@@ -220,17 +220,24 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
         float alpha = (0.08f + 0.2f * progress) * (0.9f + 0.1f * Mth.sin(time));
         float r = 0.9f, g = 0.7f, b = 0.2f, h = 1.2f, w = 0.03f;
         // Simple cage bounds
-        Vec3[] p = { new Vec3(-h,-0.8,-h), new Vec3(-h,-0.8,h), new Vec3(-h,0.8,-h), new Vec3(-h,0.8,h),
-                new Vec3(h,-0.8,-h), new Vec3(h,-0.8,h), new Vec3(h,0.8,-h), new Vec3(h,0.8,h) };
+        Vec3[] p = { new Vec3(-h, -0.8, -h), new Vec3(-h, -0.8, h), new Vec3(-h, 0.8, -h), new Vec3(-h, 0.8, h),
+                new Vec3(h, -0.8, -h), new Vec3(h, -0.8, h), new Vec3(h, 0.8, -h), new Vec3(h, 0.8, h) };
 
-        for(int i=0; i<4; i++) {
-            quadLine(vc, pose, p[i], p[i+4], w, r, g, b, alpha); // Horizontal
-            quadLine(vc, pose, p[i*2%8], p[(i*2+1)%8], w, r, g, b, alpha); // Vertical
+        for (int i = 0; i < 4; i++) {
+            quadLine(vc, pose, p[i], p[i + 4], w, r, g, b, alpha); // Horizontal
+            quadLine(vc, pose, p[i * 2 % 8], p[(i * 2 + 1) % 8], w, r, g, b, alpha); // Vertical
         }
     }
 
-    @Override public boolean shouldRenderOffScreen(HoneyCrystallizationChamberMachine m) { return true; }
-    @Override public int getViewDistance() { return 128; } // Increase view distance for the 30-block swarm
+    @Override
+    public boolean shouldRenderOffScreen(HoneyCrystallizationChamberMachine m) {
+        return true;
+    }
+
+    @Override
+    public int getViewDistance() {
+        return 128;
+    } // Increase view distance for the 30-block swarm
 
     @Override
     public @NotNull AABB getRenderBoundingBox(HoneyCrystallizationChamberMachine m) {
@@ -239,6 +246,7 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
     }
 
     private static class BeeParticle {
+
         Vec3 pos, prevPos;
         float radius, speed, phase, height, nX, nZ;
 
@@ -248,7 +256,8 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
             speed = 0.2f + r.nextFloat() * 0.5f;
             phase = r.nextFloat() * 6.28f;
             height = -10.0f + r.nextFloat() * 20.0f; // Tall vertical spread
-            nX = r.nextFloat() * 100f; nZ = r.nextFloat() * 100f;
+            nX = r.nextFloat() * 100f;
+            nZ = r.nextFloat() * 100f;
             pos = prevPos = Vec3.ZERO;
         }
 
@@ -262,12 +271,12 @@ public class HoneyChamberDynamicRender extends DynamicRender<HoneyCrystallizatio
             pos = new Vec3(
                     curRadius * Mth.cos(a) + Mth.sin(t * 0.5f + nX) * 2.0f,
                     height + Mth.sin(t * 0.3f) * 3.0f,
-                    curRadius * Mth.sin(a) + Mth.cos(t * 0.5f + nZ) * 2.0f
-            );
+                    curRadius * Mth.sin(a) + Mth.cos(t * 0.5f + nZ) * 2.0f);
         }
     }
 
     private static class MoteParticle {
+
         Vec3 pos;
         float angle, radius, height, speed, flickerPhase;
 
