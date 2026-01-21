@@ -48,7 +48,7 @@ public class PhoenixMachineRecipes {
                     .inputItems(TagPrefix.plate, Neutronium, 32)
                     .inputItems(SENSOR.get(UV), 8)
                     .inputItems(EMITTER.get(UV), 8)
-                    .addCondition(FluidInHatchCondition.of("phoenixcore:quantum_coolant_plasma"))
+                    .addCondition(FluidInHatchCondition.of("PhoenixCore:quantum_coolant_plasma"))
                     .inputItems(FIELD_GENERATOR.get(UV), 4)
                     .inputItems(CustomTags.UHV_CIRCUITS, 2)
                     .inputItems(TagPrefix.pipeLargeFluid, Neutronium, 4)
@@ -151,7 +151,7 @@ public class PhoenixMachineRecipes {
         PhoenixRecipeTypes.PLEASE.recipeBuilder("plasma_test")
                 .inputFluids(Argon.getFluid(FluidStorageKeys.PLASMA, 100))
                 .inputFluids(Water.getFluid(L * 16))
-                .addCondition(FluidInHatchCondition.of("phoenixcore:quantum_coolant_plasma"))
+                .addCondition(FluidInHatchCondition.of("PhoenixCore:quantum_coolant_plasma"))
                 .duration(600)
                 .EUt(VA[LV]).duration(400)
                 .EUt(ZPM * 2)
@@ -171,6 +171,111 @@ public class PhoenixMachineRecipes {
                 .duration(32)
                 .EUt(4096)
                 .fusionStartEU(180_000_000)
+                .save(provider);
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("deuterium_and_tritium_to_helium_plasma")
+                .inputFluids(GTMaterials.Deuterium.getFluid(125))
+                .inputFluids(GTMaterials.Tritium.getFluid(125))
+                .outputFluids(GTMaterials.Helium.getFluid(FluidStorageKeys.PLASMA, 125))
+                .duration(16)
+                .EUt(4096)
+                .fusionStartEU(40_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("carbon_and_helium_3_to_oxygen_plasma")
+                .inputFluids(GTMaterials.Carbon.getFluid(16))
+                .inputFluids(GTMaterials.Helium3.getFluid(125))
+                .outputFluids(GTMaterials.Oxygen.getFluid(FluidStorageKeys.PLASMA, 125))
+                .duration(32)
+                .EUt(4096)
+                .fusionStartEU(180_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("beryllium_and_deuterium_to_nitrogen_plasma")
+                .inputFluids(GTMaterials.Beryllium.getFluid(16))
+                .inputFluids(GTMaterials.Deuterium.getFluid(375))
+                .outputFluids(GTMaterials.Nitrogen.getFluid(FluidStorageKeys.PLASMA, 125))
+                .duration(16)
+                .EUt(16384)
+                .fusionStartEU(280_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("silicon_and_magnesium_to_iron_plasma")
+                .inputFluids(GTMaterials.Silicon.getFluid(16))
+                .inputFluids(GTMaterials.Magnesium.getFluid(16))
+                .outputFluids(GTMaterials.Iron.getFluid(FluidStorageKeys.PLASMA, 16))
+                .duration(32)
+                .EUt(VA[IV])
+                .fusionStartEU(360_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("potassium_and_fluorine_to_nickel_plasma")
+                .inputFluids(GTMaterials.Potassium.getFluid(16))
+                .inputFluids(GTMaterials.Fluorine.getFluid(125))
+                .outputFluids(GTMaterials.Nickel.getFluid(FluidStorageKeys.PLASMA, 16))
+                .duration(16)
+                .EUt(VA[LuV])
+                .fusionStartEU(480_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("carbon_and_magnesium_to_argon_plasma")
+                .inputFluids(GTMaterials.Carbon.getFluid(16))
+                .inputFluids(GTMaterials.Magnesium.getFluid(16))
+                .outputFluids(GTMaterials.Argon.getFluid(FluidStorageKeys.PLASMA, 125))
+                .duration(32)
+                .EUt(24576)
+                .fusionStartEU(180_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("neodymium_and_hydrogen_to_europium_plasma")
+                .inputFluids(GTMaterials.Neodymium.getFluid(16))
+                .inputFluids(GTMaterials.Hydrogen.getFluid(375))
+                .outputFluids(GTMaterials.Europium.getFluid(16))
+                .duration(64)
+                .EUt(24576)
+                .fusionStartEU(150_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("lutenium_and_chromium_to_americium_plasma")
+                .inputFluids(GTMaterials.Lutetium.getFluid(16))
+                .inputFluids(GTMaterials.Chromium.getFluid(16))
+                .outputFluids(GTMaterials.Americium.getFluid(16))
+                .duration(64)
+                .EUt(49152)
+                .fusionStartEU(200_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("americium_and_naquadria_to_neutronium_plasma")
+                .inputFluids(GTMaterials.Americium.getFluid(128))
+                .inputFluids(GTMaterials.Naquadria.getFluid(128))
+                .outputFluids(GTMaterials.Neutronium.getFluid(32))
+                .duration(200)
+                .EUt(98304)
+                .fusionStartEU(600_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("silver_and_copper_to_osmium_plasma")
+                .inputFluids(GTMaterials.Silver.getFluid(16))
+                .inputFluids(GTMaterials.Copper.getFluid(16))
+                .outputFluids(GTMaterials.Osmium.getFluid(16))
+                .duration(64)
+                .EUt(24578)
+                .fusionStartEU(150_000_000)
+                .save(provider);
+
+        PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("mercury_and_magnesium_to_uranium_235_plasma")
+                .inputFluids(GTMaterials.Mercury.getFluid(125))
+                .inputFluids(GTMaterials.Magnesium.getFluid(16))
+                .outputFluids(GTMaterials.Uranium235.getFluid(16))
+                .duration(128)
+                .EUt(24576)
+                .fusionStartEU(140_000_000)
+                .save(provider);
+        PhoenixRecipeTypes.HONEY_CHAMBER_RECIPES.recipeBuilder("mercury_and_magnesium_to_uranium_235_plasma")
+                .inputFluids(GTMaterials.Mercury.getFluid(125))
+                .inputFluids(GTMaterials.Magnesium.getFluid(16))
+                .outputFluids(GTMaterials.Uranium235.getFluid(16))
+                .duration(1000028)
+                .EUt(24576)
                 .save(provider);
         PhoenixRecipeTypes.HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES.recipeBuilder("honey_chamber_tet")
                 .inputFluids(Acetone.getFluid(16))

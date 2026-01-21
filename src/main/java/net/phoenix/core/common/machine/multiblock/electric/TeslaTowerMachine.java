@@ -5,7 +5,6 @@ import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
 import com.gregtechceu.gtceu.api.capability.IEnergyInfoProvider;
 import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
-import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.fancy.FancyMachineUIWidget;
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyUIProvider;
 import com.gregtechceu.gtceu.api.gui.fancy.TooltipsPanel;
@@ -35,12 +34,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.gui.PhoenixGuiTextures;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.machine.multiblock.UniqueWorkableElectricMultiblockMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
-import net.phoenix.core.phoenixcore;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
 
@@ -785,7 +784,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
             // 5. Log for debugging
             if (TESLA_DEBUG) {
-                phoenixcore.LOGGER.info("Tesla Tower at {} auto-assigned to Team {}",
+                PhoenixCore.LOGGER.info("Tesla Tower at {} auto-assigned to Team {}",
                         getPos().toShortString(), ownerTeamUUID);
             }
         }

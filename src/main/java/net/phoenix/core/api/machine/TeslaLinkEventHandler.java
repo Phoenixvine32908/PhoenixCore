@@ -10,7 +10,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 
-@Mod.EventBusSubscriber(modid = "phoenixcore", bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = "PhoenixCore", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TeslaLinkEventHandler {
 
     @SubscribeEvent

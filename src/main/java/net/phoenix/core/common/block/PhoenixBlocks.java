@@ -13,12 +13,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.phoenix.core.PhoenixAPI;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.block.IFissionCoolerType;
 import net.phoenix.core.api.block.IFissionModeratorType;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.models.PhoenixMachineModels;
-import net.phoenix.core.phoenixcore;
 
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiFunction;
@@ -38,7 +38,7 @@ public class PhoenixBlocks {
                 .initialProperties(() -> Blocks.IRON_BLOCK)
                 .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false))
                 .blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(),
-                        prov.models().cubeAll(ctx.getName(), phoenixcore.id("block/" + texture))))
+                        prov.models().cubeAll(ctx.getName(), PhoenixCore.id("block/" + texture))))
                 .lang(name)
                 .item(func)
                 .build()
@@ -68,9 +68,9 @@ public class PhoenixBlocks {
                 .lang("Tesla Battery " + (tierName.equalsIgnoreCase("opv") ? "OpV" : tierName.toUpperCase()))
                 .blockstate((ctx, prov) -> {
                     String folderPath = "block/casings/batteries/tesla_" + tierName + "/";
-                    var side = phoenixcore.id(folderPath + "side");
-                    var top = phoenixcore.id(folderPath + "top");
-                    var bottom = phoenixcore.id(folderPath + "bottom");
+                    var side = PhoenixCore.id(folderPath + "side");
+                    var top = PhoenixCore.id(folderPath + "top");
+                    var bottom = PhoenixCore.id(folderPath + "bottom");
 
                     prov.simpleBlock(ctx.getEntry(),
                             prov.models().cubeBottomTop(ctx.getName(), side, bottom, top));

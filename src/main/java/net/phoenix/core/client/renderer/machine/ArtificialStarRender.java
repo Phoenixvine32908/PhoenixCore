@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -31,7 +31,7 @@ public class ArtificialStarRender extends DynamicRender<WorkableElectricMultiblo
     public static final DynamicRenderType<WorkableElectricMultiblockMachine, ArtificialStarRender> TYPE = new DynamicRenderType<>(
             ArtificialStarRender.CODEC);
 
-    public static final ResourceLocation ARTIFICIAL_STAR_MODEL_RL = phoenixcore.id("obj/blue_star");
+    public static final ResourceLocation ARTIFICIAL_STAR_MODEL_RL = PhoenixCore.id("obj/blue_star");
 
     private static BakedModel artificialStarModel;
     private static final RandomSource random = RandomSource.create();

@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.phoenix.core.api.block.IFissionModeratorType;
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,7 @@ public class FissionModeratorBlock extends ActiveBlock {
     public enum fissionModeratorType implements StringRepresentable, IFissionModeratorType {
 
         MODERATOR_GRAPHITE("graphite_moderator", 1, 3, 1, GTMaterials.Graphite,
-                phoenixcore.id("block/fission/graphite_moderator"));
+                PhoenixCore.id("block/fission/graphite_moderator"));
 
         @NotNull
         @Getter

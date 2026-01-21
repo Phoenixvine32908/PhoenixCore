@@ -6,8 +6,8 @@ import com.gregtechceu.gtceu.api.cover.CoverDefinition;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.client.renderer.cover.SimpleCoverRenderer;
 
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.cover.PhoenixCoverSolarPanel;
-import net.phoenix.core.phoenixcore;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -38,7 +38,7 @@ public class PhoenixCovers {
                                                            int... tiers) {
         return Arrays.stream(tiers).mapToObj(tier -> {
             var name = id + "." + GTValues.VN[tier].toLowerCase(Locale.ROOT);
-            var resourceLocation = phoenixcore.id(name);
+            var resourceLocation = PhoenixCore.id(name);
 
             var definition = new CoverDefinition(
                     resourceLocation,

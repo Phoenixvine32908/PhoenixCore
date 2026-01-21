@@ -25,7 +25,7 @@ public class FissionModeratorBlockBuilder extends BlockBuilder {
     @NotNull
     public transient Supplier<Material> material = () -> GTMaterials.NULL;
     @Setter
-    public transient String texture = "phoenixcore:block/missing_moderator_texture";
+    public transient String texture = "PhoenixCore:block/missing_moderator_texture";
 
     public FissionModeratorBlockBuilder(ResourceLocation i) {
         super(i);

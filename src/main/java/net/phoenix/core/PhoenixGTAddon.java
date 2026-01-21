@@ -19,7 +19,6 @@ import net.phoenix.core.integration.kubejs.recipe.ShieldComponent;
 
 import com.mojang.datafixers.util.Pair;
 
-import java.awt.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
@@ -28,7 +27,7 @@ public class PhoenixGTAddon implements IGTAddon {
 
     @Override
     public GTRegistrate getRegistrate() {
-        return phoenixcore.PHOENIX_REGISTRATE;
+        return PhoenixCore.PHOENIX_REGISTRATE;
     }
 
     @Override
@@ -38,7 +37,7 @@ public class PhoenixGTAddon implements IGTAddon {
 
     @Override
     public String addonModId() {
-        return phoenixcore.MOD_ID;
+        return PhoenixCore.MOD_ID;
     }
 
     @Override

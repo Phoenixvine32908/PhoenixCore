@@ -1,6 +1,6 @@
 package net.phoenix.core.configs;
 
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
 import dev.toma.configuration.Configuration;
 import dev.toma.configuration.config.Config;
@@ -8,7 +8,7 @@ import dev.toma.configuration.config.ConfigHolder;
 import dev.toma.configuration.config.Configurable;
 import dev.toma.configuration.config.format.ConfigFormats;
 
-@Config(id = phoenixcore.MOD_ID)
+@Config(id = PhoenixCore.MOD_ID)
 public class PhoenixConfigs {
 
     public static PhoenixConfigs INSTANCE;

@@ -5,9 +5,9 @@ import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
-import net.phoenix.core.phoenixcore;
 
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -18,7 +18,7 @@ import snownee.jade.api.config.IPluginConfig;
 public class HighPressurePlasmaArcFurnaceProvider implements IBlockComponentProvider,
                                                   IServerDataProvider<BlockAccessor> {
 
-    public static final ResourceLocation UID = phoenixcore.id("plasma_furnace_info");
+    public static final ResourceLocation UID = PhoenixCore.id("plasma_furnace_info");
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {

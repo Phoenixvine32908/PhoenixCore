@@ -6,9 +6,9 @@ import net.minecraft.data.PackOutput;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
-@Mod.EventBusSubscriber(modid = phoenixcore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = PhoenixCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class PhoenixDataGenerators {
 
     @SubscribeEvent
@@ -18,7 +18,7 @@ public class PhoenixDataGenerators {
         if (event.includeClient()) {
             event.getGenerator().addProvider(
                     true,
-                    new SoundEntryBuilder.SoundEntryProvider(packOutput, phoenixcore.MOD_ID));
+                    new SoundEntryBuilder.SoundEntryProvider(packOutput, PhoenixCore.MOD_ID));
         }
     }
 }

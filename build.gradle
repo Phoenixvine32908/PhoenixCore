@@ -157,8 +157,7 @@ legacyForge {
         data {
             data()
 
-
-// Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            // REMOVE the refresh-dependencies line from here
             programArguments.addAll('--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath())
             programArguments.addAll('--existing-mod', 'gtceu')
         }

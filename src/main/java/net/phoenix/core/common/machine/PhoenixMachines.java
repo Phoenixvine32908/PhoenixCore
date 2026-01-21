@@ -36,6 +36,7 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.machine.PhoenixPartAbility;
 import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
@@ -52,7 +53,6 @@ import net.phoenix.core.common.machine.multiblock.part.special.ShieldSensorHatch
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.models.PhoenixMachineModels;
-import net.phoenix.core.phoenixcore;
 
 import java.util.Locale;
 import java.util.function.BiFunction;
@@ -81,7 +81,7 @@ public class PhoenixMachines {
     public static MachineDefinition HIGH_YEILD_PHOTON_EMISSION_REGULATER = null;
 
     static {
-        REGISTRATE.creativeModeTab(() -> phoenixcore.PHOENIX_CREATIVE_TAB);
+       REGISTRATE.creativeModeTab(() -> PhoenixCore.PHOENIX_CREATIVE_TAB);
     }
 
     static {
@@ -102,7 +102,7 @@ public class PhoenixMachines {
                     .tier(UHV)
 
                     .overlayTieredHullModel(
-                            phoenixcore.id("block/machine/part/overlay_maintenance_blazing_cleaning"))
+                            PhoenixCore.id("block/machine/part/overlay_maintenance_blazing_cleaning"))
                     .register();
         }
     }
@@ -282,8 +282,8 @@ public class PhoenixMachines {
                             .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
                             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS))
                             .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS))
-                            .or(Predicates.blocks(GTMachines.ENERGY_INPUT_HATCH[GTValues.ZPM].get())
-                                    .setMaxGlobalLimited(2)))
+                            .or(Predicates.blocks(GTMachines.ENERGY_INPUT_HATCH[GTValues.UHV].get())
+                                    .setMaxGlobalLimited(4)))
                     .where("F", Predicates.blocks(SUPERCONDUCTING_COIL.get()))
                     .where("G", Predicates.blocks(FUSION_GLASS.get()))
                     .where("H", Predicates.blocks(PhoenixBlocks.AKASHIC_COIL_BLOCK.get()))
@@ -295,7 +295,7 @@ public class PhoenixMachines {
             .modelProperty(GTMachineModelProperties.RECIPE_LOGIC_STATUS, RecipeLogic.Status.IDLE)
             .model(createWorkableCasingMachineModel(
                     // Replace the fusion casing texture with your Tesla Casing texture
-                    new ResourceLocation(phoenixcore.MOD_ID, "block/casings/multiblock/tesla_casing"),
+                    new ResourceLocation(PhoenixCore.MOD_ID, "block/casings/multiblock/tesla_casing"),
                     // Keep the fusion reactor overlay (or change to your own)
                     GTCEu.id("block/multiblock/fusion_reactor"))
                     .andThen(b -> b.addDynamicRenderer(PhoenixDynamicRenderHelpers::getHelicalFusionRenderer)))
@@ -924,7 +924,7 @@ public class PhoenixMachines {
                             .build())
                     .model(
                             createWorkableCasingMachineModel(
-                                    phoenixcore.id("block/phoenix_enriched_tritanium_casing"),
+                                    PhoenixCore.id("block/phoenix_enriched_tritanium_casing"),
                                     GTCEu.id("block/multiblock/fusion_reactor"))
                                     .andThen(d -> d
                                             .addDynamicRenderer(
@@ -1074,7 +1074,7 @@ public class PhoenixMachines {
                     .build())
             .model(
                     createWorkableCasingMachineModel(
-                            phoenixcore.id("block/fission/fissile_reaction_safe_casing"),
+                            PhoenixCore.id("block/fission/fissile_reaction_safe_casing"),
                             GTCEu.id("block/multiblock/fusion_reactor")))
             .register();
 
@@ -1108,7 +1108,7 @@ public class PhoenixMachines {
                     .build())
             .model(
                     createWorkableCasingMachineModel(
-                            phoenixcore.id("block/fission/fissile_reaction_safe_casing"),
+                            PhoenixCore.id("block/fission/fissile_reaction_safe_casing"),
                             GTCEu.id("block/multiblock/fusion_reactor")))
             .register();
     public static final MultiblockMachineDefinition ADVANCED_PRESSURIZED_FISSION_REACTOR = REGISTRATE
@@ -1147,7 +1147,7 @@ public class PhoenixMachines {
                     .build())
             .model(
                     createWorkableCasingMachineModel(
-                            phoenixcore.id("block/fission/fissile_reaction_safe_casing"),
+                            PhoenixCore.id("block/fission/fissile_reaction_safe_casing"),
                             GTCEu.id("block/multiblock/fusion_reactor")))
             .register();
     public static final MultiblockMachineDefinition HEAT_EXCHANGER = REGISTRATE
@@ -1173,7 +1173,7 @@ public class PhoenixMachines {
                     .build())
             .model(
                     createWorkableCasingMachineModel(
-                            phoenixcore.id("block/fission/fissile_heat_safe_casing"),
+                            PhoenixCore.id("block/fission/fissile_heat_safe_casing"),
                             GTCEu.id("block/multiblock/fusion_reactor")))
             .register();
 

@@ -28,7 +28,7 @@ public class FissionCoolerBlockBuilder extends BlockBuilder {
     @NotNull
     public transient Supplier<Material> material = () -> GTMaterials.NULL;
     @Setter
-    public transient String texture = "phoenixcore:block/missing_cooler_texture";
+    public transient String texture = "PhoenixCore:block/missing_cooler_texture";
 
     public FissionCoolerBlockBuilder(ResourceLocation i) {
         super(i);

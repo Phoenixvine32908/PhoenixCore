@@ -2,7 +2,7 @@
   "parent": "minecraft:block/block",
   "dynamic_renders": [
     {
-      "type": "phoenixcore:custom_fluid"
+      "type": "phoenixcore:honey_chamber"
     }
   ],
   "loader": "gtceu:machine",

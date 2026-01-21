@@ -20,7 +20,7 @@ public final class TeamUtils {
 
         return FTBTeamsAPI.api().getManager().getTeamForPlayerID(playerUUID)
                 .map(Team::getTeamId)
-                .orElse(playerUUID); // Fallback to player UUID if no team exists
+                .orElse(playerUUID);
     }
 
     /**
@@ -31,7 +31,7 @@ public final class TeamUtils {
 
         return FTBTeamsAPI.api().getManager().getTeamForPlayer(player)
                 .map(Team::getTeamId)
-                .orElse(player.getUUID()); // Fallback to player UUID if no team exists
+                .orElse(player.getUUID());
     }
 
     public static String getTeamName(UUID teamId) {

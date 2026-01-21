@@ -7,7 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
 import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import snownee.jade.api.BlockAccessor;
@@ -44,6 +44,6 @@ public class SourceHatchProvider implements IBlockComponentProvider, IServerData
 
     @Override
     public ResourceLocation getUid() {
-        return phoenixcore.id("source_hatch_info");
+        return PhoenixCore.id("source_hatch_info");
     }
 }

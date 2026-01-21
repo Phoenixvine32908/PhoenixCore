@@ -5,8 +5,8 @@ import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.machine.multiblock.FissionWorkableElectricMultiblockMachine;
-import net.phoenix.core.phoenixcore;
 
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -16,7 +16,7 @@ import snownee.jade.api.config.IPluginConfig;
 
 public class FissionMachineProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
-    public static final ResourceLocation UID = phoenixcore.id("fission_machine_info");
+    public static final ResourceLocation UID = PhoenixCore.id("fission_machine_info");
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {

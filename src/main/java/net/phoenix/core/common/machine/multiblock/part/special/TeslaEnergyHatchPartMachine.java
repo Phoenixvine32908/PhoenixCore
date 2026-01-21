@@ -19,11 +19,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaTowerMachine;
 import net.phoenix.core.common.machine.multiblock.electric.TeslaWirelessRegistry;
 import net.phoenix.core.configs.PhoenixConfigs;
-import net.phoenix.core.phoenixcore;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
 
@@ -119,15 +119,15 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     @Override
     public void addedToController(@NotNull IMultiController controller) {
         super.addedToController(controller);
-        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] addedToController: {} at {}, isTeslaTower={}",
+        if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] addedToController: {} at {}, isTeslaTower={}",
                 controller.getClass().getSimpleName(), getPos(), controller instanceof TeslaTowerMachine);
 
         // Only disable self-ticking if added to Tesla Tower
         if (controller instanceof TeslaTowerMachine) {
-            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Unsubscribing from tick (Tesla Tower)");
+            if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] Unsubscribing from tick (Tesla Tower)");
             unsubscribeFromTick();
         } else {
-            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Updating tick subscription (Other multiblock)");
+            if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] Updating tick subscription (Other multiblock)");
             // For other multiblocks
             updateTickSubscription();
         }
@@ -147,33 +147,33 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     private void updateTickSubscription() {
         boolean shouldTick = false;
 
-        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] updateTickSubscription called at {}", getPos());
-        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] isWireless={}, controllers={}",
+        if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] updateTickSubscription called at {}", getPos());
+        if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] isWireless={}, controllers={}",
                 isWireless(), getControllers().size());
 
         if (isWireless()) {
             if (getControllers().isEmpty()) {
                 // Not in any multiblock - should tick
                 shouldTick = true;
-                if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Not in multiblock, should tick");
+                if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] Not in multiblock, should tick");
             } else {
                 // In a multiblock - only tick if NOT Tesla Tower
                 shouldTick = getControllers().stream()
                         .noneMatch(ctrl -> ctrl instanceof TeslaTowerMachine);
-                if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] In multiblock, shouldTick={}", shouldTick);
+                if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] In multiblock, shouldTick={}", shouldTick);
             }
         }
 
-        if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] shouldTick={}, currentSubscription={}",
+        if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] shouldTick={}, currentSubscription={}",
                 shouldTick, tickSubscription != null);
 
         if (shouldTick) {
             if (tickSubscription == null) {
                 tickSubscription = subscribeServerTick(this::tickWireless);
-                if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Subscribed to tick!");
+                if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] Subscribed to tick!");
             }
         } else {
-            if (TESLA_DEBUG) phoenixcore.LOGGER.info("[TESLA DEBUG] Unsubscribing from tick");
+            if (TESLA_DEBUG) PhoenixCore.LOGGER.info("[TESLA DEBUG] Unsubscribing from tick");
             unsubscribeFromTick();
         }
     }

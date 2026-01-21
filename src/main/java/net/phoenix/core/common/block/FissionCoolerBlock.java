@@ -13,8 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraftforge.fluids.FluidStack;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.block.IFissionCoolerType;
-import net.phoenix.core.phoenixcore;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -74,7 +74,7 @@ public class FissionCoolerBlock extends ActiveBlock {
                 105, 1, 100,
                 "gtceu:distilled_water",
                 GTMaterials.Steel,
-                phoenixcore.id("block/fission/basic_cooler_block"));
+                PhoenixCore.id("block/fission/basic_cooler_block"));
 
         @Getter
         @NotNull

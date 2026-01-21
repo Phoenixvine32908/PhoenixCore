@@ -14,9 +14,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.machine.multiblock.Shield;
 import net.phoenix.core.common.machine.multiblock.electric.HighPressurePlasmaArcFurnaceMachine;
-import net.phoenix.core.phoenixcore;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -33,9 +33,9 @@ public class PlasmaArcFurnaceRender extends DynamicRender<WorkableElectricMultib
     public static final DynamicRenderType<WorkableElectricMultiblockMachine, PlasmaArcFurnaceRender> TYPE = new DynamicRenderType<>(
             PlasmaArcFurnaceRender.CODEC);
 
-    public static final ResourceLocation SPHERE_MODEL_RL = phoenixcore.id("obj/blue_star");
+    public static final ResourceLocation SPHERE_MODEL_RL = PhoenixCore.id("obj/blue_star");
 
-    public static final ResourceLocation RINGS_MODEL_RL = phoenixcore.id("obj/rings");
+    public static final ResourceLocation RINGS_MODEL_RL = PhoenixCore.id("obj/rings");
 
     private static BakedModel sphereModel;
     private static BakedModel ringsModel;

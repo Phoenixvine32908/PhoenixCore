@@ -10,21 +10,22 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.machine.*;
 import net.phoenix.core.common.block.PhoenixBlocks;
-import net.phoenix.core.phoenixcore;
 
-@Mod.EventBusSubscriber(modid = phoenixcore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = PhoenixCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class PhoenixClient {
 
     private PhoenixClient() {}
 
     public static void init(IEventBus modBus) {
-        DynamicRenderManager.register(phoenixcore.id("eye_of_harmony"), EyeOfHarmonyRender.TYPE);
-        DynamicRenderManager.register(phoenixcore.id("artificial_star"), ArtificialStarRender.TYPE);
-        DynamicRenderManager.register(phoenixcore.id("plasma_arc_furnace"), PlasmaArcFurnaceRender.TYPE);
-        DynamicRenderManager.register(phoenixcore.id("custom_fluid"), CustomFluidRender.TYPE);
-        DynamicRenderManager.register(phoenixcore.id("helical_fusion"), HelicalFusionRenderer.TYPE);
+        DynamicRenderManager.register(PhoenixCore.id("eye_of_harmony"), EyeOfHarmonyRender.TYPE);
+        DynamicRenderManager.register(PhoenixCore.id("artificial_star"), ArtificialStarRender.TYPE);
+        DynamicRenderManager.register(PhoenixCore.id("plasma_arc_furnace"), PlasmaArcFurnaceRender.TYPE);
+        DynamicRenderManager.register(PhoenixCore.id("custom_fluid"), CustomFluidRender.TYPE);
+        DynamicRenderManager.register(PhoenixCore.id("helical_fusion"), HelicalFusionRenderer.TYPE);
+        DynamicRenderManager.register(PhoenixCore.id("honey_chamber"), HoneyChamberDynamicRender.TYPE);
     }
 
     @SubscribeEvent

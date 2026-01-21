@@ -4,7 +4,7 @@ import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
 
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
 public class PhoenixOres {
 
@@ -19,7 +19,7 @@ public class PhoenixOres {
     public static void register() {
         // nevvonian_iron: .ore().ingot().color(0x7A687F).iconSet("diamond")
         NEVVONIAN_IRON = new Material.Builder(
-                phoenixcore.id("nevvonian_iron"))
+                PhoenixCore.id("nevvonian_iron"))
                 .color(0x7A687F)
                 .ingot() // Sets properties for ingot form
                 .ore()    // Sets properties for ore form (includes dust)
@@ -28,7 +28,7 @@ public class PhoenixOres {
 
         // fluorite: .gem().ore().color(0x0c9949).iconSet("diamond").components(...)
         FLUORITE = new Material.Builder(
-                phoenixcore.id("fluorite"))
+                PhoenixCore.id("fluorite"))
                 .color(0x0c9949)
                 .gem()  // Sets properties for gem form
                 .ore()  // Sets properties for ore form (includes dust)
@@ -37,7 +37,7 @@ public class PhoenixOres {
 
         // ignisium: .ore().dust().color(0xFF4500).iconSet("diamond")
         IGNISIUM = new Material.Builder(
-                phoenixcore.id("ignisium"))
+                PhoenixCore.id("ignisium"))
                 .color(0xFF4500)
                 .dust() // Sets properties for dust form
                 .ore()  // Sets properties for ore form
@@ -46,7 +46,7 @@ public class PhoenixOres {
 
         // polarity_flipped_bismuthite: .ore().dust().color(0xe4d6ff).iconSet("diamond").flags(DISABLE_DECOMPOSITION)
         POLARITY_FLIPPED_BISMUTHITE = new Material.Builder(
-                phoenixcore.id("polarity_flipped_bismuthite"))
+                PhoenixCore.id("polarity_flipped_bismuthite"))
                 .color(0xe4d6ff)
                 .dust()
                 .ore()
@@ -56,7 +56,7 @@ public class PhoenixOres {
 
         // voidglass_shard: .ore().gem().color(0x6a00aa).iconSet("diamond").flags(DISABLE_DECOMPOSITION)
         VOIDGLASS_SHARD = new Material.Builder(
-                phoenixcore.id("voidglass_shard"))
+                PhoenixCore.id("voidglass_shard"))
                 .color(0x6a00aa)
                 .gem()
                 .ore()
@@ -66,7 +66,7 @@ public class PhoenixOres {
 
         // crystallized_fluxstone: .ore().dust().color(0xd4bfff).iconSet("diamond")
         CRYSTALLIZED_FLUXSTONE = new Material.Builder(
-                phoenixcore.id("crystallized_fluxstone"))
+                PhoenixCore.id("crystallized_fluxstone"))
                 .color(0xd4bfff)
                 .dust()
                 .ore()

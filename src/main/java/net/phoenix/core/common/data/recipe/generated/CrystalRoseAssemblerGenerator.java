@@ -38,7 +38,7 @@ public class CrystalRoseAssemblerGenerator {
             FluidStack crystalRoseFluid = PhoenixMaterials.CRYO_GRAPHITE_BINDING_SOLUTION.getFluid(144);
 
             GTRecipeBuilder builder = GTRecipeTypes.ASSEMBLER_RECIPES.recipeBuilder(
-                    "phoenixcore:crystal_rose_" + material.getName())
+                    "PhoenixCore:crystal_rose_" + material.getName())
                     .EUt(GTValues.V[GTValues.IV])
                     .duration(200)
                     .inputItems(inputStack)

@@ -2,6 +2,7 @@ package net.phoenix.core.integration.kubejs;
 
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
@@ -15,7 +16,6 @@ import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.integration.kubejs.builders.FissionCoolerBlockBuilder;
 import net.phoenix.core.integration.kubejs.builders.FissionModeratorBlockBuilder;
 import net.phoenix.core.integration.kubejs.recipe.PhoenixRecipeSchema;
-import net.phoenix.core.phoenixcore;
 
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
@@ -35,12 +35,12 @@ public class PhoenixKubeJSPlugin extends KubeJSPlugin {
     public void init() {
         super.init();
         RegistryInfo.BLOCK.addType(
-                phoenixcore.MOD_ID + ":fission_cooler",
+                PhoenixCore.MOD_ID + ":fission_cooler",
                 FissionCoolerBlockBuilder.class,
                 FissionCoolerBlockBuilder::new);
 
         RegistryInfo.BLOCK.addType(
-                phoenixcore.MOD_ID + ":fission_moderator",
+                PhoenixCore.MOD_ID + ":fission_moderator",
                 FissionModeratorBlockBuilder.class,
                 FissionModeratorBlockBuilder::new);
     }
@@ -77,6 +77,6 @@ public class PhoenixKubeJSPlugin extends KubeJSPlugin {
         event.add("FissionSteamMultiblockMachine", FissionSteamMultiblockMachine.class);
 
         event.add("PhoenixDynamicRenderHelpers", PhoenixDynamicRenderHelpers.class);
-        event.add("PhoenixCore", phoenixcore.class);
+        event.add("PhoenixCore", PhoenixCore.class);
     }
 }

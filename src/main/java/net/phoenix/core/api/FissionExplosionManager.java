@@ -12,7 +12,7 @@ import net.phoenix.core.saveddata.FissionExplosionWorldData;
 
 import java.util.*;
 
-@Mod.EventBusSubscriber(modid = "phoenixcore", bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = "PhoenixCore", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FissionExplosionManager {
 
     private static final List<FissionExplosionTask> ACTIVE = new ArrayList<>();

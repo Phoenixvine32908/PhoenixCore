@@ -10,9 +10,9 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
 
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.item.tool.PhoenixToolType;
 import net.phoenix.core.common.data.recipe.generated.CrystalRoseHelper;
-import net.phoenix.core.phoenixcore;
 
 import static com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty.GasTier.MID;
 import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
@@ -36,19 +36,19 @@ public class PhoenixMaterials {
 
     public static void register() {
         SUGAR_WATER = new Material.Builder(
-                phoenixcore.id("sugar_water"))
+                PhoenixCore.id("sugar_water"))
                 .fluid()
                 .color(0xFFFFF0)
                 .iconSet(MaterialIconSet.DULL) // Icon set from KubeJS
                 .flags(MaterialFlags.DISABLE_DECOMPOSITION)
                 .buildAndRegister();
         ALUMINFROST = new Material.Builder(
-                phoenixcore.id("aluminfrost"))
+                PhoenixCore.id("aluminfrost"))
                 .color(0xadd8e6).secondaryColor(0xc0c0c0).iconSet(MaterialIconSet.DULL)
                 .flags(MaterialFlags.GENERATE_PLATE)
                 .buildAndRegister();
         SOURCE_IMBUED_TITANIUM = new Material.Builder(
-                phoenixcore.id("source_imbued_titanium"))
+                PhoenixCore.id("source_imbued_titanium"))
                 .ingot()
                 .fluid()
                 .formula("✨C✨Ti")
@@ -61,14 +61,14 @@ public class PhoenixMaterials {
                         MaterialFlags.GENERATE_ROTOR)
                 .buildAndRegister();
         SOURCE_OF_MAGIC = new Material.Builder(
-                phoenixcore.id("source_of_magic"))
+                PhoenixCore.id("source_of_magic"))
                 .langValue("§5Source Of Magic")
                 .fluid()
                 .iconSet(MaterialIconSet.BRIGHT)
                 .color(0x8F00FF)
                 .buildAndRegister();
         EightyFivePercentPureNevonianSteel = new Material.Builder(
-                phoenixcore.id("eightyfivepercentpurenevoniansteel")) // only one n
+                PhoenixCore.id("eightyfivepercentpurenevoniansteel")) // only one n
                 .ingot()
                 .langValue("85% Pure Nevonian Steel")
                 .color(0xFFFFE0).secondaryColor(0xFFD700).iconSet(MaterialIconSet.SHINY)
@@ -79,7 +79,7 @@ public class PhoenixMaterials {
                 .blastTemp(3800, MID, GTValues.VA[GTValues.EV], 1200)
                 .buildAndRegister();
         EightyFivePercentPureNevvonianSteel = new Material.Builder(
-                phoenixcore.id("eighty_five_percent_pure_nevvonian_steel"))
+                PhoenixCore.id("eighty_five_percent_pure_nevvonian_steel"))
                 .ingot()
                 .element(PhoenixElements.APNS)
                 .flags(PhoenixMaterialFlags.GENERATE_NANITES)
@@ -90,7 +90,7 @@ public class PhoenixMaterials {
                 .iconSet(PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL)
                 .buildAndRegister();
         PHOENIX_ENRICHED_TRITANIUM = new Material.Builder(
-                phoenixcore.id("phoenix_enriched_tritanium"))
+                PhoenixCore.id("phoenix_enriched_tritanium"))
                 .ingot()
                 .color(0xFF0000)
                 .secondaryColor(0x840707)
@@ -99,7 +99,7 @@ public class PhoenixMaterials {
                 .iconSet(PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL)
                 .buildAndRegister();
         PHOENIX_ENRICHED_NAQUADAH = new Material.Builder(
-                phoenixcore.id("phoenix_enriched_naquadah"))
+                PhoenixCore.id("phoenix_enriched_naquadah"))
                 .langValue("")
                 .ingot()
                 .color(0xFFA500)
@@ -109,7 +109,7 @@ public class PhoenixMaterials {
                 .iconSet(MaterialIconSet.SHINY)
                 .buildAndRegister();
         FROST = new Material.Builder(
-                phoenixcore.id("frost"))
+                PhoenixCore.id("frost"))
                 .langValue("§bFrost")
                 .fluid()
                 .color(0xA7D1EB)
@@ -117,7 +117,7 @@ public class PhoenixMaterials {
                 .iconSet(MaterialIconSet.SHINY)
                 .buildAndRegister();
         BORON_CARBIDE = new Material.Builder(
-                phoenixcore.id("boron_carbide"))
+                PhoenixCore.id("boron_carbide"))
                 .ingot()
                 .color(0x353630)
                 .iconSet(MaterialIconSet.DULL)
@@ -127,7 +127,7 @@ public class PhoenixMaterials {
                 .buildAndRegister();
 
         NIOBIUM_MODIFIED_SILICON_CARBIDE = new Material.Builder(
-                phoenixcore.id("niobium_modified_silicon_carbide"))
+                PhoenixCore.id("niobium_modified_silicon_carbide"))
                 .ingot()
                 .color(0x4A4B6B)
                 .secondaryColor(0x101021)
@@ -137,14 +137,14 @@ public class PhoenixMaterials {
                 .formula("Nb(SiC)x")
                 .buildAndRegister();
         WAX_MELTING_CATALYST = new Material.Builder(
-                phoenixcore.id("wax_melting_catalyst"))
+                PhoenixCore.id("wax_melting_catalyst"))
                 .color(0xADD8E6)
                 .fluid()
                 .secondaryColor(0x6A5ACD)
                 .iconSet(MaterialIconSet.DULL)
                 .buildAndRegister();
         CRYO_GRAPHITE_BINDING_SOLUTION = new Material.Builder(
-                phoenixcore.id("cryo_graphite_binding_solution"))
+                PhoenixCore.id("cryo_graphite_binding_solution"))
                 .fluid()
                 .color(0x507080)
                 .secondaryColor(0x7090A0)

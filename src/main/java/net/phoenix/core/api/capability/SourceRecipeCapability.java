@@ -55,10 +55,10 @@ public class SourceRecipeCapability extends RecipeCapability<Integer> {
         int source = contents.stream().map(Content::getContent).mapToInt(CAP::of).sum();
         if (isInput) {
             group.addWidget(new LabelWidget(3 - xOffset, yOffset.addAndGet(13),
-                    LocalizationUtils.format("phoenixcore.recipe.source_in", source)));
+                    LocalizationUtils.format("PhoenixCore.recipe.source_in", source)));
         } else {
             group.addWidget(new LabelWidget(3 - xOffset, yOffset.addAndGet(13),
-                    LocalizationUtils.format("phoenixcore.recipe.source_out", source)));
+                    LocalizationUtils.format("PhoenixCore.recipe.source_out", source)));
         }
     }
 }

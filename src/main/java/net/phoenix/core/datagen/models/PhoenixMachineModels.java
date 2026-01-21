@@ -13,7 +13,7 @@ import net.phoenix.core.api.block.IFissionModeratorType;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.common.block.TeslaBatteryBlock;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
@@ -43,10 +43,10 @@ public class PhoenixMachineModels {
                 var key = prop.getSerializedName();
 
                 model.texture("overlay",
-                        phoenixcore.id("block/overlay/machine/" + overlayName + "_base"));
+                        PhoenixCore.id("block/overlay/machine/" + overlayName + "_base"));
 
                 model.texture("overlay_emissive",
-                        phoenixcore.id("block/overlay/machine/" + overlayName + "_overlay_" + key));
+                        PhoenixCore.id("block/overlay/machine/" + overlayName + "_overlay_" + key));
 
                 return model;
             });
@@ -55,21 +55,21 @@ public class PhoenixMachineModels {
         };
     }
 
-    public static final ResourceLocation WIRELESS_CHARGER_IDLE = phoenixcore
+    public static final ResourceLocation WIRELESS_CHARGER_IDLE = PhoenixCore
             .id("block/machine/part/wireless_charger/overlay_front");
-    public static final ResourceLocation WIRELESS_CHARGER_RUNNING = phoenixcore
+    public static final ResourceLocation WIRELESS_CHARGER_RUNNING = PhoenixCore
             .id("block/machine/part/wireless_charger/overlay_front_active");
-    public static final ResourceLocation WIRELESS_CHARGER_RUNNING_EMISSIVE = phoenixcore
+    public static final ResourceLocation WIRELESS_CHARGER_RUNNING_EMISSIVE = PhoenixCore
             .id("block/machine/part/wireless_charger/overlay_front_active_emissive");
-    public static final ResourceLocation WIRELESS_CHARGER_FINISHED = phoenixcore
+    public static final ResourceLocation WIRELESS_CHARGER_FINISHED = PhoenixCore
             .id("block/machine/part/wireless_charger/overlay_front");
-    public static final ResourceLocation WIRELESS_CHARGER_FINISHED_EMISSIVE = phoenixcore
+    public static final ResourceLocation WIRELESS_CHARGER_FINISHED_EMISSIVE = PhoenixCore
             .id("block/machine/part/wireless_charger/overlay_front_emissive");
-    public static final ResourceLocation WIRELESS_CHARGER_TOP = phoenixcore
+    public static final ResourceLocation WIRELESS_CHARGER_TOP = PhoenixCore
             .id("block/machine/part/wireless_charger/overlay_top");
-    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE = phoenixcore
+    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE = PhoenixCore
             .id("block/machine/part/wireless_charger/overlay_top_active");
-    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE_EMISSIVE = phoenixcore
+    public static final ResourceLocation WIRELESS_CHARGER_TOP_ACTIVE_EMISSIVE = PhoenixCore
             .id("block/machine/part/wireless_charger/overlay_top_active_emissive");
 
     public static MachineBuilder.ModelInitializer createWirelessChargerModel() {
@@ -108,9 +108,9 @@ public class PhoenixMachineModels {
     public static NonNullBiConsumer<DataGenContext<Block, TeslaBatteryBlock>, RegistrateBlockstateProvider> createTeslaBlockModel(ITeslaBattery batteryData) {
         return (ctx, prov) -> {
             prov.simpleBlock(ctx.getEntry(), prov.models().cubeBottomTop(ctx.getName(),
-                    phoenixcore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/side"),
-                    phoenixcore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/top"),
-                    phoenixcore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/top")));
+                    PhoenixCore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/side"),
+                    PhoenixCore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/top"),
+                    PhoenixCore.id("block/casings/batteries/" + batteryData.getBatteryName() + "/top")));
         };
     }
 
@@ -125,10 +125,10 @@ public class PhoenixMachineModels {
                 casingTextures(model, casingTexturePath);
 
                 model.texture("overlay",
-                        phoenixcore.id("block/overlay/machine/" + overlayName + "_base"));
+                        PhoenixCore.id("block/overlay/machine/" + overlayName + "_base"));
 
                 model.texture("overlay_emissive",
-                        phoenixcore.id("block/overlay/machine/" + overlayName + "_emissive"));
+                        PhoenixCore.id("block/overlay/machine/" + overlayName + "_emissive"));
 
                 return model;
             });
@@ -138,7 +138,7 @@ public class PhoenixMachineModels {
     }
 
     public static void casingTextures(BlockModelBuilder model, String casingTexturePath) {
-        ResourceLocation casing = phoenixcore.id("block/" + casingTexturePath);
+        ResourceLocation casing = PhoenixCore.id("block/" + casingTexturePath);
         model.texture("bottom", casing);
         model.texture("top", casing);
         model.texture("side", casing);

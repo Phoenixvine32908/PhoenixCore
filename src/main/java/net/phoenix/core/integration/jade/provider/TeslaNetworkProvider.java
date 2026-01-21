@@ -13,7 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchPartMachine;
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.saveddata.TeslaTeamEnergyData;
 import net.phoenix.core.utils.TeamUtils;
 
@@ -27,7 +27,7 @@ import java.util.UUID;
 
 public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
-    public static final ResourceLocation UID = phoenixcore.id("tesla_network_info");
+    public static final ResourceLocation UID = PhoenixCore.id("tesla_network_info");
 
     @Override
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {

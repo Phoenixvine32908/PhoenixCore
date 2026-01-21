@@ -27,13 +27,12 @@ import net.phoenix.core.common.machine.multiblock.part.special.TeslaEnergyHatchP
 import net.phoenix.core.common.machine.singleblock.TeslaWirelessChargerMachine;
 import net.phoenix.core.common.registry.PhoenixRegistration;
 import net.phoenix.core.datagen.models.PhoenixMachineModels;
-import net.phoenix.core.phoenixcore;
+import net.phoenix.core.PhoenixCore;
 
 import java.util.Locale;
 import java.util.function.BiFunction;
 
 import static com.gregtechceu.gtceu.api.GTValues.VCF;
-import static com.gregtechceu.gtceu.api.GTValues.VOLTAGE_NAMES;
 import static com.gregtechceu.gtceu.api.pattern.Predicates.blocks;
 import static com.gregtechceu.gtceu.api.pattern.Predicates.controller;
 import static net.phoenix.core.common.machine.PhoenixMachines.registerTieredMachines;
@@ -73,48 +72,55 @@ public class PhoenixTeslaMachines {
                     .where('H', Predicates.air())
                     .build())
             .workableCasingModel(
-                    phoenixcore.id("block/casings/multiblock/tesla_casing"),
-                    phoenixcore.id("block/multiblock/tesla_tower"))
+                    PhoenixCore.id("block/casings/multiblock/tesla_casing"),
+                    PhoenixCore.id("block/multiblock/tesla_tower"))
             .register();
 
-    public static final MachineDefinition[] TESLA_ENERGY_INPUT_HATCH = registerTieredMachines(
-            "tesla_energy_input_hatch",
-            (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, IO.OUT, 2),
-            (tier, builder) -> builder
-                    .langValue(GTValues.VNF[tier] + " Tesla Energy Uplink Hatch")
-                    .rotationState(RotationState.ALL)
-                    .abilities(PartAbility.OUTPUT_ENERGY)
-                    .modelProperty(GTMachineModelProperties.IS_FORMED, false)
-                    .tooltips(
-                            Component.translatable("gtceu.universal.tooltip.voltage_in",
-                                    FormattingUtil.formatNumbers(GTValues.V[tier]), GTValues.VNF[tier]),
-                            Component.translatable("gtceu.universal.tooltip.amperage_in", 2),
-                            Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
-                                    FormattingUtil.formatNumbers(GTValues.V[tier] * 16L * 2)),
-                            Component.translatable("tooltip.phoenixcore.tesla_hatch.input"))
-                    .overlayTieredHullModel("tesla_hatches/tesla_input")
-                    .register(),
-            GTValues.ALL_TIERS);
+    // Helper to construct the path: "tesla_hatches/tesla_input" or "tesla_hatches/tesla_iomode_4a"
+    private static String getTeslaOverlay(String iomode, int amperage) {
+        // 16A is the "normal" model per instructions
+        if (amperage == 16) {
+            return "tesla_hatches/tesla_" + iomode;
+        }
+        // 2A, 4A, and 64A use the specific naming convention
+        return "tesla_hatches/tesla_" + iomode + "_" + amperage + "a";
+    }
 
-    public static final MachineDefinition[] TESLA_ENERGY_OUTPUT_HATCH = registerTieredMachines(
-            "tesla_energy_output_hatch",
-            (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, IO.IN, 2),
-            (tier, builder) -> builder
-                    .langValue(GTValues.VNF[tier] + " Tesla Energy Downlink Hatch")
-                    .rotationState(RotationState.ALL)
-                    .abilities(PartAbility.INPUT_ENERGY) // Acts as INPUT to multiblock (receives from tower, gives to
-                    // multiblock)
-                    .modelProperty(GTMachineModelProperties.IS_FORMED, false)
-                    .tooltips(
-                            Component.translatable("gtceu.universal.tooltip.voltage_in",
-                                    FormattingUtil.formatNumbers(GTValues.V[tier]), GTValues.VNF[tier]),
-                            Component.translatable("gtceu.universal.tooltip.amperage_out", 2),
-                            Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
-                                    FormattingUtil.formatNumbers(GTValues.V[tier] * 64L * 2)),
-                            Component.translatable("tooltip.phoenixcore.tesla_hatch.output"))
-                    .overlayTieredHullModel("tesla_hatches/tesla_output")
-                    .register(),
-            GTValues.ALL_TIERS);
+    private static MachineDefinition[] registerTeslaHatch(String name, IO io, int amperage, PartAbility ability) {
+        // iomode variable for the path and tooltips
+        String iomode = io == IO.OUT ? "input" : "output";
+
+        return registerTieredMachines(
+                name + "_" + amperage + "a",
+                (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, io, amperage),
+                (tier, builder) -> builder
+                        .langValue(GTValues.VNF[tier] + " Tesla Energy " + (io == IO.OUT ? "Uplink" : "Downlink") + " Hatch " + amperage + "A")
+                        .rotationState(RotationState.ALL)
+                        .abilities(ability)
+                        .modelProperty(GTMachineModelProperties.IS_FORMED, false)
+                        .tooltips(
+                                Component.translatable("gtceu.universal.tooltip.voltage_in",
+                                        FormattingUtil.formatNumbers(GTValues.V[tier]), GTValues.VNF[tier]),
+                                Component.translatable("gtceu.universal.tooltip.amperage_" + (io == IO.OUT ? "in" : "out"), amperage),
+                                Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
+                                        FormattingUtil.formatNumbers(GTValues.V[tier] * (io == IO.OUT ? 16L : 64L) * amperage)),
+                                Component.translatable("tooltip.PhoenixCore.tesla_hatch." + iomode))
+                        .overlayTieredHullModel(getTeslaOverlay(iomode, amperage))
+                        .register(),
+                GTValues.ALL_TIERS);
+    }
+
+    // Registrations
+
+    public static final MachineDefinition[] TESLA_INPUT_2A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 2, PartAbility.OUTPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_INPUT_4A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 4, PartAbility.OUTPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_INPUT_16A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 16, PartAbility.OUTPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_INPUT_64A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 64, PartAbility.OUTPUT_ENERGY);
+
+    public static final MachineDefinition[] TESLA_OUTPUT_2A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 2, PartAbility.INPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_OUTPUT_4A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 4, PartAbility.INPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_OUTPUT_16A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 16, PartAbility.INPUT_ENERGY);
+    public static final MachineDefinition[] TESLA_OUTPUT_64A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 64, PartAbility.INPUT_ENERGY);
 
     public static MachineDefinition[] registerWirelessCharger(
                                                               GTRegistrate registrate,
@@ -198,8 +204,8 @@ public class PhoenixTeslaMachines {
      * Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
      * FormattingUtil.formatNumbers(io == IO.IN ? GTValues.V[tier] * 16L * amperage : GTValues.V[tier] * 64L *
      * amperage)),
-     * Component.translatable(io == IO.IN ? "tooltip.phoenixcore.tesla_hatch.input" :
-     * "tooltip.phoenixcore.tesla_hatch.output"))
+     * Component.translatable(io == IO.IN ? "tooltip.PhoenixCore.tesla_hatch.input" :
+     * "tooltip.PhoenixCore.tesla_hatch.output"))
      * .register(),
      * tiers);
      * }

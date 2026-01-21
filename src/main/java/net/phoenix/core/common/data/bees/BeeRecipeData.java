@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class BeeRecipeData {
 
-    public static final String MOD_ID = "phoenixcore";
+    public static final String MOD_ID = "PhoenixCore";
     public static final int FINAL_HONEY_OUTPUT_AMOUNT = 250;
 
     public static final Material SUGAR_WATER_MATERIAL = PhoenixMaterials.SUGAR_WATER;
@@ -250,10 +250,10 @@ public class BeeRecipeData {
             new ApisProgenitorConfig("pyrochlore_progenitor", "pyrochlore", "diamond", "4x gtceu:raw_pyrochlore_block",
                     null, 360, DEFAULT_LUV_EUT),
             new ApisProgenitorConfig("voidglass_shard_progenitor", "voidglass_shard", "diamond",
-                    "32x phoenixcore:raw_voidglass_shard_block", null, 360, DEFAULT_LUV_EUT),
+                    "32x PhoenixCore:raw_voidglass_shard_block", null, 360, DEFAULT_LUV_EUT),
             new ApisProgenitorConfig("crystallized_fluxstone_progenitor", "crystallized_fluxstone", "diamond",
                     "32x gtce:raw_crystalized_fluxstone_block", null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("ignisium_progenitor", "ignisium", "diamond", "32x phoenixcore:raw_ignisium_block",
+            new ApisProgenitorConfig("ignisium_progenitor", "ignisium", "diamond", "32x PhoenixCore:raw_ignisium_block",
                     null, 360, DEFAULT_LUV_EUT),
             new ApisProgenitorConfig("sky_steel_progenitor", "sky_steel", "diamond", "32x megacells:sky_steel_block",
                     null, 360, DEFAULT_LUV_EUT),
@@ -594,12 +594,12 @@ public class BeeRecipeData {
                     outputCount = 3;
                     break;
                 case "voidglass_shard":
-                    blockId = "phoenixcore:raw_voidglass_shard_block";
-                    outputId = "phoenixcore:raw_voidglass_shard";
+                    blockId = "PhoenixCore:raw_voidglass_shard_block";
+                    outputId = "PhoenixCore:raw_voidglass_shard";
                     outputCount = 5;
                     break;
                 case "ignisium":
-                    blockId = "phoenixcore:raw_ignisium_block";
+                    blockId = "PhoenixCore:raw_ignisium_block";
                     outputId = "gtceu:raw_ignisium";
                     outputCount = 5;
                     break;
@@ -626,8 +626,8 @@ public class BeeRecipeData {
                     outputId = "gtceu:sulfuric_acid_bucket";
                     break;
                 case "fluorite":
-                    blockId = "phoenixcore:raw_fluorite_block";
-                    outputId = "phoenixcore:raw_fluorite";
+                    blockId = "PhoenixCore:raw_fluorite_block";
+                    outputId = "PhoenixCore:raw_fluorite";
                     outputCount = 5;
                     break;
                 case "brown_shroom":

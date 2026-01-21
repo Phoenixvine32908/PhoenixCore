@@ -9,13 +9,13 @@ import net.phoenix.core.common.data.PhoenixCovers;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
-import static net.phoenix.core.phoenixcore.PHOENIX_CREATIVE_TAB;
+import static net.phoenix.core.PhoenixCore.PHOENIX_CREATIVE_TAB;
 
 public class PhoenixItems {
 
     static {
         REGISTRATE.creativeModeTab(() -> PHOENIX_CREATIVE_TAB);
-    }
+   }
     public static ItemEntry<ComponentItem> POWER_UNIT_LUV = REGISTRATE.item("luv_power_unit", ComponentItem::create)
             .lang("LuV Power Unit")
             .properties(p -> p.stacksTo(8))
