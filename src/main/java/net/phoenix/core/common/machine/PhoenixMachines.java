@@ -298,7 +298,7 @@ public class PhoenixMachines {
                     new ResourceLocation(PhoenixCore.MOD_ID, "block/casings/multiblock/tesla_casing"),
                     // Keep the fusion reactor overlay (or change to your own)
                     GTCEu.id("block/multiblock/fusion_reactor"))
-                    .andThen(b -> b.addDynamicRenderer(PhoenixDynamicRenderHelpers::getHelicalFusionRenderer)))
+                    .andThen(b -> b.addDynamicRenderer(PhoenixDynamicRenderHelpers::getBlackHoleRenderer)))
             .hasBER(true)
             .register();
 

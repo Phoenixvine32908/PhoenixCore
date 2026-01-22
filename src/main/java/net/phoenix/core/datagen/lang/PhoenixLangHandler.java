@@ -5,12 +5,12 @@ import com.tterrag.registrate.providers.RegistrateLangProvider;
 public class PhoenixLangHandler {
 
     public static void init(RegistrateLangProvider provider) {
-        provider.add("emi_info.PhoenixCore.required_shield", "Required Shield: %s");
-        provider.add("shield.PhoenixCore.type.normal", "Normal");
-        provider.add("shield.PhoenixCore.type.inactive", "Inactive");
-        provider.add("shield.PhoenixCore.type.decayed", "Decayed");
-        provider.add("emi_info.PhoenixCore.shield_heal", "Shield Health Restored: +%s");
-        provider.add("emi_info.PhoenixCore.shield_damage", "Shield Damage Applied: -%s");
+        provider.add("emi_info.phoenixcore.required_shield", "Required Shield: %s");
+        provider.add("shield.phoenixcore.type.normal", "Normal");
+        provider.add("shield.phoenixcore.type.inactive", "Inactive");
+        provider.add("shield.phoenixcore.type.decayed", "Decayed");
+        provider.add("emi_info.phoenixcore.shield_heal", "Shield Health Restored: +%s");
+        provider.add("emi_info.phoenixcore.shield_damage", "Shield Damage Applied: -%s");
         provider.add("phoenix.fission.coolant_required", "§7Required Coolant: §f%s");
         provider.add("phoenix.fission.not_formed", "Structure not formed!");
         provider.add("phoenix.fission.moderator", "Moderator: %s");
@@ -23,12 +23,12 @@ public class PhoenixLangHandler {
         provider.add("phoenix.fission.meltdown_in", "MELTDOWN in: %s seconds");
         provider.add("phoenix.fission.safe", "Status: SAFE");
         provider.add("phoenix.fission.summary", "Cooling Provided: %s / %s");
-        provider.add("emi_info.PhoenixCore.required_cooling", "Required Cooling: %s");
+        provider.add("emi_info.phoenixcore.required_cooling", "Required Cooling: %s");
 
-        provider.add("jade.PhoenixCore.fission_safe", "Status: SAFE");
-        provider.add("jade.PhoenixCore.fission_meltdown_timer", "Meltdown in %s seconds");
-        provider.add("jade.PhoenixCore.fission_no_coolant", "Coolant Tanks EMPTY");
-        provider.add("jade.PhoenixCore.fission_low_cooling", "Insufficient Cooling Power");
+        provider.add("jade.phoenixcore.fission_safe", "Status: SAFE");
+        provider.add("jade.phoenixcore.fission_meltdown_timer", "Meltdown in %s seconds");
+        provider.add("jade.phoenixcore.fission_no_coolant", "Coolant Tanks EMPTY");
+        provider.add("jade.phoenixcore.fission_low_cooling", "Insufficient Cooling Power");
         provider.add("config.jade.plugin_phoenixcore.fission_machine_info", "Fission Machine Info");
 
         provider.add("phoenix.fission.status.safe_idle", "SAFE (Idle)");
@@ -38,20 +38,20 @@ public class PhoenixLangHandler {
         provider.add("phoenix.fission.status.low_cooling", "Insufficient Cooling Power");
         provider.add("phoenix.fission.coolant_status.ok", "Coolant Status: OK");
         provider.add("phoenix.fission.coolant_status.empty", "Coolant Status: EMPTY");
-        provider.add("tooltip.PhoenixCore.crystal_rose.generic", "A crystalline flower of immense power.");
-        provider.add("tooltip.PhoenixCore.crystal_rose.made_from", "Forged from %s.");
-        provider.add("tooltip.PhoenixCore.nanites.generic", "Microscopic machines swarming with potential.");
-        provider.add("tooltip.PhoenixCore.nanites.made_from", "Constructed from %s.");
+        provider.add("tooltip.phoenixcore.crystal_rose.generic", "A crystalline flower of immense power.");
+        provider.add("tooltip.phoenixcore.crystal_rose.made_from", "Forged from %s.");
+        provider.add("tooltip.phoenixcore.nanites.generic", "Microscopic machines swarming with potential.");
+        provider.add("tooltip.phoenixcore.nanites.made_from", "Constructed from %s.");
 
-        provider.add("block.PhoenixCore.fission_cooler.shift", "Hold §eShift§r for cooler details");
-        provider.add("block.PhoenixCore.fission_cooler.info_header", "§7--- Cooler Information ---");
-        provider.add("block.PhoenixCore.fission_cooler.temperature", "§cOperating Temperature: §f%s K");
-        provider.add("block.PhoenixCore.fission_cooler.required_coolant", "§bRequired Coolant: §f%s");
+        provider.add("block.phoenixcore.fission_cooler.shift", "Hold §eShift§r for cooler details");
+        provider.add("block.phoenixcore.fission_cooler.info_header", "§7--- Cooler Information ---");
+        provider.add("block.phoenixcore.fission_cooler.temperature", "§cOperating Temperature: §f%s K");
+        provider.add("block.phoenixcore.fission_cooler.required_coolant", "§bRequired Coolant: §f%s");
 
-        provider.add("block.PhoenixCore.fission_moderator.shift", "Hold §eShift§r for moderator details");
-        provider.add("block.PhoenixCore.fission_moderator.info_header", "§7--- Moderator Information ---");
-        provider.add("block.PhoenixCore.fission_moderator.boost", "§aEU Output Boost: §f%s%%");
-        provider.add("block.PhoenixCore.fission_moderator.fuel_discount", "§bFuel Usage Reduction: §f%s%%");
+        provider.add("block.phoenixcore.fission_moderator.shift", "Hold §eShift§r for moderator details");
+        provider.add("block.phoenixcore.fission_moderator.info_header", "§7--- Moderator Information ---");
+        provider.add("block.phoenixcore.fission_moderator.boost", "§aEU Output Boost: §f%s%%");
+        provider.add("block.phoenixcore.fission_moderator.fuel_discount", "§bFuel Usage Reduction: §f%s%%");
 
         provider.add("phoenix.multiblock.pattern.info.multiple_coolers",
                 "Accepts multiple Fission Cooler Blocks. Cooling power is additive.");
@@ -59,21 +59,21 @@ public class PhoenixLangHandler {
                 "Accepts multiple Fission Moderator Blocks. EU Boost/Fuel Discount is additive.");
 
         provider.add("config.jade.plugin_phoenixcore.source_hatch_info", "Source Stored: %s");
-        provider.add("gui.PhoenixCore.source_hatch.source", "Source Stored: %s");
-        provider.add("gui.PhoenixCore.source_hatch.label.import", "Source Input Hatch");
-        provider.add("gui.PhoenixCore.source_hatch.label.export", "Source Output Hatch");
-        provider.add("tooltip.PhoenixCore.source_hatch.consumption", "§cMax Source Consumption§f:§6 %s");
-        provider.add("tooltip.PhoenixCore.source_hatch.capacity", "§cMax Source capacity§f:§6 %s");
-        provider.add("PhoenixCore.recipe.source_in", "Source Input: %s");
-        provider.add("PhoenixCore.recipe.source_out", "Source Output: %s");
-        provider.add("PhoenixCore.jade.source_hatch_info", "Current Source in Hatch: %s.");
-        provider.add("PhoenixCore.tooltip.hyper_machine_coolant1", "%s: %sx CWU/t");
-        provider.add("PhoenixCore.tooltip.hyper_machine_coolant2", "%s: %sx CWU/t");
-        provider.add("PhoenixCore.tooltip.hyper_machine_coolant_base", "%s: %sx CWU/t");
-        provider.add("PhoenixCore.tooltip.hyper_machine_coolant3", "%s: %sx CWU/t");
-        provider.add("PhoenixCore.tooltip.hyper_machine_purpose",
+        provider.add("gui.phoenixcore.source_hatch.source", "Source Stored: %s");
+        provider.add("gui.phoenixcore.source_hatch.label.import", "Source Input Hatch");
+        provider.add("gui.phoenixcore.source_hatch.label.export", "Source Output Hatch");
+        provider.add("tooltip.phoenixcore.source_hatch.consumption", "§cMax Source Consumption§f:§6 %s");
+        provider.add("tooltip.phoenixcore.source_hatch.capacity", "§cMax Source capacity§f:§6 %s");
+        provider.add("phoenixcore.recipe.source_in", "Source Input: %s");
+        provider.add("phoenixcore.recipe.source_out", "Source Output: %s");
+        provider.add("phoenixcore.jade.source_hatch_info", "Current Source in Hatch: %s.");
+        provider.add("phoenixcore.tooltip.hyper_machine_coolant1", "%s: %sx CWU/t");
+        provider.add("phoenixcore.tooltip.hyper_machine_coolant2", "%s: %sx CWU/t");
+        provider.add("phoenixcore.tooltip.hyper_machine_coolant_base", "%s: %sx CWU/t");
+        provider.add("phoenixcore.tooltip.hyper_machine_coolant3", "%s: %sx CWU/t");
+        provider.add("phoenixcore.tooltip.hyper_machine_purpose",
                 "An upgraded HPCA that uses %s, %s, or %s to provide cooling");
-        provider.add("PhoenixCore.tooltip.requires_fluid", "Needs: %s");
+        provider.add("phoenixcore.tooltip.requires_fluid", "Needs: %s");
         provider.add("tagprefix.nanites", "%s Nanites");
         provider.add("tagprefix.crystal_rose", "%s Crystal Rose");
         provider.add("item.gtceu.tool.ev_screwdriver", "%s Electric Screwdriver (EV)");
@@ -106,75 +106,75 @@ public class PhoenixLangHandler {
 
         provider.add("item.gtceu.tool.luv_drill", "%s Drill (LuV)");
         provider.add("item.gtceu.tool.zpm_drill", "%s Drill (ZPM)");
-        provider.add("material.PhoenixCore.phoenix_enriched_tritanium", "§cPhoenix Enriched Tritanium");
-        provider.add("material.PhoenixCore.extremely_modified_space_grade_steel",
+        provider.add("material.phoenixcore.phoenix_enriched_tritanium", "§cPhoenix Enriched Tritanium");
+        provider.add("material.phoenixcore.extremely_modified_space_grade_steel",
                 "§cExtremely Modified Space Grade Steel");
-        provider.add("material.PhoenixCore.quantum_coolant",
+        provider.add("material.phoenixcore.quantum_coolant",
                 "§bQuantum Coolant");
-        provider.add("material.PhoenixCore.boron_carbide", "§5Boron Carbide");
-        provider.add("material.PhoenixCore.niobium_modified_silicon_carbide", "§5Niobium Modified Silicon Carbide");
-        provider.add("material.PhoenixCore.frost", "§bFrost");
-        provider.add("material.PhoenixCore.wax_melting_catalyst", "Wax Melting Catalyst");
-        provider.add("material.PhoenixCore.sugar_water", "Sugar Water");
-        provider.add("material.PhoenixCore.eighty_five_percent_pure_nevvonian_steel",
+        provider.add("material.phoenixcore.boron_carbide", "§5Boron Carbide");
+        provider.add("material.phoenixcore.niobium_modified_silicon_carbide", "§5Niobium Modified Silicon Carbide");
+        provider.add("material.phoenixcore.frost", "§bFrost");
+        provider.add("material.phoenixcore.wax_melting_catalyst", "Wax Melting Catalyst");
+        provider.add("material.phoenixcore.sugar_water", "Sugar Water");
+        provider.add("material.phoenixcore.eighty_five_percent_pure_nevvonian_steel",
                 "§6Eighty Five Percent Pure Nevvonian Steel");
-        provider.add("material.PhoenixCore.phoenix_enriched_naquadah",
+        provider.add("material.phoenixcore.phoenix_enriched_naquadah",
                 "§6Phoenix Enriched Naquadah");
-        provider.add("material.PhoenixCore.ignisium", "§4Ignisium");
-        provider.add("material.PhoenixCore.crystallized_fluxstone", "§dCrystallized Fluxstone");
-        provider.add("material.PhoenixCore.nevvonian_iron", "§7Nevvonian Iron");
-        provider.add("material.PhoenixCore.fluorite", "§aFluorite");
-        provider.add("material.PhoenixCore.polarity_flipped_bismuthite", "§bPolarity Flipped Bismuthite");
-        provider.add("material.PhoenixCore.voidglass_shard", "§5Voidglass Shard");
-        provider.add("PhoenixCore.tooltip.hyper_machine_1", "Each Coolant provides a boost:");
-        provider.add("gtceu.recipe_type.PhoenixCore.high_performance_breeder_reactor",
+        provider.add("material.phoenixcore.ignisium", "§4Ignisium");
+        provider.add("material.phoenixcore.crystallized_fluxstone", "§dCrystallized Fluxstone");
+        provider.add("material.phoenixcore.nevvonian_iron", "§7Nevvonian Iron");
+        provider.add("material.phoenixcore.fluorite", "§aFluorite");
+        provider.add("material.phoenixcore.polarity_flipped_bismuthite", "§bPolarity Flipped Bismuthite");
+        provider.add("material.phoenixcore.voidglass_shard", "§5Voidglass Shard");
+        provider.add("phoenixcore.tooltip.hyper_machine_1", "Each Coolant provides a boost:");
+        provider.add("gtceu.recipe_type.phoenixcore.high_performance_breeder_reactor",
                 "High-Performance Breeder Reactor");
-        provider.add("gtceu.recipe_type.PhoenixCore.advanced_pressurized_fission_reactor",
+        provider.add("gtceu.recipe_type.phoenixcore.advanced_pressurized_fission_reactor",
                 "Advanced Pressurized Fission Reactor");
-        provider.add("gtceu.recipe_type.PhoenixCore.pressurized_fission_reactor", "Pressurized Fission Reactor");
-        provider.add("gtceu.recipe_type.PhoenixCore.heat_exchanging", "Heat Exchanger");
-        provider.add("gtceu.recipe_type.PhoenixCore.honey_chamber", "Honey Chamber");
-        provider.add("gtceu.recipe_type.PhoenixCore.please", "Please Multiblock");
-        provider.add("gtceu.recipe_type.PhoenixCore.simulated_colony", "Simulated Colony");
-        provider.add("gtceu.recipe_type.PhoenixCore.comb_decanting", "Comb Decanter");
-        provider.add("gtceu.recipe_type.PhoenixCore.swarm_nurturing", "Swarm Nurturing Chamber");
-        provider.add("gtceu.recipe_type.PhoenixCore.apis_progenitor", "Apis Progenitor");
+        provider.add("gtceu.recipe_type.phoenixcore.pressurized_fission_reactor", "Pressurized Fission Reactor");
+        provider.add("gtceu.recipe_type.phoenixcore.heat_exchanging", "Heat Exchanger");
+        provider.add("gtceu.recipe_type.phoenixcore.honey_chamber", "Honey Chamber");
+        provider.add("gtceu.recipe_type.phoenixcore.please", "Please Multiblock");
+        provider.add("gtceu.recipe_type.phoenixcore.simulated_colony", "Simulated Colony");
+        provider.add("gtceu.recipe_type.phoenixcore.comb_decanting", "Comb Decanter");
+        provider.add("gtceu.recipe_type.phoenixcore.swarm_nurturing", "Swarm Nurturing Chamber");
+        provider.add("gtceu.recipe_type.phoenixcore.apis_progenitor", "Apis Progenitor");
         provider.add("block.monilabs.tesla_battery.tooltip_empty", "§7A hollow casing. Provides no storage.");
         provider.add("block.monilabs.tesla_battery.tooltip_filled", "§aCapacity: §f%s EU");
-        provider.add("tooltip.PhoenixCore.tesla_hatch.input",
+        provider.add("tooltip.phoenixcore.tesla_hatch.input",
                 "§bWireless Transmitter§r: Siphons energy into the Tesla Cloud.");
-        provider.add("tooltip.PhoenixCore.tesla_hatch.output",
+        provider.add("tooltip.phoenixcore.tesla_hatch.output",
                 "§bWireless Receiver§r: Broadcasts energy from the Tesla Cloud.");
 
-        provider.add("block.PhoenixCore.tesla_battery.tooltip_empty", "§7A hollow casing. Provides no storage.");
-        provider.add("block.PhoenixCore.tesla_battery.tooltip_filled", "§aCapacity: §f%s EU");
+        provider.add("block.phoenixcore.tesla_battery.tooltip_empty", "§7A hollow casing. Provides no storage.");
+        provider.add("block.phoenixcore.tesla_battery.tooltip_filled", "§aCapacity: §f%s EU");
 
-        provider.add("tooltip.PhoenixCore.tesla_hatch.lore", "§6Nevvonian Core Tech: Frequency Locked.");
+        provider.add("tooltip.phoenixcore.tesla_hatch.lore", "§6Nevvonian Core Tech: Frequency Locked.");
 
         // Tower UI Component
         provider.add("gtceu.multiblock.tesla.stored", "Network Power: %s / %s EU");
-        provider.add("shield.PhoenixCore.current_shield", "Shield Status: %s");
-        provider.add("shield.PhoenixCore.health", "Health: %s");
-        provider.add("shield.PhoenixCore.cooldown", "Cooldown: %s seconds");
-        provider.add("jade.PhoenixCore.shield_state", "Shield State: %s");
-        provider.add("jade.PhoenixCore.shield_health", "Health: %s");
+        provider.add("shield.phoenixcore.current_shield", "Shield Status: %s");
+        provider.add("shield.phoenixcore.health", "Health: %s");
+        provider.add("shield.phoenixcore.cooldown", "Cooldown: %s seconds");
+        provider.add("jade.phoenixcore.shield_state", "Shield State: %s");
+        provider.add("jade.phoenixcore.shield_health", "Health: %s");
         provider.add("config.jade.plugin_phoenixcore.plasma_furnace_info", "High-Pressure Plasma Arc Furnace Info");
-        provider.add("jade.PhoenixCore.plasma_boost_active", "Plasma Boost: %s Active");
-        provider.add("jade.PhoenixCore.plasma_boost_duration", "Duration Multiplier: %s");
-        provider.add("jade.PhoenixCore.no_plasma_boost", "No Plasma Catalyst");
+        provider.add("jade.phoenixcore.plasma_boost_active", "Plasma Boost: %s Active");
+        provider.add("jade.phoenixcore.plasma_boost_duration", "Duration Multiplier: %s");
+        provider.add("jade.phoenixcore.no_plasma_boost", "No Plasma Catalyst");
         // Tesla Network Jade Keys
-        provider.add("jade.PhoenixCore.tesla_stored", "Stored: ");
+        provider.add("jade.phoenixcore.tesla_stored", "Stored: ");
         provider.add("config.jade.plugin_phoenixcore.tesla_network_info", "Tesla Network Information");
 
         // Binder UI & Additional Keys
-        provider.add("item.PhoenixCore.tesla_binder.linked", "§aLinked to: §f%s");
-        provider.add("item.PhoenixCore.tesla_binder.unlinked", "§cNot Linked");
-        provider.add("item.PhoenixCore.tesla_binder.frequency", "§7Frequency: §b%s");
-        provider.add("jade.PhoenixCore.tesla_team", "Network: %s");
-        provider.add("jade.PhoenixCore.tesla_receiving", "Receiving: %s EU/t");
-        provider.add("jade.PhoenixCore.tesla_providing", "Providing: %s EU/t");
-        provider.add("jade.PhoenixCore.tesla_active_connections", "Active Connections: %s");
-        multiLang(provider, "tooltip.PhoenixCore.shield_stability_hatch",
+        provider.add("item.phoenixcore.tesla_binder.linked", "§aLinked to: §f%s");
+        provider.add("item.phoenixcore.tesla_binder.unlinked", "§cNot Linked");
+        provider.add("item.phoenixcore.tesla_binder.frequency", "§7Frequency: §b%s");
+        provider.add("jade.phoenixcore.tesla_team", "Network: %s");
+        provider.add("jade.phoenixcore.tesla_receiving", "Receiving: %s EU/t");
+        provider.add("jade.phoenixcore.tesla_providing", "Providing: %s EU/t");
+        provider.add("jade.phoenixcore.tesla_active_connections", "Active Connections: %s");
+        multiLang(provider, "tooltip.phoenixcore.shield_stability_hatch",
                 "Outputs shield stability",
                 "as a redstone signal.");
         multiLang(provider, "gtceu.placeholder_info.shieldStability",

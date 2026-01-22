@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderManager;
 
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -20,6 +21,7 @@ public class PhoenixClient {
     private PhoenixClient() {}
 
     public static void init(IEventBus modBus) {
+        DynamicRenderManager.register(PhoenixCore.id("black_hole"), BlackHoleRenderer.TYPE); // Add this
         DynamicRenderManager.register(PhoenixCore.id("eye_of_harmony"), EyeOfHarmonyRender.TYPE);
         DynamicRenderManager.register(PhoenixCore.id("artificial_star"), ArtificialStarRender.TYPE);
         DynamicRenderManager.register(PhoenixCore.id("plasma_arc_furnace"), PlasmaArcFurnaceRender.TYPE);
@@ -36,6 +38,8 @@ public class PhoenixClient {
         event.register(ArtificialStarRender.ARTIFICIAL_STAR_MODEL_RL);
         event.register(PlasmaArcFurnaceRender.RINGS_MODEL_RL);
         event.register(PlasmaArcFurnaceRender.SPHERE_MODEL_RL);
+        event.register(new ResourceLocation("phoenixcore", "models/machine/space.obj"));
+        event.register(new ResourceLocation("phoenixcore", "models/machine/star.obj"));
     }
 
     // This is the new method you need to add

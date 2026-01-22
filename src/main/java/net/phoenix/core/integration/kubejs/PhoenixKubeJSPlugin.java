@@ -10,6 +10,7 @@ import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.data.materials.PhoenixElements;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.materials.PhoenixOres;
+import net.phoenix.core.common.data.materials.PhoenixOres;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.multiblock.*;
 import net.phoenix.core.configs.PhoenixConfigs;

@@ -1,5 +1,6 @@
 package net.phoenix.core.common.data.materials;
 
+import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
@@ -17,59 +18,53 @@ public class PhoenixOres {
     public static Material CRYSTALLIZED_FLUXSTONE;
 
     public static void register() {
-        // nevvonian_iron: .ore().ingot().color(0x7A687F).iconSet("diamond")
-        NEVVONIAN_IRON = new Material.Builder(
-                PhoenixCore.id("nevvonian_iron"))
-                .color(0x7A687F)
-                .ingot() // Sets properties for ingot form
-                .ore()    // Sets properties for ore form (includes dust)
-                .iconSet(MaterialIconSet.DIAMOND) // Explicitly set icon set to DIAMOND
-                .buildAndRegister();
-
-        // fluorite: .gem().ore().color(0x0c9949).iconSet("diamond").components(...)
-        FLUORITE = new Material.Builder(
-                PhoenixCore.id("fluorite"))
-                .color(0x0c9949)
-                .gem()  // Sets properties for gem form
-                .ore()  // Sets properties for ore form (includes dust)
-                .iconSet(MaterialIconSet.DIAMOND)
-                .buildAndRegister();
-
-        // ignisium: .ore().dust().color(0xFF4500).iconSet("diamond")
-        IGNISIUM = new Material.Builder(
-                PhoenixCore.id("ignisium"))
-                .color(0xFF4500)
-                .dust() // Sets properties for dust form
-                .ore()  // Sets properties for ore form
-                .iconSet(MaterialIconSet.DIAMOND)
-                .buildAndRegister();
-
-        // polarity_flipped_bismuthite: .ore().dust().color(0xe4d6ff).iconSet("diamond").flags(DISABLE_DECOMPOSITION)
-        POLARITY_FLIPPED_BISMUTHITE = new Material.Builder(
-                PhoenixCore.id("polarity_flipped_bismuthite"))
-                .color(0xe4d6ff)
-                .dust()
+        // 1. Nevvonian Iron: Standard metal with Diamond-style luster
+        NEVVONIAN_IRON = new Material.Builder(PhoenixCore.id("nevvonian_iron"))
+                .ingot()
                 .ore()
+                .color(0x7A687F)
                 .iconSet(MaterialIconSet.DIAMOND)
-                .flags(MaterialFlags.DISABLE_DECOMPOSITION) // Custom flag applied at the end
                 .buildAndRegister();
 
-        // voidglass_shard: .ore().gem().color(0x6a00aa).iconSet("diamond").flags(DISABLE_DECOMPOSITION)
-        VOIDGLASS_SHARD = new Material.Builder(
-                PhoenixCore.id("voidglass_shard"))
-                .color(0x6a00aa)
+        // 2. Fluorite: Gem material (Used in the Bee Recipes that were crashing)
+        FLUORITE = new Material.Builder(PhoenixCore.id("fluorite"))
                 .gem()
                 .ore()
+                .color(0x0C9949)
                 .iconSet(MaterialIconSet.DIAMOND)
-                .flags(MaterialFlags.DISABLE_DECOMPOSITION) // Custom flag applied at the end
                 .buildAndRegister();
 
-        // crystallized_fluxstone: .ore().dust().color(0xd4bfff).iconSet("diamond")
-        CRYSTALLIZED_FLUXSTONE = new Material.Builder(
-                PhoenixCore.id("crystallized_fluxstone"))
-                .color(0xd4bfff)
+        // 3. Ignisium: Fiery dust/ore
+        IGNISIUM = new Material.Builder(PhoenixCore.id("ignisium"))
                 .dust()
                 .ore()
+                .color(0xFF4500)
+                .iconSet(MaterialIconSet.DIAMOND)
+                .buildAndRegister();
+
+        // 4. Polarity Flipped Bismuthite: Complex ore that cannot be decomposed simply
+        POLARITY_FLIPPED_BISMUTHITE = new Material.Builder(PhoenixCore.id("polarity_flipped_bismuthite"))
+                .dust()
+                .ore()
+                .color(0xE4D6FF)
+                .iconSet(MaterialIconSet.DIAMOND)
+                .flags(MaterialFlags.DISABLE_DECOMPOSITION)
+                .buildAndRegister();
+
+        // 5. Voidglass Shard: High-tier gem ore
+        VOIDGLASS_SHARD = new Material.Builder(PhoenixCore.id("voidglass_shard"))
+                .gem()
+                .ore()
+                .color(0x6A00AA)
+                .iconSet(MaterialIconSet.DIAMOND)
+                .flags(MaterialFlags.DISABLE_DECOMPOSITION)
+                .buildAndRegister();
+
+        // 6. Crystallized Fluxstone: Arcane dust ore
+        CRYSTALLIZED_FLUXSTONE = new Material.Builder(PhoenixCore.id("crystallized_fluxstone"))
+                .dust()
+                .ore()
+                .color(0xD4BFFF)
                 .iconSet(MaterialIconSet.DIAMOND)
                 .buildAndRegister();
     }

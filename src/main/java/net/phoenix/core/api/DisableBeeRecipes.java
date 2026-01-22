@@ -55,7 +55,7 @@ public class DisableBeeRecipes {
                 "diamond_bee",
                 "awakened_bee",
                 "iron_bee",
-                "fluorite_bee",
+          //      "fluorite_bee",
                 "warped_shroombee",
                 "brown_shroombee",
                 "scheelite_bee",

@@ -2,7 +2,7 @@
   "parent": "minecraft:block/block",
   "dynamic_renders": [
     {
-      "type": "phoenixcore:helical_fusion"
+      "type": "phoenixcore:black_hole"
     }
   ],
   "loader": "gtceu:machine",
