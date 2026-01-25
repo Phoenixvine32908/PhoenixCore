@@ -1,46 +1,42 @@
 #version 150
 
 uniform sampler2D Sampler0; // Albedo
-uniform sampler2D Sampler1; // Normal (_n)
-uniform sampler2D Sampler2; // Params (_s): R=metallic, G=roughness
+uniform sampler2D Sampler1; // Normal Map (_n)
+uniform sampler2D Sampler2; // Specular Map (_s)
 
-in vec2 vUv;
-in vec4 vColor;
-in vec3 vNrm;
+in vec2 texCoord0;
+in vec4 vertexColor;
+in vec3 vertexNormal;
 
 out vec4 fragColor;
 
-float saturate(float x) { return clamp(x, 0.0, 1.0); }
-
 void main() {
-    vec4 albedo = texture(Sampler0, vUv) * vColor;
+    vec4 albedo = texture(Sampler0, texCoord0) * vertexColor;
     if (albedo.a < 0.1) discard;
 
-    vec3 nMap = texture(Sampler1, vUv).rgb * 2.0 - 1.0;
-    vec3 N = normalize(vNrm + nMap * 0.75);
+    // 1. NORMAL MAPPING
+    // Sample the _n texture and convert from 0..1 to -1..1
+    vec3 nMap = texture(Sampler1, texCoord0).rgb * 2.0 - 1.0;
+    // Blend the map with the 3D model's vertex normal
+    vec3 normal = normalize(vertexNormal + nMap);
 
-    vec4 p = texture(Sampler2, vUv);
-    float metallic  = saturate(p.r);
-    float roughness = saturate(p.g);
+    // 2. SPECULAR & METALLIC
+    vec4 specData = texture(Sampler2, texCoord0);
+    float metallic = specData.r;  // Red channel = How much like metal
+    float roughness = specData.g; // Green channel = How blurry reflections are
 
-    vec3 L = normalize(vec3(0.4, 1.0, 0.2));
-    vec3 V = normalize(vec3(0.0, 0.0, 1.0));
-    vec3 H = normalize(L + V);
+    // 3. LIGHTING (Directional Light from 'The Star')
+    vec3 lightDir = normalize(vec3(0.5, 1.0, 0.5));
+    float diff = max(dot(normal, lightDir), 0.3); // Ambient base of 0.3
 
-    float NoL = max(dot(N, L), 0.0);
-    float NoH = max(dot(N, H), 0.0);
+    // 4. SPECULAR HIGHLIGHT (Blinn-Phong)
+    vec3 viewDir = vec3(0.0, 0.0, 1.0);
+    vec3 halfDir = normalize(lightDir + viewDir);
+    float specPower = pow(max(dot(normal, halfDir), 0.0), (1.0 - roughness) * 128.0);
+    vec3 specular = vec3(specPower) * metallic;
 
-    float ambient = 0.25;
-    vec3 diffuse = albedo.rgb * (ambient + NoL * (1.0 - ambient));
+    // 5. COMBINE
+    vec3 finalRGB = (albedo.rgb * diff) + specular;
 
-    float gloss = 1.0 - roughness;
-    float specPow = mix(8.0, 128.0, gloss);
-    float spec = pow(NoH, specPow);
-
-    float f0 = mix(0.04, 1.0, metallic);
-    float fres = f0 + (1.0 - f0) * pow(1.0 - max(dot(N, V), 0.0), 5.0);
-
-    vec3 specular = vec3(spec) * fres * (0.35 + 0.65 * metallic);
-
-    fragColor = vec4(diffuse + specular, albedo.a);
+    fragColor = vec4(finalRGB, albedo.a);
 }

@@ -78,7 +78,6 @@ public class PhoenixTeslaMachines {
 
     // Helper to construct the path: "tesla_hatches/tesla_input" or "tesla_hatches/tesla_iomode_4a"
     private static String getTeslaOverlay(String iomode, int amperage) {
-        // 16A is the "normal" model per instructions
         if (amperage == 16) {
             return "tesla_hatches/tesla_" + iomode;
         }
@@ -113,6 +112,70 @@ public class PhoenixTeslaMachines {
                 GTValues.ALL_TIERS);
     }
 
+    // 256A - The Entry Level Massive Laser
+    public static final MachineDefinition[] TESLA_LASER_INPUT_256A = registerTeslaLaserHatch("tesla_laser_input_hatch_256a", IO.OUT, 256,
+            PartAbility.INPUT_LASER);
+    public static final MachineDefinition[] TESLA_LASER_OUTPUT_256A = registerTeslaLaserHatch("tesla_laser_output_hatch_256a", IO.IN, 256,
+            PartAbility.OUTPUT_LASER);
+
+    // 1024A - The High-Power Array
+    public static final MachineDefinition[] TESLA_LASER_INPUT_1024A = registerTeslaLaserHatch("tesla_laser_input_hatch_1024a", IO.OUT, 1024,
+            PartAbility.INPUT_LASER);
+    public static final MachineDefinition[] TESLA_LASER_OUTPUT_1024A = registerTeslaLaserHatch("tesla_laser_output_hatch_1024a", IO.IN, 1024,
+            PartAbility.OUTPUT_LASER);
+
+    // 4096A - The Ultimate Matrix
+    public static final MachineDefinition[] TESLA_LASER_INPUT_4096A = registerTeslaLaserHatch("tesla_laser_input_hatch_4096a", IO.OUT, 4096,
+            PartAbility.INPUT_LASER);
+    public static final MachineDefinition[] TESLA_LASER_OUTPUT_4096A = registerTeslaLaserHatch("tesla_laser_output_hatch_4096a", IO.IN, 4096,
+            PartAbility.OUTPUT_LASER);
+
+    // Updated naming logic helper
+    private static String getLaserName(IO io, int amperage) {
+        if (io == IO.OUT) { // Sending energy INTO the laser network
+            if (amperage >= 4096) return "Phased Tesla Beam Matrix";
+            if (amperage >= 256)  return "Tesla Beam Collimator Array";
+            return "Tesla Beam Collimator";
+        } else { // Receiving energy FROM the laser network
+            if (amperage >= 4096) return "Tesla Flux Coalescence Matrix";
+            if (amperage >= 256)  return "Tesla Flux Coalescence Array";
+            return "Tesla Flux Coalescer";
+        }
+    }
+    private static MachineDefinition[] registerTeslaLaserHatch(String name, IO io, int amperage, PartAbility ability) {
+        String iomode = io == IO.OUT ? "input" : "output"; // Internal logic uses input/output
+        String laserDisplayName = getLaserName(io, amperage);
+
+        return registerTieredMachines(
+                name + "_" + amperage + "a",
+                (holder, tier) -> new TeslaEnergyHatchPartMachine(holder, tier, io, amperage),
+                (tier, builder) -> builder
+                        .langValue(GTValues.VNF[tier] + " " + laserDisplayName + " " + amperage + "A")
+                        .rotationState(RotationState.ALL)
+                        .abilities(ability)
+                        .modelProperty(GTMachineModelProperties.IS_FORMED, false)
+                        .tooltips(
+                                Component.translatable("gtceu.universal.tooltip.voltage_in",
+                                        FormattingUtil.formatNumbers(GTValues.V[tier]), GTValues.VNF[tier]),
+                                Component.translatable(
+                                        "gtceu.universal.tooltip.amperage_" + (io == IO.OUT ? "in" : "out"), amperage),
+                                Component.translatable("gtceu.universal.tooltip.energy_storage_capacity",
+                                        FormattingUtil.formatNumbers(
+                                                GTValues.V[tier] * (io == IO.OUT ? 16L : 64L) * amperage)),
+                                Component.translatable("tooltip.PhoenixCore.tesla_hatch." + iomode))
+                        .overlayTieredHullModel(getTeslaLaserOverlay(iomode, amperage))
+                        .register(),
+                GTValues.ALL_TIERS);
+    }
+
+    private static String getTeslaLaserOverlay(String iomode, int amperage) {
+        // 2A, 4A, and 64A use the specific naming convention
+        return "tesla_hatches/tesla_laser" + iomode + "_" + amperage + "a";
+    }
+
+
+
+
     // Registrations
 
     public static final MachineDefinition[] TESLA_INPUT_2A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 2,
@@ -122,7 +185,8 @@ public class PhoenixTeslaMachines {
     public static final MachineDefinition[] TESLA_INPUT_16A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 16,
             PartAbility.OUTPUT_ENERGY);
     public static final MachineDefinition[] TESLA_INPUT_64A = registerTeslaHatch("tesla_energy_input_hatch", IO.OUT, 64,
-            PartAbility.OUTPUT_ENERGY);
+            PartAbility.SUBSTATION_OUTPUT_ENERGY);
+
 
     public static final MachineDefinition[] TESLA_OUTPUT_2A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN, 2,
             PartAbility.INPUT_ENERGY);
@@ -131,7 +195,8 @@ public class PhoenixTeslaMachines {
     public static final MachineDefinition[] TESLA_OUTPUT_16A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN,
             16, PartAbility.INPUT_ENERGY);
     public static final MachineDefinition[] TESLA_OUTPUT_64A = registerTeslaHatch("tesla_energy_output_hatch", IO.IN,
-            64, PartAbility.INPUT_ENERGY);
+            64, PartAbility.SUBSTATION_INPUT_ENERGY);
+
 
     public static MachineDefinition[] registerWirelessCharger(
                                                               GTRegistrate registrate,

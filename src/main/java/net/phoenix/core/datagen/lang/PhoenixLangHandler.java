@@ -25,6 +25,21 @@ public class PhoenixLangHandler {
         provider.add("phoenix.fission.summary", "Cooling Provided: %s / %s");
         provider.add("emi_info.phoenixcore.required_cooling", "Required Cooling: %s");
 
+        // Add these to PhoenixLangHandler#init
+        provider.add("tooltip.phoenixcore.tesla_hatch.laser_input",
+                "§bOptical Collimator§r: Concentrates energy into a coherent Tesla-Laser beam.");
+        provider.add("tooltip.phoenixcore.tesla_hatch.laser_output",
+                "§bPhotonic Receptor§r: Decodes high-frequency laser flux back into EU.");
+
+// Laser-Specific Technical Names (Optional: for use in getLaserName logic)
+        provider.add("tech.phoenixcore.laser.input.low", "Tesla Optical Collimator");
+        provider.add("tech.phoenixcore.laser.input.mid", "Tesla Optical Collimation Grid");
+        provider.add("tech.phoenixcore.laser.input.high", "Tesla Phased Beam Matrix");
+
+        provider.add("tech.phoenixcore.laser.output.low", "Tesla Photonic Coalescer");
+        provider.add("tech.phoenixcore.laser.output.mid", "Tesla Photonic Coalescence Array");
+        provider.add("tech.phoenixcore.laser.output.high", "Tesla Photonic Coalescence Matrix");
+
         provider.add("jade.phoenixcore.fission_safe", "Status: SAFE");
         provider.add("jade.phoenixcore.fission_meltdown_timer", "Meltdown in %s seconds");
         provider.add("jade.phoenixcore.fission_no_coolant", "Coolant Tanks EMPTY");

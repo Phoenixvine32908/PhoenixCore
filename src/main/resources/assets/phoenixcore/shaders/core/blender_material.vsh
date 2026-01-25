@@ -10,15 +10,13 @@ uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
 uniform vec4 ColorModulator;
 
-out vec2 vUv;
-out vec4 vColor;
-out vec3 vNrm;
+out vec2 texCoord0;
+out vec4 vertexColor;
+out vec3 vertexNormal;
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
-    vUv = UV0;
-    vColor = Color * ColorModulator;
-
-    mat3 nMat = mat3(ModelViewMat);
-    vNrm = normalize(nMat * Normal);
+    texCoord0 = UV0;
+    vertexColor = Color * ColorModulator;
+    vertexNormal = normalize(mat3(ModelViewMat) * Normal);
 }

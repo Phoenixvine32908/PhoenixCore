@@ -14,8 +14,35 @@
     { "name": "Sampler0" }
   ],
   "uniforms": [
-    { "name": "GameTime", "type": "float", "count": 1, "values": [ 0.0 ] },
-    { "name": "ScreenSize", "type": "float", "count": 2, "values": [ 1.0, 1.0 ] },
-    { "name": "BlackHolePos", "type": "float", "count": 2, "values": [ 0.5, 0.5 ] }
+    {
+      "name": "ScreenSize",
+      "type": "float",
+      "count": 2,
+      "values": [1.0, 1.0]
+    },
+    {
+      "name": "BlackHolePos",
+      "type": "float",
+      "count": 2,
+      "values": [0.5, 0.5]
+    },
+    {
+      "name": "BlackHoleRadius",
+      "type": "float",
+      "count": 1,
+      "values": [0.05]
+    },
+    {
+      "name": "DistortionStrength",
+      "type": "float",
+      "count": 1,
+      "values": [1.25]
+    },
+    {
+      "name": "GameTime",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    }
   ]
 }
