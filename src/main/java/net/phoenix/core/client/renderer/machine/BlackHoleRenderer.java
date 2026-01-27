@@ -3,10 +3,7 @@ package net.phoenix.core.client.renderer.machine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
-import com.mojang.serialization.Codec;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -16,6 +13,11 @@ import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.PhoenixRenderTypes;
 import net.phoenix.core.client.renderer.PhoenixShaders;
 import net.phoenix.core.client.renderer.utils.BlackHolePost;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,12 +28,11 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
 
     public static final BlackHoleRenderer INSTANCE = new BlackHoleRenderer();
     public static final Codec<BlackHoleRenderer> CODEC = Codec.unit(INSTANCE);
-    public static final DynamicRenderType<WorkableElectricMultiblockMachine, BlackHoleRenderer> TYPE =
-            new DynamicRenderType<>(CODEC);
+    public static final DynamicRenderType<WorkableElectricMultiblockMachine, BlackHoleRenderer> TYPE = new DynamicRenderType<>(
+            CODEC);
 
     public static final ResourceLocation CORE_MODEL_RL = PhoenixCore.id("obj/star");
     private static final ResourceLocation CORE_TEX = PhoenixCore.id("textures/entity/black_hole_disk.png");
-
 
     private static final float CORE_SCALE_BLOCKS = 0.01f;
     private static final float LENS_RADIUS_BLOCKS = 100.0f;
@@ -54,7 +55,6 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
                        @NotNull net.minecraft.client.renderer.MultiBufferSource buffer,
                        int packedLight,
                        int packedOverlay) {
-
         if (!machine.isFormed() || !machine.getRecipeLogic().isWorking()) return;
 
         Minecraft mc = Minecraft.getInstance();
@@ -65,8 +65,7 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
         Vec3 centerPos = Vec3.atCenterOf(machine.getPos()).add(
                 facing.getStepX() * OFFSET_DISTANCE,
                 facing.getStepY() * OFFSET_DISTANCE,
-                facing.getStepZ() * OFFSET_DISTANCE
-        );
+                facing.getStepZ() * OFFSET_DISTANCE);
 
         long tick = mc.level.getGameTime();
         BlackHolePost.INSTANCE.setWorld(centerPos, LENS_RADIUS_BLOCKS, LENS_STRENGTH, LENS_FALLBACK_RADIUS_UV, tick);
@@ -76,8 +75,7 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
         poseStack.translate(
                 facing.getStepX() * OFFSET_DISTANCE,
                 facing.getStepY() * OFFSET_DISTANCE,
-                facing.getStepZ() * OFFSET_DISTANCE
-        );
+                facing.getStepZ() * OFFSET_DISTANCE);
 
         float time = mc.level.getGameTime() + partialTick;
 
@@ -102,8 +100,7 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
         mc.getBlockRenderer().getModelRenderer().renderModel(
                 poseStack.last(), vc, null, model,
                 1.0f, 1.0f, 1.0f,
-                light, overlay
-        );
+                light, overlay);
     }
 
     @Override

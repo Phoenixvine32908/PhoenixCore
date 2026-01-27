@@ -1,9 +1,11 @@
 package net.phoenix.core.client.renderer;
 
 import net.minecraft.client.renderer.ShaderInstance;
+
 import org.jetbrains.annotations.Nullable;
 
 public final class PhoenixShaders {
+
     private static @Nullable ShaderInstance BLACK_HOLE;
     private static @Nullable ShaderInstance BLENDER_MATERIAL;
 
@@ -27,7 +29,7 @@ public final class PhoenixShaders {
         BLENDER_MATERIAL = shader;
     }
 
-    /** Call on client shutdown if you want. */
+    /** Call on client shutdown. */
     public static void closeAll() {
         if (BLACK_HOLE != null) BLACK_HOLE.close();
         if (BLENDER_MATERIAL != null) BLENDER_MATERIAL.close();

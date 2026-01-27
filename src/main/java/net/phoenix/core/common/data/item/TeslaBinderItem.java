@@ -45,6 +45,7 @@ import net.phoenix.core.utils.TeamUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -72,44 +73,37 @@ public class TeslaBinderItem extends ComponentItem
 
     @Override
     public @NotNull InteractionResult onItemUseFirst(@NotNull ItemStack itemStack, UseOnContext context) {
-        Player player = context.getPlayer();
+        Player player = context.getPlayer(); // So this is how we actually use a player's interactions. I see.
         if (player == null) return InteractionResult.PASS;
 
-        // Use the level from context safely
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
-        MetaMachine machine = MetaMachine.getMachine(level, clickedPos);
+        MetaMachine machine = MetaMachine.getMachine(level, clickedPos); //Checks if the clicked block is a meta machine, holds that data for further use.
 
-        // 1. Tesla Multiblock Parts (Tower/Hatch)
-        if (machine instanceof IDataStickInteractable interactable) {
+        if (machine instanceof IDataStickInteractable interactable) { // If the machine clicked is data stick interactable, hands off the logic.
             return player.isShiftKeyDown() ?
                     interactable.onDataStickShiftUse(player, itemStack) :
                     interactable.onDataStickUse(player, itemStack);
         }
 
-        // 2. Single-Block Soul Linking (Server Side only)
-        if (!level.isClientSide && machine != null) {
+        if (!level.isClientSide && machine != null) { // If clicked on a machine, runs.
             if (level instanceof ServerLevel serverLevel &&
-                    machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) {
+                    machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) { // If on the server level and has an energy container, runs.
 
-                CompoundTag tag = itemStack.getOrCreateTag();
+                CompoundTag tag = itemStack.getOrCreateTag(); // Init of our tag.
                 if (tag.hasUUID("TargetTeam")) {
                     UUID teamUUID = tag.getUUID("TargetTeam");
                     TeslaTeamEnergyData data = TeslaTeamEnergyData.get(serverLevel);
 
-                    // Toggle the link in the Global Saved Data
-                    // Pass 'level' as the second argument
-                    boolean isNowLinked = data.toggleSoulLink(teamUUID, level, clickedPos);
+                    boolean isNowLinked = data.toggleSoulLink(teamUUID, level, clickedPos); // Is activated when machine is right-clicked with bound binder.
 
-                    if (isNowLinked) {
+                    if (isNowLinked) { // If the machine is linked, runs.
                         player.sendSystemMessage(
                                 Component.literal("Core Synchronized: Machine linked to soul frequency.")
                                         .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.ITALIC));
                         serverLevel.playSound(null, clickedPos, SoundEvents.BEACON_POWER_SELECT,
                                 SoundSource.PLAYERS, 1f, 1.5f);
-                    } else {
-                        // --- INSTANT UNLINK FIX ---
-                        // Manually remove the machine from the Item's NBT cache so the UI updates instantly
+                    } else { // If still clicking on a matching machine but is already linked, removes the block pos and machine name from list of linked machines.
                         if (tag.contains("MachineData")) {
                             ListTag machineList = tag.getList("MachineData", Tag.TAG_COMPOUND);
                             long targetPosLong = clickedPos.asLong();
@@ -130,22 +124,24 @@ public class TeslaBinderItem extends ComponentItem
                     }
                     return InteractionResult.SUCCESS;
 
-                } else {
+                } else { // If clicking on a machine but the binder is not bound to player, fail but pass a chat message.
                     player.sendSystemMessage(
                             Component.literal("Binder is not initialized. Shift-Right Click the air first.")
                                     .withStyle(ChatFormatting.RED));
                     return InteractionResult.FAIL;
                 }
-            } else {
+            } else { // If clicking on a machine but does not have an internal energy buffer, fails but passes a message.
                 player.sendSystemMessage(Component.literal("Invalid Target: Machine has no internal soul-buffer.")
                         .withStyle(ChatFormatting.RED));
                 return InteractionResult.FAIL;
             }
         }
 
-        return InteractionResult.PASS;
+        return InteractionResult.PASS; //If there are any other cases, just silently moves on.
     }
 
+    // If shift right-clicked, binds to player.
+    // If right-clicked on a non IDataStickInteractable machine or a normal block, opens ui.
     @Override
     public @NotNull InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
@@ -163,6 +159,7 @@ public class TeslaBinderItem extends ComponentItem
         return InteractionResult.PASS;
     }
 
+    // If shift right-clicked on air, binds to player. If right-clicked on air, opens the ui.
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player,
                                                            @NotNull InteractionHand hand) {
@@ -188,8 +185,9 @@ public class TeslaBinderItem extends ComponentItem
         return super.use(level, player, hand);
     }
 
+    // Handles the linking of the player/team data onto the Telsa Binder.
     private void bindToPlayer(Player player, ItemStack stack) {
-        UUID uuid = player.getUUID();
+        UUID uuid = player.getUUID(); // Unique player id.
         var tag = stack.getOrCreateTag();
         tag.putUUID("TargetTeam", uuid);
         tag.putString("OwnerName", player.getName().getString());
@@ -205,6 +203,7 @@ public class TeslaBinderItem extends ComponentItem
         }
     }
 
+    // Helper method for grabbing the name of the player.
     @Override
     public @NotNull Component getName(ItemStack stack) {
         if (stack.hasTag()) {
@@ -216,18 +215,17 @@ public class TeslaBinderItem extends ComponentItem
         return super.getName(stack);
     }
 
+    // Handles the naming of linked binders, and the name/team name fields on the tooltip.
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip,
                                 @NotNull TooltipFlag flag) {
         if (stack.hasTag() && Objects.requireNonNull(stack.getTag()).contains("OwnerName")) {
             int color = getAnimatedColor(0xA330FF, 0xFF66CC, 2000);
 
-            // "Bound to Player: PlayerName" (Always animated)
             tooltip.add(Component.literal("Bound to Player: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(stack.getTag().getString("OwnerName"))
                             .withStyle(Style.EMPTY.withColor(color))));
 
-            // "Bound to Team: Network Name" (Always animated)
             if (stack.getTag().contains("TeamName")) {
                 tooltip.add(Component.literal("Bound to Team: ").withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(stack.getTag().getString("TeamName"))
@@ -248,30 +246,7 @@ public class TeslaBinderItem extends ComponentItem
         return (r << 16) | (g << 8) | b;
     }
 
-    private String formatTeslaValue(String valueStr, boolean forceScientific) {
-        if (valueStr == null || valueStr.isEmpty()) return "0";
-        try {
-            String cleanValue = valueStr.replaceAll("[§][0-9a-fk-or]", "")
-
-                    .replace(",", "").replace("+", "").replace("-", "").trim();
-
-            double value = Double.parseDouble(cleanValue);
-
-            if (value == 0) return "0";
-            if (forceScientific && value >= 1000) {
-
-                return String.format("%.1e", value);
-            }
-            if (value >= 1_000_000_000_000L) {
-
-                return String.format("%.3e", value);
-            }
-            return String.format("%,.0f", value);
-        } catch (NumberFormatException ignored) {
-            return valueStr.replaceAll("[§][0-9a-fk-or]", "");
-        }
-    }
-
+    // The main ui of the binder.
     @Override
     public ModularUI createUI(HeldItemUIFactory.HeldItemHolder holder, Player player) {
         ItemStack stack = holder.getHeld();
@@ -288,7 +263,6 @@ public class TeslaBinderItem extends ComponentItem
         WidgetGroup detailLayer = new WidgetGroup(0, 0, windowWidth, windowHeight);
         detailLayer.setVisible(false);
 
-        // --- SHARED DETAIL LOGIC ---
         Consumer<CompoundTag> openDetail = (hTag) -> {
             detailLayer.clearAllWidgets();
             detailLayer.addWidget(new ButtonWidget(5, 5, 18, 18, GuiTextures.BUTTON_LEFT, c -> {
@@ -328,7 +302,7 @@ public class TeslaBinderItem extends ComponentItem
                                 .withStyle(ChatFormatting.WHITE)));
 
                 if (!isCharger && hTag.contains("buf")) {
-                    // Using compactTeslaValue for consistency; it handles the space before 'EU'
+
                     list.add(Component.literal("Internal Buffer: ").withStyle(ChatFormatting.GRAY)
                             .append(Component.literal(compactTeslaValue(hTag.getString("buf")) + "EU")
                                     .withStyle(ChatFormatting.GOLD)));
@@ -361,7 +335,6 @@ public class TeslaBinderItem extends ComponentItem
             detailLayer.setVisible(true);
         };
 
-        // --- MAIN HEADER ---
         mainLayer.addWidget(new LabelWidget(8, 6, "Tesla Network Management").setTextColor(0xB000FF));
 
         WidgetGroup header = new WidgetGroup(5, 18, windowWidth - 10, 80);
@@ -370,7 +343,6 @@ public class TeslaBinderItem extends ComponentItem
             text.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(tag.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
 
-            // compactTeslaValue now provides the leading space for k, M, G etc.
             text.add(Component.literal("Stored: ").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(compactTeslaValue(tag.getString("StoredEU")) + "EU")
                             .withStyle(ChatFormatting.GOLD)));
@@ -389,7 +361,6 @@ public class TeslaBinderItem extends ComponentItem
         }));
         mainLayer.addWidget(header);
 
-        // --- LIST & FILTER LOGIC ---
         String[] filters = { "ALL", "[I]", "[O]", "[S]", "[C]" };
         int btnWidth = 48;
         for (int i = 0; i < filters.length; i++) {
@@ -446,7 +417,6 @@ public class TeslaBinderItem extends ComponentItem
         String colorCode;
         String sign;
 
-        // Configuration based on type
         switch (type) {
             case "hatch" -> {
                 boolean isInput = data.getBoolean("isOut");
@@ -459,7 +429,7 @@ public class TeslaBinderItem extends ComponentItem
                 colorCode = "§b";
                 sign = "-";
             }
-            default -> { // Soul Machine
+            default -> {
                 typeLabel = "[S]";
                 colorCode = "§d";
                 sign = "-";
@@ -483,11 +453,8 @@ public class TeslaBinderItem extends ComponentItem
         String rawName = data.contains("name") ? data.getString("name") :
                 (type.equals("hatch") ? "Tesla Hatch" : (type.equals("charger") ? "Wireless Charger" : "Soul Machine"));
 
-        // UPDATED: Now utilizes the space provided by compactTeslaValue and appends EU
-        // Result looks like: " (+1.2 MEU)"
         String flowStr = " §8(" + colorCode + sign + compactTeslaValue(transferRaw) + "EU§8)";
 
-        // Adjusting width calculations for the new string lengths
         int totalAvailableWidth = windowWidth - 110;
         int tailWidth = font.width(flowStr);
         int headWidth = font.width(statusIcon + " " + colorCode + typeLabel + "§r ");
@@ -506,14 +473,11 @@ public class TeslaBinderItem extends ComponentItem
         int rowWidth = windowWidth - 20;
         WidgetGroup row = new WidgetGroup(0, y, rowWidth, 18);
 
-        // Main interaction button
         row.addWidget(new ButtonWidget(0, 0, rowWidth - 22, 18, GuiTextures.BUTTON, c -> clickAction.accept(data)));
         row.addWidget(new LabelWidget(4, 5, finalRowText));
 
-        // Distance label
         row.addWidget(new LabelWidget(rowWidth - 68, 5, getDistanceString(pos, player, data)));
 
-        // Quick Highlight button (Gear icon)
         int gearX = rowWidth - 18;
         row.addWidget(new ButtonWidget(gearX, 0, 18, 18, GuiTextures.BUTTON, c -> {
             if (player.level().isClientSide) TeslaHighlightRenderer.highlight(pos, 200);
@@ -524,7 +488,6 @@ public class TeslaBinderItem extends ComponentItem
         return y + 19;
     }
 
-    // Helper to keep the main method clean
     private String getDistanceString(BlockPos pos, Player player, CompoundTag data) {
         if (data.contains("dim") && !player.level().dimension().location().toString().equals(data.getString("dim"))) {
             String dim = data.getString("dim");
@@ -545,30 +508,11 @@ public class TeslaBinderItem extends ComponentItem
 
             java.math.BigInteger thousand = java.math.BigInteger.valueOf(1000);
 
-            // If less than 1000, we still return a trailing space for consistency with suffixes
             if (n.compareTo(thousand) < 0) {
                 return (negative ? "-" : "") + n.toString() + " ";
             }
 
-            // SI Prefixes with a leading space as per htmlcsjs's nitpick
-            String[] suffixes = new String[] { " ", " k", " M", " G", " T", " P", " Ei", " Z", " Y" };
-            int tier = 0;
-
-            java.math.BigDecimal dN = new java.math.BigDecimal(n);
-            java.math.BigDecimal dThousand = new java.math.BigDecimal(1000);
-
-            while (dN.compareTo(dThousand) >= 0 && tier < suffixes.length - 1) {
-                dN = dN.divide(dThousand, 2, java.math.RoundingMode.HALF_UP);
-                tier++;
-            }
-
-            String result;
-            // If the number is 100 or greater (e.g., 100.2 k), drop the decimal for cleaner UI
-            if (dN.compareTo(java.math.BigDecimal.valueOf(100)) >= 0) {
-                result = String.format("%.0f%s", dN, suffixes[tier]);
-            } else {
-                result = String.format("%.1f%s", dN, suffixes[tier]);
-            }
+            String result = getString(n);
 
             return (negative ? "-" : "") + result;
         } catch (Exception e) {
@@ -576,12 +520,33 @@ public class TeslaBinderItem extends ComponentItem
         }
     }
 
+    private static @NotNull String getString(BigInteger n) {
+        String[] suffixes = new String[] { " ", " k", " M", " G", " T", " P", " Ei", " Z", " Y" };
+        int tier = 0;
+
+        java.math.BigDecimal dN = new java.math.BigDecimal(n);
+        java.math.BigDecimal dThousand = new java.math.BigDecimal(1000);
+
+        while (dN.compareTo(dThousand) >= 0 && tier < suffixes.length - 1) {
+            dN = dN.divide(dThousand, 2, java.math.RoundingMode.HALF_UP);
+            tier++;
+        }
+
+        String result;
+
+        if (dN.compareTo(java.math.BigDecimal.valueOf(100)) >= 0) {
+            result = String.format("%.0f%s", dN, suffixes[tier]);
+        } else {
+            result = String.format("%.1f%s", dN, suffixes[tier]);
+        }
+        return result;
+    }
+
     @Override
     public void inventoryTick(@NotNull ItemStack stack, Level level, @NotNull Entity entity, int slotId,
                               boolean isSelected) {
         if (level.isClientSide || !(entity instanceof ServerPlayer serverPlayer)) return;
 
-        // Pulse check (Every 5 ticks) to keep UI responsive but save CPU
         if (level.getGameTime() % 5 != 0) return;
 
         boolean isUIOpen = serverPlayer.containerMenu instanceof com.lowdragmc.lowdraglib.gui.modular.ModularUIContainer;
@@ -596,17 +561,14 @@ public class TeslaBinderItem extends ComponentItem
             TeslaTeamEnergyData globalData = TeslaTeamEnergyData.get(overworld);
             TeslaTeamEnergyData.TeamEnergy team = globalData.getOrCreate(teamUUID);
 
-            // --- 1. GLOBAL NETWORK STATS ---
             tag.putString("StoredEU", team.stored.toString());
             tag.putString("CapacityEU", team.capacity.toString());
             tag.putString("TeamName", TeamUtils.getTeamName(teamUUID));
             tag.putString("NetInput", String.valueOf(team.lastNetInput));
             tag.putString("NetOutput", String.valueOf(team.lastNetOutput));
 
-            // Track invalid positions to clean up the network data
             List<BlockPos> toRemove = new ArrayList<>();
 
-            // --- 2. PHYSICAL HATCHES (Uplinks/Downlinks) ---
             ListTag hatchList = new ListTag();
             for (TeslaTeamEnergyData.HatchInfo hatch : globalData.getHatches(teamUUID)) {
                 if (hatch.isSoulLinked) continue;
@@ -620,7 +582,6 @@ public class TeslaBinderItem extends ComponentItem
             }
             tag.put("HatchData", hatchList);
 
-            // --- 3. SOUL CONSUMERS (Wired Singleblocks) ---
             ListTag machineList = new ListTag();
             for (BlockPos mPos : team.soulLinkedMachines) {
                 ResourceKey<Level> mDim = team.getMachineDimension(mPos);
@@ -638,7 +599,7 @@ public class TeslaBinderItem extends ComponentItem
                             mTag.putString("buf", String.valueOf(tiered.energyContainer.getEnergyStored()));
                         }
                     } else {
-                        toRemove.add(mPos); // Machine was broken/removed
+                        toRemove.add(mPos);
                         continue;
                     }
                 } else {
@@ -649,17 +610,14 @@ public class TeslaBinderItem extends ComponentItem
             }
             tag.put("MachineData", machineList);
 
-            // --- 4. WIRELESS CHARGERS [C] ---
-            // --- SECTION: WIRELESS CHARGERS [C] ---
             ListTag chargerList = new ListTag();
-            List<BlockPos> deadChargers = new ArrayList<>(); // Track chargers to remove
+            List<BlockPos> deadChargers = new ArrayList<>();
 
             for (BlockPos cPos : team.activeChargers) {
                 CompoundTag cTag = new CompoundTag();
                 cTag.putLong("pos", cPos.asLong());
                 cTag.putBoolean("isCharger", true);
 
-                // Check if machine actually exists and is the right type
                 MetaMachine machine = MetaMachine.getMachine(level, cPos);
                 if (machine == null) machine = MetaMachine.getMachine(overworld, cPos);
 
@@ -669,11 +627,9 @@ public class TeslaBinderItem extends ComponentItem
                     cTag.putString("transfer", String.valueOf(flow));
                     chargerList.add(cTag);
                 } else {
-                    // If the block is gone or replaced by something else, mark for removal
                     if (level.isLoaded(cPos) || overworld.isLoaded(cPos)) {
                         deadChargers.add(cPos);
                     } else {
-                        // If chunk is just unloaded, keep it but show as unloaded
                         cTag.putString("name", "§8[Unloaded Charger]§r");
                         cTag.putString("transfer", "0");
                         chargerList.add(cTag);
@@ -681,7 +637,6 @@ public class TeslaBinderItem extends ComponentItem
                 }
             }
 
-            // Cleanup dead chargers
             if (!deadChargers.isEmpty()) {
                 for (BlockPos p : deadChargers) team.removeCharger(p);
                 globalData.setDirty();

@@ -42,7 +42,6 @@ public class PhoenixClient {
         event.register(new ResourceLocation("phoenixcore", "models/machine/star.obj"));
     }
 
-    // This is the new method you need to add
     @SubscribeEvent
     public static void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {

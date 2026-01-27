@@ -65,8 +65,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     public TeslaTowerMachine(IMachineBlockEntity holder) {
         super(holder);
         this.energyBank = new TeslaEnergyBank(this, List.of());
-        // Use a standard subscribeServerTick instead of the conditional handler
-        // to ensure it never "falls asleep"
         subscribeServerTick(this::transferEnergyTick);
     }
 
@@ -131,7 +129,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                 if (io.support(IO.OUT)) outputs.addAll(containers);
             }
 
-            // Tesla wired hatches (Special phoenix hatches)
+            // Tesla wired hatches
             if (part instanceof TeslaEnergyHatchPartMachine hatch && !hatch.isWireless()) {
                 if (hatch.getIO() == IO.IN) inputs.add(hatch.getEnergyContainer());
                 else if (hatch.getIO() == IO.OUT) outputs.add(hatch.getEnergyContainer());
@@ -155,7 +153,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             return;
         }
 
-        // 4. Initialize Energy Bank (The Trait GT sees)
+        // 4. Initialize Energy Bank
         if (this.energyBank == null) {
             this.energyBank = new TeslaEnergyBank(this, batteries);
         } else {
@@ -187,7 +185,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
             long injectedThisTick = 0;
 
-            // 3. Handle Charger Machines (e.g., Battery Chargers)
+            // 3. Handle Charger Machine (e.g., Battery Chargers)
             if (machine instanceof com.gregtechceu.gtceu.common.machine.electric.ChargerMachine charger) {
                 var energy = charger.energyContainer;
                 if (energy != null) {
@@ -196,7 +194,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                     long maxTransfer = voltage * energy.getInputAmperage();
                     long toPush = Math.min(available, maxTransfer);
 
-                    // GTCEu logic for packets
                     long accepted = energy.acceptEnergyFromNetwork(null, voltage,
                             (long) Math.ceil((double) toPush / voltage));
                     if (accepted > 0) {
@@ -205,7 +202,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                     }
                 }
             }
-            // 4. Handle Standard Tiered Machines (Processing Machines, etc.)
+            // 4. Handle Standard Tiered Machines
             else if (machine instanceof TieredEnergyMachine tieredMachine) {
                 var energy = tieredMachine.energyContainer;
                 if (energy != null && energy.getInputVoltage() > 0) {
@@ -254,7 +251,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                 TeslaTeamEnergyData data = TeslaTeamEnergyData.get(sl);
                 TeslaTeamEnergyData.TeamEnergy team = data.getOrCreate(ownerTeamUUID);
 
-                // --- A. GHOSTING FIX: MASTER RESET ---
                 // We clear old display averages for all known endpoints first.
                 // If they don't move energy this second, they will correctly show 0.
                 for (var hatch : data.getHatches(ownerTeamUUID)) {
@@ -267,7 +263,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                 long totalWirelessInput = 0;
                 long totalWirelessOutput = 0;
 
-                // --- B. PROCESS WIRELESS HATCHES (Current Real-time Data) ---
 
                 // Uplinks (Providing: Hatch -> Cloud)
                 for (var entry : team.energyOutput.entrySet()) {
@@ -285,7 +280,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                     team.machineDisplayFlow.put(entry.getKey(), accumulated / 20);
                 }
 
-                // --- C. PROCESS SOUL-LINKED MACHINES ---
                 long totalSoulLinkedOutput = 0;
                 for (BlockPos mPos : team.soulLinkedMachines) {
                     long accumulated = team.machineCurrentFlow.getOrDefault(mPos, 0L);
@@ -294,14 +288,12 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                     team.machineDisplayFlow.put(mPos, averagePerTick);
                     totalSoulLinkedOutput += accumulated;
 
-                    team.machineCurrentFlow.put(mPos, 0L); // Reset machine-specific accumulator
+                    team.machineCurrentFlow.put(mPos, 0L);
                 }
 
-                // --- D. UPDATE GLOBAL TOTALS (EU/t) ---
                 team.lastNetInput = (netInLastSec + totalWirelessInput) / 20;
                 team.lastNetOutput = (netOutLastSec + totalWirelessOutput + totalSoulLinkedOutput) / 20;
 
-                // --- E. CLEANUP ---
                 team.energyInput.clear();
                 team.energyOutput.clear();
                 data.setDirty();
@@ -474,7 +466,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         int newTier = energyBank.getHighestTier();
         if (newTier != batteryTier) {
             batteryTier = newTier;
-            onChanged(); // 🔥 THIS is what you were missing
+            onChanged();
         }
     }
 
@@ -812,7 +804,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                 .append(Component.literal(ownerTeamUUID == null ? "None" : TeamUtils.getTeamName(ownerTeamUUID))
                         .withStyle(AQUA)));
 
-        // 3. Stored & Capacity (Using your working energyBank logic)
+        // 3. Stored & Capacity
         if (energyBank != null) {
             textList.add(Component.literal("Stored: ")
                     .append(Component
@@ -834,7 +826,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
         if (!getLevel().isClientSide && getLevel() instanceof ServerLevel serverLevel && ownerTeamUUID != null) {
             var team = TeslaTeamEnergyData.get(serverLevel).getOrCreate(ownerTeamUUID);
-            // Ensure these field names match what you have in your TeamEnergy class
             inputVal = team.lastNetInput;
             outputVal = team.lastNetOutput;
         }
@@ -854,13 +845,17 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             textList.add(Component.literal("Battery Tier: ")
                     .append(Component.literal(GTValues.VN[energyBank.getHighestTier()]).withStyle(AQUA)));
         }
+
+
     }
+
+
 
     private String formatTeslaValue(String valueStr, boolean forceScientific) {
         if (valueStr == null || valueStr.isEmpty()) return "0";
         try {
             // 1. Clean the string so Double.parseDouble can read it
-            // We strip: GT color codes (§), commas (,), plus/minus, and any "suffix" letters like k, M, G
+            // We strip: color codes (§), commas (,), plus/minus, and any "suffix" letters like k, M, G
             String cleanValue = valueStr.replaceAll("[§][0-9a-fk-or]", "")
                     .replace(",", "")
                     .replace("+", "")
@@ -877,12 +872,12 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             }
 
             // 3. Handle the "1 Trillion" Threshold for the Header
-            // Above 1 Trillion: Use 3-decimal scientific notation (e.g., 1.250e+12)
+            // Above 1 Trillion: Uses 3-decimal scientific notation (e.g., 1.250e+12)
             if (value >= 1_000_000_000_000L) {
                 return String.format("%.3e", value);
             }
 
-            // 4. Below 1 Trillion: Use standard formatting with COMMAS
+            // 4. Below 1 Trillion: Uses standard formatting with COMMAS
             // We use String.format with %,.0f to add thousands separators
             return String.format("%,.0f", value);
 

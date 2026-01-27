@@ -8,15 +8,10 @@ import java.util.*;
 
 public final class TeslaWirelessRegistry {
 
-    // Map team UUID → set of wireless hatches for that team
     private static final Map<UUID, Set<TeslaEnergyHatchPartMachine>> TEAM_HATCHES = new HashMap<>();
 
-    // Map team UUID → tower
     private static final Map<UUID, TeslaTowerMachine> TEAM_TOWERS = new HashMap<>();
 
-    // --------------------------
-    // Wireless hatch management
-    // --------------------------
 
     public static void registerHatch(TeslaEnergyHatchPartMachine hatch) {
         if (hatch.getOwnerTeamUUID() == null) return;
@@ -37,9 +32,6 @@ public final class TeslaWirelessRegistry {
         return TEAM_HATCHES.get(team);
     }
 
-    // --------------------------
-    // Tower management
-    // --------------------------
 
     public static void registerTower(TeslaTowerMachine tower) {
         if (tower.getOwnerUUID() != null) {
@@ -65,9 +57,6 @@ public final class TeslaWirelessRegistry {
         return tower.getEnergyBank();
     }
 
-    // --------------------------
-    // Tick all wireless hatches for a team
-    // --------------------------
 
     public static void tickTeamHatches(UUID team) {
         TeslaTowerMachine.TeslaEnergyBank bank = getBank(team);

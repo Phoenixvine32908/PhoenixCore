@@ -20,11 +20,9 @@ public class TeslaLinkEventHandler {
         BlockPos brokenPos = event.getPos();
         MetaMachine machine = MetaMachine.getMachine(level, brokenPos);
 
-        // If it's a TieredMachine, it could be a Soul Consumer or a Wireless Charger
         if (machine instanceof TieredEnergyMachine) {
             TeslaTeamEnergyData data = TeslaTeamEnergyData.get(level);
 
-            // This should remove it from soulLinkedMachines AND activeChargers
             data.removeMachineFromAllTeams(brokenPos);
         }
     }

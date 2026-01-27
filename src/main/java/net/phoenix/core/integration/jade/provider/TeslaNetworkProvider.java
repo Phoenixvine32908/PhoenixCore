@@ -45,7 +45,6 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
                 TeslaTeamEnergyData data = TeslaTeamEnergyData.get(overworld);
                 var machine = metaBE.getMetaMachine();
 
-                // 1. Identify Machine & Team
                 if (machine instanceof TeslaEnergyHatchPartMachine hatch) {
                     team = hatch.getOwnerTeamUUID();
                     if (team != null) {
@@ -53,7 +52,6 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
                         transferRate = data.getOrCreate(team).machineDisplayFlow.getOrDefault(pos, 0L);
                     }
                 } else {
-                    // Search both Linked Machines and Active Chargers
                     for (var entry : data.getNetworksView().entrySet()) {
                         TeslaTeamEnergyData.TeamEnergy teamData = entry.getValue();
                         if (teamData.soulLinkedMachines.contains(pos)) {
@@ -70,7 +68,6 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
                     }
                 }
 
-                // 2. Wrap Data
                 if (team != null) {
                     TeslaTeamEnergyData.TeamEnergy teamData = data.getOrCreate(team);
                     tag.putUUID("TeslaTeam", team);
@@ -80,7 +77,6 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
                     tag.putLong("LocalTransfer", transferRate);
                     tag.putInt("TransferMode", mode);
 
-                    // --- FIX: Recalculate Connections to include Chargers ---
                     int physicalHatches = teamData.getLiveHatchCount(sl.getGameTime());
                     int wiredMachines = teamData.soulLinkedMachines.size();
                     int wirelessChargers = teamData.activeChargers.size();
@@ -96,24 +92,19 @@ public class TeslaNetworkProvider implements IBlockComponentProvider, IServerDat
         CompoundTag data = accessor.getServerData();
         if (!data.contains("TeslaTeam")) return;
 
-        // --- 1. NETWORK HEADER ---
         tooltip.add(Component.literal("Network: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(data.getString("TeamName")).withStyle(ChatFormatting.AQUA)));
 
-        // --- 2. GLOBAL STORAGE (CLOUD) ---
         tooltip.add(Component.literal("Cloud: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(data.getString("Stored")).withStyle(ChatFormatting.GOLD))
                 .append(Component.literal(" / " + data.getString("Capacity") + " EU")
                         .withStyle(ChatFormatting.YELLOW)));
 
-        // --- 3. CONNECTION SUMMARY (FIXED) ---
-        // Use the TotalConnections tag which now includes Hatches + Soul Machines + Chargers
         int connections = data.contains("TotalConnections") ? data.getInt("TotalConnections") :
                 data.getInt("ActiveHatches");
         tooltip.add(Component.literal("Connections: ").withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(String.valueOf(connections)).withStyle(ChatFormatting.WHITE)));
 
-        // --- 4. LOCAL TRANSFER INFO ---
         if (data.contains("TransferMode") && data.getInt("TransferMode") != -1) {
             long rate = data.getLong("LocalTransfer");
             int mode = data.getInt("TransferMode");

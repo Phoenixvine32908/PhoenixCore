@@ -73,7 +73,6 @@ public class CrystalRoseAssemblerGenerator {
     }
 
     private static ItemStack getPreferredInputForMaterial(Material material) {
-        // 1 — raw ore (best)
         if (!TagPrefix.rawOre.isIgnored(material)) {
             ItemStack raw = ChemicalHelper.get(TagPrefix.rawOre, material, 1);
             if (!raw.isEmpty()) return raw;

@@ -1,6 +1,5 @@
 package net.phoenix.core.common.data.materials;
 
-import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
@@ -18,7 +17,6 @@ public class PhoenixOres {
     public static Material CRYSTALLIZED_FLUXSTONE;
 
     public static void register() {
-        // 1. Nevvonian Iron: Standard metal with Diamond-style luster
         NEVVONIAN_IRON = new Material.Builder(PhoenixCore.id("nevvonian_iron"))
                 .ingot()
                 .ore()
@@ -26,7 +24,6 @@ public class PhoenixOres {
                 .iconSet(MaterialIconSet.DIAMOND)
                 .buildAndRegister();
 
-        // 2. Fluorite: Gem material (Used in the Bee Recipes that were crashing)
         FLUORITE = new Material.Builder(PhoenixCore.id("fluorite"))
                 .gem()
                 .ore()
@@ -34,7 +31,6 @@ public class PhoenixOres {
                 .iconSet(MaterialIconSet.DIAMOND)
                 .buildAndRegister();
 
-        // 3. Ignisium: Fiery dust/ore
         IGNISIUM = new Material.Builder(PhoenixCore.id("ignisium"))
                 .dust()
                 .ore()
@@ -42,7 +38,6 @@ public class PhoenixOres {
                 .iconSet(MaterialIconSet.DIAMOND)
                 .buildAndRegister();
 
-        // 4. Polarity Flipped Bismuthite: Complex ore that cannot be decomposed simply
         POLARITY_FLIPPED_BISMUTHITE = new Material.Builder(PhoenixCore.id("polarity_flipped_bismuthite"))
                 .dust()
                 .ore()
@@ -51,7 +46,6 @@ public class PhoenixOres {
                 .flags(MaterialFlags.DISABLE_DECOMPOSITION)
                 .buildAndRegister();
 
-        // 5. Voidglass Shard: High-tier gem ore
         VOIDGLASS_SHARD = new Material.Builder(PhoenixCore.id("voidglass_shard"))
                 .gem()
                 .ore()
@@ -60,7 +54,6 @@ public class PhoenixOres {
                 .flags(MaterialFlags.DISABLE_DECOMPOSITION)
                 .buildAndRegister();
 
-        // 6. Crystallized Fluxstone: Arcane dust ore
         CRYSTALLIZED_FLUXSTONE = new Material.Builder(PhoenixCore.id("crystallized_fluxstone"))
                 .dust()
                 .ore()

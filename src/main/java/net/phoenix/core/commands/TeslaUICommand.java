@@ -50,7 +50,6 @@ public class TeslaUICommand {
             source.sendSuccess(() -> Component.literal("  §7Stored: §b" + e.stored), false);
             source.sendSuccess(() -> Component.literal("  §7Capacity: §b" + e.capacity), false);
 
-            // Fix: Use the size of the maps inside the TeamEnergy object
             int hatchCount = e.energyBuffered.size();
             int soulLinkCount = e.soulLinkedMachines.size();
 

@@ -10,17 +10,13 @@ import net.phoenix.core.common.data.item.PhoenixItems;
 import net.phoenix.core.common.data.materials.PhoenixElements;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.materials.PhoenixOres;
-import net.phoenix.core.common.data.materials.PhoenixOres;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.multiblock.*;
 import net.phoenix.core.configs.PhoenixConfigs;
-import net.phoenix.core.integration.kubejs.builders.FissionCoolerBlockBuilder;
-import net.phoenix.core.integration.kubejs.builders.FissionModeratorBlockBuilder;
 import net.phoenix.core.integration.kubejs.recipe.PhoenixRecipeSchema;
 
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
-import dev.latvian.mods.kubejs.registry.RegistryInfo;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ClassFilter;
@@ -35,15 +31,6 @@ public class PhoenixKubeJSPlugin extends KubeJSPlugin {
     @Override
     public void init() {
         super.init();
-        RegistryInfo.BLOCK.addType(
-                PhoenixCore.MOD_ID + ":fission_cooler",
-                FissionCoolerBlockBuilder.class,
-                FissionCoolerBlockBuilder::new);
-
-        RegistryInfo.BLOCK.addType(
-                PhoenixCore.MOD_ID + ":fission_moderator",
-                FissionModeratorBlockBuilder.class,
-                FissionModeratorBlockBuilder::new);
     }
 
     @Override
@@ -74,8 +61,6 @@ public class PhoenixKubeJSPlugin extends KubeJSPlugin {
         event.add("CreativeEnergyMultiMachine", CreativeEnergyMultiMachine.class);
         event.add("PhoenixItems", PhoenixItems.class);
         event.add("PhoenixRecipeTypes", PhoenixRecipeTypes.class);
-        event.add("FissionWorkableElectricMultiblockMachine", FissionWorkableElectricMultiblockMachine.class);
-        event.add("FissionSteamMultiblockMachine", FissionSteamMultiblockMachine.class);
 
         event.add("PhoenixDynamicRenderHelpers", PhoenixDynamicRenderHelpers.class);
         event.add("PhoenixCore", PhoenixCore.class);

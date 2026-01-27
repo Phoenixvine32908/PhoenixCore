@@ -44,16 +44,16 @@ public class TeslaBatteryBlock extends Block {
 
     public enum TeslaBatteryType implements ITeslaBattery {
 
-        UHV(9, BigInteger.valueOf(10_000_000_000L)),
-        UEV(10, BigInteger.valueOf(50_000_000_000L)),
-        UIV(11, BigInteger.valueOf(250_000_000_000L)),
-        UXV(12, BigInteger.valueOf(1_000_000_000_000L)),
-        OPV(13, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(4))),
-        MAX(14, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(16)));
+        UHV(9, BigInteger.valueOf(10_000_000_000L).multiply(BigInteger.valueOf(100))),
+        UEV(10, BigInteger.valueOf(50_000_000_000L).multiply(BigInteger.valueOf(100))),
+        UIV(11, BigInteger.valueOf(250_000_000_000L).multiply(BigInteger.valueOf(100))),
+        UXV(12, BigInteger.valueOf(1_000_000_000_000L).multiply(BigInteger.valueOf(100))),
+        OPV(13, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(400))),
+        MAX(14, BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(1600)));
 
         private final int tier;
         private final BigInteger capacity;
-        private BigInteger stored = BigInteger.ZERO; // ✅ Add this
+        private BigInteger stored = BigInteger.ZERO;
 
         TeslaBatteryType(int tier, BigInteger capacity) {
             this.tier = tier;

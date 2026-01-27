@@ -18,7 +18,7 @@ import java.util.Objects;
 public class ShieldSensorHatchPartMachine extends SensorHatchPartMachine {
 
     public ShieldSensorHatchPartMachine(IMachineBlockEntity holder) {
-        super(holder, GTValues.HV); // pick tier as you like
+        super(holder, GTValues.HV);
     }
 
     @Override

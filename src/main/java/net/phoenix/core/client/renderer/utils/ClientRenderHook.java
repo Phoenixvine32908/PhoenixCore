@@ -1,11 +1,5 @@
 package net.phoenix.core.client.renderer.utils;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
@@ -15,6 +9,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.PhoenixShaders;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
@@ -24,15 +25,15 @@ import java.util.Objects;
  * Applies the black hole lensing as a post-pass.
  *
  * Fixes:
- *  - UV origin consistency: projection now matches OpenGL (bottom-left origin).
- *  - Logs whether fallback radius was used.
- *  - Uses framebuffer sizes for ScreenSize.
- *  - Disables blending for fullscreen replace.
+ * - UV origin consistency: projection now matches OpenGL (bottom-left origin).
+ * - Logs whether fallback radius was used.
+ * - Uses framebuffer sizes for ScreenSize.
+ * - Disables blending for fullscreen replace.
  */
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = PhoenixCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class ClientRenderHook {
 
-    private static final boolean DEBUG_BH = true;
+    private static final boolean DEBUG_BH = false;
     private static final int DEBUG_EVERY_TICKS = 10;
 
     // Optional visibility clamps (for testing)
@@ -108,8 +109,7 @@ public final class ClientRenderHook {
                     (uvEdge == null ? "null" : "(" + fmt4(uvEdge[0]) + ", " + fmt4(uvEdge[1]) + ")"),
                     usedFallback,
                     fmt6(radiusUvRaw),
-                    fmt6(radiusUv)
-            );
+                    fmt6(radiusUv));
         }
 
         // 4) Copy main -> scratch, then lens scratch -> main
@@ -117,7 +117,8 @@ public final class ClientRenderHook {
         var scratch = BlackHoleTargets.scratch();
 
         if (dbg) {
-            PhoenixCore.LOGGER.info("BH RT sizes: main={}x{}, scratch={}x{}", main.width, main.height, scratch.width, scratch.height);
+            PhoenixCore.LOGGER.info("BH RT sizes: main={}x{}, scratch={}x{}", main.width, main.height, scratch.width,
+                    scratch.height);
         }
 
         // 4a) Copy pass
@@ -142,7 +143,6 @@ public final class ClientRenderHook {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
 
-        // fullscreen replace
         RenderSystem.disableBlend();
 
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -159,7 +159,8 @@ public final class ClientRenderHook {
         if (shader.getUniform("DistortionStrength") != null)
             Objects.requireNonNull(shader.getUniform("DistortionStrength")).set(post.strength());
         if (shader.getUniform("GameTime") != null)
-            Objects.requireNonNull(shader.getUniform("GameTime")).set((float) mc.level.getGameTime() + event.getPartialTick());
+            Objects.requireNonNull(shader.getUniform("GameTime"))
+                    .set((float) mc.level.getGameTime() + event.getPartialTick());
 
         if (dbg) {
             PhoenixCore.LOGGER.info(
@@ -167,8 +168,7 @@ public final class ClientRenderHook {
                     main.width, main.height,
                     fmt4(post.xUv()), fmt4(post.yUv()),
                     fmt6(post.radiusUv()),
-                    fmt3(post.strength())
-            );
+                    fmt3(post.strength()));
         }
 
         drawFullscreenQuad();
@@ -181,21 +181,22 @@ public final class ClientRenderHook {
 
     /**
      * IMPORTANT: returns UV with OpenGL-style origin (bottom-left):
-     *  u = (ndcX+1)/2
-     *  v = (ndcY+1)/2   <-- NO inversion
+     * u = (ndcX+1)/2
+     * v = (ndcY+1)/2 <-- NO inversion
      */
-    private static float[] projectWorldToUv(Vec3 world, Vec3 camPos, Matrix4f view, Matrix4f proj, boolean dbg, String tag) {
+    private static float[] projectWorldToUv(Vec3 world, Vec3 camPos, Matrix4f view, Matrix4f proj, boolean dbg,
+                                            String tag) {
         Vector4f p = new Vector4f(
                 (float) (world.x - camPos.x),
                 (float) (world.y - camPos.y),
                 (float) (world.z - camPos.z),
-                1.0f
-        );
+                1.0f);
         p.mul(view).mul(proj);
 
         float w = p.w();
         if (w <= 0.0f) {
-            if (dbg) PhoenixCore.LOGGER.info("BH project {}: behind camera (w={}) world={}", tag, fmt3(w), vec3Str(world));
+            if (dbg)
+                PhoenixCore.LOGGER.info("BH project {}: behind camera (w={}) world={}", tag, fmt3(w), vec3Str(world));
             return null;
         }
 
@@ -205,8 +206,7 @@ public final class ClientRenderHook {
         if (dbg) {
             PhoenixCore.LOGGER.info(
                     "BH project {}: world={} ndc=({}, {})",
-                    tag, vec3Str(world), fmt3(ndcX), fmt3(ndcY)
-            );
+                    tag, vec3Str(world), fmt3(ndcX), fmt3(ndcY));
         }
 
         // reject far off-screen
@@ -224,9 +224,9 @@ public final class ClientRenderHook {
 
         b.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         b.vertex(-1f, -1f, 0f).uv(0f, 0f).endVertex();
-        b.vertex(-1f,  1f, 0f).uv(0f, 1f).endVertex();
-        b.vertex( 1f,  1f, 0f).uv(1f, 1f).endVertex();
-        b.vertex( 1f, -1f, 0f).uv(1f, 0f).endVertex();
+        b.vertex(-1f, 1f, 0f).uv(0f, 1f).endVertex();
+        b.vertex(1f, 1f, 0f).uv(1f, 1f).endVertex();
+        b.vertex(1f, -1f, 0f).uv(1f, 0f).endVertex();
 
         BufferUploader.drawWithShader(b.end());
     }
@@ -235,8 +235,19 @@ public final class ClientRenderHook {
         return String.format("(%.3f, %.3f, %.3f)", v.x, v.y, v.z);
     }
 
-    private static String fmt3(double v) { return String.format("%.3f", v); }
-    private static String fmt3(float v)  { return String.format("%.3f", v); }
-    private static String fmt4(float v)  { return String.format("%.4f", v); }
-    private static String fmt6(float v)  { return String.format("%.6f", v); }
+    private static String fmt3(double v) {
+        return String.format("%.3f", v);
+    }
+
+    private static String fmt3(float v) {
+        return String.format("%.3f", v);
+    }
+
+    private static String fmt4(float v) {
+        return String.format("%.4f", v);
+    }
+
+    private static String fmt6(float v) {
+        return String.format("%.6f", v);
+    }
 }

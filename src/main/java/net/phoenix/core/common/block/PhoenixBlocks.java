@@ -14,11 +14,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.phoenix.core.PhoenixAPI;
 import net.phoenix.core.PhoenixCore;
-import net.phoenix.core.api.block.IFissionCoolerType;
-import net.phoenix.core.api.block.IFissionModeratorType;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
 import net.phoenix.core.configs.PhoenixConfigs;
-import net.phoenix.core.datagen.models.PhoenixMachineModels;
 
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiFunction;
@@ -86,12 +83,6 @@ public class PhoenixBlocks {
 
     public static final BlockEntry<CoilBlock> COIL_TRUE_HEAT_STABLE = createCoilBlock(
             PhoenixCoilBlock.CoilType.COIL_TRUE_HEAT_STABLE);
-
-    public static final BlockEntry<FissionCoolerBlock> COOLER_BASIC = createCoolerBlock(
-            FissionCoolerBlock.fissionCoolerType.COOLER_BASIC);
-
-    public static final BlockEntry<FissionModeratorBlock> MODERATOR_GRAPHITE = createModeratorBlock(
-            FissionModeratorBlock.fissionModeratorType.MODERATOR_GRAPHITE);
 
     public static BlockEntry<Block> PHOENIX_ENRICHED_TRITANIUM_CASING = registerSimpleBlock(
             "§6Extremely Heat-Stable Casing", "phoenix_enriched_tritanium_casing",
@@ -184,37 +175,5 @@ public class PhoenixBlocks {
                 .register();
         GTCEuAPI.HEATING_COILS.put(coilType, coilBlock);
         return coilBlock;
-    }
-
-    private static BlockEntry<FissionModeratorBlock> createModeratorBlock(IFissionModeratorType type) {
-        var moderator = REGISTRATE
-                .block("%s".formatted(type.getName()),
-                        p -> new FissionModeratorBlock(p, type))
-                .initialProperties(() -> Blocks.IRON_BLOCK)
-                .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false))
-                .blockstate(PhoenixMachineModels.createFissionModeratorModel(type))
-                .tag(CustomTags.MINEABLE_WITH_CONFIG_VALID_PICKAXE_WRENCH)
-                .item(BlockItem::new)
-                .build()
-                .register();
-
-        PhoenixAPI.FISSION_MODERATORS.put(type, moderator);
-        return moderator;
-    }
-
-    private static BlockEntry<FissionCoolerBlock> createCoolerBlock(IFissionCoolerType type) {
-        var cooler = REGISTRATE
-                .block("%s".formatted(type.getName()),
-                        p -> new FissionCoolerBlock(p, type))
-                .initialProperties(() -> Blocks.IRON_BLOCK)
-                .properties(p -> p.isValidSpawn((state, level, pos, ent) -> false))
-                .blockstate(PhoenixMachineModels.createActiveCoolerModel(type))
-                .tag(CustomTags.MINEABLE_WITH_CONFIG_VALID_PICKAXE_WRENCH)
-                .item(BlockItem::new)
-                .build()
-                .register();
-
-        PhoenixAPI.FISSION_COOLERS.put(type, cooler);
-        return cooler;
     }
 }

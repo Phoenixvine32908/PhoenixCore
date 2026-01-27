@@ -24,10 +24,8 @@ public class BasicPhoenixComputationPartMachine extends HPCAComputationPartMachi
     @Override
     public ResourceTexture getComponentIcon() {
         if (isDamaged()) {
-            // TODO: Replace with own damaged texture
             return GuiTextures.HPCA_ICON_DAMAGED_COMPUTATION_COMPONENT;
         }
-        // TODO: Replace with own custom texture for the Phoenix part
         return GuiTextures.HPCA_ICON_ADVANCED_COMPUTATION_COMPONENT;
     }
 

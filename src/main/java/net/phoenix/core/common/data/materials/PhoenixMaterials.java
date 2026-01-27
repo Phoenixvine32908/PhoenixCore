@@ -167,7 +167,7 @@ public class PhoenixMaterials {
                 Titanium, VanadiumMagnetite,
 
                 // --- Custom & External Materials from your Configs ---
-          //      PhoenixOres.FLUORITE,
+                // PhoenixOres.FLUORITE,
                 NetherQuartz,
                 RockSalt,
                 Sodalite,

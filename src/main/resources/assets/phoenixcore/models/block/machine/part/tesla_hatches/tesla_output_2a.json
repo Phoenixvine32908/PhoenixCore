@@ -1,7 +1,7 @@
 {
   "parent": "gtceu:block/overlay/2_layer/tinted/front",
   "textures": {
-    "overlay_tint": "phoenixcore:block/overlay/machine/tesla_hatches/tesla_output/tesla_output_tint",
+    "overlay_tint": "phoenixcore:block/overlay/machine/tesla_hatches/tesla_output/2a/tesla_output_tint_2a",
     "overlay_out": "phoenixcore:block/overlay/machine/tesla_hatches/tesla_output/2a/tesla_output_active",
     "overlay_out_emissive": "phoenixcore:block/overlay/machine/tesla_hatches/tesla_output/2a/tesla_output_active_emissive"
   },

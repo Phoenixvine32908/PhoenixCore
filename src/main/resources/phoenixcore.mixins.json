@@ -7,8 +7,6 @@
     "EmiApiMixin"
   ],
   "client": [
-    "GameRendererMixin",
-    "RenderTargetAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -174,7 +174,7 @@ public class PhoenixHPCAMachine extends WorkableElectricMultiblockMachine
     }
 
     @Override
-    public int requestCWUt(int cwut, boolean simulate, @NotNull Collection<IOpticalComputationProvider> seen) {
+    public int requestCWUt(int cwut, boolean simulate, Collection<IOpticalComputationProvider> seen) {
         seen.add(this);
         return isActive() && isWorkingEnabled() && !hasNotEnoughEnergy ? hpcaHandler.allocateCWUt(cwut, simulate) : 0;
     }
@@ -533,14 +533,11 @@ public class PhoenixHPCAMachine extends WorkableElectricMultiblockMachine
         }
 
         private Fluid getCoolant(int slot) {
-            switch (slot) {
-                case 1:
-                    return GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant1).getFluid();
-                case 2:
-                    return GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant2).getFluid();
-                default:
-                    return GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolantBase).getFluid();
-            }
+            return switch (slot) {
+                case 1 -> GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant1).getFluid();
+                case 2 -> GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolant2).getFluid();
+                default -> GTMaterials.get(PhoenixConfigs.INSTANCE.features.ActiveCoolerCoolantBase).getFluid();
+            };
         }
 
         /**

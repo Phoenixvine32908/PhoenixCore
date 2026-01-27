@@ -10,10 +10,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * The renderer calls {@link #setWorld(Vec3, float, float, float, long)} each frame it wants
  * the lens. The post-pass projects it and draws the lensing shader.
  *
- * Includes a tiny "keep alive" to avoid flicker if your DynamicRender isn't invoked for 1-2 frames.
+ * Includes a tiny "keep alive" to avoid flicker if the DynamicRender isn't invoked for 1-2 frames.
  */
 @OnlyIn(Dist.CLIENT)
 public final class BlackHolePost {
+
     public static final BlackHolePost INSTANCE = new BlackHolePost();
 
     private boolean active = false;
@@ -52,7 +53,8 @@ public final class BlackHolePost {
         yUv = -1f;
     }
 
-    public void setWorld(Vec3 centerWorld, float worldRadiusBlocks, float strength, float fallbackRadiusUv, long currentTick) {
+    public void setWorld(Vec3 centerWorld, float worldRadiusBlocks, float strength, float fallbackRadiusUv,
+                         long currentTick) {
         this.centerWorld = centerWorld;
         this.worldRadiusBlocks = worldRadiusBlocks;
         this.strength = strength;
@@ -67,13 +69,31 @@ public final class BlackHolePost {
         this.radiusUv = radiusUv;
     }
 
-    public Vec3 centerWorld() { return centerWorld; }
-    public float worldRadiusBlocks() { return worldRadiusBlocks; }
-    public float fallbackRadiusUv() { return fallbackRadiusUv; }
+    public Vec3 centerWorld() {
+        return centerWorld;
+    }
 
-    public float xUv() { return xUv; }
-    public float yUv() { return yUv; }
-    public float radiusUv() { return radiusUv; }
+    public float worldRadiusBlocks() {
+        return worldRadiusBlocks;
+    }
 
-    public float strength() { return strength; }
+    public float fallbackRadiusUv() {
+        return fallbackRadiusUv;
+    }
+
+    public float xUv() {
+        return xUv;
+    }
+
+    public float yUv() {
+        return yUv;
+    }
+
+    public float radiusUv() {
+        return radiusUv;
+    }
+
+    public float strength() {
+        return strength;
+    }
 }

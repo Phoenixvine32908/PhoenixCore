@@ -90,15 +90,12 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
             return;
         }
 
-        // Move the data/network definitions to the top so they are accessible everywhere
         TeslaTeamEnergyData data = TeslaTeamEnergyData.get(level);
         TeslaTeamEnergyData.TeamEnergy network = data.getOrCreate(boundTeam);
 
-        // Only run the expensive charging math every 10 ticks
         if (getOffsetTimer() % 10 == 0) {
             if (network.stored.signum() <= 0) {
                 this.lastTransferred = 0L;
-                // Update the display map immediately if we ran out of power
                 network.machineDisplayFlow.put(getPos(), 0L);
                 changeState(State.IDLE);
                 return;
@@ -153,13 +150,10 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
                 }
             }
 
-            // Calculate the rate
             this.lastTransferred = movedThisCycle / ticksInBatch;
 
-            // PUSH to the network display map here, right after calculation
             network.machineDisplayFlow.put(getPos(), this.lastTransferred);
 
-            // Render Logic
             if (movedThisCycle > 0) {
                 data.setDirty();
                 changeState(State.RUNNING);
@@ -218,13 +212,11 @@ public class TeslaWirelessChargerMachine extends TieredEnergyMachine
 
         UUID stickTeam = stick.getOrCreateTag().getUUID("TargetTeam");
 
-        // If the machine is already bound to this team, unbind it
         if (this.boundTeam != null && this.boundTeam.equals(stickTeam)) {
-            unregisterFromNetwork(); // Remove from global data
+            unregisterFromNetwork();
             this.boundTeam = null;
             player.sendSystemMessage(Component.literal("Charger Unbound").withStyle(ChatFormatting.YELLOW));
         } else {
-            // Otherwise, bind/re-bind it
             unregisterFromNetwork();
             this.boundTeam = stickTeam;
             registerToNetwork();

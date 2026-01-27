@@ -24,7 +24,6 @@ public class TeslaHighlightRenderer {
 
     private static final Map<BlockPos, Long> HIGHLIGHT_MAP = new ConcurrentHashMap<>();
 
-    // Internal class to bypass protected access
     private static class ShardAccessor extends RenderStateShard {
 
         public ShardAccessor(String name, Runnable setup, Runnable clear) {
@@ -54,8 +53,6 @@ public class TeslaHighlightRenderer {
             false,
             false,
             RenderType.CompositeState.builder()
-                    .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLinesShader))
-                    // Using our Accessors to reach protected constructors
                     .setLineState(new ShardAccessor.LineState(3.0D))
                     .setLayeringState(new RenderStateShard.LayeringStateShard("view_offset_z_layering", () -> {
                         PoseStack posestack = RenderSystem.getModelViewStack();
@@ -72,7 +69,6 @@ public class TeslaHighlightRenderer {
                                 RenderSystem.defaultBlendFunc();
                             }, RenderSystem::disableBlend))
                     .setWriteMaskState(new RenderStateShard.WriteMaskStateShard(true, true))
-                    // GL_ALWAYS (519) enables the X-Ray through walls
                     .setDepthTestState(new ShardAccessor.DepthState("always", 519))
                     .createCompositeState(false));
 
@@ -82,7 +78,6 @@ public class TeslaHighlightRenderer {
 
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent event) {
-        // Only render during the AFTER_PARTICLES stage to stay on top of the world
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
         if (HIGHLIGHT_MAP.isEmpty()) return;
 
@@ -95,7 +90,6 @@ public class TeslaHighlightRenderer {
         for (BlockPos pos : HIGHLIGHT_MAP.keySet()) {
             stack.pushPose();
 
-            // Translate to the block position relative to the camera
             stack.translate(pos.getX() - cam.x(),
                     pos.getY() - cam.y(),
                     pos.getZ() - cam.z());
@@ -107,24 +101,21 @@ public class TeslaHighlightRenderer {
     }
 
     private static void renderGlowingBox(PoseStack stack) {
-        // 1. Setup GL state for X-ray
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-        // 2. Use Tesselator for IMMEDIATE rendering (bypasses batching issues)
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.getBuilder();
 
-        // We use Mode.DEBUG_LINES or Mode.LINES
         bufferbuilder.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
 
-        // 3. Define the 12 lines of the cube manually for absolute control
+
         float r = 0.74f, g = 0.0f, b = 1.0f, a = 1.0f;
         drawBox(stack, bufferbuilder, 0, 0, 0, 1, 1, 1, r, g, b, a);
 
-        tesselator.end(); // This forces the draw call RIGHT NOW
+        tesselator.end();
 
         RenderSystem.disableBlend();
         RenderSystem.enableDepthTest();

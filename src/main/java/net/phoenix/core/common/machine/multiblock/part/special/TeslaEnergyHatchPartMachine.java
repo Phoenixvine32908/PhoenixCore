@@ -46,7 +46,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
 
     @Persisted
     private UUID ownerTeamUUID;
-    // Inside TeslaEnergyHatchPartMachine.java
 
     /**
      * @return true if this hatch PUSHES energy TO the cloud (Network Input/Uplink)
@@ -66,13 +65,11 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     // Cached reference to tower (not persisted)
     private TeslaTowerMachine boundTower;
 
-    // Tick subscription for wireless hatches outside multiblock
     private TickableSubscription tickSubscription;
 
-    // Inside TeslaEnergyHatchPartMachine.java
     @Getter
-    @Persisted // This ensures it saves to the block's NBT
-    @DescSynced // This ensures Jade/Client knows the name without opening the UI
+    @Persisted
+    @DescSynced
     private String customName = "";
 
     public void setCustomName(String name) {
@@ -86,10 +83,9 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         if (!getLevel().isClientSide && getLevel() instanceof ServerLevel server) {
             autoLinkTeamIfNeeded();
             if (ownerTeamUUID != null && getLevel() instanceof ServerLevel serverLevel) {
-                // Pass the Level object to capture the dimension for cross-dimension support
                 TeslaTeamEnergyData.get(serverLevel).setEnergyBuffered(
                         ownerTeamUUID,
-                        getLevel(), // The missing argument
+                        getLevel(),
                         getPos(),
                         java.math.BigInteger.valueOf(energyContainer.getEnergyStored()),
                         getIO() == IO.OUT);
@@ -100,18 +96,13 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     @Override
     public void onUnload() {
         super.onUnload();
-        // Remove this specific coordinate from the cloud's tracking list
         if (!getLevel().isClientSide && getLevel() instanceof ServerLevel server && ownerTeamUUID != null) {
             TeslaTeamEnergyData.get(server).removeEndpoint(ownerTeamUUID, getPos());
         }
 
-        // Cleanup the tick subscription
         unsubscribeFromTick();
     }
 
-    // ---------------------------------------
-    // Constructor & field holder
-    // ---------------------------------------
     public TeslaEnergyHatchPartMachine(IMachineBlockEntity holder, int tier, IO io, int amperage, Object... args) {
         super(holder, tier, io, amperage, args);
     }
@@ -136,7 +127,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
     @Override
     public void removedFromController(@NotNull IMultiController controller) {
         super.removedFromController(controller);
-        // Outside multiblock, self-tick
         updateTickSubscription();
     }
 
@@ -178,7 +168,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         }
     }
 
-    // Unsubscribes from tick to avoid duplicate ticking.
 
     private void unsubscribeFromTick() {
         if (tickSubscription != null) {
@@ -192,9 +181,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         return MANAGED_FIELD_HOLDER;
     }
 
-    // ---------------------------------------
-    // Energy container accessor
-    // ---------------------------------------
     public IEnergyContainer getEnergyContainer() {
         return energyContainer;
     }
@@ -212,9 +198,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         self().markDirty();
     }
 
-    // ---------------------------------------
-    // Wireless logic
-    // ---------------------------------------
     public boolean isWireless() {
         if (ownerTeamUUID == null) return false;
 
@@ -226,9 +209,8 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
 
     @Getter
     private long lastTransferRate = 0;
-    // Inside TeslaEnergyHatchPartMachine
     @Getter
-    private long lastTransferAmount = 0; // Field for Jade to read
+    private long lastTransferAmount = 0;
 
     public void tickWireless() {
         if (getLevel() == null || getLevel().isClientSide || ownerTeamUUID == null) return;
@@ -269,15 +251,10 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
             }
         }
 
-        // Update buffer for UI
-        // Add getLevel() after the team UUID
         data.setEnergyBuffered(ownerTeamUUID, getLevel(), getPos(),
                 BigInteger.valueOf(energyContainer.getEnergyStored()), getIO() == IO.OUT);
     }
 
-    // ---------------------------------------
-    // Team logic
-    // ---------------------------------------
     public @Nullable UUID getOwnerTeamUUID() {
         autoLinkTeamIfNeeded();
         return ownerTeamUUID;
@@ -308,9 +285,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         }
     }
 
-    // ---------------------------------------
-    // Data stick binding
-    // ---------------------------------------
     @Override
     public InteractionResult onDataStickUse(Player player, ItemStack binder) {
         if (!binder.is(PhoenixItems.TESLA_BINDER.get())) return InteractionResult.PASS;
@@ -320,29 +294,23 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
             UUID newTeamUUID = tag.getUUID("TargetTeam");
 
             if (!getLevel().isClientSide && getLevel() instanceof ServerLevel server) {
-                // Only update if the frequency is actually different
                 if (!newTeamUUID.equals(ownerTeamUUID)) {
 
-                    // 1. CLEANUP OLD DATA: Remove this hatch from the previous team's stats
                     if (ownerTeamUUID != null) {
                         TeslaTeamEnergyData.get(server).removeEndpoint(ownerTeamUUID, getPos());
                     }
 
-                    // 2. LOGIC UPDATE: Switch the owner UUID
                     this.ownerTeamUUID = newTeamUUID;
-                    this.boundTower = null; // We no longer use direct tower references in Cloud Mode
+                    this.boundTower = null;
                     self().markDirty();
 
-                    // 3. REGISTRY & TICK: Ensure the wireless system knows the team changed
                     TeslaWirelessRegistry.unregisterHatch(this);
                     TeslaWirelessRegistry.registerHatch(this);
                     updateTickSubscription();
 
-                    // 4. REGISTER NEW DATA: Add this hatch to the new team's stats immediately
-                    // Inside the if (!newTeamUUID.equals(ownerTeamUUID)) block
                     TeslaTeamEnergyData.get((ServerLevel) getLevel()).setEnergyBuffered(
                             ownerTeamUUID,
-                            getLevel(), // This is the new required argument
+                            getLevel(),
                             getPos(),
                             java.math.BigInteger.valueOf(energyContainer.getEnergyStored()),
                             getIO() == IO.OUT);

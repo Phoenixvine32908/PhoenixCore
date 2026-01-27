@@ -13,12 +13,6 @@ import net.phoenix.core.configs.PhoenixConfigs;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * A custom HPCA Computation Part for the Phoenix mod.
- * This part is designed to be a high-end component, offering
- * increased computation power (CWU) but also requiring more
- * energy and cooling.
- */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class PhoenixComputationPartMachine extends HPCAComputationPartMachine implements IHPCAComputationProvider {

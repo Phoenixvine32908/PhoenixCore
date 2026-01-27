@@ -1,8 +1,5 @@
 package net.phoenix.core.client.renderer;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -11,14 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
 public class PhoenixRenderTypes extends RenderType {
 
-    // ------------------------------------------------------------
-    // Classic utility RenderTypes (restored)
-    // ------------------------------------------------------------
     private static final RenderType LIGHT_RING = RenderType.create(
             "phoenix_light_ring",
             DefaultVertexFormat.POSITION_COLOR,
@@ -31,8 +29,7 @@ public class PhoenixRenderTypes extends RenderType {
                     .setTransparencyState(RenderStateShard.ADDITIVE_TRANSPARENCY)
                     .setLayeringState(RenderStateShard.NO_LAYERING)
                     .setCullState(RenderStateShard.NO_CULL)
-                    .createCompositeState(false)
-    );
+                    .createCompositeState(false));
 
     private static final RenderType HONEY_FOG = RenderType.create(
             "phoenix_honey_fog",
@@ -47,21 +44,14 @@ public class PhoenixRenderTypes extends RenderType {
                     .setLayeringState(RenderStateShard.NO_LAYERING)
                     .setCullState(RenderStateShard.NO_CULL)
                     .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                    .createCompositeState(false)
-    );
+                    .createCompositeState(false));
 
-    // ------------------------------------------------------------
-    // Black hole lensing RenderType
-    // ------------------------------------------------------------
-    // Bind the main scene color texture to texture unit 0 for black hole lensing
-    private static final RenderStateShard.EmptyTextureStateShard MAIN_SCENE_COLOR =
-            new RenderStateShard.EmptyTextureStateShard(
-                    () -> {
-                        Minecraft mc = Minecraft.getInstance();
-                        RenderSystem.setShaderTexture(0, mc.getMainRenderTarget().getColorTextureId());
-                    },
-                    () -> RenderSystem.setShaderTexture(0, 0)
-            );
+    private static final RenderStateShard.EmptyTextureStateShard MAIN_SCENE_COLOR = new RenderStateShard.EmptyTextureStateShard(
+            () -> {
+                Minecraft mc = Minecraft.getInstance();
+                RenderSystem.setShaderTexture(0, mc.getMainRenderTarget().getColorTextureId());
+            },
+            () -> RenderSystem.setShaderTexture(0, 0));
 
     private static final RenderType BLACK_HOLE = RenderType.create(
             "phoenix_black_hole",
@@ -80,15 +70,10 @@ public class PhoenixRenderTypes extends RenderType {
                     .setCullState(RenderStateShard.NO_CULL)
                     .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                     .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                    .createCompositeState(false)
-    );
+                    .createCompositeState(false));
 
-
-    // ------------------------------------------------------------
-    // Blender material RenderType
-    // ------------------------------------------------------------
     public static final Function<ResourceLocation, RenderType> BLENDER_MATERIAL = Util.memoize(albedo -> {
-        ResourceLocation normal   = withSuffix(albedo, "_n");
+        ResourceLocation normal = withSuffix(albedo, "_n");
         ResourceLocation specular = withSuffix(albedo, "_s");
 
         RenderType.CompositeState state = RenderType.CompositeState.builder()
@@ -112,8 +97,7 @@ public class PhoenixRenderTypes extends RenderType {
                 2097152,
                 true,
                 true,
-                state
-        );
+                state);
     });
 
     private PhoenixRenderTypes(String name, VertexFormat format, VertexFormat.Mode mode,
@@ -122,9 +106,6 @@ public class PhoenixRenderTypes extends RenderType {
         super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState);
     }
 
-    // ------------------------------------------------------------
-    // Accessors (restored + new)
-    // ------------------------------------------------------------
     public static RenderType LIGHT_RING() {
         return LIGHT_RING;
     }
