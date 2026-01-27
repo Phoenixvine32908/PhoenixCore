@@ -111,7 +111,6 @@ public class TeslaHighlightRenderer {
 
         bufferbuilder.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
 
-
         float r = 0.74f, g = 0.0f, b = 1.0f, a = 1.0f;
         drawBox(stack, bufferbuilder, 0, 0, 0, 1, 1, 1, r, g, b, a);
 

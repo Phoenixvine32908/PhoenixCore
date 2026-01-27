@@ -78,9 +78,11 @@ public class TeslaBinderItem extends ComponentItem
 
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
-        MetaMachine machine = MetaMachine.getMachine(level, clickedPos); //Checks if the clicked block is a meta machine, holds that data for further use.
+        MetaMachine machine = MetaMachine.getMachine(level, clickedPos); // Checks if the clicked block is a meta
+                                                                         // machine, holds that data for further use.
 
-        if (machine instanceof IDataStickInteractable interactable) { // If the machine clicked is data stick interactable, hands off the logic.
+        if (machine instanceof IDataStickInteractable interactable) { // If the machine clicked is data stick
+                                                                      // interactable, hands off the logic.
             return player.isShiftKeyDown() ?
                     interactable.onDataStickShiftUse(player, itemStack) :
                     interactable.onDataStickUse(player, itemStack);
@@ -88,14 +90,21 @@ public class TeslaBinderItem extends ComponentItem
 
         if (!level.isClientSide && machine != null) { // If clicked on a machine, runs.
             if (level instanceof ServerLevel serverLevel &&
-                    machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) { // If on the server level and has an energy container, runs.
+                    machine instanceof TieredEnergyMachine tiered && tiered.energyContainer != null) { // If on the
+                                                                                                       // server level
+                                                                                                       // and has an
+                                                                                                       // energy
+                                                                                                       // container,
+                                                                                                       // runs.
 
                 CompoundTag tag = itemStack.getOrCreateTag(); // Init of our tag.
                 if (tag.hasUUID("TargetTeam")) {
                     UUID teamUUID = tag.getUUID("TargetTeam");
                     TeslaTeamEnergyData data = TeslaTeamEnergyData.get(serverLevel);
 
-                    boolean isNowLinked = data.toggleSoulLink(teamUUID, level, clickedPos); // Is activated when machine is right-clicked with bound binder.
+                    boolean isNowLinked = data.toggleSoulLink(teamUUID, level, clickedPos); // Is activated when machine
+                                                                                            // is right-clicked with
+                                                                                            // bound binder.
 
                     if (isNowLinked) { // If the machine is linked, runs.
                         player.sendSystemMessage(
@@ -103,7 +112,8 @@ public class TeslaBinderItem extends ComponentItem
                                         .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.ITALIC));
                         serverLevel.playSound(null, clickedPos, SoundEvents.BEACON_POWER_SELECT,
                                 SoundSource.PLAYERS, 1f, 1.5f);
-                    } else { // If still clicking on a matching machine but is already linked, removes the block pos and machine name from list of linked machines.
+                    } else { // If still clicking on a matching machine but is already linked, removes the block pos and
+                             // machine name from list of linked machines.
                         if (tag.contains("MachineData")) {
                             ListTag machineList = tag.getList("MachineData", Tag.TAG_COMPOUND);
                             long targetPosLong = clickedPos.asLong();
@@ -124,20 +134,22 @@ public class TeslaBinderItem extends ComponentItem
                     }
                     return InteractionResult.SUCCESS;
 
-                } else { // If clicking on a machine but the binder is not bound to player, fail but pass a chat message.
+                } else { // If clicking on a machine but the binder is not bound to player, fail but pass a chat
+                         // message.
                     player.sendSystemMessage(
                             Component.literal("Binder is not initialized. Shift-Right Click the air first.")
                                     .withStyle(ChatFormatting.RED));
                     return InteractionResult.FAIL;
                 }
-            } else { // If clicking on a machine but does not have an internal energy buffer, fails but passes a message.
+            } else { // If clicking on a machine but does not have an internal energy buffer, fails but passes a
+                     // message.
                 player.sendSystemMessage(Component.literal("Invalid Target: Machine has no internal soul-buffer.")
                         .withStyle(ChatFormatting.RED));
                 return InteractionResult.FAIL;
             }
         }
 
-        return InteractionResult.PASS; //If there are any other cases, just silently moves on.
+        return InteractionResult.PASS; // If there are any other cases, just silently moves on.
     }
 
     // If shift right-clicked, binds to player.

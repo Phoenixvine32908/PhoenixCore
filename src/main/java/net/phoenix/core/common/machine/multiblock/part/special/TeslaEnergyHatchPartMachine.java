@@ -168,7 +168,6 @@ public class TeslaEnergyHatchPartMachine extends EnergyHatchPartMachine implemen
         }
     }
 
-
     private void unsubscribeFromTick() {
         if (tickSubscription != null) {
             tickSubscription.unsubscribe();

@@ -12,7 +12,6 @@ public final class TeslaWirelessRegistry {
 
     private static final Map<UUID, TeslaTowerMachine> TEAM_TOWERS = new HashMap<>();
 
-
     public static void registerHatch(TeslaEnergyHatchPartMachine hatch) {
         if (hatch.getOwnerTeamUUID() == null) return;
         TEAM_HATCHES.computeIfAbsent(hatch.getOwnerTeamUUID(), k -> new HashSet<>()).add(hatch);
@@ -31,7 +30,6 @@ public final class TeslaWirelessRegistry {
     public static Set<TeslaEnergyHatchPartMachine> getHatches(UUID team) {
         return TEAM_HATCHES.get(team);
     }
-
 
     public static void registerTower(TeslaTowerMachine tower) {
         if (tower.getOwnerUUID() != null) {
@@ -56,7 +54,6 @@ public final class TeslaWirelessRegistry {
         if (tower == null) return null;
         return tower.getEnergyBank();
     }
-
 
     public static void tickTeamHatches(UUID team) {
         TeslaTowerMachine.TeslaEnergyBank bank = getBank(team);

@@ -263,7 +263,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
                 long totalWirelessInput = 0;
                 long totalWirelessOutput = 0;
 
-
                 // Uplinks (Providing: Hatch -> Cloud)
                 for (var entry : team.energyOutput.entrySet()) {
                     long accumulated = entry.getValue().longValue();
@@ -845,11 +844,7 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
             textList.add(Component.literal("Battery Tier: ")
                     .append(Component.literal(GTValues.VN[energyBank.getHighestTier()]).withStyle(AQUA)));
         }
-
-
     }
-
-
 
     private String formatTeslaValue(String valueStr, boolean forceScientific) {
         if (valueStr == null || valueStr.isEmpty()) return "0";

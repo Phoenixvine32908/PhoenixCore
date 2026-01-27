@@ -22,7 +22,6 @@ import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.tieredHul
 
 public class PhoenixMachineModels {
 
-
     public static MachineBuilder.ModelInitializer createOverlayFillLevelCasingMachineModel(
                                                                                            String overlayName,
                                                                                            String casingTexturePath) {
