@@ -21,11 +21,14 @@ jobs:
         run: pip install mkdocs-material mkdocs-awesome-pages-plugin
       
       - name: Build
-        run: mkdocs build
-      
+        # Tell mkdocs the config is inside the docs folder
+        run: mkdocs build -f docs/mkdocs.yml 
+
       - name: Upload & Deploy
         uses: actions/upload-pages-artifact@v3
-        with: { path: 'site' }
+        with: 
+          # When building from docs/, mkdocs creates the 'site' folder inside docs/
+          path: 'docs/site'
       
       - name: Deploy
         uses: actions/deploy-pages@v4
