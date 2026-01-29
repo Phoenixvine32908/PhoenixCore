@@ -7,7 +7,23 @@ docs_dir: docs/content
 
 theme:
   name: material
-  # ... (your logo/favicon/palette settings stay the same)
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      primary: orange
+      accent: orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: orange
+      accent: orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
     - navigation.instant
     - navigation.sections
@@ -19,14 +35,8 @@ theme:
     - content.code.annotate
     - content.action.view
 
-# Add this for the GTM Version Selector
-extra:
-  version:
-    provider: mike
-
 plugins:
   - search
-  - mike # Required for versioning
   - awesome-pages:
       collapse_single_pages: true
 
