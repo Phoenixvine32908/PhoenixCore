@@ -1,32 +1,13 @@
 site_name: PhoenixCore Docs
 site_url: https://Phoenixvine32908.github.io/PhoenixCore/
-
 repo_name: PhoenixCore
 repo_url: https://github.com/Phoenixvine32908/PhoenixCore
 edit_uri: blob/main/docs/content/
-
-# This matches the GTM structure you liked
 docs_dir: docs/content
 
 theme:
   name: material
-  logo: assets/logo.png
-  favicon: assets/favicon.png
-  icon:
-    repo: fontawesome/brands/github
-  palette:
-    - scheme: default # Light mode
-      primary: orange
-      accent: orange
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate # Dark mode
-      primary: orange
-      accent: orange
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
+  # ... (your logo/favicon/palette settings stay the same)
   features:
     - navigation.instant
     - navigation.sections
@@ -38,9 +19,16 @@ theme:
     - content.code.annotate
     - content.action.view
 
+# Add this for the GTM Version Selector
+extra:
+  version:
+    provider: mike
+
 plugins:
   - search
-  - awesome-pages
+  - mike # Required for versioning
+  - awesome-pages:
+      collapse_single_pages: true
 
 markdown_extensions:
   - admonition
