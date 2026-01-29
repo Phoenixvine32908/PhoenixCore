@@ -21,13 +21,14 @@ jobs:
         run: pip install mkdocs-material mkdocs-awesome-pages-plugin
       
       - name: Build
-        # Tell mkdocs the config is inside the docs folder
+        # We run this from the ROOT, but point to the config file
         run: mkdocs build -f docs/mkdocs.yml 
 
       - name: Upload & Deploy
         uses: actions/upload-pages-artifact@v3
         with: 
-          # When building from docs/, mkdocs creates the 'site' folder inside docs/
+          # This is the tricky part: MkDocs usually outputs to the 
+          # folder RELATIVE to the config file.
           path: 'docs/site'
       
       - name: Deploy
