@@ -34,9 +34,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.machine.PhoenixPartAbility;
+import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
@@ -282,7 +284,7 @@ public class PhoenixMachines {
                                     .setMaxGlobalLimited(4)))
                     .where("F", Predicates.blocks(SUPERCONDUCTING_COIL.get()))
                     .where("G", Predicates.blocks(FUSION_GLASS.get()))
-                    .where("H", Predicates.blocks(PhoenixBlocks.AKASHIC_COIL_BLOCK.get()))
+                    .where("H", PhoenixPredicates.lampsByColor(DyeColor.BLUE))
                     .where("I", Predicates.blocks(CASING_STEEL_SOLID.get()))
                     .where("J", Predicates.blocks(CASING_STAINLESS_CLEAN.get())) // Robust casing
                     .where("K", Predicates.blocks(CASING_TUNGSTENSTEEL_ROBUST.get()))
