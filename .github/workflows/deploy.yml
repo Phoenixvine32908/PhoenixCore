@@ -8,7 +8,6 @@ on:
       - "docs/content/**"
       - "docs/mkdocs.yml"
       - "docs/requirements.txt"
-      # add any other docs config paths you edit
 
 permissions:
   contents: write
@@ -18,14 +17,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: build & deploy docs
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -33,7 +28,7 @@ jobs:
           cache: "pip"
           cache-dependency-path: docs/requirements.txt
 
-      - name: Install packages
+      - name: Install dependencies
         run: pip install -r docs/requirements.txt
 
       - name: Configure git
@@ -41,5 +36,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Deploy to gh-pages
+      - name: Build & deploy
         run: mkdocs gh-deploy --config-file docs/mkdocs.yml --force
