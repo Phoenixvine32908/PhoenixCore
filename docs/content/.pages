@@ -1,4 +1,4 @@
 nav:
   - Home: index.md
-  - Gameplay
+  - Gameplay: Gameplay.md
   - Developers: Development.md
