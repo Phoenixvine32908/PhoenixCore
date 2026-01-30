@@ -75,8 +75,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
 
     private static final BigInteger BIG_INTEGER_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
 
-    private IMaintenanceMachine maintenance;
-
     @Getter
     private TeslaTowerMachine.TeslaEnergyBank energyBank;
     private EnergyContainerList inputHatches;
@@ -95,7 +93,6 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
     public void onStructureFormed() {
         super.onStructureFormed();
 
-        // 1. Establish Identity First
         if (!getLevel().isClientSide) {
             ensureOwnerTeamUUID();
         }
@@ -106,14 +103,14 @@ public class TeslaTowerMachine extends UniqueWorkableElectricMultiblockMachine
         }
         TeslaWirelessRegistry.registerTower(this);
 
-        this.maintenance = null;
+        IMaintenanceMachine maintenance = null;
         List<IEnergyContainer> inputs = new ArrayList<>();
         List<IEnergyContainer> outputs = new ArrayList<>();
 
         // Handle Parts
         for (IMultiPart part : getParts()) {
             if (part instanceof IMaintenanceMachine maintenanceMachine) {
-                this.maintenance = maintenanceMachine;
+                maintenance = maintenanceMachine;
             }
 
             // Wired energy containers (Standard GT hatches)

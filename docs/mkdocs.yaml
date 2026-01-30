@@ -3,7 +3,8 @@ site_url: https://Phoenixvine32908.github.io/PhoenixCore/
 repo_name: PhoenixCore
 repo_url: https://github.com/Phoenixvine32908/PhoenixCore
 edit_uri: blob/main/docs/content/
-docs_dir: docs/content
+docs_dir: content
+site_dir: site
 
 theme:
   name: material
