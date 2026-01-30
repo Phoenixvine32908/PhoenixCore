@@ -1,0 +1,24 @@
+site_name: PhoenixCore Docs
+site_url: https://Phoenixvine32908.github.io/PhoenixCore/
+repo_name: PhoenixCore
+repo_url: https://github.com/Phoenixvine32908/PhoenixCore
+edit_uri: blob/main/docs/content/
+docs_dir: docs/content
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: orange
+      accent: orange
+    - scheme: slate
+      primary: orange
+      accent: orange
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+
+plugins:
+  - search
+  - awesome-pages
