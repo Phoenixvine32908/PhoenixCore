@@ -35,5 +35,5 @@ Soul-linking is a unique feature that allows machines to draw power directly fro
 2. `Right-Click` any machine that has an internal energy buffer.
 3. The machine will now draw power from the Tesla Tower whenever it has a demand, provided the Tower has enough energy.
 
-## 🛰 Wireless Charging
+##  Wireless Charging
 The **Tesla Wireless Charger** is a single-block machine that provides wireless charging to players' armor and held items within its radius, drawing energy from the Tesla Network.
