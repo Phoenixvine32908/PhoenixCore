@@ -14,8 +14,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
@@ -42,7 +44,7 @@ public final class ClientRenderHook {
 
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
@@ -121,6 +123,14 @@ public final class ClientRenderHook {
                     scratch.height);
         }
 
+        // Backup matrices
+        Matrix4f oldProj = RenderSystem.getProjectionMatrix();
+        PoseStack modelViewStack = RenderSystem.getModelViewStack();
+        modelViewStack.pushPose();
+        modelViewStack.setIdentity();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(new Matrix4f().identity(), VertexSorting.DISTANCE_TO_ORIGIN);
+
         // 4a) Copy pass
         scratch.bindWrite(false);
         RenderSystem.viewport(0, 0, scratch.width, scratch.height);
@@ -142,14 +152,13 @@ public final class ClientRenderHook {
 
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
-
         RenderSystem.disableBlend();
 
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.setShader(() -> shader);
         RenderSystem.setShaderTexture(0, scratch.getColorTextureId());
 
-        // Upload uniforms (ScreenSize must match the UV space your shader expects)
+        // Upload uniforms
         if (shader.getUniform("ScreenSize") != null)
             Objects.requireNonNull(shader.getUniform("ScreenSize")).set((float) main.width, (float) main.height);
         if (shader.getUniform("BlackHolePos") != null)
@@ -172,6 +181,11 @@ public final class ClientRenderHook {
         }
 
         drawFullscreenQuad();
+
+        // Restore matrices
+        modelViewStack.popPose();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(oldProj, VertexSorting.DISTANCE_TO_ORIGIN);
 
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();

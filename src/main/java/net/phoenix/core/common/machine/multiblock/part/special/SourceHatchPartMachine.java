@@ -13,6 +13,7 @@ import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
 import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import com.hollingsworth.arsnouveau.api.source.ISpecialSourceProvider;
 import com.hollingsworth.arsnouveau.api.source.SourceManager;
+import com.hollingsworth.arsnouveau.api.source.SourceProvider;
 import lombok.Getter;
 
 public class SourceHatchPartMachine extends MetaMachine implements ISpecialSourceProvider {
@@ -22,6 +23,7 @@ public class SourceHatchPartMachine extends MetaMachine implements ISpecialSourc
     private final BlockPos pos;
     private final Level level;
     private final MetaMachineBlockEntity tileEntity;
+    private SourceProvider sourceProvider;
 
     private static final int MAX_CAPACITY = 10000;
     private static final int MAX_CONSUMPTION = 100;
@@ -58,9 +60,30 @@ public class SourceHatchPartMachine extends MetaMachine implements ISpecialSourc
         return this.pos;
     }
 
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (!this.level.isClientSide) {
+            if (this.sourceProvider == null) {
+                this.sourceProvider = new SourceProvider(this.sourceContainer, this.pos);
+            }
+            SourceManager.INSTANCE.addInterface(this.level, this.sourceProvider);
+        }
+    }
+
+    @Override
+    public void onUnload() {
+        super.onUnload();
+        // Since SourceManager might not have a removeInterface, we rely on isValid() check in SourceManager if it exists,
+        // or we just don't call it if it's missing.
+    }
+
     public void onBlockPlacedInWorld() {
         if (!this.level.isClientSide) {
-            SourceManager.INSTANCE.addInterface(this.level, this);
+            if (this.sourceProvider == null) {
+                this.sourceProvider = new SourceProvider(this.sourceContainer, this.pos);
+            }
+            SourceManager.INSTANCE.addInterface(this.level, this.sourceProvider);
         }
     }
 }

@@ -8,23 +8,26 @@ site_dir: site
 
 theme:
   name: material
-  logo: assets/logo.png
-  favicon: assets/favicon.png
+  logo: assets/icon.png
+  favicon: assets/icon.png
   icon:
     repo: fontawesome/brands/github
   palette:
     - scheme: default
-      primary: orange
-      accent: orange
+      primary: deep-purple
+      accent: deep-purple
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: orange
-      accent: orange
+      primary: deep-purple
+      accent: deep-purple
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
   features:
     - navigation.instant
     - navigation.sections

@@ -137,7 +137,7 @@ public class HelicalFusionRenderer extends DynamicRender<FusionReactorMachine, H
                 machine.getFrontFacing().step().z()).normalize().scale(20);
 
         poseStack.pushPose();
-        poseStack.translate(frontStep.x, frontStep.y, frontStep.z);
+        poseStack.translate(frontStep.x + 0.5, frontStep.y + 0.5, frontStep.z + 0.5);
 
         VertexConsumer vc = buffer.getBuffer(PhoenixRenderTypes.LIGHT_RING());
 

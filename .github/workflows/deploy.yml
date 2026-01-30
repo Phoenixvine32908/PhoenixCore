@@ -27,7 +27,7 @@ jobs:
           pip install mkdocs-awesome-pages-plugin
 
       - name: Build
-        run: mkdocs build -f docs/mkdocs.yaml
+        run: mkdocs build -f docs/mkdocs.yaml --strict
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

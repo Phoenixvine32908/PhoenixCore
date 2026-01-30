@@ -39,6 +39,12 @@
       "type": "float",
       "count": 1,
       "values": [1.25]
+    },
+    {
+      "name": "GameTime",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
     }
   ]
 }

@@ -16,9 +16,8 @@ void main() {
     vec2 uv = texCoord0;
 
     float aspect = ScreenSize.x / ScreenSize.y;
-
     vec2 delta = uv - BlackHolePos;
-    delta.x *= aspect;
+    delta.x *= aspect; 
 
     float dist = length(delta);
 
@@ -49,7 +48,7 @@ void main() {
 
     // Warp UV (undo aspect correction for sampling)
     vec2 warp = dir * distortion;
-    warp.x /= aspect;
+    warp.x /= aspect; 
 
     vec2 warpedUV  = uv - warp;
     vec2 reflectUV = uv + warp * 0.35;

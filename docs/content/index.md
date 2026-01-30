@@ -19,8 +19,7 @@ This documentation is a work in progress. Some recipes, multiblocks, or material
 ## 🚀 Getting Started
 Whether you're looking for new ore processing chains or high-tier machinery, start here:
 
-* **[Installation Guide](getting-started/install.md)** - How to add PhoenixCore to your modpack.
-* **[First Steps](getting-started/progression.md)** - Understanding the new early-game tweaks.
+* **[Gameplay Overview](Gameplay.md)** - Understanding the new progression and systems.
 
 ## 🛠️ Key Features
 !!! note "New Multiblocks"
