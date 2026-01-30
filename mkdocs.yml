@@ -9,11 +9,11 @@ theme:
   name: material
   palette:
     - scheme: default
-      primary: deep purple
-      accent: deep purple
+      primary: deep-purple
+      accent: deep-purple
     - scheme: slate
-      primary: deep purple
-      accent: deep purple
+      primary: deep-purple
+      accent: deep-purple
   font:
     text: Roboto
     code: Roboto Mono

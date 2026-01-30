@@ -1,4 +1,4 @@
-# Tesla Network
+# Tesla Network ⚡
 
 The Tesla Network is a high-tier wireless energy distribution system in PhoenixCore. It allows for the transmission of EU across dimensions using the power of the "Tesla Cloud."
 
@@ -14,7 +14,7 @@ Hatches are used to interface with the Tesla Network without needing a physical 
 
 - **Tesla Uplink (Input)**: Siphons energy from your power generation into the Tesla Cloud.
 - **Tesla Downlink (Output)**: Broadcasts energy from the Tesla Cloud into your machines.
-- **Laser Hatches**: High-frequency energy transmission for extreme power requirements.
+- **Laser Hatches**: High-frequency energy transmission for extreme power requirements using the **Tesla Optical Collimator** and **Photonic Receptor**.
 
 ## 🔗 Tesla Binder
 The **Tesla Binder** is the primary tool for managing your network.
@@ -37,3 +37,6 @@ Soul-linking is a unique feature that allows machines to draw power directly fro
 
 ## 🛰️ Wireless Charging
 The **Tesla Wireless Charger** is a single-block machine that provides wireless charging to players' armor and held items within its radius, drawing energy from the Tesla Network.
+
+## 🛡️ Shield Stability
+The network can also provide data on shield stability via the **Shield Stability Hatch**, which can output a redstone signal corresponding to the integrity of the connected shield.
