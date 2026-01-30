@@ -28,7 +28,7 @@ The **Tesla Binder** is the primary tool for managing your network.
     - Distance and dimension of connected devices.
     - Highlight specific devices in the world.
 
-## ⚡ Soul-Linking
+##  Soul-Linking
 Soul-linking is a unique feature that allows machines to draw power directly from your network frequency. 
 
 1. Bind a **Tesla Binder** to your frequency.
