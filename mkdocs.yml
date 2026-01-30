@@ -9,11 +9,17 @@ theme:
   name: material
   palette:
     - scheme: default
-      primary: orange
-      accent: orange
+      primary: deep purple
+      accent: deep purple
     - scheme: slate
-      primary: orange
-      accent: orange
+      primary: deep purple
+      accent: deep purple
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    logo: assets/icon.png
+  favicon: assets/icon.png
   features:
     - navigation.tabs
     - navigation.sections

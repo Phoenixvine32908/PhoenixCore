@@ -1,4 +1,8 @@
 nav:
   - Home: index.md
-  - Gameplay: Gameplay.md
-  - Developers: Development.md
+  - Gameplay:
+      - Overview: Gameplay.md
+      - gameplay/tesla
+  - Developers:
+      - Overview: Development.md
+      - development/tesla

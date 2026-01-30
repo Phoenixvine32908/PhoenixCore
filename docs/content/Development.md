@@ -15,3 +15,7 @@ repositories {
 dependencies {
     implementation "com.phoenixvine:PhoenixCore:${pc_version}"
 }
+
+## ⚡ Tesla System
+Learn about the architecture and implementation of the wireless energy network.
+* **[Tesla Network Internals](development/tesla/index.md)**
