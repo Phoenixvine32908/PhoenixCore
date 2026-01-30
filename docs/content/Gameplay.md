@@ -25,7 +25,7 @@ PhoenixCore expands on specific technical niches:
 | **Heat Management** | New mechanics for high-temperature machines. |
 | **Advanced Alloys** | Phoenix-exclusive metals for late-game casing. |
 | **Core Logistics** | New wireless item transmission covers. |
-| **Tesla Network** | [Wireless energy distribution across dimensions](gameplay/tesla/index.md). |
+| **Tesla Network** | [Wireless energy distribution across dimensions](gameplay/tesla/). |
 | **Phoenixware Fusion** | [UIV-tier energy production](gameplay/fusion.md). |
 
 ---

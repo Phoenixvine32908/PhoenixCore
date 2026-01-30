@@ -18,4 +18,4 @@ dependencies {
 
 ## ⚡ Tesla System
 Learn about the architecture and implementation of the wireless energy network.
-* **[Tesla Network Internals](development/tesla/index.md)**
+* **[Tesla Network Internals](development/tesla/)**
