@@ -2,7 +2,7 @@ nav:
   - Home: index.md
   - Gameplay:
       - Overview: Gameplay.md
-      - gameplay/tesla
+      - Tesla Network: gameplay/tesla/index.md
   - Developers:
       - Overview: Development.md
-      - development/tesla
+      - Tesla System: development/tesla/index.md
