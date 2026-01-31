@@ -7,11 +7,11 @@ PhoenixCore introduces specialized modules across the standard GT tiers.
 
 !!! note "Early Game (ULV - LV)"
 Focus on basic material gathering and the new **Phoenix primitive smelter**.
-* [Early Game Overview](index.md)
+* [Early Game Overview](../index.md)
 
 !!! success "Mid Game (MV - HV)"
 Automate your first custom chemical lines.
-* [Mid Game Overview](index.md)
+* [Mid Game Overview](../index.md)
 
 !!! danger "End Game (UHV+)"
 Push the limits of physics with localized singularities.
