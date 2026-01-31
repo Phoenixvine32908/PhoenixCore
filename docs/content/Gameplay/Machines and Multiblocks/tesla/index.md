@@ -1,2 +1,2 @@
-# Tesla Network ⚡
+# Tesla Network 
 
