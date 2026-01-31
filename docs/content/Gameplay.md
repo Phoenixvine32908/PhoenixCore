@@ -15,7 +15,7 @@ Automate your first custom chemical lines.
 
 !!! danger "End Game (UHV+)"
 Push the limits of physics with localized singularities.
-* [Phoenixware Fusion](gameplay/fusion.md)
+* [Phoenixware Fusion](Gameplay/fusion.md)
 
 ## 🛠️ Key New Systems
 PhoenixCore expands on specific technical niches:
@@ -25,8 +25,8 @@ PhoenixCore expands on specific technical niches:
 | **Heat Management** | New mechanics for high-temperature machines. |
 | **Advanced Alloys** | Phoenix-exclusive metals for late-game casing. |
 | **Core Logistics** | New wireless item transmission covers. |
-| **Tesla Network** | [Wireless energy distribution across dimensions](gameplay/tesla/). |
-| **Phoenixware Fusion** | [UIV-tier energy production](gameplay/fusion.md). |
+| **Tesla Network** | [Wireless energy distribution across dimensions](Gameplay/tesla/). |
+| **Phoenixware Fusion** | [UIV-tier energy production](Gameplay/fusion.md). |
 
 ---
 
