@@ -1,6 +1,6 @@
 ---
-title: Developer Documentation
+title: The Beauty of Fission
 ---
 
 
-# Developing PhoenixCore
+# Developing and working with the Fission System

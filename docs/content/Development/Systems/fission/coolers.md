@@ -1,6 +1,6 @@
 ---
-title: Developer Documentation
+title: Fission Coolers
 ---
 
 
-# Developing PhoenixCore
+# How to add new Coolers and explaining how they are done

@@ -1,6 +1,6 @@
 ---
-title: Developer Documentation
+title: Pressurized Fission Reactor
 ---
 
 
-# Developing PhoenixCore
+# Understanding the DyanmicFissionReactorMachine class.

@@ -1,6 +1,6 @@
 ---
-title: Developer Documentation
+title: Fission Moderators
 ---
 
 
-# Developing PhoenixCore
+# How to add new Moderators and explaining how they are defined.

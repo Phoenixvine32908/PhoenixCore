@@ -1,6 +1,6 @@
 ---
-title: Developer Documentation
+title: Fission Fuel Rods
 ---
 
 
-# Developing PhoenixCore
+# How to add new Fuel Rods and explaining how they are done

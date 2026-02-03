@@ -1,6 +1,6 @@
 ---
-title: Developer Documentation
+title: Breeder Reactor
 ---
 
 
-# Developing PhoenixCore
+# Understanding the BreedereactorMachine class.
