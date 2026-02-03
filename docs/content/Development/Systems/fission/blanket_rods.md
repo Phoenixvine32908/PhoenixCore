@@ -5,7 +5,7 @@ title: Fission Blanket Rods
 
 # How to add new Blanket Rods and explaining how they are done
 
-## Blanket rods provide the core logic for the `BreederReactorMachine` class to work. 
+## Blanket rods provide the core values for the `BreederReactorMachine` class to perform breeder operations. 
 
 They are registered in two parts, an interface named `IFissionBlanketType` and a block class named `FissionBlanketBlock`
 
