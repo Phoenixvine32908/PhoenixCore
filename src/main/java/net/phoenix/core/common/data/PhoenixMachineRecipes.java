@@ -370,7 +370,6 @@ public class PhoenixMachineRecipes {
                 .EUt(GTValues.VA[GTValues.HV] / 3)
                 .save(provider);
 
-
         ASSEMBLER_RECIPES.recipeBuilder("alchemical_imbuer")
                 .inputItems(SOURCE_GEM_BLOCK, 4)
                 .inputItems(pipeLargeFluid, StainlessSteel, 4)
