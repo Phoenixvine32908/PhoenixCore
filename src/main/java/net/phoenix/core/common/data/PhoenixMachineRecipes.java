@@ -42,6 +42,7 @@ import static net.phoenix.core.common.machine.multiblock.Shield.ShieldTypes.NORM
 public class PhoenixMachineRecipes {
 
     public static void init(Consumer<FinishedRecipe> provider) {
+        /*
         if (PhoenixConfigs.INSTANCE.features.creativeEnergyEnabled) {
             ASSEMBLY_LINE_RECIPES.recipeBuilder("dance")
                     .inputItems(GTMultiMachines.ACTIVE_TRANSFORMER)
@@ -148,6 +149,8 @@ public class PhoenixMachineRecipes {
                 .duration(1200)
                 .EUt(VA[LV]).duration(400)
                 .save(provider);
+
+
         PhoenixRecipeTypes.PLEASE.recipeBuilder("plasma_test")
                 .inputFluids(Argon.getFluid(FluidStorageKeys.PLASMA, 100))
                 .inputFluids(Water.getFluid(L * 16))
@@ -157,13 +160,8 @@ public class PhoenixMachineRecipes {
                 .EUt(ZPM * 2)
                 .outputItems(PhoenixMachines.DANCE)
                 .save(provider);
-        PhoenixRecipeTypes.HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES.recipeBuilder("honey_chamber_test")
-                .inputFluids(Water.getFluid(16))
-                .duration(600)
-                .EUt(-LV).duration(400)
-                .addData("required_cooling", 5000)
-                .outputFluids(SodiumPotassium.getFluid(16))
-                .save(provider);
+
+*/
         PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("carbon_and_helium_3_to_oxygen_plasma")
                 .inputFluids(GTMaterials.Carbon.getFluid(16))
                 .inputFluids(GTMaterials.Helium3.getFluid(125))
@@ -262,6 +260,8 @@ public class PhoenixMachineRecipes {
                 .fusionStartEU(150_000_000)
                 .save(provider);
 
+
+
         PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("mercury_and_magnesium_to_uranium_235_plasma")
                 .inputFluids(GTMaterials.Mercury.getFluid(125))
                 .inputFluids(GTMaterials.Magnesium.getFluid(16))
@@ -277,23 +277,18 @@ public class PhoenixMachineRecipes {
                 .duration(1000028)
                 .EUt(24576)
                 .save(provider);
-        PhoenixRecipeTypes.HIGH_PERFORMANCE_BREEDER_REACTOR_RECIPES.recipeBuilder("honey_chamber_tet")
-                .inputFluids(Acetone.getFluid(16))
-                .duration(600)
-                .EUt(-LV).duration(400)
-                .addData("required_cooling", 12000)
-                .outputFluids(SodiumPotassium.getFluid(16))
-                .save(provider);
         CIRCUIT_ASSEMBLER_RECIPES.recipeBuilder("electronic_circuit_mv_universal").EUt(VA[LV]).duration(300)
                 .inputItems(GOOD_CIRCUIT_BOARD)
                 .inputItems(CustomTags.LV_CIRCUITS, 2)
                 .inputItems(CustomTags.DIODES, 2)
-                .inputItems(wireGtSingle, Copper, 2)
+                .inputItems(wireGtSingle, Copper, 2000000)
                 .outputItems(ELECTRONIC_CIRCUIT_MV)
                 .save(provider);
+
+
         PhoenixRecipeTypes.SOURCE_IMBUEMENT_RECIPES.recipeBuilder("source_imbued_titanium")
                 .inputItems(ingot, Titanium, 1)
-                .inputFluids(SOURCE_OF_MAGIC.getFluid(1000))
+                .inputFluids(SOURCE_OF_MAGIC.getFluid(1000000))
                 .duration(160)
                 .EUt(GTValues.VA[GTValues.HV] / 3)
                 .outputItems(ingot, SOURCE_IMBUED_TITANIUM, 1)
@@ -374,6 +369,8 @@ public class PhoenixMachineRecipes {
                 .duration(180)
                 .EUt(GTValues.VA[GTValues.HV] / 3)
                 .save(provider);
+
+
         ASSEMBLER_RECIPES.recipeBuilder("alchemical_imbuer")
                 .inputItems(SOURCE_GEM_BLOCK, 4)
                 .inputItems(pipeLargeFluid, StainlessSteel, 4)

@@ -17,6 +17,7 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.phoenix.core.common.machine.multiblock.Shield;
@@ -212,7 +213,7 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
         return super.isWorkingEnabled();
     }
 
-    private boolean hasPlasmaInHatch(net.minecraft.world.level.material.Fluid fluid, int requiredAmount) {
+    private boolean hasPlasmaInHatch(Fluid fluid, int requiredAmount) {
         return getParts().stream()
                 .filter(PlasmaHatchPartMachine.class::isInstance)
                 .map(PlasmaHatchPartMachine.class::cast)
@@ -224,7 +225,7 @@ public class HighPressurePlasmaArcFurnaceMachine extends WorkableElectricMultibl
                                 ((FluidStack) tank.getContents().get(0)).getAmount() >= requiredAmount);
     }
 
-    private boolean tryConsumePlasmaFromHatch(net.minecraft.world.level.material.Fluid fluid, int consumeAmount) {
+    private boolean tryConsumePlasmaFromHatch(Fluid fluid, int consumeAmount) {
         for (var hatch : getParts().stream()
                 .filter(PlasmaHatchPartMachine.class::isInstance)
                 .map(PlasmaHatchPartMachine.class::cast)

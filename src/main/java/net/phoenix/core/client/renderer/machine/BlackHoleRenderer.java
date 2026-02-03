@@ -68,8 +68,10 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
                 facing.getStepZ() * OFFSET_DISTANCE);
 
         // long tick = mc.level.getGameTime();
-        // if (tick % 20 == 0) PhoenixCore.LOGGER.info("BlackHoleRenderer: rendering at {} for tick {}", centerPos, tick);
-        BlackHolePost.INSTANCE.setWorld(centerPos, LENS_RADIUS_BLOCKS, LENS_STRENGTH, LENS_FALLBACK_RADIUS_UV, mc.level.getGameTime());
+        // if (tick % 20 == 0) PhoenixCore.LOGGER.info("BlackHoleRenderer: rendering at {} for tick {}", centerPos,
+        // tick);
+        BlackHolePost.INSTANCE.setWorld(centerPos, LENS_RADIUS_BLOCKS, LENS_STRENGTH, LENS_FALLBACK_RADIUS_UV,
+                mc.level.getGameTime());
 
         // Render model at same position
         poseStack.pushPose();

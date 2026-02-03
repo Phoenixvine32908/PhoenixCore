@@ -52,7 +52,6 @@ public class PhoenixPredicates {
                 .addTooltips(Component.translatable("gtceu.multiblock.pattern.error.batteries"));
     }
 
-
     @SafeVarargs
     public static TraceabilityPredicate lamps(BlockEntry<LampBlock>... lampEntries) {
         return new TraceabilityPredicate(blockWorldState -> {

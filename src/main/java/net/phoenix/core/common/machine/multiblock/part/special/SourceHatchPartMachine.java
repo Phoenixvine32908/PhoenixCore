@@ -74,7 +74,8 @@ public class SourceHatchPartMachine extends MetaMachine implements ISpecialSourc
     @Override
     public void onUnload() {
         super.onUnload();
-        // Since SourceManager might not have a removeInterface, we rely on isValid() check in SourceManager if it exists,
+        // Since SourceManager might not have a removeInterface, we rely on isValid() check in SourceManager if it
+        // exists,
         // or we just don't call it if it's missing.
     }
 

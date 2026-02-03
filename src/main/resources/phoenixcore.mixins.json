@@ -3,10 +3,12 @@
   "package": "net.phoenix.core.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
+  "refmap": "mixins.phoenixcore.refmap.json",
   "mixins": [
     "EmiApiMixin"
   ],
   "client": [
+    "GuiGraphicsCountSuffixMixin"
   ],
   "injectors": {
     "defaultRequire": 1
