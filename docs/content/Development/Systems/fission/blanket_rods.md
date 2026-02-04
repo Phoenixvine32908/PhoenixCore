@@ -304,7 +304,7 @@ Tooltips
 
 Values
 
-- `String name`. A `String` designed to hold the registaration name of the `Breeder Block`, still needs to follow a-z, 0-9.
+- `String name`. A `String` designed to hold the registration name of the `Breeder Block`, still needs to follow a-z, 0-9.
 - `int tier`. An `int` designed to hold the `tier` of the `Breeder Block`, handles `primary blanket` logic in reactor.
 - `int duration`. An `int` designed to hold the full duration in `ticks` of `fuel` use. 
 - `int amount`. An `int` designed to hold the amount of `fuel` used per cycle.
