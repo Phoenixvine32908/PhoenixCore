@@ -78,18 +78,18 @@ public interface IFissionBlanketType {
 }
 ```
 This is the class we define/change first. Everything goes through this interface for use in `FissionBlanketBlock` and any other classes using the same logic.
-- `getName`
-- `getTintColor`
-- `getTier`
-- `getDurationTicks`
-- `getAmountPerCycle`
-- `getInputKey`
-- `BlanketOutput`
-- `getOutputs` and `getOutputKey`
-- `getTexture`
-- `tryResolveMaterial` 
-- `getMaterial`
-- Then, finally, we have the api call. ALL_BLANKETS_BY_TIER is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
+ - `getName`
+ - `getTintColor`
+ - `getTier`
+ - `getDurationTicks`
+ - `getAmountPerCycle`
+ - `getInputKey`
+ - `BlanketOutput`
+ - `getOutputs` and `getOutputKey`
+ - `getTexture`
+ - `tryResolveMaterial` 
+ - `getMaterial`
+ - Then, finally, we have the api call. ALL_BLANKETS_BY_TIER is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
 
 ```java
 
