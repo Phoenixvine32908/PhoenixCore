@@ -5,10 +5,58 @@ title: Fission Blanket Rods
 
 # How to add new Blanket Rods and explaining how they are done
 
-## Understanding the classes
-Blanket rods provide the core values for the `BreederReactorMachine` class to perform breeder operations. 
+## The Basics
+Blanket rods provide the core values for the `BreederWorkableElectricMultiblockMachine` class to perform breeder operations. 
 
-They are registered in two parts, an interface named `IFissionBlanketType` and a block class named `FissionBlanketBlock`
+If you are a kubejs dev who merely needs to know how to add new `Breeder Rods`, only the first two sections of this page will be useful. 
+
+```js
+StartupEvents.registry("block", event => {
+    event.create('uranium_blanket_rod', 'phoenixcore:fission_blanket_rod')
+        .displayName('U-238 Blanket Rod')
+        .tier(2) // Used to decide what rod is primary. 
+        .durationTicks(2400) // The amount of time in ticks it takes at base to consume one instance of the input fuel item.
+        .amountPerCycle(1) // The amount of fuel used per durationTicks.
+        .inputKey('gtceu:uranium_238_nugget') // Fully realized Forge ID for input fuel.
+        .addOutput('gtceu:plutonium_nugget', 70, 1) // Fully realized list of Forge IDs for output fuel,  
+        .addOutput('gtceu:plutonium_241_nugget', 20, 3) // The first digit for the outputs list is the weight, aka the chance of said output.
+        .addOutput('gtceu:plutonium_238_nugget', 10, 4) // The second digit for the list is the instability. 
+        // If the driver rod has a high spectrum bias, a higher instability means this fuel output will have a higher weight.
+
+        .blanketMaterial(() => GTMaterials.get('uranium_238'))
+        .texture('kubejs:block/fission/uranium_blanket_rod'); // Also needs a texture the same name with _active appended to the end.
+});
+```
+
+To expound on weight/instability, I will give an example of it in practice. 
+
+The formula used to determine the effect fuel rods have on blanket outputs is
+
+  - adjustedWeight = baseWeight * exp(bias * instability * k);
+
+Where exp is the truly random roulette chance, bias is the value defined by duel rod, instability is defined by our blanket rod, and k is a flat variable defined as 0.45.
+
+Say we have a `Fuel Rod` with a spectrum bias of 4, that turns our outputs into
+
+- `Plutonium -> 71.26`
+- `Plutonium 241 -> 21.12`
+- `Plutonium 238 -> 10.75`
+
+## Understanding how to actually use the blanket rods
+
+These blocks are designed to go in instances of the `BreederWorkableElectricMultiblockMachine` class, while they can be placed in other multiblocks they will not do anything special.
+Only the highest tier of `Breeder Rod` decides the timer on which inputs are consumed and outputs are given. However, all `Breeder Rods` will still tick for inputs/outputs.
+
+The primary `Breeder Rod` also is the one chosen to show in the machine ui/jade. While you do not technically need coolers/fuel rods to run a breeder reactor, the reactor will not give power without them. So it is still recommended to encourage their use.
+
+Anything past this point is purely `Java` , meant to teach those who intend to help out with the `Fission` system here. 
+You have been warned.
+
+## Understanding the classes
+
+Now, back to talking about blanket rod blocks.
+
+They are registered in two parts, an interface named `IFissionBlanketType` and a block class named `FissionBlanketBlock`. 
 
 ```java
 package net.phoenix.core.api.block;
@@ -55,11 +103,7 @@ public interface IFissionBlanketType {
     public record BlanketOutput(String key, int weight, int instability) {}
 
     List<BlanketOutput> getOutputs();
-    default String getOutputKey() {
-        var outs = getOutputs();
-        return outs.isEmpty() ? "" : outs.get(0).key();
-    }
-
+    
     @NotNull
     ResourceLocation getTexture();
 
@@ -78,18 +122,20 @@ public interface IFissionBlanketType {
 }
 ```
 This is the class we define/change first. Everything goes through this interface for use in `FissionBlanketBlock` and any other classes using the same logic.
- - `getName`
- - `getTintColor`
- - `getTier`
- - `getDurationTicks`
- - `getAmountPerCycle`
- - `getInputKey`
- - `BlanketOutput`
- - `getOutputs` and `getOutputKey`
- - `getTexture`
- - `tryResolveMaterial` 
- - `getMaterial`
- - Then, finally, we have the api call. ALL_BLANKETS_BY_TIER is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
+
+- `getName`. This controls the registry name of the `Breeder Block`.
+- `getTintColor`. Correctly not working attempt at `auto tinting` blocks, one day it will be real.
+- `getTier`. This controls the `Tier` of the `Breeder Block`.
+- `getDurationTicks`. This controls the blanket fuel's use in `ticks`.
+- `getAmountPerCycle`. This controls the blanket fuel's use per `duration ticks` cycle.
+- `getInputKey`. This controls the `blanket fuel` itself.
+- `BlanketOutput`. This controls the list of outputs.
+- `getOutputs`. Works togethor with `BlanketOutput` as backwards compat.
+- `getTexture`. Controls the texture used by the `Breeder Block`.
+- `tryResolveMaterial`. Tries to resolve the forge registry fuel as a gtm material. 
+- `getMaterial`. Controls the material linked to it, used for some internal names.
+
+Then, finally, we have the api call. `ALL_BLANKETS_BY_TIER` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
 
 ```java
 
@@ -121,8 +167,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Getter
 @ParametersAreNonnullByDefault
 public class FissionBlanketBlock extends ActiveBlock {
-
-    /** Needed for tinting + introspection */
+    
     private final IFissionBlanketType blanketType;
 
     public FissionBlanketBlock(Properties properties, IFissionBlanketType blanketType) {
@@ -249,6 +294,25 @@ public class FissionBlanketBlock extends ActiveBlock {
     }
 }
 ```
+For completeness, we will assume you already know how to make active blocks in the gtm api. So we will focus on what makes this actually unique.
 
-## Understanding how to actually use the blanket rods 
+Tooltips
+
+- `Shift` to show the full info, helps to keep inventory cleaner.
+- The `fuel` used and the list of output `fuels`.
+- How often/how much of the input `fuel` is used.
+
+Values
+
+- `String name`. A `String` designed to hold the registaration name of the `Breeder Block`, still needs to follow a-z, 0-9.
+- `int tier`. An `int` designed to hold the `tier` of the `Breeder Block`, handles `primary blanket` logic in reactor.
+- `int duration`. An `int` designed to hold the full duration in `ticks` of `fuel` use. 
+- `int amount`. An `int` designed to hold the amount of `fuel` used per cycle.
+- `String in`. A `String` designed to handle one fully realized `Forge ID`.
+- `List BlanketOutputs`. A `List` of all the `blanket outputs` and their `weight/instability` fields. 
+- `int tintColor`. Currently, doesn't do anything, just put white.
+
+
+
+
 
