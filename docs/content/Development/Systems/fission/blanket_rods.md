@@ -32,9 +32,9 @@ To expound on weight/instability, I will give an example of it in practice.
 
 The formula used to determine the effect fuel rods have on blanket outputs is
 
-  - adjustedWeight = baseWeight * exp(bias * instability * k);
+  - `adjustedWeight` = baseWeight * exp(bias * instability * k);
 
-Where exp is the truly random roulette chance, bias is the value defined by duel rod, instability is defined by our blanket rod, and k is a flat variable defined as 0.45.
+Where `exp` is the truly random roulette chance, `bias` is the value defined by duel rod, `instability` is defined by our blanket rod, and `k` is a flat variable defined as 0.45.
 
 Say we have a `Fuel Rod` with a spectrum bias of 4, that turns our outputs into
 
