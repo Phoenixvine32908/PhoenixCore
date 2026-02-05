@@ -5,25 +5,24 @@ import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.RandomSource;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.PhoenixRenderTypes;
-import net.phoenix.core.client.renderer.PhoenixShaders;
-import net.phoenix.core.client.renderer.utils.BlackHolePost;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
+import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Renders the model and requests a world-anchored lensing post-pass.
- * (No world-space warp quad; lensing is done in ClientRenderHook.)
- */
+import java.util.List;
+
 public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockMachine, BlackHoleRenderer> {
 
     public static final BlackHoleRenderer INSTANCE = new BlackHoleRenderer();
@@ -31,15 +30,12 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
     public static final DynamicRenderType<WorkableElectricMultiblockMachine, BlackHoleRenderer> TYPE = new DynamicRenderType<>(
             CODEC);
 
-    public static final ResourceLocation CORE_MODEL_RL = PhoenixCore.id("obj/star");
-    private static final ResourceLocation CORE_TEX = PhoenixCore.id("textures/entity/black_hole_disk.png");
-
-    private static final float CORE_SCALE_BLOCKS = 0.01f;
-    private static final float LENS_RADIUS_BLOCKS = 100.0f;
-    private static final float LENS_STRENGTH = 12.25f;
-    private static final float LENS_FALLBACK_RADIUS_UV = 0.5f;
+    public static final ResourceLocation SPHERE_MODEL_RL = PhoenixCore.id("obj/star");
+    static final RandomSource random = RandomSource.create(0L);
 
     private static final double OFFSET_DISTANCE = 10.0;
+    private static final float OUTER_SPHERE_SCALE = 1.0f;
+    private static final float INNER_SPHERE_SCALE = 0.4f;
 
     private BlackHoleRenderer() {}
 
@@ -52,7 +48,7 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
     public void render(WorkableElectricMultiblockMachine machine,
                        float partialTick,
                        @NotNull PoseStack poseStack,
-                       @NotNull net.minecraft.client.renderer.MultiBufferSource buffer,
+                       @NotNull MultiBufferSource buffer,
                        int packedLight,
                        int packedOverlay) {
         if (!machine.isFormed() || !machine.getRecipeLogic().isWorking()) return;
@@ -62,19 +58,8 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
 
         Direction facing = machine.getFrontFacing();
 
-        Vec3 centerPos = Vec3.atCenterOf(machine.getPos()).add(
-                facing.getStepX() * OFFSET_DISTANCE,
-                facing.getStepY() * OFFSET_DISTANCE,
-                facing.getStepZ() * OFFSET_DISTANCE);
-
-        // long tick = mc.level.getGameTime();
-        // if (tick % 20 == 0) PhoenixCore.LOGGER.info("BlackHoleRenderer: rendering at {} for tick {}", centerPos,
-        // tick);
-        BlackHolePost.INSTANCE.setWorld(centerPos, LENS_RADIUS_BLOCKS, LENS_STRENGTH, LENS_FALLBACK_RADIUS_UV,
-                mc.level.getGameTime());
-
-        // Render model at same position
         poseStack.pushPose();
+        poseStack.translate(0.5, 0.5, 0.5);
         poseStack.translate(
                 facing.getStepX() * OFFSET_DISTANCE,
                 facing.getStepY() * OFFSET_DISTANCE,
@@ -82,28 +67,43 @@ public class BlackHoleRenderer extends DynamicRender<WorkableElectricMultiblockM
 
         float time = mc.level.getGameTime() + partialTick;
 
+        // Render the outer sphere (for distortion)
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(time * 1.2f));
-        poseStack.scale(CORE_SCALE_BLOCKS, CORE_SCALE_BLOCKS, CORE_SCALE_BLOCKS);
-        renderModel(CORE_MODEL_RL, poseStack, buffer, 15728880, packedOverlay);
+        poseStack.scale(OUTER_SPHERE_SCALE, OUTER_SPHERE_SCALE, OUTER_SPHERE_SCALE);
+        renderModel(SPHERE_MODEL_RL, poseStack, buffer, packedLight, packedOverlay, true);
+        poseStack.popPose();
+
+        // Render the inner sphere (the black hole itself)
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.YP.rotationDegrees(time * 1.2f));
+        poseStack.scale(INNER_SPHERE_SCALE, INNER_SPHERE_SCALE, INNER_SPHERE_SCALE);
+        renderModel(SPHERE_MODEL_RL, poseStack, buffer, packedLight, packedOverlay, false);
         poseStack.popPose();
 
         poseStack.popPose();
     }
 
     private static void renderModel(ResourceLocation modelRL, PoseStack poseStack,
-                                    net.minecraft.client.renderer.MultiBufferSource buffer,
-                                    int light, int overlay) {
-        if (PhoenixShaders.getBlenderShader() == null) return;
-
+                                    MultiBufferSource buffer,
+                                    int light, int overlay, boolean isOuterSphere) {
         Minecraft mc = Minecraft.getInstance();
         BakedModel model = mc.getModelManager().getModel(modelRL);
+        PoseStack.Pose pose = poseStack.last();
 
-        VertexConsumer vc = buffer.getBuffer(PhoenixRenderTypes.BLENDER_MATERIAL(CORE_TEX));
-        mc.getBlockRenderer().getModelRenderer().renderModel(
-                poseStack.last(), vc, null, model,
-                1.0f, 1.0f, 1.0f,
-                light, overlay);
+        if (isOuterSphere) {
+            VertexConsumer vc = buffer.getBuffer(PhoenixRenderTypes.BLACK_HOLE_TEST_TRANSLUCENT());
+            List<BakedQuad> quads = model.getQuads(null, null, random, ModelData.EMPTY, null);
+            for (BakedQuad quad : quads) {
+                vc.putBulkData(pose, quad, 1.0f, 0.0f, 0.0f, 0.5f, light, overlay, false);
+            }
+        } else {
+            VertexConsumer vc = buffer.getBuffer(PhoenixRenderTypes.BLACK_HOLE_TEST_SOLID());
+            List<BakedQuad> quads = model.getQuads(null, null, random, ModelData.EMPTY, null);
+            for (BakedQuad quad : quads) {
+                vc.putBulkData(pose, quad, 0.0f, 0.0f, 0.0f, 1.0f, light, overlay, false);
+            }
+        }
     }
 
     @Override

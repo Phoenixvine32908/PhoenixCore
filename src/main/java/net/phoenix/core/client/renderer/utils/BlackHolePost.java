@@ -4,36 +4,17 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-/**
- * One-frame-ish message bus from in-world renderers -> post-processing pass.
- *
- * The renderer calls {@link #setWorld(Vec3, float, float, float, long)} each frame it wants
- * the lens. The post-pass projects it and draws the lensing shader.
- *
- * Includes a tiny "keep alive" to avoid flicker if the DynamicRender isn't invoked for 1-2 frames.
- */
 @OnlyIn(Dist.CLIENT)
 public final class BlackHolePost {
 
     public static final BlackHolePost INSTANCE = new BlackHolePost();
 
     private boolean active = false;
-
     private Vec3 centerWorld = Vec3.ZERO;
-
-    /** Radius in world blocks used to estimate screen-space radius. (If you want 10-block diameter, use 5.) */
     private float worldRadiusBlocks = 1.0f;
-
-    /** Used if edge projection fails. */
-    private float fallbackRadiusUv = 3.03f;
-
-    /** Screen UV projected by the post-pass */
+    private float fallbackRadiusUv = 0.03f;
     private float xUv = -1f, yUv = -1f, radiusUv = 0.03f;
-
-    /** Shader strength */
     private float strength = 1.25f;
-
-    /** Keep-alive (ticks) */
     private long lastTouchedTick = Long.MIN_VALUE;
 
     private BlackHolePost() {}
@@ -42,12 +23,10 @@ public final class BlackHolePost {
         return active && (currentTick - lastTouchedTick) <= 3;
     }
 
-    /** Clears only the activation flag (world data remains, so keep-alive can work). */
     public void clear() {
         active = false;
     }
 
-    /** Clear projected screen UV (call after rendering the pass). */
     public void clearScreenUv() {
         xUv = -1f;
         yUv = -1f;

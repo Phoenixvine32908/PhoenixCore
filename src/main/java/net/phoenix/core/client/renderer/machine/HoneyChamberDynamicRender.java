@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
 import com.gregtechceu.gtceu.client.util.RenderUtil;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -35,19 +36,17 @@ public class HoneyChamberDynamicRender extends
                                        DynamicRender<HoneyCrystallizationChamberMachine, HoneyChamberDynamicRender> {
 
     public static final HoneyChamberDynamicRender INSTANCE = new HoneyChamberDynamicRender();
-    public static final Codec<HoneyChamberDynamicRender> CODEC = Codec.unit(HoneyChamberDynamicRender::new);
+    public static final Codec<HoneyChamberDynamicRender> CODEC = Codec.unit(HoneyChamberDynamicRender.INSTANCE);
     public static final DynamicRenderType<HoneyCrystallizationChamberMachine, HoneyChamberDynamicRender> TYPE = new DynamicRenderType<>(
             CODEC);
 
-    // --- Expanded Configuration ---
-    private static final int STRAND_COUNT = 8; // Slightly more strands
+    private static final int STRAND_COUNT = 8;
     private static final float STRAND_RADIUS = 0.35f;
     private static final int STRAND_SEGMENTS = 24;
-
-    // VASTLY increased counts for the 30-block field
     private static final int BEE_COUNT = 64;
     private static final int MOTE_COUNT = 150;
     private static final float FIELD_RADIUS = 30.0f;
+    private static final int FOG_PARTICLE_COUNT = 75;
 
     private final FluidBlockRenderer fluidRenderer = FluidBlockRenderer.Builder.create()
             .setFaceOffset(-0.125f)
@@ -57,13 +56,14 @@ public class HoneyChamberDynamicRender extends
     private final List<RelativeDirection> fluidFaces = List.of(RelativeDirection.DOWN, RelativeDirection.UP);
     private final List<BeeParticle> bees = new ArrayList<>();
     private final List<MoteParticle> motes = new ArrayList<>();
+    private final List<FogParticle> fogParticles = new ArrayList<>();
     private final Random random = new Random();
     private @Nullable Fluid cachedFluid = null;
 
     private HoneyChamberDynamicRender() {
-        // Populate the expanded field
         for (int i = 0; i < BEE_COUNT; i++) bees.add(new BeeParticle(random));
         for (int i = 0; i < MOTE_COUNT; i++) motes.add(new MoteParticle(random));
+        for (int i = 0; i < FOG_PARTICLE_COUNT; i++) fogParticles.add(new FogParticle(random));
     }
 
     @Override
@@ -84,17 +84,12 @@ public class HoneyChamberDynamicRender extends
         stack.pushPose();
         renderFluid(machine, stack, buffer, packedOverlay);
 
-        // Center the render
         stack.translate(0.5, 0.5, 0.5);
 
-        // 1. Fog Layer
         renderHoneyFog(stack, buffer.getBuffer(PhoenixRenderTypes.HONEY_FOG()), time, progress);
 
-        // 2. Expanded Additive Effects
         VertexConsumer additiveVc = buffer.getBuffer(PhoenixRenderTypes.LIGHT_RING());
         renderHoneyStrands(stack, additiveVc, time, progress);
-
-        // Motes and Bees now use the expanded field radius logic
         renderMotes(stack, additiveVc, time, progress);
         renderBees(stack, additiveVc, time, progress);
 
@@ -127,7 +122,6 @@ public class HoneyChamberDynamicRender extends
             stack.pushPose();
             var dir = face.getRelative(machine.getFrontFacing(), machine.getUpwardsFacing(), machine.isFlipped());
 
-            // Fix: Internal faces for horizontal directions must be flipped to face "in"
             if (dir.getAxis() != Direction.Axis.Y) dir = dir.getOpposite();
 
             fluidRenderer.drawPlane(dir, offsets, stack.last().pose(), consumer, cachedFluid,
@@ -138,8 +132,6 @@ public class HoneyChamberDynamicRender extends
 
     private void renderHoneyStrands(PoseStack stack, VertexConsumer vc, float time, float progress) {
         Matrix4f pose = stack.last().pose();
-
-        // Color shifts from liquid amber to crystalline gold based on progress
         float r1 = Mth.lerp(progress, 0.90f, 1.00f);
         float g1 = Mth.lerp(progress, 0.65f, 0.85f);
         float b1 = Mth.lerp(progress, 0.18f, 0.40f);
@@ -151,14 +143,9 @@ public class HoneyChamberDynamicRender extends
             for (int i = 1; i <= STRAND_SEGMENTS; i++) {
                 float t = (float) i / STRAND_SEGMENTS;
                 Vec3 curr = getStrandPoint(phase, t, time);
-
-                // Crystallized strands are slightly thicker and pulse more
                 float width = (0.04f + (0.03f * progress)) * (0.8f + 0.2f * Mth.sin(time * 1.5f + s));
-
                 float alpha = Mth.clamp((0.2f + 0.6f * progress) + 0.1f * Mth.sin(time * 2f + t * 5f), 0.1f, 0.9f);
-
                 quadLine(vc, pose, prev, curr, width, r1, g1, b1, alpha);
-                // Glow outer-wrap
                 quadLine(vc, pose, prev, curr, width * 2.5f, r1, g1, b1, alpha * 0.2f);
                 prev = curr;
             }
@@ -168,7 +155,6 @@ public class HoneyChamberDynamicRender extends
     private Vec3 getStrandPoint(float phase, float t, float time) {
         float angle = t * Mth.TWO_PI + time * 0.3f + phase;
         float radius = STRAND_RADIUS + 0.08f * Mth.sin(time * 0.7f + t * 4f + phase);
-        // Vertical swaying
         float y = (t * 2.0f - 1.0f) + 0.05f * Mth.sin(time * 1.1f + phase + t * 3f);
         return new Vec3(radius * Mth.cos(angle), y, radius * Mth.sin(angle));
     }
@@ -192,11 +178,9 @@ public class HoneyChamberDynamicRender extends
     private void renderBees(PoseStack stack, VertexConsumer vc, float time, float progress) {
         Matrix4f pose = stack.last().pose();
         for (BeeParticle bee : bees) {
-            bee.update(time, progress); // Pass progress to make them swarm faster
-            // Fade out at the edge of the 30-block field
+            bee.update(time, progress);
             float distFactor = (float) Mth.clamp(1.0 - (bee.pos.length() / FIELD_RADIUS), 0.0, 1.0);
             float alpha = (0.3f + 0.7f * progress) * distFactor;
-
             quadLine(vc, pose, bee.prevPos, bee.pos, 0.05f, 1.0f, 0.8f, 0.1f, alpha);
         }
     }
@@ -208,7 +192,6 @@ public class HoneyChamberDynamicRender extends
             float distFactor = (float) Mth.clamp(1.0 - (mote.pos.length() / FIELD_RADIUS), 0.0, 1.0);
             float alpha = (0.1f + 0.3f * progress) * distFactor *
                     (0.6f + 0.4f * Mth.sin(time * 2f + mote.flickerPhase));
-
             Vec3 p = mote.pos;
             quadLine(vc, pose, p.subtract(0, 0.03, 0), p.add(0, 0.03, 0), 0.015f, 1.0f, 0.9f, 0.4f, alpha);
             quadLine(vc, pose, p.subtract(0.03, 0, 0), p.add(0.03, 0, 0), 0.015f, 1.0f, 0.9f, 0.4f, alpha);
@@ -216,16 +199,29 @@ public class HoneyChamberDynamicRender extends
     }
 
     private void renderHoneyFog(PoseStack stack, VertexConsumer vc, float time, float progress) {
-        Matrix4f pose = stack.last().pose();
-        float alpha = (0.08f + 0.2f * progress) * (0.9f + 0.1f * Mth.sin(time));
-        float r = 0.9f, g = 0.7f, b = 0.2f, h = 1.2f, w = 0.03f;
-        // Simple cage bounds
-        Vec3[] p = { new Vec3(-h, -0.8, -h), new Vec3(-h, -0.8, h), new Vec3(-h, 0.8, -h), new Vec3(-h, 0.8, h),
-                new Vec3(h, -0.8, -h), new Vec3(h, -0.8, h), new Vec3(h, 0.8, -h), new Vec3(h, 0.8, h) };
+        float baseAlpha = 0.05f + 0.1f * progress;
+        float r = 0.95f, g = 0.75f, b = 0.3f;
 
-        for (int i = 0; i < 4; i++) {
-            quadLine(vc, pose, p[i], p[i + 4], w, r, g, b, alpha); // Horizontal
-            quadLine(vc, pose, p[i * 2 % 8], p[(i * 2 + 1) % 8], w, r, g, b, alpha); // Vertical
+        for (FogParticle particle : fogParticles) {
+            particle.update(time);
+            
+            float distFactor = (float) Mth.clamp(1.0 - (particle.pos.length() / (FIELD_RADIUS * 0.8)), 0.0, 1.0);
+            float alpha = baseAlpha * distFactor * particle.alpha;
+            
+            Vec3 p = particle.pos;
+            float size = particle.size;
+
+            stack.pushPose();
+            stack.translate(p.x, p.y, p.z);
+            stack.mulPose(Minecraft.getInstance().gameRenderer.getMainCamera().rotation());
+            Matrix4f pose = stack.last().pose();
+            
+            vc.vertex(pose, -size, -size, 0).color(r, g, b, alpha).endVertex();
+            vc.vertex(pose, -size, size, 0).color(r, g, b, alpha).endVertex();
+            vc.vertex(pose, size, size, 0).color(r, g, b, alpha).endVertex();
+            vc.vertex(pose, size, -size, 0).color(r, g, b, alpha).endVertex();
+            
+            stack.popPose();
         }
     }
 
@@ -237,25 +233,22 @@ public class HoneyChamberDynamicRender extends
     @Override
     public int getViewDistance() {
         return 128;
-    } // Increase view distance for the 30-block swarm
+    }
 
     @Override
     public @NotNull AABB getRenderBoundingBox(HoneyCrystallizationChamberMachine m) {
-        // Expand bounding box to 30+ blocks to prevent clipping
         return new AABB(m.getPos()).inflate(FIELD_RADIUS + 5);
     }
 
     private static class BeeParticle {
-
         Vec3 pos, prevPos;
         float radius, speed, phase, height, nX, nZ;
 
         BeeParticle(Random r) {
-            // Distribute bees up to the FIELD_RADIUS
             radius = r.nextFloat() * FIELD_RADIUS;
             speed = 0.2f + r.nextFloat() * 0.5f;
             phase = r.nextFloat() * 6.28f;
-            height = -10.0f + r.nextFloat() * 20.0f; // Tall vertical spread
+            height = -10.0f + r.nextFloat() * 20.0f;
             nX = r.nextFloat() * 100f;
             nZ = r.nextFloat() * 100f;
             pos = prevPos = Vec3.ZERO;
@@ -263,11 +256,9 @@ public class HoneyChamberDynamicRender extends
 
         void update(float t, float progress) {
             prevPos = pos;
-            // Bees move faster and circle tighter as progress increases
             float curSpeed = speed * (1.0f + progress);
             float curRadius = radius * (1.0f - (progress * 0.5f));
             float a = t * curSpeed + phase;
-
             pos = new Vec3(
                     curRadius * Mth.cos(a) + Mth.sin(t * 0.5f + nX) * 2.0f,
                     height + Mth.sin(t * 0.3f) * 3.0f,
@@ -276,14 +267,13 @@ public class HoneyChamberDynamicRender extends
     }
 
     private static class MoteParticle {
-
         Vec3 pos;
         float angle, radius, height, speed, flickerPhase;
 
         MoteParticle(Random r) {
             angle = r.nextFloat() * 6.28f;
             radius = r.nextFloat() * FIELD_RADIUS;
-            height = -15.0f + r.nextFloat() * 30.0f; // Wide vertical volume
+            height = -15.0f + r.nextFloat() * 30.0f;
             speed = 0.05f + r.nextFloat() * 0.15f;
             flickerPhase = r.nextFloat() * 6.28f;
             pos = Vec3.ZERO;
@@ -292,6 +282,53 @@ public class HoneyChamberDynamicRender extends
         void update(float t) {
             float a = angle + t * speed;
             pos = new Vec3(radius * Mth.cos(a), height + Mth.sin(t * 0.2f + flickerPhase), radius * Mth.sin(a));
+        }
+    }
+
+    private static class FogParticle {
+        Vec3 pos;
+        float size;
+        float alpha;
+        float speed;
+        float life;
+        float maxLife;
+
+        FogParticle(Random r) {
+            maxLife = 200.0f + r.nextFloat() * 200.0f;
+            life = r.nextFloat() * maxLife;
+            speed = 0.01f + r.nextFloat() * 0.02f;
+            reset(r);
+        }
+
+        void reset(Random r) {
+            pos = new Vec3(
+                (r.nextFloat() - 0.5f) * FIELD_RADIUS,
+                (r.nextFloat() - 0.5f) * 20.0f, // Y-range of bees
+                (r.nextFloat() - 0.5f) * FIELD_RADIUS
+            );
+            size = 1.5f + r.nextFloat() * 2.5f;
+            alpha = 0.0f;
+        }
+
+        void update(float time) {
+            life++;
+            if (life > maxLife) {
+                life = 0;
+            }
+
+            // Fade in and out
+            float lifeRatio = life / maxLife;
+            alpha = Mth.sin(lifeRatio * Mth.PI);
+
+            pos = pos.add(
+                Mth.sin(time * 0.2f + maxLife) * 0.01f,
+                speed,
+                Mth.cos(time * 0.2f + maxLife) * 0.01f
+            );
+
+            if (pos.y > 10.0f) {
+                pos = new Vec3(pos.x, -10.0f, pos.z);
+            }
         }
     }
 }
