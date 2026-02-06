@@ -1,6 +1,5 @@
 package net.phoenix.core.common.block;
 
-import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.block.IFilterType;
 import com.gregtechceu.gtceu.common.block.CoilBlock;
@@ -12,6 +11,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import net.phoenix.core.PhoenixAPI;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
@@ -56,7 +58,6 @@ public class PhoenixBlocks {
             TeslaBatteryBlock.TeslaBatteryType.MAX);
 
     private static BlockEntry<TeslaBatteryBlock> createTeslaBattery(ITeslaBattery batteryData) {
-        // REMOVED: ITeslaBattery type = null; (This was overwriting your data)
         String tierName = batteryData.getBatteryName();
 
         var battery = REGISTRATE
@@ -76,13 +77,20 @@ public class PhoenixBlocks {
                 .build()
                 .register();
 
-        // Now we put the actual batteryData into the map, not null
         PhoenixAPI.TESLA_BATTERIES.put(batteryData, battery);
         return battery;
     }
 
     public static final BlockEntry<CoilBlock> COIL_TRUE_HEAT_STABLE = createCoilBlock(
             PhoenixCoilBlock.CoilType.COIL_TRUE_HEAT_STABLE);
+
+    public static final BlockEntry<CasingBlock> CLEANROOM_CASING = REGISTRATE.block("cleanroom_casing", CasingBlock::new)
+            .initialProperties(() -> Blocks.IRON_BLOCK)
+            .properties(p -> p.mapColor(MapColor.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE).strength(5.0f, 6.0f).requiresCorrectToolForDrops())
+            .lang("Cleanroom Casing")
+            .item()
+            .build()
+            .register();
 
     public static BlockEntry<Block> PHOENIX_ENRICHED_TRITANIUM_CASING = registerSimpleBlock(
             "§6Extremely Heat-Stable Casing", "phoenix_enriched_tritanium_casing",

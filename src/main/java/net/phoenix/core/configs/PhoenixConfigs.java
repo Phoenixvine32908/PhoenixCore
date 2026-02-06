@@ -24,6 +24,31 @@ public class PhoenixConfigs {
     @Configurable
     public FeatureConfigs features = new FeatureConfigs();
 
+    @Configurable
+    public CleanroomConfig cleanroom = new CleanroomConfig();
+
+    public static class CleanroomConfig {
+        @Configurable
+        @Configurable.Comment({ "Whether the cleanroom deals lethal damage to players when active and at max cleanliness." })
+        public boolean lethal = true;
+
+        @Configurable
+        @Configurable.Comment({ "The maximum cleanliness level of the cleanroom." })
+        public int maxCleanliness = 1000;
+
+        @Configurable
+        @Configurable.Comment({ "The amount of pollution each player adds per tick inside the cleanroom." })
+        public int playerPollution = 5;
+
+        @Configurable
+        @Configurable.Comment({ "The amount of cleanliness regenerated per tick when no players are inside." })
+        public int regenRate = 1;
+
+        @Configurable
+        @Configurable.Comment({ "The amount of sterilizing gas consumed per tick." })
+        public int fluidConsumption = 1;
+    }
+
     public static class FeatureConfigs {
 
         // Features
