@@ -105,23 +105,22 @@ public interface IFissionCoolerType {
                 .orElse(null);
     }
 }
-
 ```
 This is the class we define/change first. Everything goes through this interface for use in `FissionBlanketBlock` and any other classes using the same logic.
 
 - `getName`. This controls the registry name of the `Cooler Block`.
 - `getTier`. This controls the `Tier` of the `Cooler Block`.
-- `getCoolerTemperature`.
-- `getDurationTicks`. This controls the blanket fuel's use in `ticks`.
-- `getAmountPerCycle`. This controls the blanket fuel's use per `duration ticks` cycle.
-- `getInputKey`. This controls the `blanket fuel` itself.
-- `BlanketOutput`. This controls the list of outputs.
-- `getOutputs`. Works togethor with `BlanketOutput` as backwards compat.
-- `getTexture`. Controls the texture used by the `Breeder Block`.
-- `tryResolveMaterial`. Tries to resolve the forge registry fuel as a gtm material.
-- `getMaterial`. Controls the material linked to it, used for some internal names.
+- `getCoolerTemperature`. This controls the cooling power of the `Cooler Block`.
+- `getRequiredCoolantMaterialId`. This handles the caching of the forge registry for use in the `Cooler Block` class.
+- `getOutputCoolantFluidId`. This controls the "hot" coolant given when a `Cooler Block` is running. 
+- `getInputCoolantFluidId`. This controls the "cold" coolant used when a `Cooler Block` is running.
+- `getCoolantUsagePerTick`. This controls amount of the coolant used/given when a `Cooler Block` is running.
+- `getCoolantPerTick`. This passes `getCoolantUsagePerTick` in a more usable form. 
+- `getTintColor`. Correctly not working attempt at `auto tinting` blocks, one day it will be real.
+- `getTexture`. Controls the texture used by the `Cooler Block`.
+- `getMaterial`. Controls the gtm material linked to it, used for some internal names.
 
-Then, finally, we have the api call. `ALL_COOLERS_BY_TIER` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
+Then, finally, we have the api call. `ALL_COOLER_TEMPERATURES_SORTED` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
 
 ```java
 package net.phoenix.core.common.block;
@@ -189,8 +188,7 @@ public class FissionCoolerBlock extends ActiveBlock {
         tooltip.add(Component.translatable("phoenix.fission.cooling_power",
                 coolerType.getCoolerTemperature()));
     }
-
-    /** Registry-only fluid display name (no Material/GTMaterials). */
+    
     public static Component getFluidDisplayName(@NotNull String fluidId) {
         if (fluidId.isEmpty() || "none".equalsIgnoreCase(fluidId)) {
             return Component.literal("None").withStyle(ChatFormatting.GRAY);
@@ -226,13 +224,11 @@ public class FissionCoolerBlock extends ActiveBlock {
         private final int tier;
         @Getter
         private final int coolantUsagePerTick;
-
-        /** INPUT fluid registry id */
+        
         @Getter
         @NotNull
         private final String requiredCoolantMaterialId;
-
-        /** OUTPUT fluid registry id (hot return) */
+        
         @Getter
         @NotNull
         private final String outputCoolantFluidId;
@@ -240,8 +236,7 @@ public class FissionCoolerBlock extends ActiveBlock {
         @Getter
         @NotNull
         private final ResourceLocation texture;
-
-        /** Per-type tint (ARGB) */
+        
         @Getter
         private final int tintColor;
 
@@ -267,10 +262,7 @@ public class FissionCoolerBlock extends ActiveBlock {
         public @NotNull String getSerializedName() {
             return name;
         }
-
-        /**
-         * Legacy name: now treated as INPUT coolant fluid id.
-         */
+        
         @Override
         public @NotNull String getRequiredCoolantMaterialId() {
             return this.requiredCoolantMaterialId;
@@ -293,27 +285,22 @@ public class FissionCoolerBlock extends ActiveBlock {
     }
 }
 ```
-For completeness, we will assume you already know how to make active blocks in the gtm api. So we will focus on what makes this actually unique.
+Now, it's time to discuss what this class actually does for our coolers. 
 
 Tooltips
 
 - `Shift` to show the full info, helps to keep inventory cleaner.
-- The `fuel` used and the list of output `fuels`.
-- How often/how much of the input `fuel` is used.
+- The `coolant` used for consumption.
+- The `coolant` used for output.
+- How often/how much of the `coolant` is used.
+- The cooling power of the `Coooler Block`
 
 Values
 
-- `String name`. A `String` designed to hold the registration name of the `Breeder Block`, still needs to follow a-z, 0-9.
-- `int tier`. An `int` designed to hold the `tier` of the `Breeder Block`, handles `primary blanket` logic in reactor.
-- `int duration`. An `int` designed to hold the full duration in `ticks` of `fuel` use.
-- `int amount`. An `int` designed to hold the amount of `fuel` used per cycle.
-- `String in`. A `String` designed to handle one fully realized `Forge ID`.
-- `List BlanketOutputs`. A `List` of all the `blanket outputs` and their `weight/instability` fields.
+- `String name`. A `String` designed to hold the registration name of the `Cooler Block`, still needs to follow a-z, 0-9.
+- `int temp`. An `int` designed to hold the `cooling power` of the `Cooler Block`.
+- `int tier`. An `int` designed to hold the `tier` of the `Cooler Block`, handles `primary cooler` logic in reactor.
+- `int usage`. An `int` designed to hold the amount of `coolant` used per cycle.
+- `String inputCoolantFluidId`. A `String` designed to handle one fully realized `Forge ID` for coolant input.
+- `String outputCoolantFluidId`. A `String` designed to handle one fully realized `Forge ID` for coolant output.
 - `int tintColor`. Currently, doesn't do anything, just put white.
-
-
-
-
-
-
-

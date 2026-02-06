@@ -22,7 +22,6 @@ StartupEvents.registry("block", event => {
         .addOutput('gtceu:plutonium_241_nugget', 20, 3) // The first digit for the outputs list is the weight, aka the chance of said output.
         .addOutput('gtceu:plutonium_238_nugget', 10, 4) // The second digit for the list is the instability. 
         // If the driver rod has a high spectrum bias, a higher instability means this fuel output will have a higher weight.
-
         .blanketMaterial(() => GTMaterials.get('uranium_238'))
         .texture('kubejs:block/fission/uranium_blanket_rod'); // Also needs a texture the same name with _active appended to the end.
 });
@@ -133,7 +132,7 @@ This is the class we define/change first. Everything goes through this interface
 - `getOutputs`. Works togethor with `BlanketOutput` as backwards compat.
 - `getTexture`. Controls the texture used by the `Breeder Block`.
 - `tryResolveMaterial`. Tries to resolve the forge registry fuel as a gtm material. 
-- `getMaterial`. Controls the material linked to it, used for some internal names.
+- `getMaterial`. Controls the gtm material linked to it, used for some internal names.
 
 Then, finally, we have the api call. `ALL_BLANKETS_BY_TIER` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
 
