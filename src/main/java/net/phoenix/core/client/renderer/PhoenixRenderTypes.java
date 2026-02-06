@@ -2,6 +2,7 @@ package net.phoenix.core.client.renderer;
 
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
@@ -68,13 +69,12 @@ public class PhoenixRenderTypes extends RenderType {
                     .setCullState(RenderStateShard.NO_CULL)
                     .createCompositeState(false));
 
-
     private PhoenixRenderTypes(String name, VertexFormat format, VertexFormat.Mode mode,
                                int bufferSize, boolean affectsCrumbling, boolean sortOnUpload,
                                Runnable setupState, Runnable clearState) {
         super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState);
     }
-    
+
     public static RenderType HONEY_FOG() {
         return HONEY_FOG;
     }

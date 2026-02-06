@@ -204,10 +204,10 @@ public class HoneyChamberDynamicRender extends
 
         for (FogParticle particle : fogParticles) {
             particle.update(time);
-            
+
             float distFactor = (float) Mth.clamp(1.0 - (particle.pos.length() / (FIELD_RADIUS * 0.8)), 0.0, 1.0);
             float alpha = baseAlpha * distFactor * particle.alpha;
-            
+
             Vec3 p = particle.pos;
             float size = particle.size;
 
@@ -215,12 +215,12 @@ public class HoneyChamberDynamicRender extends
             stack.translate(p.x, p.y, p.z);
             stack.mulPose(Minecraft.getInstance().gameRenderer.getMainCamera().rotation());
             Matrix4f pose = stack.last().pose();
-            
+
             vc.vertex(pose, -size, -size, 0).color(r, g, b, alpha).endVertex();
             vc.vertex(pose, -size, size, 0).color(r, g, b, alpha).endVertex();
             vc.vertex(pose, size, size, 0).color(r, g, b, alpha).endVertex();
             vc.vertex(pose, size, -size, 0).color(r, g, b, alpha).endVertex();
-            
+
             stack.popPose();
         }
     }
@@ -241,6 +241,7 @@ public class HoneyChamberDynamicRender extends
     }
 
     private static class BeeParticle {
+
         Vec3 pos, prevPos;
         float radius, speed, phase, height, nX, nZ;
 
@@ -267,6 +268,7 @@ public class HoneyChamberDynamicRender extends
     }
 
     private static class MoteParticle {
+
         Vec3 pos;
         float angle, radius, height, speed, flickerPhase;
 
@@ -286,6 +288,7 @@ public class HoneyChamberDynamicRender extends
     }
 
     private static class FogParticle {
+
         Vec3 pos;
         float size;
         float alpha;
@@ -302,10 +305,9 @@ public class HoneyChamberDynamicRender extends
 
         void reset(Random r) {
             pos = new Vec3(
-                (r.nextFloat() - 0.5f) * FIELD_RADIUS,
-                (r.nextFloat() - 0.5f) * 20.0f, // Y-range of bees
-                (r.nextFloat() - 0.5f) * FIELD_RADIUS
-            );
+                    (r.nextFloat() - 0.5f) * FIELD_RADIUS,
+                    (r.nextFloat() - 0.5f) * 20.0f, // Y-range of bees
+                    (r.nextFloat() - 0.5f) * FIELD_RADIUS);
             size = 1.5f + r.nextFloat() * 2.5f;
             alpha = 0.0f;
         }
@@ -321,10 +323,9 @@ public class HoneyChamberDynamicRender extends
             alpha = Mth.sin(lifeRatio * Mth.PI);
 
             pos = pos.add(
-                Mth.sin(time * 0.2f + maxLife) * 0.01f,
-                speed,
-                Mth.cos(time * 0.2f + maxLife) * 0.01f
-            );
+                    Mth.sin(time * 0.2f + maxLife) * 0.01f,
+                    speed,
+                    Mth.cos(time * 0.2f + maxLife) * 0.01f);
 
             if (pos.y > 10.0f) {
                 pos = new Vec3(pos.x, -10.0f, pos.z);

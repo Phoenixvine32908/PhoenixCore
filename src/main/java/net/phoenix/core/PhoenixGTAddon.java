@@ -45,9 +45,9 @@ public class PhoenixGTAddon implements IGTAddon {
 
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
-     PhoenixMachineRecipes.init(provider);
-       PhoenixToolRecipes.init(provider);
-       PhoenixBeeRecipeGenerator.loadBeeRecipes(provider);
+        PhoenixMachineRecipes.init(provider);
+        PhoenixToolRecipes.init(provider);
+        PhoenixBeeRecipeGenerator.loadBeeRecipes(provider);
         CrystalRoseAssemblerGenerator.generateCrystalRoseRecipes(provider);
     }
 

@@ -1,13 +1,12 @@
 package net.phoenix.core.common.machine.multiblock.electric;
 
-import appeng.items.tools.powered.WirelessTerminalItem;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.pattern.BlockPattern;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.common.data.GTFluids;
-import net.minecraft.core.BlockPos;
+/*
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +14,8 @@ import net.minecraft.world.phys.AABB;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.util.PhoenixDamageSources;
 import net.phoenix.core.configs.PhoenixConfigs;
-import org.jetbrains.annotations.NotNull;
+
+import appeng.items.tools.powered.WirelessTerminalItem;
 
 import java.util.List;
 
@@ -52,8 +52,8 @@ public class PhoenixCleanroomMachine extends WorkableElectricMultiblockMachine {
 
             // Check for sterilizing fluid
             if (getInputFluidInventory().getFluidInTank(0).getFluid().isSame(GTFluids.STERILIZING_GAS.get()) &&
-                getInputFluidInventory().getFluidInTank(0).getAmount() >= config.fluidConsumption) {
-                
+                    getInputFluidInventory().getFluidInTank(0).getAmount() >= config.fluidConsumption) {
+
                 getInputFluidInventory().drain(config.fluidConsumption, true);
 
                 AABB interior = new AABB(getPos().offset(1, 1, 1), getPos().offset(2, 2, 2));
@@ -61,7 +61,7 @@ public class PhoenixCleanroomMachine extends WorkableElectricMultiblockMachine {
 
                 if (!playersInside.isEmpty()) {
                     cleanliness = Math.max(0, cleanliness - (config.playerPollution * playersInside.size()));
-                    
+
                     for (Player player : playersInside) {
                         if (config.lethal && this.isActive() && cleanliness >= config.maxCleanliness) {
                             player.hurt(PhoenixDamageSources.sterilized(getLevel()), Float.MAX_VALUE);
@@ -91,3 +91,6 @@ public class PhoenixCleanroomMachine extends WorkableElectricMultiblockMachine {
         return Component.translatable("block.phoenixcore.cleanroom");
     }
 }
+
+
+ */

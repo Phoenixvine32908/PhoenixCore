@@ -9,7 +9,7 @@ title: Fission Coolers
 
 Coolers provide cooling power for the use of running reactors. Each cooler uses a different coolant and provides a different cooling power.
 
-If you are a kubejs dev who merely needs to know how to add new `Coolers`, only the first two sections of this page will be useful. 
+If you are a KubeJs dev who merely needs to know how to add new `Coolers`, only the first two sections of this page will be useful. 
 
 ```js
 StartupEvents.registry("block", event => {
@@ -116,7 +116,7 @@ This is the class we define/change first. Everything goes through this interface
 - `getInputCoolantFluidId`. This controls the "cold" coolant used when a `Cooler Block` is running.
 - `getCoolantUsagePerTick`. This controls amount of the coolant used/given when a `Cooler Block` is running.
 - `getCoolantPerTick`. This passes `getCoolantUsagePerTick` in a more usable form. 
-- `getTintColor`. Correctly not working attempt at `auto tinting` blocks, one day it will be real.
+- `getTintColor`. Currently not working attempt at `auto tinting` blocks, one day it will be real.
 - `getTexture`. Controls the texture used by the `Cooler Block`.
 - `getMaterial`. Controls the gtm material linked to it, used for some internal names.
 

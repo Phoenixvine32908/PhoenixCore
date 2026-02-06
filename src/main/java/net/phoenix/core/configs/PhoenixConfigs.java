@@ -28,8 +28,10 @@ public class PhoenixConfigs {
     public CleanroomConfig cleanroom = new CleanroomConfig();
 
     public static class CleanroomConfig {
+
         @Configurable
-        @Configurable.Comment({ "Whether the cleanroom deals lethal damage to players when active and at max cleanliness." })
+        @Configurable.Comment({
+                "Whether the cleanroom deals lethal damage to players when active and at max cleanliness." })
         public boolean lethal = true;
 
         @Configurable

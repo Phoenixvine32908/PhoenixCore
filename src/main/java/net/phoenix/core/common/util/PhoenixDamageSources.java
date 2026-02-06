@@ -10,13 +10,15 @@ import net.phoenix.core.PhoenixCore;
 
 public class PhoenixDamageSources {
 
-    public static final ResourceKey<DamageType> STERILIZED = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(PhoenixCore.MOD_ID, "sterilized"));
+    public static final ResourceKey<DamageType> STERILIZED = ResourceKey.create(Registries.DAMAGE_TYPE,
+            new ResourceLocation(PhoenixCore.MOD_ID, "sterilized"));
 
     public static void bootstrap(BootstapContext<DamageType> context) {
         context.register(STERILIZED, new DamageType("sterilized", 0.1F));
     }
 
     public static DamageSource sterilized(net.minecraft.world.level.Level level) {
-        return new DamageSource(level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(STERILIZED));
+        return new DamageSource(
+                level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(STERILIZED));
     }
 }

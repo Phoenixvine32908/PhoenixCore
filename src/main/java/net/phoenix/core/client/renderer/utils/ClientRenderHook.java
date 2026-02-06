@@ -1,7 +1,5 @@
 package net.phoenix.core.client.renderer.utils;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
@@ -10,10 +8,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.client.renderer.PhoenixShaders;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
-
-import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = PhoenixCore.MOD_ID)
 public final class ClientRenderHook {
@@ -76,7 +75,7 @@ public final class ClientRenderHook {
 
         var window = mc.getWindow();
         if (shader.getUniform("ScreenSize") != null)
-            shader.getUniform("ScreenSize").set((float)window.getWidth(), (float)window.getHeight());
+            shader.getUniform("ScreenSize").set((float) window.getWidth(), (float) window.getHeight());
         if (shader.getUniform("BlackHolePos") != null)
             shader.getUniform("BlackHolePos").set(post.xUv(), post.yUv());
         if (shader.getUniform("BlackHoleRadius") != null)
@@ -96,13 +95,14 @@ public final class ClientRenderHook {
     }
 
     private static float[] projectWorldToUv(Vec3 world, Vec3 camPos, Matrix4f view, Matrix4f proj) {
-        Vector4f p = new Vector4f((float) (world.x - camPos.x), (float) (world.y - camPos.y), (float) (world.z - camPos.z), 1.0f);
+        Vector4f p = new Vector4f((float) (world.x - camPos.x), (float) (world.y - camPos.y),
+                (float) (world.z - camPos.z), 1.0f);
         p.mul(view).mul(proj);
         if (p.w() <= 0.0f) return null;
         float ndcX = p.x() / p.w();
         float ndcY = p.y() / p.w();
         if (ndcX < -1.5f || ndcX > 1.5f || ndcY < -1.5f || ndcY > 1.5f) return null;
-        return new float[]{(ndcX + 1.0f) * 0.5f, (ndcY + 1.0f) * 0.5f};
+        return new float[] { (ndcX + 1.0f) * 0.5f, (ndcY + 1.0f) * 0.5f };
     }
 
     private static void drawFullscreenQuad() {

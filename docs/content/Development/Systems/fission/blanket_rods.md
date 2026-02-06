@@ -8,7 +8,7 @@ title: Fission Blanket Rods
 ## The Basics
 Blanket rods provide the core values for the `BreederWorkableElectricMultiblockMachine` class to perform breeder operations. 
 
-If you are a kubejs dev who merely needs to know how to add new `Breeder Rods`, only the first two sections of this page will be useful. 
+If you are a KubeJs dev who merely needs to know how to add new `Breeder Rods`, only the first two sections of this page will be useful. 
 
 ```js
 StartupEvents.registry("block", event => {
@@ -123,7 +123,7 @@ public interface IFissionBlanketType {
 This is the class we define/change first. Everything goes through this interface for use in `FissionBlanketBlock` and any other classes using the same logic.
 
 - `getName`. This controls the registry name of the `Breeder Block`.
-- `getTintColor`. Correctly not working attempt at `auto tinting` blocks, one day it will be real.
+- `getTintColor`. Currently not working attempt at `auto tinting` blocks, one day it will be real.
 - `getTier`. This controls the `Tier` of the `Breeder Block`.
 - `getDurationTicks`. This controls the blanket fuel's use in `ticks`.
 - `getAmountPerCycle`. This controls the blanket fuel's use per `duration ticks` cycle.
