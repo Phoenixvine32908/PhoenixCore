@@ -6,18 +6,6 @@ import com.gregtechceu.gtceu.api.pattern.BlockPattern;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.common.data.GTFluids;
-/*
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.AABB;
-import net.phoenix.core.common.block.PhoenixBlocks;
-import net.phoenix.core.common.util.PhoenixDamageSources;
-import net.phoenix.core.configs.PhoenixConfigs;
-
-import appeng.items.tools.powered.WirelessTerminalItem;
-
-import java.util.List;
 
 public class PhoenixCleanroomMachine extends WorkableElectricMultiblockMachine {
 
@@ -92,5 +80,4 @@ public class PhoenixCleanroomMachine extends WorkableElectricMultiblockMachine {
     }
 }
 
-
- */
+*/

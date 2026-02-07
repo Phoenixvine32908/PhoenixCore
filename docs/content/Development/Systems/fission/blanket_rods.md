@@ -8,7 +8,7 @@ title: Fission Blanket Rods
 ## The Basics
 Blanket rods provide the core values for the `BreederWorkableElectricMultiblockMachine` class to perform breeder operations. 
 
-If you are a KubeJs dev who merely needs to know how to add new `Breeder Rods`, only the first two sections of this page will be useful. 
+If you are a KubeJS dev who merely needs to know how to add new `Breeder Rods`, only the first two sections of this page will be useful. 
 
 ```js
 StartupEvents.registry("block", event => {
@@ -297,7 +297,7 @@ For completeness, we will assume you already know how to make active blocks in t
 
 Tooltips
 
-- `Shift` to show the full info, helps to keep inventory cleaner.
+- `Hold Shift` to show the full info, helps to keep inventory cleaner.
 - The `fuel` used and the list of output `fuels`.
 - How often/how much of the input `fuel` is used.
 
@@ -309,7 +309,7 @@ Values
 - `int amount`. An `int` designed to hold the amount of `fuel` used per cycle.
 - `String in`. A `String` designed to handle one fully realized `Forge ID`.
 - `List BlanketOutputs`. A `List` of all the `blanket outputs` and their `weight/instability` fields. 
-- `int tintColor`. Currently, doesn't do anything, just put white.
+- `int tintColor`. Currently doesn't do anything, just put 0xFFFFFF.
 
 
 

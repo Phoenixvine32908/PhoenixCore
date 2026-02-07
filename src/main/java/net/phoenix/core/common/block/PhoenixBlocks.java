@@ -11,8 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
-import net.minecraft.world.level.material.MapColor;
 import net.phoenix.core.PhoenixAPI;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.machine.trait.ITeslaBattery;
@@ -84,16 +82,17 @@ public class PhoenixBlocks {
     public static final BlockEntry<CoilBlock> COIL_TRUE_HEAT_STABLE = createCoilBlock(
             PhoenixCoilBlock.CoilType.COIL_TRUE_HEAT_STABLE);
 
-  /*  public static final BlockEntry<Block> CLEANROOM_CASING = REGISTRATE.block("cleanroom_casing", Block::new)
-            .initialProperties(() -> Blocks.IRON_BLOCK)
-            .properties(p -> p.mapColor(MapColor.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)
-                    .strength(5.0f, 6.0f).requiresCorrectToolForDrops())
-            .lang("Cleanroom Casing")
-            .item()
-            .build()
-            .register();
-
-   */
+    /*
+     * public static final BlockEntry<Block> CLEANROOM_CASING = REGISTRATE.block("cleanroom_casing", Block::new)
+     * .initialProperties(() -> Blocks.IRON_BLOCK)
+     * .properties(p -> p.mapColor(MapColor.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE)
+     * .strength(5.0f, 6.0f).requiresCorrectToolForDrops())
+     * .lang("Cleanroom Casing")
+     * .item()
+     * .build()
+     * .register();
+     * 
+     */
 
     public static BlockEntry<Block> PHOENIX_ENRICHED_TRITANIUM_CASING = registerSimpleBlock(
             "§6Extremely Heat-Stable Casing", "phoenix_enriched_tritanium_casing",

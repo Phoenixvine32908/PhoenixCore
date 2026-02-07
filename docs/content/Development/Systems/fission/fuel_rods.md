@@ -3,12 +3,12 @@ title: Fission Fuel Rods
 ---
 
 
-# How to add new Blanket Rods and explaining how they are done
+# How to add new Fuel Rods and explaining how they are done
 
 ## The Basics
 Blanket rods provide the core values for the `BreederWorkableElectricMultiblockMachine` class to perform breeder operations.
 
-If you are a kubejs dev who merely needs to know how to add new `Breeder Rods`, only the first two sections of this page will be useful.
+If you are a kubejs dev who merely needs to know how to add new `Fuel Rods`, only the first two sections of this page will be useful.
 
 ```js
 StartupEvents.registry("block", event => {

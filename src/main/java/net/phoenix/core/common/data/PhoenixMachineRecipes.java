@@ -160,10 +160,11 @@ public class PhoenixMachineRecipes {
                 .fusionStartEU(180_000_000)
                 .save(provider);
         PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("deuterium_and_tritium_to_helium_plasma")
-                .inputFluids(GTMaterials.Deuterium.getFluid(125))
-                .inputFluids(GTMaterials.Tritium.getFluid(125))
-                .outputFluids(GTMaterials.Helium.getFluid(FluidStorageKeys.PLASMA, 125))
+                .inputFluids(Deuterium.getFluid(125))
+                .inputFluids(Tritium.getFluid(125))
+                .outputFluids(Helium.getFluid(FluidStorageKeys.PLASMA, 125))
                 .duration(16)
+                // .input(SourceRecipeCapability.CAP, new SourceIngredient(2))
                 .EUt(4096)
                 .fusionStartEU(40_000_000)
                 .save(provider);

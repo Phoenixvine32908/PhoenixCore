@@ -34,6 +34,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.phoenix.core.api.PhoenixSounds;
 import net.phoenix.core.api.recipe.lookup.MapShieldIngredient;
+import net.phoenix.core.api.recipe.lookup.MapSourceIngredient;
 import net.phoenix.core.client.PhoenixClient;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
@@ -42,6 +43,7 @@ import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.materials.PhoenixOres;
 import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
+import net.phoenix.core.common.event.SourceHatchJarTransferTick;
 import net.phoenix.core.common.machine.PhoenixBeeMachines;
 import net.phoenix.core.common.machine.PhoenixMachines;
 import net.phoenix.core.common.machine.PhoenixResearchMachines;
@@ -95,6 +97,7 @@ public class PhoenixCore {
         }
 
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new SourceHatchJarTransferTick());
     }
 
     public static void init() {
@@ -119,6 +122,8 @@ public class PhoenixCore {
                 () -> {
 
                     MapIngredientTypeManager.registerMapIngredient(Shield.ShieldTypes.class, MapShieldIngredient::from);
+                    MapIngredientTypeManager.registerMapIngredient(Integer.class,
+                            MapSourceIngredient::convertToMapIngredient);
                 });
     }
 

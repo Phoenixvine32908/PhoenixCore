@@ -5,10 +5,14 @@
   "minVersion": "0.8",
   "refmap": "mixins.phoenixcore.refmap.json",
   "mixins": [
-    "EmiApiMixin"
+    "DominionWandMixin",
+    "EmiApiMixin",
+    "MetaMachineBlockEntityWandableMixin",
+    "accessor.RelayTileDisabledAccessor"
   ],
   "client": [
-    "GuiGraphicsCountSuffixMixin"
+    "GuiGraphicsCountSuffixMixin",
+    "RelayTileMixin"
   ],
   "injectors": {
     "defaultRequire": 1

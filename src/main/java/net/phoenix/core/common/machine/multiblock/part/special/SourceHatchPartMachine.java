@@ -1,90 +1,43 @@
-// GTCEu MetaMachine for source hatches
 package net.phoenix.core.common.machine.multiblock.part.special;
 
-import com.gregtechceu.gtceu.api.GTValues;
-import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredIOPartMachine;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.phoenix.core.api.capability.ISourceProviderCapability;
 import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
 
+import com.hollingsworth.arsnouveau.api.item.IWandable;
 import com.hollingsworth.arsnouveau.api.source.ISourceTile;
-import com.hollingsworth.arsnouveau.api.source.ISpecialSourceProvider;
-import com.hollingsworth.arsnouveau.api.source.SourceManager;
-import com.hollingsworth.arsnouveau.api.source.SourceProvider;
 import lombok.Getter;
 
-public class SourceHatchPartMachine extends MetaMachine implements ISpecialSourceProvider {
+public class SourceHatchPartMachine extends TieredIOPartMachine
+                                    implements ISourceProviderCapability, IWandable {
 
     @Getter
+    private final IO io;
     private final ISourceTile sourceContainer;
-    private final BlockPos pos;
-    private final Level level;
-    private final MetaMachineBlockEntity tileEntity;
-    private SourceProvider sourceProvider;
 
-    private static final int MAX_CAPACITY = 10000;
-    private static final int MAX_CONSUMPTION = 100;
-    private static final IO IO_DIRECTION = IO.OUT;
-
-    public SourceHatchPartMachine(MetaMachineBlockEntity tileEntity, int tier, IO io) {
-        super(tileEntity);
-        this.sourceContainer = new NotifiableSourceContainer(this, io, getMaxCapacity(tier), getMaxConsumption(tier));
-        this.pos = tileEntity.getBlockPos();
-        this.level = tileEntity.getLevel();
-        this.tileEntity = tileEntity;
-    }
-
-    public static int getMaxCapacity(int tier) {
-        return (int) (GTValues.V[tier] * 100);
-    }
-
-    public static int getMaxConsumption(int tier) {
-        return (int) (GTValues.V[tier] * 10);
+    public SourceHatchPartMachine(IMachineBlockEntity holder, int tier, IO io) {
+        super(holder, tier, io);  // <-- THIS is the correct constructor
+        this.io = io;
+        this.sourceContainer = new NotifiableSourceContainer(
+                this,
+                io,
+                getMaxCapacity(tier),
+                getMaxConsumption(tier));
     }
 
     @Override
     public ISourceTile getSource() {
-        return this.sourceContainer;
+        return sourceContainer;
     }
 
-    @Override
-    public boolean isValid() {
-        return !tileEntity.isRemoved() && level.getBlockEntity(pos) == tileEntity;
+    public static int getMaxCapacity(int tier) {
+        return 1000 * tier;
     }
 
-    @Override
-    public BlockPos getCurrentPos() {
-        return this.pos;
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        if (!this.level.isClientSide) {
-            if (this.sourceProvider == null) {
-                this.sourceProvider = new SourceProvider(this.sourceContainer, this.pos);
-            }
-            SourceManager.INSTANCE.addInterface(this.level, this.sourceProvider);
-        }
-    }
-
-    @Override
-    public void onUnload() {
-        super.onUnload();
-        // Since SourceManager might not have a removeInterface, we rely on isValid() check in SourceManager if it
-        // exists,
-        // or we just don't call it if it's missing.
-    }
-
-    public void onBlockPlacedInWorld() {
-        if (!this.level.isClientSide) {
-            if (this.sourceProvider == null) {
-                this.sourceProvider = new SourceProvider(this.sourceContainer, this.pos);
-            }
-            SourceManager.INSTANCE.addInterface(this.level, this.sourceProvider);
-        }
+    public static int getMaxConsumption(int tier) {
+        return 250 * tier;
     }
 }

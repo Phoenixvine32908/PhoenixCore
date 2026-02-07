@@ -18,32 +18,44 @@ import snownee.jade.api.config.IPluginConfig;
 
 public class SourceHatchProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
+    public static final ResourceLocation UID = PhoenixCore.id("source_hatch_info");
+
+    private static final String KEY_STORED = "SourceStored";
+    private static final String KEY_CAP = "SourceCapacity";
+
     @Override
-    public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
-        if (blockAccessor.getServerData().contains("sourceStored")) {
-            int storedSource = blockAccessor.getServerData().getInt("sourceStored");
-            int maxCapacity = blockAccessor.getServerData().getInt("sourceCapacity");
-            Component sourceText = Component.translatable("phoenixcore.jade.source_hatch_info",
-                    Component.literal(String.valueOf(storedSource)).withStyle(ChatFormatting.AQUA),
-                    Component.literal(String.valueOf(maxCapacity)).withStyle(ChatFormatting.AQUA));
-            iTooltip.add(sourceText);
-        }
+    public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
+        if (!(accessor.getBlockEntity() instanceof MetaMachineBlockEntity metaBE)) return;
+
+        var machine = metaBE.getMetaMachine();
+        if (!(machine instanceof SourceHatchPartMachine hatch)) return;
+
+        ISourceTile source = hatch.getSource();
+        if (source == null) return;
+
+        tag.putInt(KEY_STORED, source.getSource());
+        tag.putInt(KEY_CAP, source.getMaxSource());
+
+        PhoenixCore.LOGGER.info("[Jade:SourceHatch] pos={} stored={} cap={}",
+                accessor.getPosition(), source.getSource(), source.getMaxSource());
     }
 
     @Override
-    public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
-        if (blockAccessor.getBlockEntity() instanceof MetaMachineBlockEntity blockEntity) {
-            if (blockEntity.getMetaMachine() instanceof SourceHatchPartMachine sourceHatch) {
-                ISourceTile sourceContainer = sourceHatch.getSourceContainer();
+    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+        CompoundTag data = accessor.getServerData();
+        if (!data.contains(KEY_STORED) || !data.contains(KEY_CAP)) return;
 
-                compoundTag.putInt("sourceStored", sourceContainer.getSource());
-                compoundTag.putInt("sourceCapacity", sourceContainer.getMaxSource());
-            }
-        }
+        int stored = data.getInt(KEY_STORED);
+        int cap = data.getInt(KEY_CAP);
+
+        tooltip.add(Component.translatable(
+                "phoenixcore.jade.source_hatch_info",
+                Component.literal(Integer.toString(stored)).withStyle(ChatFormatting.AQUA),
+                Component.literal(Integer.toString(cap)).withStyle(ChatFormatting.AQUA)));
     }
 
     @Override
     public ResourceLocation getUid() {
-        return PhoenixCore.id("source_hatch_info");
+        return UID;
     }
 }

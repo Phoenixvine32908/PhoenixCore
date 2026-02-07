@@ -27,6 +27,17 @@ public class PhoenixConfigs {
     @Configurable
     public CleanroomConfig cleanroom = new CleanroomConfig();
 
+    @Configurable
+    public SourceHatchConfig sourceHatch = new SourceHatchConfig();
+
+    public static class SourceHatchConfig {
+
+        @Configurable
+        @Configurable.Comment({
+                "The radius (in blocks) in which a Source Hatch will scan for nearby Source Jars to pull from." })
+        public int sourceJarCheckRadius = 12;
+    }
+
     public static class CleanroomConfig {
 
         @Configurable

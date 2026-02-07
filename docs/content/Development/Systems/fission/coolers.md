@@ -9,7 +9,7 @@ title: Fission Coolers
 
 Coolers provide cooling power for the use of running reactors. Each cooler uses a different coolant and provides a different cooling power.
 
-If you are a KubeJs dev who merely needs to know how to add new `Coolers`, only the first two sections of this page will be useful. 
+If you are a KubeJS dev who merely needs to know how to add new `Coolers`, only the first two sections of this page will be useful. 
 
 ```js
 StartupEvents.registry("block", event => {
@@ -289,7 +289,7 @@ Now, it's time to discuss what this class actually does for our coolers.
 
 Tooltips
 
-- `Shift` to show the full info, helps to keep inventory cleaner.
+- `Hold Shift` to show the full info, helps to keep inventory cleaner.
 - The `coolant` used for consumption.
 - The `coolant` used for output.
 - How often/how much of the `coolant` is used.
@@ -303,4 +303,4 @@ Values
 - `int usage`. An `int` designed to hold the amount of `coolant` used per cycle.
 - `String inputCoolantFluidId`. A `String` designed to handle one fully realized `Forge ID` for coolant input.
 - `String outputCoolantFluidId`. A `String` designed to handle one fully realized `Forge ID` for coolant output.
-- `int tintColor`. Currently, doesn't do anything, just put white.
+- `int tintColor`. Currently doesn't do anything, just put 0xFFFFFF.

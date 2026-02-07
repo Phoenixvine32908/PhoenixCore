@@ -7,6 +7,8 @@ import com.gregtechceu.gtceu.common.data.GTSoundEntries;
 
 import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture;
 
+import net.phoenix.core.api.capability.SourceRecipeCapability;
+
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.*;
 
 public class PhoenixRecipeTypes {
@@ -27,6 +29,7 @@ public class PhoenixRecipeTypes {
     public static void init() {
         PHOENIXWARE_FUSION_MK1 = register("phoenixware_fusion_mk1", MULTIBLOCK)
                 .setEUIO(IO.IN)
+                .setMaxSize(IO.IN, SourceRecipeCapability.CAP, 1)
                 .setMaxIOSize(0, 0, 2, 1) // 0 Items, 2 Fluid Inputs, 1 Fluid Output
                 .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
