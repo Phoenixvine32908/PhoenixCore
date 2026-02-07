@@ -3,29 +3,25 @@ package net.phoenix.core.common.machine.multiblock.part.special;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredIOPartMachine;
-
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
+import lombok.Getter;
 import net.phoenix.core.api.capability.ISourceProviderCapability;
 import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
 
-import com.hollingsworth.arsnouveau.api.item.IWandable;
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
-import lombok.Getter;
-
 public class SourceHatchPartMachine extends TieredIOPartMachine
-                                    implements ISourceProviderCapability, IWandable {
+        implements ISourceProviderCapability {
 
     @Getter
     private final IO io;
+
     private final ISourceTile sourceContainer;
 
     public SourceHatchPartMachine(IMachineBlockEntity holder, int tier, IO io) {
-        super(holder, tier, io);  // <-- THIS is the correct constructor
+        super(holder, tier, io);
         this.io = io;
         this.sourceContainer = new NotifiableSourceContainer(
-                this,
-                io,
-                getMaxCapacity(tier),
-                getMaxConsumption(tier));
+                this, io, getMaxCapacity(tier), getMaxConsumption(tier)
+        );
     }
 
     @Override

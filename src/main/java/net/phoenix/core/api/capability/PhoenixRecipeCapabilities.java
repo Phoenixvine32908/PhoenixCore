@@ -9,5 +9,6 @@ public class PhoenixRecipeCapabilities {
 
     public static void init() {
         GTRegistries.RECIPE_CAPABILITIES.register(SHIELDTYPES.name, SHIELDTYPES);
+        GTRegistries.RECIPE_CAPABILITIES.register(SourceRecipeCapability.CAP.name, SourceRecipeCapability.CAP);
     }
 }

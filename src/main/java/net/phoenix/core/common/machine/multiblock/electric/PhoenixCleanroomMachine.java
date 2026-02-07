@@ -1,3 +1,4 @@
+/*
 package net.phoenix.core.common.machine.multiblock.electric;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -6,6 +7,9 @@ import com.gregtechceu.gtceu.api.pattern.BlockPattern;
 import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.common.data.GTFluids;
+import net.minecraft.world.item.ItemStack;
+import net.phoenix.core.common.block.PhoenixBlocks;
+import net.phoenix.core.configs.PhoenixConfigs;
 
 public class PhoenixCleanroomMachine extends WorkableElectricMultiblockMachine {
 

@@ -10,6 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.phoenix.core.api.capability.SourceRecipeCapability;
+import net.phoenix.core.common.data.recipe.custom.SourceIngredient;
 import net.phoenix.core.common.machine.PhoenixMachines;
 
 import java.util.function.Consumer;
@@ -164,7 +166,7 @@ public class PhoenixMachineRecipes {
                 .inputFluids(Tritium.getFluid(125))
                 .outputFluids(Helium.getFluid(FluidStorageKeys.PLASMA, 125))
                 .duration(16)
-                // .input(SourceRecipeCapability.CAP, new SourceIngredient(2))
+                .input(SourceRecipeCapability.CAP, 2)
                 .EUt(4096)
                 .fusionStartEU(40_000_000)
                 .save(provider);
