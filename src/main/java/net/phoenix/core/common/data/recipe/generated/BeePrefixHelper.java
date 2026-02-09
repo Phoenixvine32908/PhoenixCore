@@ -1,6 +1,7 @@
 package net.phoenix.core.common.data.recipe.generated;
 
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
+
 import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
 
 public class BeePrefixHelper {

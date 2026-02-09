@@ -1,7 +1,5 @@
 package net.phoenix.core.client.renderer.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -10,9 +8,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import java.util.Random;
+import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.phoenix.core.PhoenixCore;
+import java.util.Random;
 
 public class SourceHatchScreen extends AbstractContainerScreen<SourceHatchMenu> {
 
@@ -64,7 +62,7 @@ public class SourceHatchScreen extends AbstractContainerScreen<SourceHatchMenu> 
         int cur = menu.getCurrent();
         int max = Math.max(1, menu.getMax());
         int rate = menu.getRate();
-        int pct = (int)((cur * 100L) / max);
+        int pct = (int) ((cur * 100L) / max);
 
         int cx = this.width / 2;
         int top = 28;
@@ -84,9 +82,10 @@ public class SourceHatchScreen extends AbstractContainerScreen<SourceHatchMenu> 
         gg.fill(0, 0, this.width, this.height, 0xFF060712);
 
         // 2) animated noise overlay (cheap: sample noise with scrolling)
-        float t = (Minecraft.getInstance().level != null ? Minecraft.getInstance().level.getGameTime() : 0) + Minecraft.getInstance().getFrameTime();
-        int ox = (int)(t * 2) & 255;
-        int oy = (int)(t * 1) & 255;
+        float t = (Minecraft.getInstance().level != null ? Minecraft.getInstance().level.getGameTime() : 0) +
+                Minecraft.getInstance().getFrameTime();
+        int ox = (int) (t * 2) & 255;
+        int oy = (int) (t * 1) & 255;
 
         // Draw noise as sparse pixels scaled up (fast enough). You can improve later with a texture upload.
         int step = 6; // lower = prettier, higher = faster
@@ -119,7 +118,7 @@ public class SourceHatchScreen extends AbstractContainerScreen<SourceHatchMenu> 
         gg.fill(cx - r, cy - r, cx + r, cy + r, 0xAA0C0D22);
 
         // Fill (as a vertical bar inside the orb square; simple but effective)
-        int h = (int)(2 * r * fill);
+        int h = (int) (2 * r * fill);
         int y0 = cy + r - h;
         gg.fill(cx - r, y0, cx + r, cy + r, 0xAA6A3DFF);
 

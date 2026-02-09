@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.api.capability.SourceRecipeCapability;
-import net.phoenix.core.common.data.recipe.custom.SourceIngredient;
 import net.phoenix.core.common.machine.PhoenixMachines;
 
 import java.util.function.Consumer;

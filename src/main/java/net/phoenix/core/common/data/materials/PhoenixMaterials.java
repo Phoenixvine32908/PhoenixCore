@@ -210,7 +210,6 @@ public class PhoenixMaterials {
                 CertusQuartz     // For Spacial Bee
         );
 
-
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
             ToolProperty toolProperty = material.getProperty(PropertyKey.TOOL);
 

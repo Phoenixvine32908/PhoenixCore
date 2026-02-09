@@ -100,7 +100,6 @@ public class PhoenixCore {
         modEventBus.addListener(this::modifyMaterials);
         MENUS.register(modEventBus);
 
-
         if (Platform.isClient()) {
             PhoenixClient.init(modEventBus);
         }
@@ -118,14 +117,11 @@ public class PhoenixCore {
         PhoenixDatagen.init();
     }
 
-    public static final DeferredRegister<MenuType<?>> MENUS =
-            DeferredRegister.create(ForgeRegistries.MENU_TYPES, MOD_ID);
+    public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES,
+            MOD_ID);
 
-    public static final RegistryObject<MenuType<SourceHatchMenu>> SOURCE_HATCH_MENU =
-            MENUS.register("source_hatch", () ->
-                    IForgeMenuType.create((IContainerFactory<SourceHatchMenu>) SourceHatchMenu::fromNetwork)
-            );
-
+    public static final RegistryObject<MenuType<SourceHatchMenu>> SOURCE_HATCH_MENU = MENUS.register("source_hatch",
+            () -> IForgeMenuType.create((IContainerFactory<SourceHatchMenu>) SourceHatchMenu::fromNetwork));
 
     public void registerConditions(GTCEuAPI.RegisterEvent<String, RecipeConditionType<?>> event) {
         FluidInHatchCondition.TYPE = GTRegistries.RECIPE_CONDITIONS.register("plasma_temp_condition",

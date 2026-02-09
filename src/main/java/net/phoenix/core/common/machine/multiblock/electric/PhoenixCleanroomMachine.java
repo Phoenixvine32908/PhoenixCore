@@ -1,87 +1,78 @@
 /*
-package net.phoenix.core.common.machine.multiblock.electric;
-
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.pattern.BlockPattern;
-import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
-import com.gregtechceu.gtceu.api.pattern.Predicates;
-import com.gregtechceu.gtceu.common.data.GTFluids;
-import net.minecraft.world.item.ItemStack;
-import net.phoenix.core.common.block.PhoenixBlocks;
-import net.phoenix.core.configs.PhoenixConfigs;
-
-public class PhoenixCleanroomMachine extends WorkableElectricMultiblockMachine {
-
-    private static final BlockPattern PATTERN = FactoryBlockPattern.start()
-            .aisle("CCC", "CCC", "CCC")
-            .aisle("C C", "C C", "C C")
-            .aisle("CSC", "CCC", "CCC")
-            .where('S', Predicates.controller(Predicates.blocks(self())))
-            .where('C', Predicates.blocks(PhoenixBlocks.CLEANROOM_CASING.get())
-                    .or(Predicates.abilities(GTCapabilities.ENERGY_CONTAINER).setExactLimit(1))
-                    .or(Predicates.abilities(capability.GTCapabilities.FLUID_STORAGE).setExactLimit(1)))
-            .where(' ', Predicates.any())
-            .build();
-
-    private int cleanliness = 1000;
-
-    public PhoenixCleanroomMachine(IMachineBlockEntity holder, Object... args) {
-        super(holder, args);
-    }
-
-    @Override
-    public BlockPattern getPattern() {
-        return PATTERN;
-    }
-
-    @Override
-    public void onWorkingTick(long tick) {
-        super.onWorkingTick(tick);
-
-        if (isFormed()) {
-            PhoenixConfigs.CleanroomConfig config = PhoenixConfigs.INSTANCE.cleanroom;
-
-            // Check for sterilizing fluid
-            if (getInputFluidInventory().getFluidInTank(0).getFluid().isSame(GTFluids.STERILIZING_GAS.get()) &&
-                    getInputFluidInventory().getFluidInTank(0).getAmount() >= config.fluidConsumption) {
-
-                getInputFluidInventory().drain(config.fluidConsumption, true);
-
-                AABB interior = new AABB(getPos().offset(1, 1, 1), getPos().offset(2, 2, 2));
-                List<Player> playersInside = getLevel().getEntitiesOfClass(Player.class, interior);
-
-                if (!playersInside.isEmpty()) {
-                    cleanliness = Math.max(0, cleanliness - (config.playerPollution * playersInside.size()));
-
-                    for (Player player : playersInside) {
-                        if (config.lethal && this.isActive() && cleanliness >= config.maxCleanliness) {
-                            player.hurt(PhoenixDamageSources.sterilized(getLevel()), Float.MAX_VALUE);
-                        }
-                        // Check for wireless terminals
-                        for (ItemStack itemStack : player.getInventory().items) {
-                            if (itemStack.getItem() instanceof WirelessTerminalItem) {
-                                this.setWorkingEnabled(false);
-                                return; // Stop processing to enforce shutdown
-                            }
-                        }
-                    }
-                } else {
-                    if (cleanliness < config.maxCleanliness) {
-                        cleanliness = Math.min(config.maxCleanliness, cleanliness + config.regenRate);
-                    }
-                }
-            } else {
-                // Not enough sterilizing fluid, so cleanliness degrades
-                cleanliness = Math.max(0, cleanliness - config.playerPollution);
-            }
-        }
-    }
-
-    @Override
-    public Component getMultiblockName() {
-        return Component.translatable("block.phoenixcore.cleanroom");
-    }
-}
-
-*/
+ * package net.phoenix.core.common.machine.multiblock.electric;
+ * 
+ * 
+ * public class PhoenixCleanroomMachine extends WorkableElectricMultiblockMachine {
+ * 
+ * private static final BlockPattern PATTERN = FactoryBlockPattern.start()
+ * .aisle("CCC", "CCC", "CCC")
+ * .aisle("C C", "C C", "C C")
+ * .aisle("CSC", "CCC", "CCC")
+ * .where('S', Predicates.controller(Predicates.blocks(self())))
+ * .where('C', Predicates.blocks(PhoenixBlocks.CLEANROOM_CASING.get())
+ * .or(Predicates.abilities(GTCapabilities.ENERGY_CONTAINER).setExactLimit(1))
+ * .or(Predicates.abilities(capability.GTCapabilities.FLUID_STORAGE).setExactLimit(1)))
+ * .where(' ', Predicates.any())
+ * .build();
+ * 
+ * private int cleanliness = 1000;
+ * 
+ * public PhoenixCleanroomMachine(IMachineBlockEntity holder, Object... args) {
+ * super(holder, args);
+ * }
+ * 
+ * @Override
+ * public BlockPattern getPattern() {
+ * return PATTERN;
+ * }
+ * 
+ * @Override
+ * public void onWorkingTick(long tick) {
+ * super.onWorkingTick(tick);
+ * 
+ * if (isFormed()) {
+ * PhoenixConfigs.CleanroomConfig config = PhoenixConfigs.INSTANCE.cleanroom;
+ * 
+ * // Check for sterilizing fluid
+ * if (getInputFluidInventory().getFluidInTank(0).getFluid().isSame(GTFluids.STERILIZING_GAS.get()) &&
+ * getInputFluidInventory().getFluidInTank(0).getAmount() >= config.fluidConsumption) {
+ * 
+ * getInputFluidInventory().drain(config.fluidConsumption, true);
+ * 
+ * AABB interior = new AABB(getPos().offset(1, 1, 1), getPos().offset(2, 2, 2));
+ * List<Player> playersInside = getLevel().getEntitiesOfClass(Player.class, interior);
+ * 
+ * if (!playersInside.isEmpty()) {
+ * cleanliness = Math.max(0, cleanliness - (config.playerPollution * playersInside.size()));
+ * 
+ * for (Player player : playersInside) {
+ * if (config.lethal && this.isActive() && cleanliness >= config.maxCleanliness) {
+ * player.hurt(PhoenixDamageSources.sterilized(getLevel()), Float.MAX_VALUE);
+ * }
+ * // Check for wireless terminals
+ * for (ItemStack itemStack : player.getInventory().items) {
+ * if (itemStack.getItem() instanceof WirelessTerminalItem) {
+ * this.setWorkingEnabled(false);
+ * return; // Stop processing to enforce shutdown
+ * }
+ * }
+ * }
+ * } else {
+ * if (cleanliness < config.maxCleanliness) {
+ * cleanliness = Math.min(config.maxCleanliness, cleanliness + config.regenRate);
+ * }
+ * }
+ * } else {
+ * // Not enough sterilizing fluid, so cleanliness degrades
+ * cleanliness = Math.max(0, cleanliness - config.playerPollution);
+ * }
+ * }
+ * }
+ * 
+ * @Override
+ * public Component getMultiblockName() {
+ * return Component.translatable("block.phoenixcore.cleanroom");
+ * }
+ * }
+ * 
+ */

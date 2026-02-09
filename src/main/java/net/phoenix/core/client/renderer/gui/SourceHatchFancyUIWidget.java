@@ -10,13 +10,11 @@ import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib.gui.util.DrawerHelper;
 import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
-import com.lowdragmc.lowdraglib.gui.widget.Widget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 
 import javax.annotation.Nonnull;
@@ -55,8 +53,7 @@ public class SourceHatchFancyUIWidget extends FancyMachineUIWidget {
 
         IGuiTexture bg = new GuiTextureGroup(
                 new ColorRectTexture(BUTTON_BG),
-                new ColorBorderTexture(1, BUTTON_BORDER)
-        );
+                new ColorBorderTexture(1, BUTTON_BORDER));
 
         // Clickable background
         addWidget(new ButtonWidget(bx, by, bw, bh, bg, cd -> closeUIClientSide()));
