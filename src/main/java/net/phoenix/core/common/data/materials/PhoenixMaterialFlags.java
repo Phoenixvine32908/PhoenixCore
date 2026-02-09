@@ -31,7 +31,6 @@ public class PhoenixMaterialFlags {
             .requireProps(PropertyKey.DUST)
             .build();
 
-
     public static final TagPrefix nanites = new TagPrefix("nanites")
             .idPattern("%s_nanites")
             .defaultTagPath("nanites/%s")

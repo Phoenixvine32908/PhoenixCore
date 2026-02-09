@@ -4,9 +4,6 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
 import com.gregtechceu.gtceu.api.item.component.ElectricStats;
 
-import net.minecraft.world.item.Item;
-import net.phoenix.core.common.data.PhoenixCovers;
-
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import static net.phoenix.core.PhoenixCore.PHOENIX_CREATIVE_TAB;

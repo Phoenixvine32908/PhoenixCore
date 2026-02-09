@@ -3,29 +3,28 @@ package net.phoenix.core.common.data.recipe.records;
 import java.util.List;
 
 public record ApisProgenitorConfig(
-        String id,
+                                   String id,
 
-        String inputMaterialId,
-        int inputTier,
+                                   String inputMaterialId,
+                                   int inputTier,
 
-        String outputMaterialId,
-        int outputTier,
+                                   String outputMaterialId,
+                                   int outputTier,
 
-        List<String> extraItemInputs,
+                                   List<String> extraItemInputs,
 
-        List<String> extraFluidInputs,
+                                   List<String> extraFluidInputs,
 
-        int duration,
-        int EUt
-) {
+                                   int duration,
+                                   int EUt) {
+
     public ApisProgenitorConfig(
-            String id,
-            String inputMaterialId, int inputTier,
-            String outputMaterialId, int outputTier,
-            List<String> extraItemInputs,
-            List<String> extraFluidInputs,
-            int duration, int EUt
-    ) {
+                                String id,
+                                String inputMaterialId, int inputTier,
+                                String outputMaterialId, int outputTier,
+                                List<String> extraItemInputs,
+                                List<String> extraFluidInputs,
+                                int duration, int EUt) {
         this.id = id;
         this.inputMaterialId = inputMaterialId;
         this.inputTier = inputTier;

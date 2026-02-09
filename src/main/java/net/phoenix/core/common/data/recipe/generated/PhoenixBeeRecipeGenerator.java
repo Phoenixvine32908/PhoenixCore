@@ -4,8 +4,8 @@ import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
-
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
-
 import net.phoenix.core.common.data.bees.BeeRecipeData;
 import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
 import net.phoenix.core.common.data.materials.PhoenixMaterials;
@@ -45,14 +44,16 @@ public class PhoenixBeeRecipeGenerator {
         // coupled to ProductiveBees NBT/entity items.
         // If you want them TagPrefix-only too, you need to redesign what they consume/output.
         //
-         generateApisProgenitorRecipes(provider);
+        generateApisProgenitorRecipes(provider);
         // generateSwarmNurturingRecipes(provider);
         // generateLumberBeeRecipes(provider);
     }
 
-    /* -----------------------------
+    /*
+     * -----------------------------
      * Tier selection
-     * ----------------------------- */
+     * -----------------------------
+     */
 
     private static TagPrefix tierPrefix(int tier) {
         return switch (tier) {
@@ -72,9 +73,11 @@ public class PhoenixBeeRecipeGenerator {
         return ChemicalHelper.get(PhoenixMaterialFlags.bee_comb, mat);
     }
 
-    /* -----------------------------
+    /*
+     * -----------------------------
      * Fluids
-     * ----------------------------- */
+     * -----------------------------
+     */
 
     private static FluidStack getFluidStack(String fluidString) {
         String[] parts = fluidString.split(" ");
@@ -83,9 +86,11 @@ public class PhoenixBeeRecipeGenerator {
         return new FluidStack(ForgeRegistries.FLUIDS.getValue(id), amount);
     }
 
-    /* -----------------------------
+    /*
+     * -----------------------------
      * Simulated Colony (produces combs)
-     * ----------------------------- */
+     * -----------------------------
+     */
 
     public static void generateSimulatedColonyRecipes(Consumer<FinishedRecipe> provider) {
         for (FullBeeConfig config : BeeRecipeData.ALL_BEE_CONFIGS.values()) {
@@ -133,9 +138,11 @@ public class PhoenixBeeRecipeGenerator {
         }
     }
 
-    /* -----------------------------
+    /*
+     * -----------------------------
      * Comb processing (decanting/honey)
-     * ----------------------------- */
+     * -----------------------------
+     */
 
     public static void loadBeeCombProductionRecipes(Consumer<FinishedRecipe> provider) {
         for (FullBeeConfig config : BeeRecipeData.ALL_BEE_CONFIGS.values()) {
@@ -159,7 +166,8 @@ public class PhoenixBeeRecipeGenerator {
                     .duration(config.decantingDuration())
                     .inputItems(combInput)
                     .outputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(waxDustId))))
-                    .outputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs:honey_comb_base"))))
+                    .outputItems(new ItemStack(
+                            ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs:honey_comb_base"))))
                     .save(provider);
 
             // Melt wax dust -> honeyed fluid
@@ -179,7 +187,8 @@ public class PhoenixBeeRecipeGenerator {
                     .outputFluids(getFluidStack("gtceu:impure_honey 500"));
 
             if (beeId.equals("water")) {
-                purifier.outputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft:salmon"))));
+                purifier.outputItems(
+                        new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft:salmon"))));
             } else if (beeId.equals("wannabee")) {
                 purifier.outputItems(new ItemStack(
                         ForgeRegistries.ITEMS.getValue(new ResourceLocation(config.pollinationInputId())), 2));
@@ -195,10 +204,12 @@ public class PhoenixBeeRecipeGenerator {
                     .duration(config.fluidDuration())
                     .inputItems(combInput)
                     .inputFluids(BeeRecipeData.SUGAR_WATER_MATERIAL.getFluid(BeeRecipeData.SUGAR_WATER_AMOUNT))
-                    .outputFluids(getFluidStack(BeeRecipeData.HONEY_FLUID + " " + BeeRecipeData.FINAL_HONEY_OUTPUT_AMOUNT))
+                    .outputFluids(
+                            getFluidStack(BeeRecipeData.HONEY_FLUID + " " + BeeRecipeData.FINAL_HONEY_OUTPUT_AMOUNT))
                     .save(provider);
         }
     }
+
     private static record CountAndId(int count, String id) {}
 
     private static CountAndId parseCountedId(String spec) {
@@ -221,6 +232,7 @@ public class PhoenixBeeRecipeGenerator {
         }
         return new CountAndId(count, id);
     }
+
     public static void generateApisProgenitorRecipes(Consumer<FinishedRecipe> provider) {
         for (ApisProgenitorConfig cfg : BeeRecipeData.UNIQUE_APIS_PROGENITOR_CONFIGS) {
 
@@ -256,8 +268,6 @@ public class PhoenixBeeRecipeGenerator {
         }
     }
 
-
-
     private static void applyExtraItemInput(Object recipeBuilder, String itemSpec) {
         if (itemSpec == null || itemSpec.isBlank()) return;
 
@@ -282,6 +292,4 @@ public class PhoenixBeeRecipeGenerator {
         ((GTRecipeBuilder) recipeBuilder)
                 .inputItems(new ItemStack(item, count));
     }
-
 }
-

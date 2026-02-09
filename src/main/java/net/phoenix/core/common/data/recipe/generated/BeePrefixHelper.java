@@ -50,6 +50,7 @@ public class BeePrefixHelper {
             addTierThreeBeeFlag(m);
         }
     }
+
     public static void addBeeCombFlag(Material material) {
         if (material == null) {
             return;
