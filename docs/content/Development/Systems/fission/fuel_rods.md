@@ -146,10 +146,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Getter
 @ParametersAreNonnullByDefault
 public class FissionFuelRodBlock extends ActiveBlock {
-
-    /**
-     * Needed for tinting (BlockColor/ItemColor) and general introspection.
-     */
+    
     private final IFissionFuelRodType fuelRodType;
 
     public FissionFuelRodBlock(Properties props, IFissionFuelRodType type) {
@@ -188,13 +185,11 @@ public class FissionFuelRodBlock extends ActiveBlock {
                         Component.literal(String.format("%.2f", seconds))
                                 .withStyle(ChatFormatting.GOLD))
                 .withStyle(ChatFormatting.GRAY));
-
-        // NEW: neutron bias (affects blanket output distribution)
+        
         int bias = 0;
         try {
             bias = fuelRodType.getNeutronBias();
         } catch (Throwable ignored) {
-            // interface not updated yet; keep tooltip stable
         }
         tooltip.add(Component.translatable("phoenix.fission.neutron_bias",
                         Component.literal((bias >= 0 ? "+" : "") + bias + "%")
@@ -205,13 +200,7 @@ public class FissionFuelRodBlock extends ActiveBlock {
                 Component.literal(GTValues.VNF[fuelRodType.getTier()])
                         .withStyle(ChatFormatting.DARK_PURPLE)));
     }
-
-    /**
-     * PURE registry lookup:
-     * - if key is an item id, show item name
-     * - else if key is a fluid id, show fluid name
-     * - else show raw key
-     */
+    
     public static Component getRegistryDisplayName(@NotNull String key) {
         ResourceLocation rl = ResourceLocation.tryParse(key);
         if (rl == null) return Component.literal(key).withStyle(ChatFormatting.YELLOW);
@@ -230,8 +219,7 @@ public class FissionFuelRodBlock extends ActiveBlock {
     }
 
     public enum FissionFuelRodTypes implements StringRepresentable, IFissionFuelRodType {
-
-        // Example: uranium fuel rod has neutral bias
+        
         URANIUM("uranium_fuel_rod",
                 500, 1,
                 1200, 1,
@@ -261,11 +249,8 @@ public class FissionFuelRodBlock extends ActiveBlock {
         @NotNull
         private final String outputKey;
 
-        /** NEW: shifts blanket breeding distribution toward higher instability outputs */
         @Getter
         private final int neutronBias;
-
-        /** Case-by-case ARGB tint. Packdevs choose this. */
         @Getter
         private final int tintColor;
 

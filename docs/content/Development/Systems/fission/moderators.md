@@ -77,10 +77,7 @@ public interface IFissionModeratorType {
     default double getHeatMultiplier() {
         return getTier() * 0.5;
     }
-
-    /**
-     * How many extra parallel channels this moderator enables.
-     */
+    
     default int getParallelBonus() {
         return getTier();
     }
@@ -88,7 +85,7 @@ public interface IFissionModeratorType {
     Material getMaterial();
 
     int getTier();
-
+    
     ResourceLocation getTexture();
 
     Lazy<IFissionModeratorType[]> ALL_FISSION_MODERATORS_SORTED = Lazy
@@ -147,8 +144,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Getter
 @ParametersAreNonnullByDefault
 public class FissionModeratorBlock extends ActiveBlock {
-
-    /** Needed for tinting + introspection */
+    
     private final IFissionModeratorType moderatorType;
 
     public FissionModeratorBlock(Properties properties, IFissionModeratorType moderatorType) {
@@ -194,8 +190,7 @@ public class FissionModeratorBlock extends ActiveBlock {
         @Getter
         @NotNull
         private final ResourceLocation texture;
-
-        /** Per-type tint (ARGB) */
+        
         @Getter
         private final int tintColor;
 
@@ -220,8 +215,8 @@ public class FissionModeratorBlock extends ActiveBlock {
         }
 
         @Override
-        public com.gregtechceu.gtceu.api.data.chemical.material.Material getMaterial() {
-            return com.gregtechceu.gtceu.common.data.GTMaterials.NULL;
+        public Material getMaterial() {
+            return GTMaterials.NULL;
         }
     }
 }
