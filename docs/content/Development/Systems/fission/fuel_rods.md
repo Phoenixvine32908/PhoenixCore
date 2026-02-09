@@ -11,35 +11,21 @@ Blanket rods provide the core values for the `BreederWorkableElectricMultiblockM
 If you are a kubejs dev who merely needs to know how to add new `Fuel Rods`, only the first two sections of this page will be useful.
 
 ```js
-StartupEvents.registry("block", event => {
-    event.create('uranium_blanket_rod', 'phoenixcore:fission_blanket_rod')
-        .displayName('U-238 Blanket Rod')
-        .tier(2) // Used to decide what rod is primary. 
-        .durationTicks(2400) // The amount of time in ticks it takes at base to consume one instance of the input fuel item.
-        .amountPerCycle(1) // The amount of fuel used per durationTicks.
-        .inputKey('gtceu:uranium_238_nugget') // Fully realized Forge ID for input fuel.
-        .addOutput('gtceu:plutonium_nugget', 70, 1) // Fully realized list of Forge IDs for output fuel,  
-        .addOutput('gtceu:plutonium_241_nugget', 20, 3) // The first digit for the outputs list is the weight, aka the chance of said output.
-        .addOutput('gtceu:plutonium_238_nugget', 10, 4) // The second digit for the list is the instability. 
-        // If the driver rod has a high spectrum bias, a higher instability means this fuel output will have a higher weight.
-        .blanketMaterial(() => GTMaterials.get('uranium_238'))
-        .texture('kubejs:block/fission/uranium_blanket_rod'); // Also needs a texture the same name with _active appended to the end.
+StartupEvents.registry('block', event => {
+    event.create('high_density_driver_rod', 'phoenix_fission:fission_fuel_rod')
+        .displayName('High-Density Driver Rod')
+        .baseHeatProduction(50) // The amount of heat each rod produces/t before moderator effects.
+        .durationTicks(1200) // The amount of time at base before it tries to consume another use of fuel.
+        .amountPerCycle(1) // The amount of fuel it eats per cycle. 
+        .neutronBias(1) // Refers directly to breeder rod output fuel instability, does nothing by itself. 
+        .tier(3) // Handles primary rod and explosion logic.
+        .fuelKey('gtceu:uranium_235_nugget') // The input fuel.
+        .outputKey('gtceu:depleted_uranium_235_nugget') // The output "depleted" fuel.
+        .rodMaterial(() => GTMaterials.get('stainless_steel')) // Used for some internal names.
+        .texture('kubejs:block/fission/high_density_driver_rod'); // Also requires a texture with _active appended. 
 });
 ```
 
-To expound on weight/instability, I will give an example of it in practice.
-
-The formula used to determine the effect fuel rods have on blanket outputs is
-
-- `adjustedWeight` = baseWeight * exp(bias * instability * k);
-
-Where `exp` is the truly random roulette chance, `bias` is the value defined by duel rod, `instability` is defined by our blanket rod, and `k` is a flat variable defined as 0.45.
-
-Say we have a `Fuel Rod` with a spectrum bias of 4, that turns our outputs into
-
-- `Plutonium -> 71.26`
-- `Plutonium 241 -> 21.12`
-- `Plutonium 238 -> 10.75`
 
 ## Understanding how to actually use the blanket rods
 
@@ -71,54 +57,43 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
-import java.util.List;
 
-import static net.phoenix.core.common.data.PhoenixMaterialRegistry.getMaterial;
-
-public interface IFissionBlanketType {
+public interface IFissionFuelRodType {
 
     @NotNull
     String getName();
 
     default int getTintColor() {
-        Material m = getMaterial();
-        if (m != null && m != GTMaterials.NULL) {
-            try {
-                return 0xFF000000 | m.getMaterialRGB();
-            } catch (Throwable ignored) {}
-        }
         return 0xFFFFFFFF;
     }
 
-    int getTier();
+    default int getNeutronBias() {
+        return 0;
+    }
+
+    int getBaseHeatProduction();
+
+    @NotNull
+    String getFuelKey();
+
+    @NotNull
+    String getOutputKey();
 
     int getDurationTicks();
 
     int getAmountPerCycle();
-    
-    @NotNull
-    String getInputKey();
 
-    public record BlanketOutput(String key, int weight, int instability) {}
 
-    List<BlanketOutput> getOutputs();
-    
-    @NotNull
+    int getTier();
+
     ResourceLocation getTexture();
 
-    @Nullable
-    default Material tryResolveMaterial() {
-        Material mat = getMaterial();
-        if (mat == null || mat == GTMaterials.NULL) return null;
-        return mat;
-    }
 
-    Material getMaterial();
-
-    Lazy<IFissionBlanketType[]> ALL_BLANKETS_BY_TIER = Lazy.of(() -> PhoenixAPI.FISSION_BLANKETS.keySet().stream()
-            .sorted(Comparator.comparingInt(IFissionBlanketType::getTier))
-            .toArray(IFissionBlanketType[]::new));
+    Lazy<IFissionFuelRodType[]> ALL_FUEL_RODS_BY_HEAT = Lazy.of(() -> PhoenixAPI.FISSION_FUEL_RODS.keySet().stream()
+            .sorted(Comparator.comparingInt(IFissionFuelRodType::getBaseHeatProduction))
+            .toArray(IFissionFuelRodType[]::new));
 }
+
 ```
 This is the class we define/change first. Everything goes through this interface for use in `FissionBlanketBlock` and any other classes using the same logic.
 
@@ -137,9 +112,9 @@ This is the class we define/change first. Everything goes through this interface
 Then, finally, we have the api call. `ALL_BLANKETS_BY_TIER` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
 
 ```java
-
 package net.phoenix.core.common.block;
 
+import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.block.ActiveBlock;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
@@ -149,11 +124,16 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
-import net.phoenix.core.api.block.IFissionBlanketType;
-import net.phoenix.core.api.block.IFissionBlanketType.BlanketOutput;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.phoenix.core.PhoenixFission;
+import net.phoenix.core.api.block.IFissionFuelRodType;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -165,13 +145,16 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @Getter
 @ParametersAreNonnullByDefault
-public class FissionBlanketBlock extends ActiveBlock {
-    
-    private final IFissionBlanketType blanketType;
+public class FissionFuelRodBlock extends ActiveBlock {
 
-    public FissionBlanketBlock(Properties properties, IFissionBlanketType blanketType) {
-        super(properties);
-        this.blanketType = blanketType;
+    /**
+     * Needed for tinting (BlockColor/ItemColor) and general introspection.
+     */
+    private final IFissionFuelRodType fuelRodType;
+
+    public FissionFuelRodBlock(Properties props, IFissionFuelRodType type) {
+        super(props);
+        this.fuelRodType = type;
     }
 
     @Override
@@ -183,66 +166,85 @@ public class FissionBlanketBlock extends ActiveBlock {
             return;
         }
 
-        Component inputName = FissionFuelRodBlock.getRegistryDisplayName(blanketType.getInputKey());
-        tooltip.add(Component.translatable("phoenix.fission.blanket_input", inputName)
-                .withStyle(ChatFormatting.LIGHT_PURPLE));
+        Component fuelName = getRegistryDisplayName(fuelRodType.getFuelKey());
 
-        tooltip.add(Component.translatable("phoenix.fission.blanket_outputs")
-                .withStyle(ChatFormatting.GOLD));
+        tooltip.add(Component.translatable("phoenix.fission.fuel_required", fuelName)
+                .withStyle(ChatFormatting.AQUA));
 
-        List<BlanketOutput> outs = blanketType.getOutputs();
-        if (outs == null || outs.isEmpty()) {
-            tooltip.add(Component.literal("• (none)")
-                    .withStyle(ChatFormatting.DARK_GRAY));
-        } else {
-            int shown = 0;
-            for (BlanketOutput o : outs) {
-                if (o == null) continue;
-                if (shown++ >= 5) break;
+        Component outputName = getRegistryDisplayName(fuelRodType.getOutputKey());
 
-                Component outName = FissionFuelRodBlock.getRegistryDisplayName(o.key());
-                tooltip.add(Component.literal("• ")
-                        .append(outName)
-                        .append(Component.literal("  w=" + o.weight() + "  inst=" + o.instability())
-                                .withStyle(ChatFormatting.DARK_GRAY))
-                        .withStyle(ChatFormatting.GRAY));
-            }
-        }
+        tooltip.add(Component.translatable("phoenix.fission.depleted_fuel", outputName)
+                .withStyle(ChatFormatting.DARK_GREEN));
 
-        double seconds = blanketType.getDurationTicks() / 20.0;
-        tooltip.add(Component.translatable(
-                        "phoenix.fission.blanket_cycle",
-                        Component.literal(String.valueOf(blanketType.getAmountPerCycle()))
+        tooltip.add(Component.translatable("phoenix.fission.heat_production",
+                        Component.literal(String.valueOf(fuelRodType.getBaseHeatProduction()))
+                                .withStyle(ChatFormatting.RED))
+                .append(Component.literal(" HU/t").withStyle(ChatFormatting.GRAY)));
+
+        double seconds = fuelRodType.getDurationTicks() / 20.0;
+        tooltip.add(Component.translatable("phoenix.fission.fuel_cycle",
+                        Component.literal(String.valueOf(fuelRodType.getAmountPerCycle()))
                                 .withStyle(ChatFormatting.WHITE),
                         Component.literal(String.format("%.2f", seconds))
                                 .withStyle(ChatFormatting.GOLD))
                 .withStyle(ChatFormatting.GRAY));
+
+        // NEW: neutron bias (affects blanket output distribution)
+        int bias = 0;
+        try {
+            bias = fuelRodType.getNeutronBias();
+        } catch (Throwable ignored) {
+            // interface not updated yet; keep tooltip stable
+        }
+        tooltip.add(Component.translatable("phoenix.fission.neutron_bias",
+                        Component.literal((bias >= 0 ? "+" : "") + bias + "%")
+                                .withStyle(bias >= 0 ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.BLUE))
+                .withStyle(ChatFormatting.GRAY));
+
+        tooltip.add(Component.translatable("gtceu.tooltip.tier",
+                Component.literal(GTValues.VNF[fuelRodType.getTier()])
+                        .withStyle(ChatFormatting.DARK_PURPLE)));
     }
 
-    public enum BreederBlanketTypes implements StringRepresentable, IFissionBlanketType {
+    /**
+     * PURE registry lookup:
+     * - if key is an item id, show item name
+     * - else if key is a fluid id, show fluid name
+     * - else show raw key
+     */
+    public static Component getRegistryDisplayName(@NotNull String key) {
+        ResourceLocation rl = ResourceLocation.tryParse(key);
+        if (rl == null) return Component.literal(key).withStyle(ChatFormatting.YELLOW);
 
-        PLUTONIUM_BREEDER("plutonium_breeder",
-                2, 2400, 1,
-                "gtceu:uranium_238_nugget",
-                List.of(
-                        new BlanketOutput("gtceu:plutonium_nugget", 70, 1),
-                        new BlanketOutput("gtceu:plutonium_241_nugget", 20, 3),
-                        new BlanketOutput("gtceu:plutonium_238_nugget", 10, 4)
-                ),
-                0xFFB07CFF),
+        Item item = ForgeRegistries.ITEMS.getValue(rl);
+        if (item != null && item != Items.AIR) {
+            return item.getName(new ItemStack(item));
+        }
 
-        THORIUM_BREEDER("thorium_breeder",
-                1, 240, 1,
-                "gtceu:uranium_235_nugget",
-                List.of(
-                        new BlanketOutput("gtceu:plutonium_nugget", 85, 1),
-                        new BlanketOutput("gtceu:plutonium_241_nugget", 15, 3)
-                ),
-                0xFFFFD27D);
+        Fluid fluid = ForgeRegistries.FLUIDS.getValue(rl);
+        if (fluid != null && fluid != Fluids.EMPTY) {
+            return Component.translatable(fluid.getFluidType().getDescriptionId());
+        }
+
+        return Component.literal(key).withStyle(ChatFormatting.YELLOW);
+    }
+
+    public enum FissionFuelRodTypes implements StringRepresentable, IFissionFuelRodType {
+
+        // Example: uranium fuel rod has neutral bias
+        URANIUM("uranium_fuel_rod",
+                500, 1,
+                1200, 1,
+                "gtceu:uranium_nugget",
+                "gtceu:plutonium_nugget",
+                0xFF7DE7FF,
+                4);
 
         @Getter
         @NotNull
         private final String name;
+        @Getter
+        private final int baseHeatProduction;
         @Getter
         private final int tier;
         @Getter
@@ -251,29 +253,35 @@ public class FissionBlanketBlock extends ActiveBlock {
         private final int amountPerCycle;
         @Getter
         @NotNull
-        private final String inputKey;
-
-        @Getter
-        @NotNull
-        private final List<BlanketOutput> outputs;
-
+        private final String fuelKey;
         @Getter
         @NotNull
         private final ResourceLocation texture;
-        
+        @Getter
+        @NotNull
+        private final String outputKey;
+
+        /** NEW: shifts blanket breeding distribution toward higher instability outputs */
+        @Getter
+        private final int neutronBias;
+
+        /** Case-by-case ARGB tint. Packdevs choose this. */
         @Getter
         private final int tintColor;
 
-        BreederBlanketTypes(String name, int tier, int duration, int amount,
-                            String in, List<BlanketOutput> outs, int tintColor) {
+        FissionFuelRodTypes(String name, int heat, int tier, int duration, int amount,
+                            String fuelKey, String outputKey, int tintColor,
+                            int neutronBias) {
             this.name = name;
+            this.baseHeatProduction = heat;
             this.tier = tier;
             this.durationTicks = duration;
             this.amountPerCycle = amount;
-            this.inputKey = in;
-            this.outputs = outs;
-            this.texture = new ResourceLocation("phoenix_fission", "block/blanket/" + name);
+            this.fuelKey = fuelKey;
+            this.texture = PhoenixFission.id("block/fission/fuel_rod/" + name);
             this.tintColor = tintColor;
+            this.outputKey = outputKey;
+            this.neutronBias = neutronBias;
         }
 
         @Override
@@ -285,13 +293,9 @@ public class FissionBlanketBlock extends ActiveBlock {
         public int getTintColor() {
             return tintColor;
         }
-
-        @Override
-        public Material getMaterial() {
-            return GTMaterials.NULL;
-        }
     }
 }
+
 ```
 
 For completeness, we will assume you already know how to make active blocks in the gtm api. So we will focus on what makes this actually unique.

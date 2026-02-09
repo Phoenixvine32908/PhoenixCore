@@ -12,7 +12,7 @@ If you are a KubeJS dev who merely needs to know how to add new `Breeder Rods`, 
 
 ```js
 StartupEvents.registry("block", event => {
-    event.create('uranium_blanket_rod', 'phoenixcore:fission_blanket_rod')
+    event.create('uranium_blanket_rod', 'phoenix_fission:fission_blanket_rod')
         .displayName('U-238 Blanket Rod')
         .tier(2) // Used to decide what rod is primary. 
         .durationTicks(2400) // The amount of time in ticks it takes at base to consume one instance of the input fuel item.
@@ -310,8 +310,4 @@ Values
 - `String in`. A `String` designed to handle one fully realized `Forge ID`.
 - `List BlanketOutputs`. A `List` of all the `blanket outputs` and their `weight/instability` fields. 
 - `int tintColor`. Currently doesn't do anything, just put 0xFFFFFF.
-
-
-
-
 
