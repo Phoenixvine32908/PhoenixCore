@@ -59,6 +59,8 @@ public class PhoenixRecipeTypes {
         COMB_DECANTING_RECIPES = register("comb_decanting", MULTIBLOCK)
                 .setMaxIOSize(1, 2, 1, 2)
                 .setSlotOverlay(false, false, GuiTextures.BOX_OVERLAY)
+                .setMaxSize(IO.IN, SourceRecipeCapability.CAP, 1)
+                .setMaxSize(IO.OUT, SourceRecipeCapability.CAP, 1)
                 .setProgressBar(GuiTextures.PROGRESS_BAR_MACERATE, ProgressTexture.FillDirection.LEFT_TO_RIGHT)
                 .setSound(GTSoundEntries.CENTRIFUGE)
                 .setEUIO(IO.IN);

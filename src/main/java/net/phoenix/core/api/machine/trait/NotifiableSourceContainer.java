@@ -127,4 +127,9 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
         notifyListeners();
         return extracted;
     }
+
+    @Override
+    public @NotNull ManagedFieldHolder getFieldHolder() {
+        return MANAGED_FIELD_HOLDER;
+    }
 }

@@ -34,6 +34,9 @@ public class PhoenixLangHandler {
         provider.add("gui.phoenixcore.source_hatch.source", "Source Stored: %s");
         provider.add("gui.phoenixcore.source_hatch.label.import", "Source Input Hatch");
         provider.add("gui.phoenixcore.source_hatch.label.export", "Source Output Hatch");
+        provider.add("phoenix.core.recipe.source_in", "Source Nessecary: %s.");
+        provider.add("phoenix.core.recipe.source_out", "Source Given: %s.");
+
         provider.add("tooltip.phoenixcore.source_hatch.consumption", "§cMax Source Consumption§f:§6 %s");
         provider.add("tooltip.phoenixcore.source_hatch.capacity", "§cMax Source capacity§f:§6 %s");
         provider.add("phoenixcore.recipe.source_in", "Source Input: %s");
@@ -48,6 +51,7 @@ public class PhoenixLangHandler {
         provider.add("phoenixcore.tooltip.requires_fluid", "Needs: %s");
         provider.add("tagprefix.nanites", "%s Nanites");
         provider.add("tagprefix.crystal_rose", "%s Crystal Rose");
+        provider.add("tagprefix.tier_one_bee", "%s Lively Bee");
         provider.add("item.gtceu.tool.ev_screwdriver", "%s Electric Screwdriver (EV)");
         provider.add("item.gtceu.tool.mv_screwdriver", "%s Electric Screwdriver (MV)");
         provider.add("item.gtceu.tool.luv_screwdriver", "%s Electric Screwdriver (LuV)");

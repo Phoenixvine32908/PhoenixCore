@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.PhoenixCore;
+import net.phoenix.core.api.machine.PhoenixPartAbility;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.machine.multiblock.electric.HoneyCrystallizationChamberMachine;
@@ -113,6 +114,7 @@ public class PhoenixBeeMachines {
                     .where("D", blocks(GCYMBlocks.CASING_HIGH_TEMPERATURE_SMELTING.get()).setMinGlobalLimited(10)
                             .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1))
                             .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1))
+                            .or(Predicates.abilities(PhoenixPartAbility.SOURCE_OUTPUT).setMaxGlobalLimited(1))
                             .or(Predicates.autoAbilities(definition.getRecipeTypes())))
                     .where('E', blocks(Blocks.HONEY_BLOCK))
                     .where('F', blocks(COIL_RTMALLOY.get()))

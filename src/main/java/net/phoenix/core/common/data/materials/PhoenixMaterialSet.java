@@ -7,8 +7,9 @@ import static com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIcon
 
 public class PhoenixMaterialSet {
 
-    public static final MaterialIconType nanites = new MaterialIconType("nanites");
-    public static final MaterialIconType crystal_rose = new MaterialIconType("crystal_rose");
+    public static final MaterialIconType NANITES = new MaterialIconType("nanites");
+    public static final MaterialIconType CRYSTAL_ROSE = new MaterialIconType("crystal_rose");
+    public static final MaterialIconType TIER_ONE_BEE = new MaterialIconType("tier_one_bee");
     public static final MaterialIconSet ALMOST_PURE_NEVONIAN_STEEL = new MaterialIconSet("almost_pure_nevonian_steel",
             SHINY);
 

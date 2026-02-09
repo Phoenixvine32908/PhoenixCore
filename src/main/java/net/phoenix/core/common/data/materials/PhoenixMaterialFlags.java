@@ -18,6 +18,10 @@ public class PhoenixMaterialFlags {
             .requireProps(PropertyKey.DUST)
             .build();
 
+    public static final MaterialFlag GENERATE_TIER_ONE_BEE = new MaterialFlag.Builder("generate_tier_one_bee")
+            .requireProps(PropertyKey.DUST)
+            .build();
+
     public static final TagPrefix nanites = new TagPrefix("nanites")
             .idPattern("%s_nanites")
             .defaultTagPath("nanites/%s")
@@ -26,7 +30,7 @@ public class PhoenixMaterialFlags {
             .materialAmount(GTValues.M / 4)
             .unificationEnabled(true)
             .generateItem(true)
-            .materialIconType(PhoenixMaterialSet.nanites)
+            .materialIconType(PhoenixMaterialSet.NANITES)
             .generationCondition(mat -> mat.hasFlag(PhoenixMaterialFlags.GENERATE_NANITES));
 
     public static final TagPrefix crystal_rose = new TagPrefix("crystal_rose")
@@ -37,8 +41,19 @@ public class PhoenixMaterialFlags {
             .materialAmount(GTValues.M / 4)
             .unificationEnabled(true)
             .generateItem(true)
-            .materialIconType(PhoenixMaterialSet.crystal_rose)
+            .materialIconType(PhoenixMaterialSet.CRYSTAL_ROSE)
             .generationCondition(mat -> mat.hasFlag(PhoenixMaterialFlags.GENERATE_CRYSTAL_ROSE));
+
+    public static final TagPrefix tier_one_bee = new TagPrefix("tier_one_bee")
+            .idPattern("%s_tier_one_bee")
+            .defaultTagPath("tier_one_bee/%s")
+            .unformattedTagPath("tier_one_bee")
+            .langValue("%s Lively Bee")
+            .materialAmount(GTValues.M / 4)
+            .unificationEnabled(true)
+            .generateItem(true)
+            .materialIconType(PhoenixMaterialSet.TIER_ONE_BEE)
+            .generationCondition(mat -> mat.hasFlag(PhoenixMaterialFlags.GENERATE_TIER_ONE_BEE));
 
     public static void init() {}
 }

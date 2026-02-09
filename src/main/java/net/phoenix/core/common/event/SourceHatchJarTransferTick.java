@@ -2,7 +2,9 @@ package net.phoenix.core.common.event;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
-
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
+import com.hollingsworth.arsnouveau.client.particle.ParticleUtil;
+import com.hollingsworth.arsnouveau.common.block.tile.SourceJarTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,10 +14,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
-
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
-import com.hollingsworth.arsnouveau.client.particle.ParticleUtil;
-import com.hollingsworth.arsnouveau.common.block.tile.SourceJarTile;
 
 @Mod.EventBusSubscriber(modid = PhoenixCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class SourceHatchJarTransferTick {
@@ -27,6 +25,7 @@ public final class SourceHatchJarTransferTick {
         if (event.phase != TickEvent.Phase.END) return;
         if (!(event.level instanceof ServerLevel level)) return;
 
+        // once per second
         if (level.getGameTime() % 20L != 0L) return;
 
         int radius = PhoenixConfigs.INSTANCE.sourceHatch.sourceJarCheckRadius;
@@ -50,56 +49,75 @@ public final class SourceHatchJarTransferTick {
             int minY = hatchPos.getY() - radius, maxY = hatchPos.getY() + radius;
             int minZ = hatchPos.getZ() - radius, maxZ = hatchPos.getZ() + radius;
 
+            // Cap per tick to hatch transfer rate (per second here)
+            int rate = tank.getTransferRate();
+            if (rate <= 0) continue;
+
             if (io == IO.IN) {
                 if (!tank.canAcceptSource()) continue;
 
                 int space = tank.getMaxSource() - tank.getSource();
-                if (space <= 0) continue;
+                int remaining = Math.min(space, rate);
+                if (remaining <= 0) continue;
 
                 outer:
                 for (int y = minY; y <= maxY; y++)
-                    for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++) {
-                        BlockPos jarPos = new BlockPos(x, y, z);
-                        BlockEntity jarBe = level.getBlockEntity(jarPos);
-                        if (!(jarBe instanceof SourceJarTile jar)) continue;
+                    for (int x = minX; x <= maxX; x++)
+                        for (int z = minZ; z <= maxZ; z++) {
 
-                        int available = jar.getSource();
-                        if (available <= 0) continue;
+                            if (remaining <= 0) break outer;
 
-                        int toMove = Math.min(space, available);
-                        jar.removeSource(toMove);
-                        jar.updateBlock();
-                        tank.addSource(toMove);
+                            BlockPos jarPos = new BlockPos(x, y, z);
+                            BlockEntity jarBe = level.getBlockEntity(jarPos);
+                            if (!(jarBe instanceof SourceJarTile jar)) continue;
 
-                        ParticleUtil.spawnFollowProjectile(level, jarPos, hatchPos, jar.getColor());
+                            int available = jar.getSource();
+                            if (available <= 0) continue;
 
-                        space -= toMove;
-                        if (space <= 0) break outer;
-                    }
+                            int toMove = Math.min(remaining, available);
+
+                            jar.removeSource(toMove);
+                            jar.setChanged();
+                            jar.updateBlock();
+
+                            tank.addSource(toMove);
+
+                            ParticleUtil.spawnFollowProjectile(level, jarPos, hatchPos, jar.getColor());
+
+                            remaining -= toMove;
+                        }
+
             } else if (io == IO.OUT) {
                 int available = tank.getSource();
-                if (available <= 0) continue;
+                int remaining = Math.min(available, rate);
+                if (remaining <= 0) continue;
 
                 outer:
                 for (int y = minY; y <= maxY; y++)
-                    for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++) {
-                        BlockPos jarPos = new BlockPos(x, y, z);
-                        BlockEntity jarBe = level.getBlockEntity(jarPos);
-                        if (!(jarBe instanceof SourceJarTile jar)) continue;
+                    for (int x = minX; x <= maxX; x++)
+                        for (int z = minZ; z <= maxZ; z++) {
 
-                        int jarSpace = jar.getMaxSource() - jar.getSource();
-                        if (jarSpace <= 0) continue;
+                            if (remaining <= 0) break outer;
 
-                        int toMove = Math.min(available, jarSpace);
-                        tank.removeSource(toMove);
-                        jar.addSource(toMove);
-                        jar.updateBlock();
+                            BlockPos jarPos = new BlockPos(x, y, z);
+                            BlockEntity jarBe = level.getBlockEntity(jarPos);
+                            if (!(jarBe instanceof SourceJarTile jar)) continue;
 
-                        ParticleUtil.spawnFollowProjectile(level, hatchPos, jarPos, jar.getColor());
+                            int jarSpace = jar.getMaxSource() - jar.getSource();
+                            if (jarSpace <= 0) continue;
 
-                        available -= toMove;
-                        if (available <= 0) break outer;
-                    }
+                            int toMove = Math.min(remaining, jarSpace);
+
+                            tank.removeSource(toMove);
+
+                            jar.addSource(toMove);
+                            jar.setChanged();
+                            jar.updateBlock();
+
+                            ParticleUtil.spawnFollowProjectile(level, hatchPos, jarPos, jar.getColor());
+
+                            remaining -= toMove;
+                        }
             }
         }
     }

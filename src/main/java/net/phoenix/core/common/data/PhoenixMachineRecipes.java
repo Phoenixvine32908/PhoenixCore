@@ -170,6 +170,13 @@ public class PhoenixMachineRecipes {
                 .EUt(4096)
                 .fusionStartEU(40_000_000)
                 .save(provider);
+        PhoenixRecipeTypes.COMB_DECANTING_RECIPES.recipeBuilder("deuterium_and_tritium_to_helium_plasma")
+                .inputFluids(Deuterium.getFluid(125))
+                .outputFluids(Helium.getFluid(FluidStorageKeys.PLASMA, 125))
+                .duration(16)
+                .output(SourceRecipeCapability.CAP, 2)
+                .EUt(4096)
+                .save(provider);
 
         PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1.recipeBuilder("carbon_and_helium_3_to_oxygen_plasma")
                 .inputFluids(GTMaterials.Carbon.getFluid(16))

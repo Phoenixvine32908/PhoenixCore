@@ -1,20 +1,22 @@
 package net.phoenix.core.integration.jade.provider;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
-
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
-
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.ui.BoxStyle;
+import snownee.jade.api.ui.IBoxStyle;
+import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.ui.IProgressStyle;
 
 public class SourceHatchProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
@@ -35,9 +37,6 @@ public class SourceHatchProvider implements IBlockComponentProvider, IServerData
 
         tag.putInt(KEY_STORED, source.getSource());
         tag.putInt(KEY_CAP, source.getMaxSource());
-
-        PhoenixCore.LOGGER.info("[Jade:SourceHatch] pos={} stored={} cap={}",
-                accessor.getPosition(), source.getSource(), source.getMaxSource());
     }
 
     @Override
@@ -47,12 +46,25 @@ public class SourceHatchProvider implements IBlockComponentProvider, IServerData
 
         int stored = data.getInt(KEY_STORED);
         int cap = data.getInt(KEY_CAP);
+        if (cap <= 0) return;
 
-        tooltip.add(Component.translatable(
-                "phoenixcore.jade.source_hatch_info",
-                Component.literal(Integer.toString(stored)).withStyle(ChatFormatting.AQUA),
-                Component.literal(Integer.toString(cap)).withStyle(ChatFormatting.AQUA)));
+        float pct = Math.min(1f, stored / (float) cap);
+
+        var helper = tooltip.getElementHelper();
+
+        tooltip.add(
+                helper.progress(
+                        pct,
+                        Component.literal(stored + " / " + cap),
+                        helper.progressStyle()
+                                .color(0x8F00FF, 0x8F00FF) // Ars source color
+                                .textColor(0xFFFFFFFF),
+                        BoxStyle.DEFAULT,
+                        true
+                )
+        );
     }
+
 
     @Override
     public ResourceLocation getUid() {
