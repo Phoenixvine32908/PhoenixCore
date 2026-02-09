@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.item.ComponentItem;
 import com.gregtechceu.gtceu.api.item.component.ElectricStats;
 
+import net.minecraft.world.item.Item;
 import net.phoenix.core.common.data.PhoenixCovers;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
@@ -28,8 +29,6 @@ public class PhoenixItems {
             .model((ctx, prov) -> prov.generated(ctx, prov.modLoc("item/tools/power_unit_zpm")))
             .onRegister((c) -> c.attachComponents(ElectricStats.createElectricItem(409600000L, GTValues.ZPM)))
             .register();
-    private static final int UHV_RELATIVE_INDEX = GTValues.UHV - PhoenixCovers.START_TIER;
-    // Inside PhoenixItems.java
     public static ItemEntry<TeslaBinderItem> TESLA_BINDER = REGISTRATE
             .item("tesla_binder", TeslaBinderItem::new)
             .lang("Tesla Binder")

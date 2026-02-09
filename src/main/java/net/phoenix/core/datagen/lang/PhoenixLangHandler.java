@@ -52,6 +52,8 @@ public class PhoenixLangHandler {
         provider.add("tagprefix.nanites", "%s Nanites");
         provider.add("tagprefix.crystal_rose", "%s Crystal Rose");
         provider.add("tagprefix.tier_one_bee", "%s Lively Bee");
+        provider.add("tagprefix.tier_two_bee", "%s Energetic Bee");
+        provider.add("tagprefix.tier_three_bee", "%s Stronk Bee");
         provider.add("item.gtceu.tool.ev_screwdriver", "%s Electric Screwdriver (EV)");
         provider.add("item.gtceu.tool.mv_screwdriver", "%s Electric Screwdriver (MV)");
         provider.add("item.gtceu.tool.luv_screwdriver", "%s Electric Screwdriver (LuV)");

@@ -7,17 +7,61 @@ import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
 public class BeePrefixHelper {
 
     public static void addTierOneBeeFlag(Material material) {
-        if (material == null || material.isNull()) {
+        if (material == null) {
             return;
         }
 
-        material.addFlags(PhoenixMaterialFlags.GENERATE_CRYSTAL_ROSE);
+        material.addFlags(PhoenixMaterialFlags.GENERATE_TIER_ONE_BEE);
+    }
+
+    public static void addTierTwoBeeFlag(Material... materials) {
+        if (materials == null) return;
+        for (Material m : materials) {
+            addTierTwoBeeFlag(m);
+        }
+    }
+
+    public static void addTierTwoBeeFlag(Material material) {
+        if (material == null) {
+            return;
+        }
+
+        material.addFlags(PhoenixMaterialFlags.GENERATE_TIER_TWO_BEE);
+    }
+
+    public static void addTierThreeBeeFlag(Material... materials) {
+        if (materials == null) return;
+        for (Material m : materials) {
+            addTierOneBeeFlag(m);
+        }
+    }
+
+    public static void addTierThreeBeeFlag(Material material) {
+        if (material == null) {
+            return;
+        }
+
+        material.addFlags(PhoenixMaterialFlags.GENERATE_TIER_THREE_BEE);
     }
 
     public static void addTierOneBeeFlag(Material... materials) {
         if (materials == null) return;
         for (Material m : materials) {
-            addTierOneBeeFlag(m);
+            addTierThreeBeeFlag(m);
+        }
+    }
+    public static void addBeeCombFlag(Material material) {
+        if (material == null) {
+            return;
+        }
+
+        material.addFlags(PhoenixMaterialFlags.GENERATE_BEE_COMB);
+    }
+
+    public static void addBeeCombFlag(Material... materials) {
+        if (materials == null) return;
+        for (Material m : materials) {
+            addBeeCombFlag(m);
         }
     }
 }

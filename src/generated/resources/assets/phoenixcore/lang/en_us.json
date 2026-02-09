@@ -399,6 +399,8 @@
   "tagprefix.crystal_rose": "%s Crystal Rose",
   "tagprefix.nanites": "%s Nanites",
   "tagprefix.tier_one_bee": "%s Lively Bee",
+  "tagprefix.tier_three_bee": "%s Stronk Bee",
+  "tagprefix.tier_two_bee": "%s Energetic Bee",
   "tech.phoenixcore.laser.input.high": "Tesla Phased Beam Matrix",
   "tech.phoenixcore.laser.input.low": "Tesla Optical Collimator",
   "tech.phoenixcore.laser.input.mid": "Tesla Optical Collimation Grid",

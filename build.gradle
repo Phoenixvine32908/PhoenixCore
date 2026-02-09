@@ -20,6 +20,10 @@ configurations {
         extendsFrom implementation
     }
 }
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += "-Xlint:-deprecation"
+}
+
 
 
 def generatedResources = file("src/generated")
@@ -206,7 +210,6 @@ dependencies {
 
     jarJar("appeng:appliedenergistics2-forge:${ae2_version}")
     jarJar("lu.kolja:expandedae:${expandedAE}")
-    modImplementation "curse.maven:productivebees-377897:5566102"
    // modImplementation "curse.maven:crazy-ae2-addons-1223804:7250497"
 
 

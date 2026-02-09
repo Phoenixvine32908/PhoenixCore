@@ -21,6 +21,16 @@ public class PhoenixMaterialFlags {
     public static final MaterialFlag GENERATE_TIER_ONE_BEE = new MaterialFlag.Builder("generate_tier_one_bee")
             .requireProps(PropertyKey.DUST)
             .build();
+    public static final MaterialFlag GENERATE_TIER_TWO_BEE = new MaterialFlag.Builder("generate_tier_two_bee")
+            .requireProps(PropertyKey.DUST)
+            .build();
+    public static final MaterialFlag GENERATE_TIER_THREE_BEE = new MaterialFlag.Builder("generate_tier_three_bee")
+            .requireProps(PropertyKey.DUST)
+            .build();
+    public static final MaterialFlag GENERATE_BEE_COMB = new MaterialFlag.Builder("generate_bee_comb")
+            .requireProps(PropertyKey.DUST)
+            .build();
+
 
     public static final TagPrefix nanites = new TagPrefix("nanites")
             .idPattern("%s_nanites")
@@ -54,6 +64,38 @@ public class PhoenixMaterialFlags {
             .generateItem(true)
             .materialIconType(PhoenixMaterialSet.TIER_ONE_BEE)
             .generationCondition(mat -> mat.hasFlag(PhoenixMaterialFlags.GENERATE_TIER_ONE_BEE));
+
+    public static final TagPrefix tier_two_bee = new TagPrefix("tier_two_bee")
+            .idPattern("%s_tier_two_bee")
+            .defaultTagPath("tier_two_bee/%s")
+            .unformattedTagPath("tier_two_bee")
+            .langValue("%s Energetic Bee")
+            .materialAmount(GTValues.M / 4)
+            .unificationEnabled(true)
+            .generateItem(true)
+            .materialIconType(PhoenixMaterialSet.TIER_TWO_BEE)
+            .generationCondition(mat -> mat.hasFlag(PhoenixMaterialFlags.GENERATE_TIER_TWO_BEE));
+
+    public static final TagPrefix tier_three_bee = new TagPrefix("tier_three_bee")
+            .idPattern("%s_tier_three_bee")
+            .defaultTagPath("tier_three_bee/%s")
+            .unformattedTagPath("tier_three_bee")
+            .langValue("%s Stronk Bee")
+            .materialAmount(GTValues.M / 4)
+            .unificationEnabled(true)
+            .generateItem(true)
+            .materialIconType(PhoenixMaterialSet.TIER_THREE_BEE)
+            .generationCondition(mat -> mat.hasFlag(PhoenixMaterialFlags.GENERATE_TIER_THREE_BEE));
+    public static final TagPrefix bee_comb = new TagPrefix("bee_comb")
+            .idPattern("%s_bee_comb")
+            .defaultTagPath("bee_combs/%s")
+            .unformattedTagPath("bee_comb")
+            .langValue("%s Honeycomb")
+            .materialAmount(GTValues.M / 4)
+            .unificationEnabled(true)
+            .generateItem(true)
+            .materialIconType(PhoenixMaterialSet.BEE_COMB)
+            .generationCondition(mat -> mat.hasFlag(GENERATE_BEE_COMB));
 
     public static void init() {}
 }

@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+@SuppressWarnings("All")
 public class BeeRecipeData {
 
     public static final String MOD_ID = "phoenixcore";
@@ -26,7 +26,10 @@ public class BeeRecipeData {
     public static final int DEFAULT_ZPM_EUT = GTValues.VA[GTValues.ZPM];
     public static final int DEFAULT_UV_EUT = GTValues.VA[GTValues.UV];
 
-    public static final Map<String, String> ALL_BEE_NAMES = Map.ofEntries(
+    /**
+     * Map of beeId -> display name.
+     */
+    public static final Map<String, String> ALL_BEE_NAMES = Map.<String, String>ofEntries(
             Map.entry("iron", "Iron Bee"),
             Map.entry("diamond", "Diamond Bee"),
             Map.entry("apatite", "Apatite Bee"),
@@ -100,7 +103,9 @@ public class BeeRecipeData {
             Map.entry("super_factory", "Super Factory Bee"),
             Map.entry("fluix", "Fluix Bee"),
             Map.entry("water", "Water Bee"),
-            Map.entry("rancher", "Rancher Bee"));
+            Map.entry("rancher", "Rancher Bee")
+    );
+
     public static final List<String> LUMBER_LOG_TYPES = List.of(
             "minecraft:oak_log",
             "minecraft:spruce_log",
@@ -118,154 +123,586 @@ public class BeeRecipeData {
             "ars_nouveau:red_archwood_log",
             "ars_nouveau:blue_archwood_log",
             "ars_nouveau:green_archwood_log",
-            "ars_nouveau:purple_archwood_log");
+            "ars_nouveau:purple_archwood_log"
+    );
 
     public static final List<String> BEE_MATERIAL_TYPES = ALL_BEE_NAMES.keySet().stream().sorted()
             .collect(Collectors.toList());
 
+    /**
+     * Full configs used by recipe generation. Includes tier selection for TagPrefix bees.
+     */
+    private static final List<String> TIER_THREE_BEES = List.of(
+         //   "thorium", "scheelite", "tungstate", "bauxite", "ilmenite", "pitchblende",
+         //   "graphite", "sphalerite", "chromite", "pyrolusite", "platinum", "bismuth",
+         //   "bastnasite", "tetrahedrite", "sulfur", "oilsands", "tantalite", "barite",
+         //   "vanadium_magnetite", "draconic", "pyrochlore", "voidglass_shard",
+            "crystallized_fluxstone", "ignisium", "sky_steel"
+    );
+
+    
+
+    private static final List<String> TIER_TWO_BEES = List.of(
+          //  "diamond", "emerald", "netherite", "infinity", "arcane", "arcane_crystal",
+            "spacial", "fluix", "obsidian", "withered", "ghostly", "prismarine"
+    );
+
+    
+
+    private static int tierFor(String beeId) {
+        if (TIER_THREE_BEES.contains(beeId)) return 3;
+        if (TIER_TWO_BEES.contains(beeId)) return 2;
+        return 1;
+    }
+
+    
+
     public static final Map<String, FullBeeConfig> ALL_BEE_CONFIGS = createAllBeeConfigs();
 
     public static final List<ApisProgenitorConfig> UNIQUE_APIS_PROGENITOR_CONFIGS = List.of(
-            new ApisProgenitorConfig("diamond_progenitor", "diamond", "ender", "4x minecraft:lapis_block", null, 100,
-                    DEFAULT_IV_EUT / 2),
+            new ApisProgenitorConfig(
+                    "diamond_progenitor",
+                    "ender", tierFor("ender"),
+                    "diamond", tierFor("diamond"),
+                    List.of("4x minecraft:lapis_block"),
+                    List.of(),
+                    100, DEFAULT_IV_EUT / 2
+            )
 
-            new ApisProgenitorConfig("lumber_bee", "lumber", "green_carpenter_bee", "128x #minecraft:logs", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("quarry_bee", "quarry", "digger_bee", "128x #forge:stone", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("lumber_from_green_carpenter", "lumber", "green_carpenter_bee",
-                    "128x #minecraft:logs", null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("quarry_from_digger", "quarry", "digger_bee", "128x #forge:stone", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("rancher_from_lumber", "rancher", "lumber_bee", "4x gtceu:skim_milk_bucket", null,
-                    360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("diamond_progenitor", "diamond", "ender", "4x minecraft:lapis_block", null, 100,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("emerald_progenitor", "emerald", "diamond", "4x minecraft:emerald_block", null,
-                    360, DEFAULT_IV_EUT),
-            new ApisProgenitorConfig("pitchblende_progenitor", "pitchblende", "diamond",
-                    "4x gtceu:raw_pitchblende_block", null, 360, DEFAULT_IV_EUT),
-            new ApisProgenitorConfig("copper_progenitor", "copper", "crystalline", "4x minecraft:copper_block", null,
-                    360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("experience_progenitor", "experience", "emerald", "64x crazyae2addons:xp_shard",
-                    null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("arcane_progenitor", "arcane", "diamond", "32x ars_nouveau:source_gem_block", null,
-                    360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("cinnabar_progenitor", "cinnabar", "diamond", "4x gtceu:raw_cinnabar_block", null,
-                    360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("crimson_progenitor", "crimson", "brown_shroom", "4x minecraft:crimson_fungus",
-                    null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("silver_progenitor", "silver", "iron", "4x gtceu:raw_silver_block", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("infinity_progenitor", "infinity", "blazing", "32x minecraft:obsidian", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("tungstate_progenitor", "tungstate", "silver", "32x gtceu:raw_tungstate_block",
-                    null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("tricalcium_phosphate_progenitor", "tricalcium_phosphate", "apatite",
-                    "4x gtceu:raw_tricalcium_phosphate_block", null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("apatite_progenitor", "apatite", "diamond", "4x gtceu:raw_apatite_block", null,
-                    360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("spacial_progenitor", "spacial", "crystalline", "4x gtceu:raw_certus_quartz_block",
-                    null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("arcane_crystal_progenitor", "arcane_crystal", "diamond",
-                    "4x forbidden_arcanus:arcane_crystal_block", null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("fluix_progenitor", "fluix", "spacial", "32x ae2:fluix_pearl", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("malachite_progenitor", "malachite", "diamond", "4x gtceu:raw_malachite_block",
-                    null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("invar_progenitor", "invar", "iron", "4x gtceu:raw_nickel_block", null, 360,
-                    DEFAULT_IV_EUT / 2),
+        /*
+        ,
+        new ApisProgenitorConfig(
+                "lumber_bee",
+                "green_carpenter_bee", tierFor("green_carpenter_bee"),
+                "lumber", tierFor("lumber"),
+                List.of("128x #minecraft:logs"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "quarry_bee",
+                "digger_bee", tierFor("digger_bee"),
+                "quarry", tierFor("quarry"),
+                List.of("128x #forge:stone"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "lumber_from_green_carpenter",
+                "green_carpenter_bee", tierFor("green_carpenter_bee"),
+                "lumber", tierFor("lumber"),
+                List.of("128x #minecraft:logs"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "quarry_from_digger",
+                "digger_bee", tierFor("digger_bee"),
+                "quarry", tierFor("quarry"),
+                List.of("128x #forge:stone"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "rancher_from_lumber",
+                "lumber_bee", tierFor("lumber_bee"),
+                "rancher", tierFor("rancher"),
+                List.of("4x gtceu:skim_milk_bucket"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
 
-            new ApisProgenitorConfig("lepidolite_from_mason", "lepidolite", "mason", "4x gtceu:raw_lepidolite_block",
-                    null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("blazing_from_nomad", "blazing", "nomad", "16x minecraft:blaze_rod", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("sculk_from_digger", "sculk", "digger", "64x minecraft:sculk", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("zinc_from_sweat", "zinc", "sweat", "4x minecraft:iron_block", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("menril_from_neon", "menril", "neon_cuckoo", "4x integrateddynamics:menril_log",
-                    null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("niter_from_creeper", "niter", "creeper", "4x minecraft:coal_block", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("redstone_from_chocolate", "redstone", "chocolate_mining",
-                    "4x minecraft:glowstone", null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("silky_from_reed", "silky", "reed", "64x minecraft:string", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("coal_from_leafcutter", "coal", "leafcutter", "4x minecraft:lava_bucket", null,
-                    360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("silicon_from_nomad", "silicon", "nomad", "16x gtceu:silicon_block", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("obsidian_from_sweat", "obsidian", "sweat", "4x minecraft:magma_cream", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("amber_from_resin", "amber", "resin", "168x gtceu:styrene_butadiene_rubber_dust",
-                    null, 360, DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("nickel_from_sweat", "nickel", "sweat", "4x gtceu:nickel_block", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("lead_from_blue", "lead", "blue_banded", "4x minecraft:iron_block", null, 360,
-                    DEFAULT_IV_EUT / 2),
-            new ApisProgenitorConfig("sticky_resin_from_resin", "sticky_resin", "resin", null,
-                    "productivebees:honey 4000", 360, DEFAULT_IV_EUT / 2),
+        // NOTE: your original file had a duplicated "diamond_progenitor" entry; keeping a single copy here.
+        new ApisProgenitorConfig(
+                "emerald_progenitor",
+                "diamond", tierFor("diamond"),
+                "emerald", tierFor("emerald"),
+                List.of("4x minecraft:emerald_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "pitchblende_progenitor",
+                "diamond", tierFor("diamond"),
+                "pitchblende", tierFor("pitchblende"),
+                List.of("4x gtceu:raw_pitchblende_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "copper_progenitor",
+                "crystalline", tierFor("crystalline"),
+                "copper", tierFor("copper"),
+                List.of("4x minecraft:copper_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "experience_progenitor",
+                "emerald", tierFor("emerald"),
+                "experience", tierFor("experience"),
+                List.of("64x crazyae2addons:xp_shard"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "arcane_progenitor",
+                "diamond", tierFor("diamond"),
+                "arcane", tierFor("arcane"),
+                List.of("32x ars_nouveau:source_gem_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "cinnabar_progenitor",
+                "diamond", tierFor("diamond"),
+                "cinnabar", tierFor("cinnabar"),
+                List.of("4x gtceu:raw_cinnabar_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "crimson_progenitor",
+                "brown_shroom", tierFor("brown_shroom"),
+                "crimson", tierFor("crimson"),
+                List.of("4x minecraft:crimson_fungus"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "silver_progenitor",
+                "iron", tierFor("iron"),
+                "silver", tierFor("silver"),
+                List.of("4x gtceu:raw_silver_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "infinity_progenitor",
+                "blazing", tierFor("blazing"),
+                "infinity", tierFor("infinity"),
+                List.of("32x minecraft:obsidian"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "tungstate_progenitor",
+                "silver", tierFor("silver"),
+                "tungstate", tierFor("tungstate"),
+                List.of("32x gtceu:raw_tungstate_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "tricalcium_phosphate_progenitor",
+                "apatite", tierFor("apatite"),
+                "tricalcium_phosphate", tierFor("tricalcium_phosphate"),
+                List.of("4x gtceu:raw_tricalcium_phosphate_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "apatite_progenitor",
+                "diamond", tierFor("diamond"),
+                "apatite", tierFor("apatite"),
+                List.of("4x gtceu:raw_apatite_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "spacial_progenitor",
+                "crystalline", tierFor("crystalline"),
+                "spacial", tierFor("spacial"),
+                List.of("4x gtceu:raw_certus_quartz_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "arcane_crystal_progenitor",
+                "diamond", tierFor("diamond"),
+                "arcane_crystal", tierFor("arcane_crystal"),
+                List.of("4x forbidden_arcanus:arcane_crystal_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "fluix_progenitor",
+                "spacial", tierFor("spacial"),
+                "fluix", tierFor("fluix"),
+                List.of("32x ae2:fluix_pearl"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "malachite_progenitor",
+                "diamond", tierFor("diamond"),
+                "malachite", tierFor("malachite"),
+                List.of("4x gtceu:raw_malachite_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "invar_progenitor",
+                "iron", tierFor("iron"),
+                "invar", tierFor("invar"),
+                List.of("4x gtceu:raw_nickel_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
 
-            new ApisProgenitorConfig("thorium_progenitor", "thorium", "diamond", "4x gtceu:thorium_block", null, 360,
-                    DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("graphite_progenitor", "graphite", "diamond", "4x gtceu:raw_graphite_block", null,
-                    360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("sphalerite_progenitor", "sphalerite", "diamond", "4x gtceu:raw_sphalerite_block",
-                    null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("netherite_progenitor", "netherite", "diamond", "4x minecraft:ancient_debris",
-                    null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("ender_progenitor", "ender", "diamond", "4x minecraft:end_stone", null, 360,
-                    DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("acidic_progenitor", "acidic", "diamond", "4x gtceu:sulfuric_acid_bucket", null,
-                    360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("chromite_progenitor", "chromite", "diamond", "4x gtceu:raw_chromite_block", null,
-                    360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("pyrolusite_progenitor", "pyrolusite", "diamond", "4x gtceu:raw_pyrolusite_block",
-                    null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("platinum_progenitor", "platinum", "diamond", "4x gtceu:raw_platinum_block", null,
-                    360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("bismuth_progenitor", "bismuth", "diamond", "4x gtceu:bismuth_block", null, 360,
-                    DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("glowing_progenitor", "glowing", "diamond", "4x minecraft:glowstone", null, 360,
-                    DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("bastnasite_progenitor", "bastnasite", "diamond", "4x gtceu:raw_bastnasite_block",
-                    null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("tetrahedrite_progenitor", "tetrahedrite", "diamond",
-                    "4x gtceu:raw_tetrahedrite_block", null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("sulfur_progenitor", "sulfur", "diamond", "4x gtceu:raw_sulfur_block", null, 360,
-                    DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("oilsands_progenitor", "oilsands", "diamond", "4x gtceu:raw_oilsands_block", null,
-                    360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("cobalt_progenitor", "cobalt", "diamond", "4x gtceu:raw_cobaltite_block", null,
-                    360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("tantalite_progenitor", "tantalite", "diamond", "4x gtceu:raw_tantalite_block",
-                    null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("barite_progenitor", "barite", "diamond", "4x gtceu:raw_barite_block", null, 360,
-                    DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("vanadium_magnetite_progenitor", "vanadium_magnetite", "diamond",
-                    "4x gtceu:raw_vanadium_magnetite_block", null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("draconic_progenitor", "draconic", "diamond", "1x minecraft:dragon_egg", null, 360,
-                    DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("pyrochlore_progenitor", "pyrochlore", "diamond", "4x gtceu:raw_pyrochlore_block",
-                    null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("voidglass_shard_progenitor", "voidglass_shard", "diamond",
-                    "32x phoenixcore:raw_voidglass_shard_block", null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("crystallized_fluxstone_progenitor", "crystallized_fluxstone", "diamond",
-                    "32x gtce:raw_crystalized_fluxstone_block", null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("ignisium_progenitor", "ignisium", "diamond", "32x phoenixcore:raw_ignisium_block",
-                    null, 360, DEFAULT_LUV_EUT),
-            new ApisProgenitorConfig("sky_steel_progenitor", "sky_steel", "diamond", "32x megacells:sky_steel_block",
-                    null, 360, DEFAULT_LUV_EUT),
+        new ApisProgenitorConfig(
+                "lepidolite_from_mason",
+                "mason", tierFor("mason"),
+                "lepidolite", tierFor("lepidolite"),
+                List.of("4x gtceu:raw_lepidolite_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "blazing_from_nomad",
+                "nomad", tierFor("nomad"),
+                "blazing", tierFor("blazing"),
+                List.of("16x minecraft:blaze_rod"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "sculk_from_digger",
+                "digger", tierFor("digger"),
+                "sculk", tierFor("sculk"),
+                List.of("64x minecraft:sculk"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "zinc_from_sweat",
+                "sweat", tierFor("sweat"),
+                "zinc", tierFor("zinc"),
+                List.of("4x minecraft:iron_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "menril_from_neon",
+                "neon_cuckoo", tierFor("neon_cuckoo"),
+                "menril", tierFor("menril"),
+                List.of("4x integrateddynamics:menril_log"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "niter_from_creeper",
+                "creeper", tierFor("creeper"),
+                "niter", tierFor("niter"),
+                List.of("4x minecraft:coal_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "redstone_from_chocolate",
+                "chocolate_mining", tierFor("chocolate_mining"),
+                "redstone", tierFor("redstone"),
+                List.of("4x minecraft:glowstone"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "silky_from_reed",
+                "reed", tierFor("reed"),
+                "silky", tierFor("silky"),
+                List.of("64x minecraft:string"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "coal_from_leafcutter",
+                "leafcutter", tierFor("leafcutter"),
+                "coal", tierFor("coal"),
+                List.of("4x minecraft:lava_bucket"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "silicon_from_nomad",
+                "nomad", tierFor("nomad"),
+                "silicon", tierFor("silicon"),
+                List.of("16x gtceu:silicon_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "obsidian_from_sweat",
+                "sweat", tierFor("sweat"),
+                "obsidian", tierFor("obsidian"),
+                List.of("4x minecraft:magma_cream"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "amber_from_resin",
+                "resin", tierFor("resin"),
+                "amber", tierFor("amber"),
+                List.of("168x gtceu:styrene_butadiene_rubber_dust"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "nickel_from_sweat",
+                "sweat", tierFor("sweat"),
+                "nickel", tierFor("nickel"),
+                List.of("4x gtceu:nickel_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "lead_from_blue",
+                "blue_banded", tierFor("blue_banded"),
+                "lead", tierFor("lead"),
+                List.of("4x minecraft:iron_block"),
+                List.of(),
+                360, DEFAULT_IV_EUT / 2
+        ),
+        new ApisProgenitorConfig(
+                "sticky_resin_from_resin",
+                "resin", tierFor("resin"),
+                "sticky_resin", tierFor("sticky_resin"),
+                List.of(),
+                List.of("productivebees:honey 4000"),
+                360, DEFAULT_IV_EUT / 2
+        ),
 
-            new ApisProgenitorConfig("infinity_special", "infinity", "draconic", "gtceu:neutronium_ingot",
-                    "gtceu:infinity_fluid 200", 600, DEFAULT_UV_EUT),
-            new ApisProgenitorConfig("draconic_special", "draconic", "infinity", "gtceu:neutronium_ingot",
-                    "gtceu:draconium_fluid 200", 600, DEFAULT_UV_EUT));
+        new ApisProgenitorConfig(
+                "thorium_progenitor",
+                "diamond", tierFor("diamond"),
+                "thorium", tierFor("thorium"),
+                List.of("4x gtceu:thorium_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "graphite_progenitor",
+                "diamond", tierFor("diamond"),
+                "graphite", tierFor("graphite"),
+                List.of("4x gtceu:raw_graphite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "sphalerite_progenitor",
+                "diamond", tierFor("diamond"),
+                "sphalerite", tierFor("sphalerite"),
+                List.of("4x gtceu:raw_sphalerite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "netherite_progenitor",
+                "diamond", tierFor("diamond"),
+                "netherite", tierFor("netherite"),
+                List.of("4x minecraft:ancient_debris"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "ender_progenitor",
+                "diamond", tierFor("diamond"),
+                "ender", tierFor("ender"),
+                List.of("4x minecraft:end_stone"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "acidic_progenitor",
+                "diamond", tierFor("diamond"),
+                "acidic", tierFor("acidic"),
+                List.of("4x gtceu:sulfuric_acid_bucket"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "chromite_progenitor",
+                "diamond", tierFor("diamond"),
+                "chromite", tierFor("chromite"),
+                List.of("4x gtceu:raw_chromite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "pyrolusite_progenitor",
+                "diamond", tierFor("diamond"),
+                "pyrolusite", tierFor("pyrolusite"),
+                List.of("4x gtceu:raw_pyrolusite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "platinum_progenitor",
+                "diamond", tierFor("diamond"),
+                "platinum", tierFor("platinum"),
+                List.of("4x gtceu:raw_platinum_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "bismuth_progenitor",
+                "diamond", tierFor("diamond"),
+                "bismuth", tierFor("bismuth"),
+                List.of("4x gtceu:bismuth_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "glowing_progenitor",
+                "diamond", tierFor("diamond"),
+                "glowing", tierFor("glowing"),
+                List.of("4x minecraft:glowstone"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "bastnasite_progenitor",
+                "diamond", tierFor("diamond"),
+                "bastnasite", tierFor("bastnasite"),
+                List.of("4x gtceu:raw_bastnasite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "tetrahedrite_progenitor",
+                "diamond", tierFor("diamond"),
+                "tetrahedrite", tierFor("tetrahedrite"),
+                List.of("4x gtceu:raw_tetrahedrite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "sulfur_progenitor",
+                "diamond", tierFor("diamond"),
+                "sulfur", tierFor("sulfur"),
+                List.of("4x gtceu:raw_sulfur_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "oilsands_progenitor",
+                "diamond", tierFor("diamond"),
+                "oilsands", tierFor("oilsands"),
+                List.of("4x gtceu:raw_oilsands_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "cobalt_progenitor",
+                "diamond", tierFor("diamond"),
+                "cobalt", tierFor("cobalt"),
+                List.of("4x gtceu:raw_cobaltite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "tantalite_progenitor",
+                "diamond", tierFor("diamond"),
+                "tantalite", tierFor("tantalite"),
+                List.of("4x gtceu:raw_tantalite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "barite_progenitor",
+                "diamond", tierFor("diamond"),
+                "barite", tierFor("barite"),
+                List.of("4x gtceu:raw_barite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "vanadium_magnetite_progenitor",
+                "diamond", tierFor("diamond"),
+                "vanadium_magnetite", tierFor("vanadium_magnetite"),
+                List.of("4x gtceu:raw_vanadium_magnetite_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "draconic_progenitor",
+                "diamond", tierFor("diamond"),
+                "draconic", tierFor("draconic"),
+                List.of("1x minecraft:dragon_egg"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "pyrochlore_progenitor",
+                "diamond", tierFor("diamond"),
+                "pyrochlore", tierFor("pyrochlore"),
+                List.of("4x gtceu:raw_pyrochlore_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "voidglass_shard_progenitor",
+                "diamond", tierFor("diamond"),
+                "voidglass_shard", tierFor("voidglass_shard"),
+                List.of("32x phoenixcore:raw_voidglass_shard_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "crystallized_fluxstone_progenitor",
+                "diamond", tierFor("diamond"),
+                "crystallized_fluxstone", tierFor("crystallized_fluxstone"),
+                List.of("32x gtce:raw_crystalized_fluxstone_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "ignisium_progenitor",
+                "diamond", tierFor("diamond"),
+                "ignisium", tierFor("ignisium"),
+                List.of("32x phoenixcore:raw_ignisium_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "sky_steel_progenitor",
+                "diamond", tierFor("diamond"),
+                "sky_steel", tierFor("sky_steel"),
+                List.of("32x megacells:sky_steel_block"),
+                List.of(),
+                360, DEFAULT_LUV_EUT
+        ),
 
+        new ApisProgenitorConfig(
+                "infinity_special",
+                "draconic", tierFor("draconic"),
+                "infinity", tierFor("infinity"),
+                List.of("gtceu:neutronium_ingot"),
+                List.of("gtceu:infinity_fluid 200"),
+                600, DEFAULT_UV_EUT
+        ),
+        new ApisProgenitorConfig(
+                "draconic_special",
+                "infinity", tierFor("infinity"),
+                "draconic", tierFor("draconic"),
+                List.of("gtceu:neutronium_ingot"),
+                List.of("gtceu:draconium_fluid 200"),
+                600, DEFAULT_UV_EUT
+        )
+        */
+    );
+
+
+    /**
+     * Tier policy:
+     *  - Tier 3: late-game bees (LuV+ style list)
+     *  - Tier 2: mid-game "special" bees (rare/exotic)
+     *  - Tier 1: everything els
+     * Adjust these lists to change tiering without touching recipe code.
+     */
     private static Map<String, FullBeeConfig> createAllBeeConfigs() {
         Map<String, FullBeeConfig> configs = new HashMap<>();
 
+        // Keeps your existing EUt adjustments (LuV tier). Tier selection is independent and uses tierFor().
         List<String> luvBees = List.of("thorium", "scheelite", "tungstate", "bauxite", "ilmenite", "pitchblende");
 
         for (String id : BEE_MATERIAL_TYPES) {
@@ -315,6 +752,7 @@ public class BeeRecipeData {
                     outputId = "gtceu:raw_lapis";
                     outputCount = 5;
                     break;
+                    /*
                 case "redstone":
                     blockId = "minecraft:redstone_block";
                     outputId = "minecraft:redstone";
@@ -333,12 +771,10 @@ public class BeeRecipeData {
                 case "ghostly":
                     blockId = "minecraft:phantom_membrane";
                     outputId = "minecraft:ghast_tear";
-                    outputCount = 1;
                     break;
                 case "sponge":
                     blockId = "minecraft:sponge";
                     outputId = "minecraft:sponge";
-                    outputCount = 1;
                     break;
                 case "sculk":
                     blockId = "minecraft:sculk";
@@ -358,7 +794,6 @@ public class BeeRecipeData {
                 case "blazing":
                     blockId = "minecraft:magma_block";
                     outputId = "minecraft:blaze_powder";
-                    outputCount = 1;
                     break;
                 case "infinity":
                     blockId = "enderio:grains_of_infinity";
@@ -635,53 +1070,54 @@ public class BeeRecipeData {
                     outputId = "minecraft:brown_mushroom";
                     outputCount = 5;
                     break;
-
                 case "red_shroom":
                     blockId = "minecraft:red_mushroom_block";
                     outputId = "minecraft:red_mushroom";
                     outputCount = 5;
                     break;
-
                 case "crimson":
                     blockId = "minecraft:crimson_stem";
                     outputId = "minecraft:crimson_fungus";
                     outputCount = 5;
                     break;
-
                 case "warped":
                     blockId = "minecraft:warped_stem";
                     outputId = "minecraft:warped_fungus";
                     outputCount = 5;
                     break;
 
+                     */
+
                 default:
                     blockId = "gtceu:" + id + "_block";
                     outputId = "gtceu:" + id + "_ingot";
-                    outputCount = 1;
                     break;
             }
 
+            int tier = tierFor(id);
+
             configs.put(id, new FullBeeConfig(
                     id,                // 1. beeId
-                    blockId,           // 2. pollinationInputId
-                    outputId,          // 3. finalOutputId
-                    outputCount,       // 4. outputCount
+                    tier,              // 2. tier (1/2/3) used for TagPrefix bee selection
+                    blockId,           // 3. pollinationInputId
+                    outputId,          // 4. finalOutputId
+                    outputCount,       // 5. outputCount
 
                     // Standard Processing
-                    currentEut,        // 5. decantingEut
-                    d,                 // 6. decantingDuration
-                    currentEut,        // 7. waxEut
-                    wd,                // 8. waxDuration
-                    currentEut,        // 9. fluidEut
-                    fd,                // 10. fluidDuration
+                    currentEut,        // 6. decantingEut
+                    d,                 // 7. decantingDuration
+                    currentEut,        // 8. waxEut
+                    wd,                // 9. waxDuration
+                    currentEut,        // 10. fluidEut
+                    fd,                // 11. fluidDuration
 
                     // Boosted Processing (Crystal Rose)
-                    currentEut,        // 11. boostedDecantingEut
-                    bd,                // 12. boostedDecantingDuration
-                    currentEut,        // 13. boostedWaxEut
-                    wd,                // 14. boostedWaxDuration
-                    currentEut,        // 15. boostedFluidEut
-                    fd                 // 16. boostedFluidDuration
+                    currentEut,        // 12. boostedDecantingEut
+                    bd,                // 13. boostedDecantingDuration
+                    currentEut,        // 14. boostedWaxEut
+                    wd,                // 15. boostedWaxDuration
+                    currentEut,        // 16. boostedFluidEut
+                    fd                 // 17. boostedFluidDuration
             ));
         }
         return configs;
