@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-public class FluidInHatchCondition extends RecipeCondition {
+public class FluidInHatchCondition extends RecipeCondition<FluidInHatchCondition> {
 
     public static final Codec<FluidInHatchCondition> CODEC = RecordCodecBuilder.create(instance -> RecipeCondition
             .isReverse(instance).and(
@@ -123,12 +123,12 @@ public class FluidInHatchCondition extends RecipeCondition {
     }
 
     @Override
-    public RecipeCondition createTemplate() {
+    public FluidInHatchCondition createTemplate() {
         return new FluidInHatchCondition();
     }
 
     @Override
-    public RecipeConditionType<?> getType() {
+    public RecipeConditionType<FluidInHatchCondition> getType() {
         if (TYPE == null) {
             throw new IllegalStateException("FluidInHatchCondition.TYPE not registered yet!");
         }

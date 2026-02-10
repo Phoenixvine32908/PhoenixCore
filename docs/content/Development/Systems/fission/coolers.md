@@ -29,7 +29,7 @@ StartupEvents.registry("block", event => {
 
 ## Understanding how to actually use the coolers
 
-The output coolant will be given if the multiblock reactor has a output hatch. 
+The output coolant will be given if the multiblock reactor has an output hatch. 
 The input coolant is still necessary for the `Cooler` to provide cooling power. 
 
 Any amount of `Coolers` will provide cooling power in an additive form.
@@ -39,7 +39,7 @@ This also includes different tiers of `Coolers`. They look for coolant inside in
 
 Now, back to talking about blanket rod blocks.
 
-They are registered in two parts, an interface named `IFissionBlanketType` and a block class named `FissionBlanketBlock`.
+They are registered in two parts, an interface named `IFissionCoolerType` and a block class named `FissionCoolerBlock`.
 
 ```java
 package net.phoenix.core.api.block;

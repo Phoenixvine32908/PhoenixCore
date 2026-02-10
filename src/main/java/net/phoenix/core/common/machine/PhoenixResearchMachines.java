@@ -99,7 +99,7 @@ public class PhoenixResearchMachines {
         }
     }
 
-    private static MachineBuilder<MachineDefinition> registerCoolingHPCAPart(String name, String displayName,
+    private static MachineBuilder<MachineDefinition, ?> registerCoolingHPCAPart(String name, String displayName,
                                                                              Function<IMachineBlockEntity, MetaMachine> constructor,
                                                                              String texture, boolean isAdvanced) {
         return REGISTRATE.machine(name, constructor)
@@ -114,7 +114,7 @@ public class PhoenixResearchMachines {
                         PhoenixCore.id("block/overlay/machine/hpca/damaged" + (isAdvanced ? "_advanced" : ""))));
     }
 
-    private static MachineBuilder<MachineDefinition> registerComputationHPCAPart(String name, String displayName,
+    private static MachineBuilder<MachineDefinition, ?> registerComputationHPCAPart(String name, String displayName,
                                                                                  Function<IMachineBlockEntity, MetaMachine> constructor,
                                                                                  String texture, boolean isAdvanced) {
         return REGISTRATE.machine(name, constructor)

@@ -37,7 +37,7 @@ Or you could give one a big tier, adding a lot more parallel and risk in the exp
 
 Now, back to talking about blanket rod blocks.
 
-They are registered in two parts, an interface named `IFissionBlanketType` and a block class named `FissionBlanketBlock`.
+They are registered in two parts, an interface named `IFissionModeratorType` and a block class named `FissionModeratorBlock`.
 
 ```java
 package net.phoenix.core.api.block;
@@ -61,12 +61,6 @@ public interface IFissionModeratorType {
     String getName();
 
     default int getTintColor() {
-        Material m = getMaterial();
-        if (m != null && m != GTMaterials.NULL) {
-            try {
-                return 0xFF000000 | m.getMaterialRGB();
-            } catch (Throwable ignored) {}
-        }
         return 0xFFFFFFFF;
     }
 
@@ -82,11 +76,11 @@ public interface IFissionModeratorType {
         return getTier();
     }
 
-    Material getMaterial();
-
     int getTier();
     
     ResourceLocation getTexture();
+
+    Material getMaterial();
 
     Lazy<IFissionModeratorType[]> ALL_FISSION_MODERATORS_SORTED = Lazy
             .of(() -> PhoenixAPI.FISSION_MODERATORS.keySet().stream()
@@ -105,17 +99,14 @@ This is the class we define/change first. Everything goes through this interface
 
 - `getName`. This controls the registry name of the `Breeder Block`.
 - `getTintColor`. Correctly not working attempt at `auto tinting` blocks, one day it will be real.
-- `getTier`. This controls the `Tier` of the `Breeder Block`.
-- `getDurationTicks`. This controls the blanket fuel's use in `ticks`.
-- `getAmountPerCycle`. This controls the blanket fuel's use per `duration ticks` cycle.
-- `getInputKey`. This controls the `blanket fuel` itself.
-- `BlanketOutput`. This controls the list of outputs.
-- `getOutputs`. Works togethor with `BlanketOutput` as backwards compat.
-- `getTexture`. Controls the texture used by the `Breeder Block`.
-- `tryResolveMaterial`. Tries to resolve the forge registry fuel as a gtm material.
+- `getEUBoost`. This controls the amount of `boost` each `Moderator Block` applies to the amount of `EU` given by a running reactor.
+- `getFuelDiscount`. This controls the amount of `fuel discount`  each `Moderator Block` applies to a running reactor.
+- `getHeatMultiplier`.  This controls the amount of `heat multiplier`  each `Moderator Block` applies to a running reactor.
+- `getParallelBonus`.  This controls the amount of `added parallel`  each `Moderator Block` applies to a running reactor.
+- `getTier`.  This handles primary `Moderator Block` logic, `parallel bonus`, and `heat boost` per `Moderator Block`. Also contributes to `explosion` strenght.
 - `getMaterial`. Controls the gtm material linked to it, used for some internal names.
 
-Then, finally, we have the api call. `ALL_BLANKETS_BY_TIER` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
+Then, finally, we have the api call. `ALL_FISSION_MODERATORS_SORTED` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
 
 ```java
 package net.phoenix.core.common.block;
@@ -227,19 +218,16 @@ For completeness, we will assume you already know how to make active blocks in t
 Tooltips
 
 - `Shift` to show the full info, helps to keep inventory cleaner.
-- The `fuel` used and the list of output `fuels`.
-- How often/how much of the input `fuel` is used.
+- The `eu boost` of the `Moderator Block`.
+- The `fuel discount` of the `Moderator Block`.
 
 Values
 
-- `String name`. A `String` designed to hold the registration name of the `Breeder Block`, still needs to follow a-z, 0-9.
-- `int tier`. An `int` designed to hold the `tier` of the `Breeder Block`, handles `primary blanket` logic in reactor.
-- `int duration`. An `int` designed to hold the full duration in `ticks` of `fuel` use.
-- `int amount`. An `int` designed to hold the amount of `fuel` used per cycle.
-- `String in`. A `String` designed to handle one fully realized `Forge ID`.
-- `List BlanketOutputs`. A `List` of all the `blanket outputs` and their `weight/instability` fields.
+- `String name`. A `String` designed to hold the registration name of the `Moderator Block`, still needs to follow a-z, 0-9.
+- `int EUBoost`. An `int` designed to hold the amount of `euBoost` of the `Moderator Block`. 
+- `int fuelDiscount`. An `int` designed to hold the amount of `fuelDiscount` of the `Moderator Block`.
+- `int tier`. An `int` designed to hold the `tier` of the `Breeder Block`, handles `primary moderator` logic in reactor.
 - `int tintColor`. Currently, doesn't do anything, just put white.
-
 
 
 

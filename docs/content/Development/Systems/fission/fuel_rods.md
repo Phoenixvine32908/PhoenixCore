@@ -27,21 +27,17 @@ StartupEvents.registry('block', event => {
 ```
 
 
-## Understanding how to actually use the blanket rods
+## Understanding how to actually use the fuel rods
 
-These blocks are designed to go in instances of the `BreederWorkableElectricMultiblockMachine` class, while they can be placed in other multiblocks they will not do anything special.
-Only the highest tier of `Breeder Rod` decides the timer on which inputs are consumed and outputs are given. However, all `Breeder Rods` will still tick for inputs/outputs.
+These blocks are the core of heat and power logic in the fission reactors. Along with coolers, they are two blocks that are necessary for reactors to run.
 
-The primary `Breeder Rod` also is the one chosen to show in the machine ui/jade. While you do not technically need coolers/fuel rods to run a breeder reactor, the reactor will not give power without them. So it is still recommended to encourage their use.
-
-Anything past this point is purely `Java` , meant to teach those who intend to help out with the `Fission` system here.
-You have been warned.
+Fuel is used, and optionally given in the form of depleted fuels if there is output space, per the time chosen on the block registry.
 
 ## Understanding the classes
 
 Now, back to talking about blanket rod blocks.
 
-They are registered in two parts, an interface named `IFissionBlanketType` and a block class named `FissionBlanketBlock`.
+They are registered in two parts, an interface named `IFissionFuelRodType` and a block class named `FissionFuelRodBlock`.
 
 ```java
 package net.phoenix.core.api.block;
@@ -99,15 +95,13 @@ This is the class we define/change first. Everything goes through this interface
 
 - `getName`. This controls the registry name of the `Breeder Block`.
 - `getTintColor`. Correctly not working attempt at `auto tinting` blocks, one day it will be real.
-- `getTier`. This controls the `Tier` of the `Breeder Block`.
-- `getDurationTicks`. This controls the blanket fuel's use in `ticks`.
-- `getAmountPerCycle`. This controls the blanket fuel's use per `duration ticks` cycle.
-- `getInputKey`. This controls the `blanket fuel` itself.
-- `BlanketOutput`. This controls the list of outputs.
-- `getOutputs`. Works togethor with `BlanketOutput` as backwards compat.
-- `getTexture`. Controls the texture used by the `Breeder Block`.
-- `tryResolveMaterial`. Tries to resolve the forge registry fuel as a gtm material.
-- `getMaterial`. Controls the gtm material linked to it, used for some internal names.
+- `neutronBias`.  
+- `getBaseHeatProduction`. 
+- `getFuelKey`. 
+- `getOutputKey`. 
+- `getDurationTicks`. 
+- `getAmountPerCycl`. 
+- `getTexture`.
 
 Then, finally, we have the api call. `ALL_BLANKETS_BY_TIER` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
 

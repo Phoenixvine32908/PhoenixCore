@@ -299,9 +299,7 @@ public class PhoenixMaterials {
 
             if (toolProperty != null && toolProperty.hasType(GTToolType.SCREWDRIVER_LV)) {
                 toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_MV);
-                toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_HV);
                 toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_EV);
-                toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_IV);
                 toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_LuV);
                 toolProperty.addTypes(PhoenixToolType.SCREWDRIVER_ZPM);
             }
@@ -317,9 +315,7 @@ public class PhoenixMaterials {
 
             if (toolProperty != null && toolProperty.hasType(GTToolType.CHAINSAW_LV)) {
                 toolProperty.addTypes(PhoenixToolType.CHAINSAW_MV);
-                toolProperty.addTypes(PhoenixToolType.CHAINSAW_HV);
                 toolProperty.addTypes(PhoenixToolType.CHAINSAW_EV);
-                toolProperty.addTypes(PhoenixToolType.CHAINSAW_IV);
                 toolProperty.addTypes(PhoenixToolType.CHAINSAW_LuV);
                 toolProperty.addTypes(PhoenixToolType.CHAINSAW_ZPM);
             }

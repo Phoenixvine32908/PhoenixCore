@@ -234,7 +234,7 @@ public class PhoenixTeslaMachines {
                                                                     GTRegistrate registrate,
                                                                     String name,
                                                                     BiFunction<IMachineBlockEntity, Integer, MetaMachine> machineFactory,
-                                                                    BiFunction<Integer, MachineBuilder<MachineDefinition>, MachineDefinition> definitionBuilder,
+                                                                    BiFunction<Integer, MachineBuilder<MachineDefinition, ?>, MachineDefinition> definitionBuilder,
                                                                     int... tiers) {
         MachineDefinition[] definitions = new MachineDefinition[GTValues.TIER_COUNT];
 

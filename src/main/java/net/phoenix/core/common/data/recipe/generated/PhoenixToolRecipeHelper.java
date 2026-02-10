@@ -77,8 +77,8 @@ public class PhoenixToolRecipeHelper {
                         'R', steelRing);
 
                 addElectricToolRecipe(provider, toolPrefix,
-                        new GTToolType[] { PhoenixToolType.CHAINSAW_MV, PhoenixToolType.CHAINSAW_HV,
-                                PhoenixToolType.CHAINSAW_EV, PhoenixToolType.CHAINSAW_IV, PhoenixToolType.CHAINSAW_LuV,
+                        new GTToolType[] { PhoenixToolType.CHAINSAW_MV,
+                                PhoenixToolType.CHAINSAW_EV, PhoenixToolType.CHAINSAW_LuV,
                                 PhoenixToolType.CHAINSAW_ZPM, },
                         material);
             }
@@ -150,8 +150,8 @@ public class PhoenixToolRecipeHelper {
             if (material.hasFlag(GENERATE_LONG_ROD)) {
                 toolPrefix = TagPrefix.toolHeadScrewdriver;
                 addElectricToolRecipe(provider, toolPrefix,
-                        new GTToolType[] { PhoenixToolType.SCREWDRIVER_MV, PhoenixToolType.SCREWDRIVER_HV,
-                                PhoenixToolType.SCREWDRIVER_EV, PhoenixToolType.SCREWDRIVER_IV,
+                        new GTToolType[] { PhoenixToolType.SCREWDRIVER_MV,
+                                PhoenixToolType.SCREWDRIVER_EV,
                                 PhoenixToolType.SCREWDRIVER_LuV, PhoenixToolType.SCREWDRIVER_ZPM, },
                         material);
 
