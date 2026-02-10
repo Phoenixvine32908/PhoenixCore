@@ -100,8 +100,8 @@ public class PhoenixResearchMachines {
     }
 
     private static MachineBuilder<MachineDefinition, ?> registerCoolingHPCAPart(String name, String displayName,
-                                                                             Function<IMachineBlockEntity, MetaMachine> constructor,
-                                                                             String texture, boolean isAdvanced) {
+                                                                                Function<IMachineBlockEntity, MetaMachine> constructor,
+                                                                                String texture, boolean isAdvanced) {
         return REGISTRATE.machine(name, constructor)
                 .langValue(displayName)
                 .rotationState(RotationState.ALL)
@@ -115,8 +115,9 @@ public class PhoenixResearchMachines {
     }
 
     private static MachineBuilder<MachineDefinition, ?> registerComputationHPCAPart(String name, String displayName,
-                                                                                 Function<IMachineBlockEntity, MetaMachine> constructor,
-                                                                                 String texture, boolean isAdvanced) {
+                                                                                    Function<IMachineBlockEntity, MetaMachine> constructor,
+                                                                                    String texture,
+                                                                                    boolean isAdvanced) {
         return REGISTRATE.machine(name, constructor)
                 .langValue(displayName)
                 .rotationState(RotationState.ALL)
