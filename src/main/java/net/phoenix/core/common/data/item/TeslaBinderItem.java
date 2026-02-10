@@ -97,7 +97,7 @@ public class TeslaBinderItem extends ComponentItem
                                                                                                        // container,
                                                                                                        // runs.
 
-                CompoundTag tag = itemStack.getOrCreateTag(); // Init of our tag.
+                CompoundTag tag = itemStack.getOrCreateTag();
                 if (tag.hasUUID("TargetTeam")) {
                     UUID teamUUID = tag.getUUID("TargetTeam");
                     TeslaTeamEnergyData data = TeslaTeamEnergyData.get(serverLevel);

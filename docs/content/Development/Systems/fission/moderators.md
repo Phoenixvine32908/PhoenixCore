@@ -25,7 +25,7 @@ StartupEvents.registry("block", event => {
 
 ## Understanding how to actually use the moderators
 
-These blocks are designed to comment the breeder rods as stated above. It is best to design moderators around certain fuel rods, rather than fuel rods around moderators.
+These blocks are designed to complement the fuel rods as stated above. It is best to design moderators around certain fuel rods, rather than fuel rods around moderators.
 
 This is where non-linear paths really shine. Unlike the other components, moderator values are not tied togethor. You can mix and match any values here. 
 
@@ -35,7 +35,7 @@ Or you could give one a big tier, adding a lot more parallel and risk in the exp
 
 ## Understanding the classes
 
-Now, back to talking about blanket rod blocks.
+Now, back to talking about `Moderator Blocks`.
 
 They are registered in two parts, an interface named `IFissionModeratorType` and a block class named `FissionModeratorBlock`.
 
@@ -95,9 +95,9 @@ public interface IFissionModeratorType {
     }
 }
 ```
-This is the class we define/change first. Everything goes through this interface for use in `FissionBlanketBlock` and any other classes using the same logic.
+This is the class we define/change first. Everything goes through this interface for use in `FissionModeratorBlock` and any other classes using the same logic.
 
-- `getName`. This controls the registry name of the `Breeder Block`.
+- `getName`. This controls the registry name of the `Moderator Block`.
 - `getTintColor`. Correctly not working attempt at `auto tinting` blocks, one day it will be real.
 - `getEUBoost`. This controls the amount of `boost` each `Moderator Block` applies to the amount of `EU` given by a running reactor.
 - `getFuelDiscount`. This controls the amount of `fuel discount`  each `Moderator Block` applies to a running reactor.
@@ -223,11 +223,11 @@ Tooltips
 
 Values
 
-- `String name`. A `String` designed to hold the registration name of the `Moderator Block`, still needs to follow a-z, 0-9.
+- `String name`. A `String` designed to hold the registration name of the `Moderator Block`, still needs to follow a-z, 0–9.
 - `int EUBoost`. An `int` designed to hold the amount of `euBoost` of the `Moderator Block`. 
 - `int fuelDiscount`. An `int` designed to hold the amount of `fuelDiscount` of the `Moderator Block`.
-- `int tier`. An `int` designed to hold the `tier` of the `Breeder Block`, handles `primary moderator` logic in reactor.
-- `int tintColor`. Currently, doesn't do anything, just put white.
+- `int tier`. An `int` designed to hold the `tier` of the `Moderator Block`, handles `primary moderator` logic in reactor.
+- `int tintColor`. Currently, doesn't do anything, just put 0xFFFFFF.
 
 
 

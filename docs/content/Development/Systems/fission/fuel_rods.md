@@ -6,7 +6,7 @@ title: Fission Fuel Rods
 # How to add new Fuel Rods and explaining how they are done
 
 ## The Basics
-Blanket rods provide the core values for the `BreederWorkableElectricMultiblockMachine` class to perform breeder operations.
+Blanket rods provide the core values for the `FissionWorkableElectricMultiblockMachine` class to perform `fuel` operations.
 
 If you are a kubejs dev who merely needs to know how to add new `Fuel Rods`, only the first two sections of this page will be useful.
 
@@ -91,19 +91,19 @@ public interface IFissionFuelRodType {
 }
 
 ```
-This is the class we define/change first. Everything goes through this interface for use in `FissionBlanketBlock` and any other classes using the same logic.
+This is the class we define/change first. Everything goes through this interface for use in `FissionFuelRodBlock` and any other classes using the same logic.
 
-- `getName`. This controls the registry name of the `Breeder Block`.
+- `getName`. This controls the registry name of the `Fuel Rod Block`.
 - `getTintColor`. Correctly not working attempt at `auto tinting` blocks, one day it will be real.
-- `neutronBias`.  
-- `getBaseHeatProduction`. 
-- `getFuelKey`. 
-- `getOutputKey`. 
-- `getDurationTicks`. 
-- `getAmountPerCycl`. 
-- `getTexture`.
+- `neutronBias`.  This controls the `bias` of the `Fuel Rod Block`. Does nothing outside of the breeder reactor ecosystem.
+- `getBaseHeatProduction`. This controls the base `heat production` per tick per `Fuel Rod Block`.
+- `getFuelKey`. This controls the `input fuel` of the `Fuel Rod Block`.
+- `getOutputKey`.  This controls the `output fuel` of the `Fuel Rod Block`.
+- `getDurationTicks`. This controls how long it takes for one instance of `fuel` to be used.
+- `getAmountPerCycle`. This controls how much of the `input fuel` is used per cycle. 
+- `getTexture`. This controls the `texture` of the `Fuel Rod Block`.
 
-Then, finally, we have the api call. `ALL_BLANKETS_BY_TIER` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
+Then, finally, we have the api call. `ALL_FUEL_RODS_BY_HEAT` is passed to be stored by the PhoenixAPI class. This allows us to pass every class using this interface to the predicate.
 
 ```java
 package net.phoenix.core.common.block;
@@ -282,20 +282,21 @@ For completeness, we will assume you already know how to make active blocks in t
 Tooltips
 
 - `Shift` to show the full info, helps to keep inventory cleaner.
-- The `fuel` used and the list of output `fuels`.
+- The `fuel` used and the output `fuel`.
 - How often/how much of the input `fuel` is used.
+- The amount of `heat` each `Fuel Rod Block` provides.
+- The `bias` each rod has.
 
 Values
 
 - `String name`. A `String` designed to hold the registration name of the `Breeder Block`, still needs to follow a-z, 0-9.
-- `int tier`. An `int` designed to hold the `tier` of the `Breeder Block`, handles `primary blanket` logic in reactor.
-- `int duration`. An `int` designed to hold the full duration in `ticks` of `fuel` use.
-- `int amount`. An `int` designed to hold the amount of `fuel` used per cycle.
-- `String in`. A `String` designed to handle one fully realized `Forge ID`.
-- `List BlanketOutputs`. A `List` of all the `blanket outputs` and their `weight/instability` fields.
-- `int tintColor`. Currently, doesn't do anything, just put white.
-
-
-
+- `int heat`. 
+- `int tier`. An `int` designed to hold the `tier` of the `Breeder Block`, handles `primary fuel rod` logic in reactor.
+- `int duration`. 
+- `int amount`.
+- `String fuelKey`. A `String` designed to handle one fully realized `Forge ID` for `input fuel`.
+- `String outputKey`. A `String` designed to handle one fully realized `Forge ID` for `output fuel`.
+- `int neutronBias` A `String` designed to handle the `neutronBias` of the `Fuel Rod Block`. Only applies when you also have `Blanket Rod Blocks` in the `BreederWorkableElectricMultiblockMachine`. 
+- `int tintColor`. Currently, doesn't do anything, just put 0xFFFFFF.
 
 

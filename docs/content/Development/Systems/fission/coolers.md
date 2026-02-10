@@ -37,7 +37,7 @@ This also includes different tiers of `Coolers`. They look for coolant inside in
 
 ## Understanding the classes
 
-Now, back to talking about blanket rod blocks.
+Now, back to talking about `Cooler Blocks`.
 
 They are registered in two parts, an interface named `IFissionCoolerType` and a block class named `FissionCoolerBlock`.
 
@@ -106,7 +106,7 @@ public interface IFissionCoolerType {
     }
 }
 ```
-This is the class we define/change first. Everything goes through this interface for use in `FissionBlanketBlock` and any other classes using the same logic.
+This is the class we define/change first. Everything goes through this interface for use in `FissionCoolerBlock` and any other classes using the same logic.
 
 - `getName`. This controls the registry name of the `Cooler Block`.
 - `getTier`. This controls the `Tier` of the `Cooler Block`.
