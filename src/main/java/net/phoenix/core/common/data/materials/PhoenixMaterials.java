@@ -3,14 +3,15 @@ package net.phoenix.core.common.data.materials;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
-import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlag;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
-import com.gregtechceu.gtceu.api.data.chemical.material.properties.*;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
 
-import net.minecraft.resources.ResourceLocation;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.item.tool.PhoenixToolType;
 import net.phoenix.core.common.data.recipe.generated.BeePrefixHelper;
@@ -18,6 +19,7 @@ import net.phoenix.core.common.data.recipe.generated.CrystalRoseHelper;
 
 import static com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty.GasTier.MID;
 import static com.gregtechceu.gtceu.common.data.GTMaterials.*;
+import static net.phoenix.core.common.data.materials.PhoenixMaterialHelpers.*;
 
 public class PhoenixMaterials {
 
@@ -35,165 +37,139 @@ public class PhoenixMaterials {
     public static Material SUGAR_WATER;
     public static Material WAX_MELTING_CATALYST;
     public static Material CRYO_GRAPHITE_BINDING_SOLUTION;
+    public static Material MAGMATIC_MANGANESE_LEAD;
+    public static Material CRYOGENIC_ALUMINUM_STRAND;
+    public static Material ICY_STEEL_MATRIX;
+    public static Material SOURCE_TITANIUM_FILAMENT;
 
-    public record ItemPipeOpts(int priority, int throughput) {}
+    public static Material AKASHIC_ZERONIUM;
+    public static Material AETHERIUM_STEEL;
+    public static Material SUBSPACE_COBALT;
+    public static Material SINGULARITY_FORGED_TITANIUM;
+    public static Material EXOTIC_VANADIUM_COMPOSITE;
+    public static Material DARK_MATTER_PLATED_IRIDIUM;
+    public static Material CORRUPTED_HYPERALLOY;
+    public static Material REALITY_BOUND_OSMIUM;
+    public static Material VOID_STITCHED_NEODYMIUM;
+    public static Material CELESTIAL_AURORIUM;
+    public static Material PRIMORDIAL_FLUX_METAL;
+    public static Material ETERNAL_STARFORGED_STEEL;
+    public static Material DIMENSIONAL_REFLECTION_ALLOY;
+    public static Material TIMEWOVEN_PLATINUM;
+    public static Material SOULBOUND_ETHERSTEEL;
+    public static Material TACHYON_INFUSED_CHROMIUM;
+    public static Material ECHO_CRYSTAL_ALLOY;
+    public static Material NEBULAR_RESONANCE_INGOT;
+    public static Material PARADOXIUM;
+    public static Material PHOENIX_TEMPERED_MITHRIL;
+    public static Material VOID_SUNG_ADAMANTITE;
+    public static Material ENTANGLED_PALLADIUM;
+    public static Material ENTANGLED_NEUTRON_ALLOY;
+    public static Material SUPERPOSITION_TUNGSTEN_MATRIX;
+    public static Material EXO_TEMPORAL_ORICHALCUM;
+    public static Material GALACTIC_HEART_MATTER;
+    public static Material DARK_NEBULA_INFUSED_IRIDIUM;
+    public static Material ELDRITCH_VOIDSTEEL;
+    public static Material AKASHIC_CHRONO_METAL;
+    public static Material ABSOLUTE_ZERO_ZERONIUM;
+    public static Material MULTIVERSAL_HYPERALLOY;
+    public static Material GLITCHED_CORRUPTION_SUBSTRATE;
+    public static Material EVENT_HORIZON_MATTER;
+    public static Material ANTIMATTER;
 
-    public record FluidPipeOpts(int maxTemp,
-                                int throughput,
-                                boolean gasProof,
-                                boolean acidProof,
-                                boolean cryoProof,
-                                boolean plasmaProof) {}
+    public static Material INFINITY;
+    public static Material ZIRCALLOY;
 
+    public static Material FIERY_BRONZE;
+    public static Material AURUM_STEEL;
 
-    public static Material makeIngotMaterialFinal(
-            ResourceLocation id,
-            int color,
-            int secondaryColor,
-            MaterialIconSet iconSet,
-            String langValue,
-            MaterialStack[] components,
-            MaterialFlag... flags
-    ) {
-        return makeIngotMaterial(
-                id,
-                color,
-                secondaryColor,
-                iconSet,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-    }
+    // Java identifier can’t start with a number; keep the KJS id in a comment
+    public static Material MATERIAL_85_PERCENT_PURE_NEVONIAN_STEEL; // "85_percent_pure_nevonian_steel"
 
-    public static Material makeIngotMaterial(ResourceLocation id, int color,
-                                             int secondaryColor,
-                                             MaterialIconSet iconSet,
-                                             String langValue,
-                                             MaterialStack[] components,
-                                             FluidPipeOpts fluidPipeOpts,
-                                             ItemPipeOpts itemPipeOpts,
-                                             MaterialFlag... flags) {
-        Material.Builder b = new Material.Builder(id)
-                .ingot()
-                .color(color)
-                .secondaryColor(secondaryColor)
-                .iconSet(iconSet);
+    public static Material PERMAFROST;
+    public static Material VOID_TOUCHED_TUNGSTEN_STEEL;
+    public static Material RESONANT_RHODIUM_ALLOY;
 
-        if (flags != null && flags.length > 0) {
-            b.flags(flags);
-        }
-        if (langValue != null) {
-            b.langValue(langValue);
-        }
-        if (itemPipeOpts != null) {
-            b.itemPipeProperties(itemPipeOpts.priority(), itemPipeOpts.throughput());
-        }
-        if (itemPipeOpts != null) {
-            b.fluidPipeProperties(fluidPipeOpts.maxTemp(), fluidPipeOpts.throughput(), fluidPipeOpts.gasProof(),
-                    fluidPipeOpts.acidProof(), fluidPipeOpts.cryoProof(), fluidPipeOpts.plasmaProof());
-        }
+    public static Material URANIUM_233;
+    public static Material URANIUM_236;
 
-        if (components != null && components.length > 0) {
-            b.components(components);
-        }
+    public static Material INERT_GAS_WASTE;
+    public static Material IRRADIATED_THORIUM;
+    public static Material SPENT_URANIUM_233;
 
-        return b.buildAndRegister();
-    }
+    public static Material SUPERCRITICAL_CARBON_DIOXIDE;
+    public static Material CRITICAL_STEAM;
 
+    public static Material SPENT_URANIUM_235;
 
-    public static Material makeDustMaterialFinal(String id,
-                                                 int color,
-                                                 int secondaryColor,
-                                                 MaterialIconSet iconSet,
-                                                 MaterialFlag... flags){
-        return makeDustMaterial(
-                id,
-                color,
-                secondaryColor,
-                iconSet,
-                null
-        );
-    }
+    public static Material AURUM_WOOD;
+    public static Material DEPLETED_URANIUM;
 
-    public static Material makeDustMaterial(String id,
-                                            int color,
-                                            int secondaryColor,
-                                            MaterialIconSet iconSet,
-                                            MaterialFlag... flags) {
-        Material.Builder b = new Material.Builder(PhoenixCore.id(id))
-                .dust()
-                .color(color)
-                .secondaryColor(secondaryColor)
-                .iconSet(iconSet);
-        if (flags != null && flags.length > 0) {
-            b.flags(flags);
-        }
-        return b.buildAndRegister();
-    }
+    public static Material HOT_SODIUM_POTASSIUM;
 
-    public static Material makeFluidMaterial(ResourceLocation id,
-                                             int color,
-                                             MaterialIconSet iconSet) {
-        Material.Builder b = new Material.Builder(id)
-                .fluid()
-                .color(color)
-                .iconSet(iconSet);
+    public static Material AMERICIUM_241;
+    public static Material AMERICIUM_HEXAFLUORIDE;
 
-        return b.buildAndRegister();
-    }
+    public static Material URANIUM_OXIDE;
+    public static Material SUCROSE;
+    public static Material FRUCTOSE;
+    public static Material GLUCOSE;
+    public static Material PEANUT_BUTTER;
+    public static Material CREAM;
+
+    public static Material AMMONIUM_BISULFATE;
+    public static Material PROTEIN_SOLUTION;
+
+    public static Material CRYO_ZIRCONIUM_BINDING_SOLUTION;
+    public static Material HONEY_CATALYST;
+    public static Material AMMONIUM_PERSULFATE;
+    public static Material MOLASSES;
+
+    public static Material PEANUT;
+
+    public static Material SKIM_MILK;
+    public static Material ACETONE_CYANOHYDRIN;
+    public static Material INVERT_SUGAR_SOLUTION;
+    public static Material AMMONIUM_BISULFATE_SOLUTION;
+    public static Material HONEY_COMB_BASE_MIXTURE;
+
+    public static Material AMINO_ACIDS;
+    public static Material POLLEN_CONCENTRATE_FLUID;
+
+    public static Material POLYMETHYL_METHACRYLATE;
+    public static Material METHYL_METHACRYLATE;
+
+    public static Material CONCENTRATED_SULFURIC_ACID;
+    public static Material OLEUM;
 
     public static void register() {
-        makeDustMaterial(("dance"), 0xFFFFF0, 0xFFFFF0, PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL);
-        /*
-         * 
-         * event.create("resonant_rhodium_alloy")
-         * .ingot()
-         * .liquid(4100)
-         * .color(0xe245f8)
-         * .secondaryColor(0xA345B0)
-         * .iconSet("metallic")
-         * .fluidPipeProperties(2000, 600, true, true, false, false)
-         * .components("3x rhodium", "4x palladium", "polarity_flipped_bismuthite", "4x cerium")
-         * .blastTemp(4200, "high", GTValues.VA[GTValues.IV], 2400)
-         * .flags(
-         * GTMaterialFlags.GENERATE_PLATE,
-         * GTMaterialFlags.GENERATE_RING,
-         * GTMaterialFlags.PHOSPHORESCENT,
-         * GTMaterialFlags.GENERATE_ROD,
-         * GTMaterialFlags.GENERATE_LONG_ROD,
-         * GTMaterialFlags.GENERATE_GEAR,
-         * GTMaterialFlags.GENERATE_SMALL_GEAR,
-         * GTMaterialFlags.GENERATE_BOLT_SCREW,
-         * GTMaterialFlags.GENERATE_FRAME,
-         * GTMaterialFlags.GENERATE_DENSE,
-         * GTMaterialFlags.GENERATE_ROTOR
-         * );
-         * event.create("void_touched_tungsten_steel")
-         * .ingot()
-         * .liquid(new $FluidBuilder().block().temperature(3100))
-         * .fluidPipeProperties(3800, 250, true, true, true, true)
-         * .color(0x4B0082)
-         * .secondaryColor(0x000000)
-         * .iconSet("metallic")
-         * .components("4x tungsten", "4x voidglass_shard", "2x molybdenum")
-         * .blastTemp(4200, "mid", GTValues.VA[GTValues.EV], 1000)
-         * .flags(
-         * GTMaterialFlags.GENERATE_PLATE,
-         * GTMaterialFlags.GENERATE_RING,
-         * GTMaterialFlags.PHOSPHORESCENT,
-         * GTMaterialFlags.GENERATE_ROD,
-         * GTMaterialFlags.GENERATE_LONG_ROD,
-         * GTMaterialFlags.GENERATE_BOLT_SCREW,
-         * GTMaterialFlags.GENERATE_FRAME,
-         * GTMaterialFlags.GENERATE_GEAR,
-         * GTMaterialFlags.GENERATE_SMALL_GEAR,
-         * GTMaterialFlags.GENERATE_DENSE,
-         * GTMaterialFlags.GENERATE_ROTOR
-         * );
-         */
+        AMERICIUM_HEXAFLUORIDE = makeGasMaterialFinal("americium_hexafluoride", 0xFFFFFF, 0xADD8E6,
+                MaterialIconSet.DULL);
+        URANIUM_OXIDE = makeFluidMaterialFinal("uranium_oxide", 0x00FF00, 0x000000, MaterialIconSet.DULL);
+        SUCROSE = makeFluidMaterialFinal("sucrose", 0xF8F8F8, -1, MaterialIconSet.DULL);
+        RESONANT_RHODIUM_ALLOY = makeIngotWithFluidMaterialFinal("resonant_rhodium_alloy",
+                0xE245F8,
+                0xA345B0,
+                MaterialIconSet.METALLIC,
+                "Resonant Rhodium Alloy",
+                new MaterialStack[] {
+                        new MaterialStack(GTMaterials.Rhodium, 3),
+                        new MaterialStack(GTMaterials.Palladium, 4),
+                        new MaterialStack(GTMaterials.get("polarity_flipped_bismuthite"), 1),
+                        new MaterialStack(GTMaterials.Cerium, 4)
+                },
+                MaterialFlags.GENERATE_PLATE,
+                MaterialFlags.GENERATE_RING,
+                MaterialFlags.PHOSPHORESCENT,
+                MaterialFlags.GENERATE_ROD,
+                MaterialFlags.GENERATE_LONG_ROD,
+                MaterialFlags.GENERATE_GEAR,
+                MaterialFlags.GENERATE_SMALL_GEAR,
+                MaterialFlags.GENERATE_BOLT_SCREW,
+                MaterialFlags.GENERATE_FRAME,
+                MaterialFlags.GENERATE_DENSE,
+                MaterialFlags.GENERATE_ROTOR);
+
         SUGAR_WATER = new Material.Builder(
                 PhoenixCore.id("sugar_water"))
                 .fluid()

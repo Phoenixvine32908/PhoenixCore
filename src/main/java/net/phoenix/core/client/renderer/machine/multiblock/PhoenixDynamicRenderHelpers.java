@@ -6,11 +6,6 @@ import net.phoenix.core.client.renderer.machine.*;
 
 public class PhoenixDynamicRenderHelpers {
 
-    // NEW: Standalone Black Hole Renderer
-    public static DynamicRender<?, ?> getBlackHoleRenderer() {
-        return BlackHoleRenderer.INSTANCE;
-    }
-
     public static DynamicRender<?, ?> getEyeOfHarmonyRender() {
         return EyeOfHarmonyRender.INSTANCE;
     }

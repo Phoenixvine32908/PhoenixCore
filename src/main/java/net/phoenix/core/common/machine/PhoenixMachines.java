@@ -386,8 +386,7 @@ public class PhoenixMachines {
                     // Replace the fusion casing texture with your Tesla Casing texture
                     new ResourceLocation(PhoenixCore.MOD_ID, "block/casings/multiblock/tesla_casing"),
                     // Keep the fusion reactor overlay (or change to your own)
-                    GTCEu.id("block/multiblock/fusion_reactor"))
-                    .andThen(b -> b.addDynamicRenderer(PhoenixDynamicRenderHelpers::getBlackHoleRenderer)))
+                    GTCEu.id("block/multiblock/fusion_reactor")))
             .hasBER(true)
             .register();
 

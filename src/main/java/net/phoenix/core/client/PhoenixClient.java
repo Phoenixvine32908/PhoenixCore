@@ -23,7 +23,6 @@ public class PhoenixClient {
     private PhoenixClient() {}
 
     public static void init(IEventBus modBus) {
-        DynamicRenderManager.register(PhoenixCore.id("black_hole"), BlackHoleRenderer.TYPE); // Add this
         DynamicRenderManager.register(PhoenixCore.id("eye_of_harmony"), EyeOfHarmonyRender.TYPE);
         DynamicRenderManager.register(PhoenixCore.id("artificial_star"), ArtificialStarRender.TYPE);
         DynamicRenderManager.register(PhoenixCore.id("plasma_arc_furnace"), PlasmaArcFurnaceRender.TYPE);
