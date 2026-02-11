@@ -2,11 +2,16 @@ package net.phoenix.core.common.machine;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.block.MetaMachineBlock;
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.data.RotationState;
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
+import com.gregtechceu.gtceu.api.data.chemical.material.Material;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.FluidPipeProperties;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
+import com.gregtechceu.gtceu.api.item.DrumMachineItem;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -22,9 +27,12 @@ import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.common.data.*;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
+import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionReactorMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.FluidHatchPartMachine;
+import com.gregtechceu.gtceu.common.machine.storage.CrateMachine;
+import com.gregtechceu.gtceu.common.machine.storage.DrumMachine;
 import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
 import com.gregtechceu.gtceu.integration.kjs.helpers.MachineModifiers;
@@ -35,6 +43,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.machine.PhoenixPartAbility;
@@ -49,6 +58,7 @@ import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
 import net.phoenix.core.common.machine.multiblock.part.fluid.PlasmaHatchPartMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.ShieldSensorHatchPartMachine;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
+import net.phoenix.core.common.registry.PhoenixRegistration;
 import net.phoenix.core.configs.PhoenixConfigs;
 import net.phoenix.core.datagen.models.PhoenixMachineModels;
 
@@ -62,7 +72,7 @@ import static com.gregtechceu.gtceu.api.machine.property.GTMachineModelPropertie
 import static com.gregtechceu.gtceu.api.pattern.Predicates.*;
 import static com.gregtechceu.gtceu.common.data.GTBlocks.*;
 import static com.gregtechceu.gtceu.common.data.GTRecipeModifiers.BATCH_MODE;
-import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.ELECTRIC_TIERS;
+import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.*;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
 import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_INPUT;
 import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_OUTPUT;
@@ -201,6 +211,87 @@ public class PhoenixMachines {
         }
         return definitions;
     }
+
+    public static MachineDefinition registerDrum(Material material, int capacity, String lang) {
+        return registerDrum(PhoenixRegistration.REGISTRATE, material, capacity, lang);
+    }
+
+    public static MachineDefinition registerDrum(GTRegistrate registrate, Material material, int capacity,
+                                                 String lang) {
+        boolean wooden = material.hasProperty(PropertyKey.WOOD);
+        var definition = registrate
+                .machine(material.getName() + "_drum", MachineDefinition::new,
+                        holder -> new DrumMachine(holder, material, capacity), MetaMachineBlock::new,
+                        (holder, prop) -> DrumMachineItem.create(holder, prop, material),
+                        MetaMachineBlockEntity::new)
+                .langValue(lang)
+                .rotationState(RotationState.NONE)
+                .simpleModel(GTCEu.id("block/machine/template/drum/" + (wooden ? "wooden" : "metal") + "_drum"))
+                .tooltipBuilder((stack, list) -> {
+                    TANK_TOOLTIPS.accept(stack, list);
+                    if (material.hasProperty(PropertyKey.FLUID_PIPE)) {
+                        FluidPipeProperties pipeprops = material.getProperty(PropertyKey.FLUID_PIPE);
+                        pipeprops.appendTooltips(list, false, true);
+                    }
+                })
+                .tooltips(Component.translatable("gtceu.machine.quantum_tank.tooltip"),
+                        Component.translatable("gtceu.universal.tooltip.fluid_storage_capacity",
+                                FormattingUtil.formatNumbers(capacity)))
+                .paintingColor(wooden ? 0xFFFFFF : material.getMaterialRGB())
+                .itemColor((s, i) -> wooden ? 0xFFFFFF : material.getMaterialRGB())
+                .register();
+        DRUM_CAPACITY.put(definition, capacity);
+        return definition;
+    }
+
+    public static MachineDefinition registerCrate(Material material, int capacity, String lang) {
+        return registerCrate(PhoenixRegistration.REGISTRATE, material, capacity, lang);
+    }
+
+    public static MachineDefinition registerCrate(GTRegistrate registrate, Material material, int capacity,
+                                                  String lang) {
+        final boolean wooden = material.hasProperty(PropertyKey.WOOD);
+
+        return registrate.machine(material.getName() + "_crate", holder -> new CrateMachine(holder, material, capacity))
+                .langValue(lang)
+                .rotationState(RotationState.NONE)
+                .tooltips(Component.translatable("gtceu.universal.tooltip.item_storage_capacity", capacity))
+                .modelProperty(GTMachineModelProperties.IS_TAPED, false)
+                .model(GTMachineModels.createCrateModel(wooden))
+                .paintingColor(wooden ? 0xFFFFFF : material.getMaterialRGB())
+                .itemColor((s, t) -> wooden ? 0xFFFFFF : material.getMaterialRGB())
+                .register();
+    }
+
+    public static MachineDefinition ALUMINFROST_DRUM = registerDrum(PhoenixMaterials.ALUMINFROST,
+            (160 * FluidType.BUCKET_VOLUME),
+            "Aluminfrost Drum");
+    // public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_DRUM = registerDrum(PhoenixMaterials.ALUMINFROST,
+    // (350 * FluidType.BUCKET_VOLUME),
+    // "Aluminfrost Drum");
+    public static MachineDefinition SOURCE_IMBUED_TITANIUM_DRUM = registerDrum(PhoenixMaterials.SOURCE_IMBUED_TITANIUM,
+            (750 * FluidType.BUCKET_VOLUME),
+            "Source Imbued Titanium Drum");
+    // public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_DRUM = registerDrum(PhoenixMaterials.ALUMINFROST,
+    // (1300 * FluidType.BUCKET_VOLUME),
+    // "Aluminfrost Drum");
+    // public static MachineDefinition RESONANT_RHODIUM_ALLOY = registerDrum(PhoenixMaterials.RESONANT_RHODIUM_ALLOY,
+    // (2300 * FluidType.BUCKET_VOLUME),
+    // "Aluminfrost Drum");
+    public static MachineDefinition ALUMINFROST_CRATE = registerCrate(PhoenixMaterials.ALUMINFROST, 100,
+            "Aluminfrost Crate");
+    // public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_CRATE =
+    // registerCrate(PhoenixMaterials.FROST_REINFORCED_STAINED_STEEL, 116,
+    // "Frost Reinforced Stained Steel Crate");
+    public static MachineDefinition SOURCE_IMBUED_TITANIUM_CRATE = registerCrate(
+            PhoenixMaterials.SOURCE_IMBUED_TITANIUM, 140,
+            "Source Imbued Titanium Crate");
+    // public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_CRATE =
+    // registerCrate(PhoenixMaterials.VOID_TOUCHED_TUNGSTEN_STEEL, 160,
+    // "Void Touched Tungsten Steel Crate");
+    // public static MachineDefinition RESONANT_RHODIUM_ALLOY_CRATE =
+    // registerCrate(PhoenixMaterials.RESONANT_RHODIUM_ALLOY_, 200,
+    // "Resonant Rhodium Alloy Crate");
 
     public static MachineDefinition SHIELD_INTEGRITY_SENSOR_HATCH = REGISTRATE
             .machine("shield_stability_sensor_hatch", ShieldSensorHatchPartMachine::new)

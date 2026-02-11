@@ -3,13 +3,14 @@ package net.phoenix.core.common.data.materials;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
+import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlag;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
-import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty;
-import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
-import com.gregtechceu.gtceu.api.data.chemical.material.properties.ToolProperty;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.*;
+import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
 
+import net.minecraft.resources.ResourceLocation;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.api.item.tool.PhoenixToolType;
 import net.phoenix.core.common.data.recipe.generated.BeePrefixHelper;
@@ -25,7 +26,7 @@ public class PhoenixMaterials {
     public static Material PHOENIX_ENRICHED_TRITANIUM;
     public static Material PHOENIX_ENRICHED_NAQUADAH;
     public static Material ALUMINFROST;
-    public static Material SOURCE_OF_MAGIC; // Showtime, Fire!
+    public static Material SOURCE_OF_MAGIC;
     public static Material SOURCE_IMBUED_TITANIUM;
     public static Material EightyFivePercentPureNevonianSteel;
     public static Material FROST;
@@ -35,7 +36,164 @@ public class PhoenixMaterials {
     public static Material WAX_MELTING_CATALYST;
     public static Material CRYO_GRAPHITE_BINDING_SOLUTION;
 
+    public record ItemPipeOpts(int priority, int throughput) {}
+
+    public record FluidPipeOpts(int maxTemp,
+                                int throughput,
+                                boolean gasProof,
+                                boolean acidProof,
+                                boolean cryoProof,
+                                boolean plasmaProof) {}
+
+
+    public static Material makeIngotMaterialFinal(
+            ResourceLocation id,
+            int color,
+            int secondaryColor,
+            MaterialIconSet iconSet,
+            String langValue,
+            MaterialStack[] components,
+            MaterialFlag... flags
+    ) {
+        return makeIngotMaterial(
+                id,
+                color,
+                secondaryColor,
+                iconSet,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    public static Material makeIngotMaterial(ResourceLocation id, int color,
+                                             int secondaryColor,
+                                             MaterialIconSet iconSet,
+                                             String langValue,
+                                             MaterialStack[] components,
+                                             FluidPipeOpts fluidPipeOpts,
+                                             ItemPipeOpts itemPipeOpts,
+                                             MaterialFlag... flags) {
+        Material.Builder b = new Material.Builder(id)
+                .ingot()
+                .color(color)
+                .secondaryColor(secondaryColor)
+                .iconSet(iconSet);
+
+        if (flags != null && flags.length > 0) {
+            b.flags(flags);
+        }
+        if (langValue != null) {
+            b.langValue(langValue);
+        }
+        if (itemPipeOpts != null) {
+            b.itemPipeProperties(itemPipeOpts.priority(), itemPipeOpts.throughput());
+        }
+        if (itemPipeOpts != null) {
+            b.fluidPipeProperties(fluidPipeOpts.maxTemp(), fluidPipeOpts.throughput(), fluidPipeOpts.gasProof(),
+                    fluidPipeOpts.acidProof(), fluidPipeOpts.cryoProof(), fluidPipeOpts.plasmaProof());
+        }
+
+        if (components != null && components.length > 0) {
+            b.components(components);
+        }
+
+        return b.buildAndRegister();
+    }
+
+
+    public static Material makeDustMaterialFinal(String id,
+                                                 int color,
+                                                 int secondaryColor,
+                                                 MaterialIconSet iconSet,
+                                                 MaterialFlag... flags){
+        return makeDustMaterial(
+                id,
+                color,
+                secondaryColor,
+                iconSet,
+                null
+        );
+    }
+
+    public static Material makeDustMaterial(String id,
+                                            int color,
+                                            int secondaryColor,
+                                            MaterialIconSet iconSet,
+                                            MaterialFlag... flags) {
+        Material.Builder b = new Material.Builder(PhoenixCore.id(id))
+                .dust()
+                .color(color)
+                .secondaryColor(secondaryColor)
+                .iconSet(iconSet);
+        if (flags != null && flags.length > 0) {
+            b.flags(flags);
+        }
+        return b.buildAndRegister();
+    }
+
+    public static Material makeFluidMaterial(ResourceLocation id,
+                                             int color,
+                                             MaterialIconSet iconSet) {
+        Material.Builder b = new Material.Builder(id)
+                .fluid()
+                .color(color)
+                .iconSet(iconSet);
+
+        return b.buildAndRegister();
+    }
+
     public static void register() {
+        makeDustMaterial(("dance"), 0xFFFFF0, 0xFFFFF0, PhoenixMaterialSet.ALMOST_PURE_NEVONIAN_STEEL);
+        /*
+         * 
+         * event.create("resonant_rhodium_alloy")
+         * .ingot()
+         * .liquid(4100)
+         * .color(0xe245f8)
+         * .secondaryColor(0xA345B0)
+         * .iconSet("metallic")
+         * .fluidPipeProperties(2000, 600, true, true, false, false)
+         * .components("3x rhodium", "4x palladium", "polarity_flipped_bismuthite", "4x cerium")
+         * .blastTemp(4200, "high", GTValues.VA[GTValues.IV], 2400)
+         * .flags(
+         * GTMaterialFlags.GENERATE_PLATE,
+         * GTMaterialFlags.GENERATE_RING,
+         * GTMaterialFlags.PHOSPHORESCENT,
+         * GTMaterialFlags.GENERATE_ROD,
+         * GTMaterialFlags.GENERATE_LONG_ROD,
+         * GTMaterialFlags.GENERATE_GEAR,
+         * GTMaterialFlags.GENERATE_SMALL_GEAR,
+         * GTMaterialFlags.GENERATE_BOLT_SCREW,
+         * GTMaterialFlags.GENERATE_FRAME,
+         * GTMaterialFlags.GENERATE_DENSE,
+         * GTMaterialFlags.GENERATE_ROTOR
+         * );
+         * event.create("void_touched_tungsten_steel")
+         * .ingot()
+         * .liquid(new $FluidBuilder().block().temperature(3100))
+         * .fluidPipeProperties(3800, 250, true, true, true, true)
+         * .color(0x4B0082)
+         * .secondaryColor(0x000000)
+         * .iconSet("metallic")
+         * .components("4x tungsten", "4x voidglass_shard", "2x molybdenum")
+         * .blastTemp(4200, "mid", GTValues.VA[GTValues.EV], 1000)
+         * .flags(
+         * GTMaterialFlags.GENERATE_PLATE,
+         * GTMaterialFlags.GENERATE_RING,
+         * GTMaterialFlags.PHOSPHORESCENT,
+         * GTMaterialFlags.GENERATE_ROD,
+         * GTMaterialFlags.GENERATE_LONG_ROD,
+         * GTMaterialFlags.GENERATE_BOLT_SCREW,
+         * GTMaterialFlags.GENERATE_FRAME,
+         * GTMaterialFlags.GENERATE_GEAR,
+         * GTMaterialFlags.GENERATE_SMALL_GEAR,
+         * GTMaterialFlags.GENERATE_DENSE,
+         * GTMaterialFlags.GENERATE_ROTOR
+         * );
+         */
         SUGAR_WATER = new Material.Builder(
                 PhoenixCore.id("sugar_water"))
                 .fluid()

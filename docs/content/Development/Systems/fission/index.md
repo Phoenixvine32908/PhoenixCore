@@ -65,7 +65,7 @@ title: Fission System Index
 - Ofc, we have jade provider, that shows heat, eu, amount of moderators/fuel rods/coolers, total cooling power available, and parallels. 
 - Machine ui is pretty similar.
 - Rewards players who want to reprocess the hot coolants/depleted fuels. The way this is all designed allows a lot of modularity. 
-- How powerful a reactor is, is defined by the actual multiblock size (placement of the reactor componets) as well as the stats of the blocks themselves.
+- How powerful a reactor is, is defined by the actual multiblock size (placement of the reactor components) as well as the stats of the blocks themselves.
 - Everything is possible to do through kjs. 
 - Any future lines will be more reprocessing of the materials obtained. I wonder how players will handle the optional depleted fuels and the hot coolants.
 - Also nuke: nuke is fun, nuke is boom, we should have nuke.
