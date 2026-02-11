@@ -8,8 +8,8 @@ import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
 
 import net.phoenix.core.PhoenixCore;
 
-import static net.phoenix.core.common.data.materials.PhoenixMaterialHelpers.makeIngotWithFluidMaterial;
 
+@SuppressWarnings("All")
 public class PhoenixMaterialHelpers {
 
     public record ItemPipeOpts(int priority, int throughput) {}
