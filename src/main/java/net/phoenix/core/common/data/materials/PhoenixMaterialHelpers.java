@@ -8,7 +8,6 @@ import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
 
 import net.phoenix.core.PhoenixCore;
 
-
 @SuppressWarnings("All")
 public class PhoenixMaterialHelpers {
 
@@ -22,7 +21,7 @@ public class PhoenixMaterialHelpers {
                                 boolean plasmaProof) {}
 
     public record BlastTempOpts(int temp,
-                                BlastProperty blastProperty,
+                                BlastProperty.GasTier blastProperty,
                                 int EUt,
                                 int duration) {}
 
@@ -32,15 +31,16 @@ public class PhoenixMaterialHelpers {
                                                            int secondaryColor,
                                                            MaterialIconSet iconSet,
                                                            String langValue,
-                                                           MaterialStack[] components,
+                                                           MaterialStack[] materialStacks,
                                                            MaterialFlag... flags) {
         return makeIngotWithFluidMaterial(
                 id,
                 color,
-                -1,
+                secondaryColor,
                 iconSet,
                 langValue,
-                components,
+                null,
+                materialStacks,
                 null,
                 null,
                 null,
@@ -53,6 +53,7 @@ public class PhoenixMaterialHelpers {
                                                       int secondaryColor,
                                                       MaterialIconSet iconSet,
                                                       String langValue,
+                                                      String formula,
                                                       MaterialStack[] components,
                                                       FluidPipeOpts fluidPipeOpts,
                                                       ItemPipeOpts itemPipeOpts,
@@ -60,6 +61,7 @@ public class PhoenixMaterialHelpers {
                                                       MaterialFlag... flags) {
         Material.Builder b = new Material.Builder(PhoenixCore.id(id))
                 .ingot()
+                .fluid()
                 .color(color)
                 .iconSet(iconSet);
 
@@ -71,6 +73,9 @@ public class PhoenixMaterialHelpers {
         }
         if (langValue != null) {
             b.langValue(langValue);
+        }
+        if (formula != null && !formula.isBlank()) {
+            b.formula(formula);
         }
         if (itemPipeOpts != null) {
             b.itemPipeProperties(itemPipeOpts.priority(), itemPipeOpts.throughput());
@@ -87,12 +92,12 @@ public class PhoenixMaterialHelpers {
         if (blastTempOpts != null) {
             b.blastTemp(
                     blastTempOpts.temp(),
-                    blastTempOpts.blastProperty.getGasTier(),
+                    blastTempOpts.blastProperty,
                     blastTempOpts.EUt(),
                     blastTempOpts.duration());
         }
         if (components != null && components.length > 0) {
-            b.components(components);
+            b.componentStacks(components);
         }
 
         return b.buildAndRegister();
@@ -112,11 +117,11 @@ public class PhoenixMaterialHelpers {
                 -1,
                 iconSet,
                 langValue,
-                components,
                 null,
                 null,
                 null,
-                flags);
+                null,
+                null);
     }
 
     public static Material makePolymerMaterial(
@@ -161,12 +166,12 @@ public class PhoenixMaterialHelpers {
         if (blastTempOpts != null) {
             b.blastTemp(
                     blastTempOpts.temp(),
-                    blastTempOpts.blastProperty.getGasTier(),
+                    blastTempOpts.blastProperty,
                     blastTempOpts.EUt(),
                     blastTempOpts.duration());
         }
         if (components != null && components.length > 0) {
-            b.components(components);
+            b.componentStacks(components);
         }
 
         return b.buildAndRegister();
@@ -190,7 +195,7 @@ public class PhoenixMaterialHelpers {
                 null,
                 null,
                 null,
-                flags);
+                null);
     }
 
     public static Material makeIngotMaterial(String id, int color,
@@ -225,12 +230,12 @@ public class PhoenixMaterialHelpers {
                     fluidPipeOpts.acidProof(), fluidPipeOpts.cryoProof(), fluidPipeOpts.plasmaProof());
         }
         if (blastTempOpts != null) {
-            b.blastTemp(blastTempOpts.temp(), blastTempOpts.blastProperty.getGasTier(), blastTempOpts.EUt(),
+            b.blastTemp(blastTempOpts.temp(), blastTempOpts.blastProperty, blastTempOpts.EUt(),
                     blastTempOpts.duration());
         }
 
         if (components != null && components.length > 0) {
-            b.components(components);
+            b.componentStacks(components);
         }
 
         return b.buildAndRegister();
@@ -240,12 +245,14 @@ public class PhoenixMaterialHelpers {
                                                  int color,
                                                  int secondaryColor,
                                                  MaterialIconSet iconSet,
+                                                 MaterialStack[] components,
                                                  MaterialFlag... flags) {
         return makeDustMaterial(
                 id,
                 color,
                 -1,
                 iconSet,
+                null,
                 null);
     }
 
@@ -253,6 +260,7 @@ public class PhoenixMaterialHelpers {
                                             int color,
                                             int secondaryColor,
                                             MaterialIconSet iconSet,
+                                            MaterialStack[] componenets,
                                             MaterialFlag... flags) {
         Material.Builder b = new Material.Builder(PhoenixCore.id(id))
                 .dust()
@@ -271,12 +279,14 @@ public class PhoenixMaterialHelpers {
                                                           int color,
                                                           int secondaryColor,
                                                           MaterialIconSet iconSet,
+                                                          MaterialStack[] componets,
                                                           MaterialFlag... flags) {
-        return makeDustMaterial(
+        return makeDustWithFluidMaterial(
                 id,
                 color,
                 -1,
                 iconSet,
+                null,
                 null);
     }
 
@@ -284,6 +294,7 @@ public class PhoenixMaterialHelpers {
                                                      int color,
                                                      int secondaryColor,
                                                      MaterialIconSet iconSet,
+                                                     MaterialStack[] components,
                                                      MaterialFlag... flags) {
         Material.Builder b = new Material.Builder(PhoenixCore.id(id))
                 .dust()
@@ -296,6 +307,9 @@ public class PhoenixMaterialHelpers {
         if (secondaryColor != -1) {
             b.secondaryColor(secondaryColor);
         }
+        if (components != null && components.length > 0) {
+            b.componentStacks(components);
+        }
         return b.buildAndRegister();
     }
 
@@ -303,19 +317,22 @@ public class PhoenixMaterialHelpers {
                                                   int color,
                                                   int secondaryColor,
                                                   MaterialIconSet iconSet,
+                                                  MaterialStack[] components,
                                                   MaterialFlag... flags) {
         return makeFluidMaterial(
                 id,
                 color,
                 -1,
                 iconSet,
-                flags);
+                null,
+                null);
     }
 
     public static Material makeFluidMaterial(String id,
                                              int color,
                                              int secondaryColor,
                                              MaterialIconSet iconSet,
+                                             MaterialStack[] components,
                                              MaterialFlag... flags) {
         Material.Builder b = new Material.Builder(PhoenixCore.id(id))
                 .fluid()
@@ -328,19 +345,25 @@ public class PhoenixMaterialHelpers {
         if (secondaryColor != -1) {
             b.secondaryColor(secondaryColor);
         }
+        if (components != null && components.length > 0) {
+            b.componentStacks(components);
+        }
         return b.buildAndRegister();
     }
 
-    public static Material makeGasMaterialFinal(String id,
+    public static Material makeGasMaterialFinal(
+                                                String id,
                                                 int color,
                                                 int secondaryColor,
                                                 MaterialIconSet iconSet,
+                                                MaterialStack[] components,
                                                 MaterialFlag... flags) {
         return makeGasMaterial(
                 id,
                 color,
-                -1,
+                secondaryColor,
                 iconSet,
+                components,
                 flags);
     }
 
@@ -348,6 +371,7 @@ public class PhoenixMaterialHelpers {
                                            int color,
                                            int secondaryColor,
                                            MaterialIconSet iconSet,
+                                           MaterialStack[] components,
                                            MaterialFlag... flags) {
         Material.Builder b = new Material.Builder(PhoenixCore.id(id))
                 .gas()
@@ -359,6 +383,9 @@ public class PhoenixMaterialHelpers {
         }
         if (secondaryColor != -1) {
             b.secondaryColor(secondaryColor);
+        }
+        if (components != null && components.length > 0) {
+            b.componentStacks(components);
         }
 
         return b.buildAndRegister();

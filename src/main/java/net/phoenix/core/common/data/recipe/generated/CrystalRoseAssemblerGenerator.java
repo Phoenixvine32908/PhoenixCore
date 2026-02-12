@@ -17,6 +17,8 @@ import net.phoenix.core.common.data.materials.PhoenixMaterials;
 
 import java.util.function.Consumer;
 
+import static net.phoenix.core.common.data.materials.PhoenixPolymerMaterials.CRYO_GRAPHITE_BINDING_SOLUTION;
+
 public class CrystalRoseAssemblerGenerator {
 
     public static void generateCrystalRoseRecipes(Consumer<FinishedRecipe> provider) {
@@ -35,7 +37,7 @@ public class CrystalRoseAssemblerGenerator {
             ItemStack roseStack = ChemicalHelper.get(PhoenixMaterialFlags.crystal_rose, material, 1);
             if (roseStack.isEmpty()) return;
 
-            FluidStack crystalRoseFluid = PhoenixMaterials.CRYO_GRAPHITE_BINDING_SOLUTION.getFluid(144);
+            FluidStack crystalRoseFluid = CRYO_GRAPHITE_BINDING_SOLUTION.getFluid(144);
 
             GTRecipeBuilder builder = GTRecipeTypes.ASSEMBLER_RECIPES.recipeBuilder(
                     "phoenixcore:crystal_rose_" + material.getName())

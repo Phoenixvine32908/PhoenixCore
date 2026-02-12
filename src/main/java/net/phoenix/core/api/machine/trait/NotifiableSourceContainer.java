@@ -26,10 +26,10 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
 
     @Persisted
     @DescSynced
-    private int currentSource;
+    private long currentSource;
 
     @Persisted
-    private int maxSource;
+    private long maxSource;
 
     @Persisted
     private int maxConsumption;
@@ -53,11 +53,11 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
         int remaining = left.stream().reduce(0, Integer::sum);
 
         if (io == IO.IN) {
-            int extracted = Math.min(remaining, currentSource);
+            int extracted = Math.toIntExact(Math.min(remaining, currentSource));
             if (!simulate) removeSource(extracted);
             remaining -= extracted;
         } else if (io == IO.OUT) {
-            int inserted = Math.min(remaining, maxSource - currentSource);
+            int inserted = Math.toIntExact(Math.min(remaining, maxSource - currentSource));
             if (!simulate) addSource(inserted);
             remaining -= inserted;
         }
@@ -92,12 +92,12 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
 
     @Override
     public int getSource() {
-        return currentSource;
+        return Math.toIntExact(currentSource);
     }
 
     @Override
     public int getMaxSource() {
-        return maxSource;
+        return Math.toIntExact(maxSource);
     }
 
     @Override
@@ -109,12 +109,12 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
     public int setSource(int source) {
         this.currentSource = Math.min(source, maxSource);
         notifyListeners();
-        return this.currentSource;
+        return Math.toIntExact(this.currentSource);
     }
 
     @Override
     public int addSource(int amount) {
-        int inserted = Math.min(amount, maxSource - currentSource);
+        int inserted = Math.toIntExact(Math.min(amount, maxSource - currentSource));
         currentSource += inserted;
         notifyListeners();
         return inserted;
@@ -122,7 +122,7 @@ public class NotifiableSourceContainer extends NotifiableRecipeHandlerTrait<Inte
 
     @Override
     public int removeSource(int amount) {
-        int extracted = Math.min(amount, currentSource);
+        int extracted = Math.toIntExact(Math.min(amount, currentSource));
         currentSource -= extracted;
         notifyListeners();
         return extracted;

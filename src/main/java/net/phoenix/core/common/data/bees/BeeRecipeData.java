@@ -12,13 +12,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static net.phoenix.core.common.data.materials.PhoenixBeeMaterials.SUGAR_WATER;
+
 @SuppressWarnings("All")
 public class BeeRecipeData {
 
     public static final String MOD_ID = "phoenixcore";
     public static final int FINAL_HONEY_OUTPUT_AMOUNT = 250;
 
-    public static final Material SUGAR_WATER_MATERIAL = PhoenixMaterials.SUGAR_WATER;
+    public static final Material SUGAR_WATER_MATERIAL = SUGAR_WATER;
     public static final int SUGAR_WATER_AMOUNT = 100;
     public static final String HONEY_FLUID = "gtceu:honey";
 

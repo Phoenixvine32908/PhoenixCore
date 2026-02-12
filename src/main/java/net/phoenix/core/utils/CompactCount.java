@@ -1,8 +1,41 @@
 package net.phoenix.core.utils;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+
+import java.text.NumberFormat;
+import java.util.Locale;
+
 public final class CompactCount {
 
     private CompactCount() {}
+
+
+    public static Component createCompactComponentWithTooltip(String original) {
+        String compacted = compactIfNumeric(original);
+
+        if (compacted.equals(original)) {
+            return Component.literal(original);
+        }
+
+        MutableComponent component = Component.literal(compacted);
+
+        String cleaned = original.replace(",", "").replace("_", "").trim();
+        String hoverText = original;
+
+        try {
+            long value = Long.parseLong(cleaned);
+            hoverText = NumberFormat.getNumberInstance(Locale.US).format(value);
+        } catch (NumberFormatException ignored) {}
+
+        String finalHoverText = hoverText;
+        component.withStyle(style -> style.withHoverEvent(
+                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(finalHoverText))
+        ));
+
+        return component;
+    }
 
     public static String compactIfNumeric(String s) {
         if (s == null || s.isEmpty()) return s;

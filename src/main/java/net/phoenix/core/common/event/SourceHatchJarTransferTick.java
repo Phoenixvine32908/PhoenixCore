@@ -2,7 +2,9 @@ package net.phoenix.core.common.event;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
-
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
+import com.hollingsworth.arsnouveau.client.particle.ParticleUtil;
+import com.hollingsworth.arsnouveau.common.block.tile.SourceJarTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,10 +14,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.phoenix.core.PhoenixCore;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
 import net.phoenix.core.configs.PhoenixConfigs;
-
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
-import com.hollingsworth.arsnouveau.client.particle.ParticleUtil;
-import com.hollingsworth.arsnouveau.common.block.tile.SourceJarTile;
 
 @Mod.EventBusSubscriber(modid = PhoenixCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class SourceHatchJarTransferTick {
@@ -41,6 +39,9 @@ public final class SourceHatchJarTransferTick {
 
             var machine = metaBE.getMetaMachine();
             if (!(machine instanceof SourceHatchPartMachine hatch)) continue;
+
+            // ✅ Respect hatch on/off
+            if (!hatch.isWorkingEnabled()) continue;
 
             ISourceTile tank = hatch.getSource();
             if (tank == null) continue;

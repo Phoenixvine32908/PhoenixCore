@@ -46,9 +46,7 @@ import net.phoenix.core.client.renderer.gui.SourceHatchMenu;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
 import net.phoenix.core.common.data.item.PhoenixItems;
-import net.phoenix.core.common.data.materials.PhoenixMaterialFlags;
-import net.phoenix.core.common.data.materials.PhoenixMaterials;
-import net.phoenix.core.common.data.materials.PhoenixOres;
+import net.phoenix.core.common.data.materials.*;
 import net.phoenix.core.common.data.recipeConditions.FluidInHatchCondition;
 import net.phoenix.core.common.event.SourceHatchJarTransferTick;
 import net.phoenix.core.common.machine.PhoenixBeeMachines;
@@ -155,8 +153,12 @@ public class PhoenixCore {
     }
 
     private void addMaterials(MaterialEvent event) {
-        PhoenixMaterials.register();
         PhoenixOres.register();
+        PhoenixMaterials.register();
+        PhoenixProgressionMaterials.register();
+        PhoenixFissionMaterials.register();
+        PhoenixPolymerMaterials.register();
+        PhoenixBeeMaterials.register();
     }
 
     private void modifyMaterials(PostMaterialEvent event) {

@@ -76,6 +76,7 @@ import static com.gregtechceu.gtceu.common.data.machines.GTMachineUtils.*;
 import static com.gregtechceu.gtceu.common.data.models.GTMachineModels.*;
 import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_INPUT;
 import static net.phoenix.core.api.machine.PhoenixPartAbility.SOURCE_OUTPUT;
+import static net.phoenix.core.common.data.materials.PhoenixProgressionMaterials.*;
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 import static net.phoenix.core.configs.PhoenixConfigs.INSTANCE;
 
@@ -135,12 +136,12 @@ public class PhoenixMachines {
                         .tooltipBuilder((item, tooltip) -> {
                             if (io == IO.IN) {
                                 tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.capacity",
-                                        SourceHatchPartMachine.getMaxCapacity(tier)));
+                                        SourceHatchPartMachine.getMaxCapacity(tier)).withStyle(style -> style.withColor(TextColor.fromRgb(0x8F00FF))));
                                 tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.consumption",
-                                        SourceHatchPartMachine.getMaxConsumption(tier)));
+                                        SourceHatchPartMachine.getMaxConsumption(tier)).withStyle(style -> style.withColor(TextColor.fromRgb(0x008080))));
                             } else
                                 tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.capacity",
-                                        SourceHatchPartMachine.getMaxCapacity(tier)));
+                                        SourceHatchPartMachine.getMaxCapacity(tier)).withStyle(style -> style.withColor(TextColor.fromRgb(0x8F00FF))));
                         }).register(),
                 tiers);
     }
@@ -263,35 +264,35 @@ public class PhoenixMachines {
                 .register();
     }
 
-    public static MachineDefinition ALUMINFROST_DRUM = registerDrum(PhoenixMaterials.ALUMINFROST,
+    public static MachineDefinition ALUMINFROST_DRUM = registerDrum(ALUMINFROST,
             (160 * FluidType.BUCKET_VOLUME),
             "Aluminfrost Drum");
-    // public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_DRUM = registerDrum(PhoenixMaterials.ALUMINFROST,
-    // (350 * FluidType.BUCKET_VOLUME),
-    // "Aluminfrost Drum");
-    public static MachineDefinition SOURCE_IMBUED_TITANIUM_DRUM = registerDrum(PhoenixMaterials.SOURCE_IMBUED_TITANIUM,
+     public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_DRUM = registerDrum(FROST_REINFORCED_STAINED_STEEL,
+     (350 * FluidType.BUCKET_VOLUME),
+     "Frost Reinforced Stained Steel Drum");
+    public static MachineDefinition SOURCE_IMBUED_TITANIUM_DRUM = registerDrum(SOURCE_IMBUED_TITANIUM,
             (750 * FluidType.BUCKET_VOLUME),
             "Source Imbued Titanium Drum");
-    // public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_DRUM = registerDrum(PhoenixMaterials.ALUMINFROST,
-    // (1300 * FluidType.BUCKET_VOLUME),
-    // "Aluminfrost Drum");
-    // public static MachineDefinition RESONANT_RHODIUM_ALLOY = registerDrum(PhoenixMaterials.RESONANT_RHODIUM_ALLOY,
-    // (2300 * FluidType.BUCKET_VOLUME),
-    // "Aluminfrost Drum");
-    public static MachineDefinition ALUMINFROST_CRATE = registerCrate(PhoenixMaterials.ALUMINFROST, 100,
+    public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_DRUM = registerDrum(VOID_TOUCHED_TUNGSTEN_STEEL,
+     (1300 * FluidType.BUCKET_VOLUME),
+     "Void Touched Tungsten Steel Drum");
+     public static MachineDefinition RESONANT_RHODIUM_ALLOY_DRUM = registerDrum(RESONANT_RHODIUM_ALLOY,
+     (2300 * FluidType.BUCKET_VOLUME),
+     "Resonant Rhodium Alloy Drum");
+    public static MachineDefinition ALUMINFROST_CRATE = registerCrate(ALUMINFROST, 100,
             "Aluminfrost Crate");
-    // public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_CRATE =
-    // registerCrate(PhoenixMaterials.FROST_REINFORCED_STAINED_STEEL, 116,
-    // "Frost Reinforced Stained Steel Crate");
+     public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_CRATE =
+     registerCrate(FROST_REINFORCED_STAINED_STEEL, 116,
+     "Frost Reinforced Stained Steel Crate");
     public static MachineDefinition SOURCE_IMBUED_TITANIUM_CRATE = registerCrate(
-            PhoenixMaterials.SOURCE_IMBUED_TITANIUM, 140,
+            SOURCE_IMBUED_TITANIUM, 140,
             "Source Imbued Titanium Crate");
-    // public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_CRATE =
-    // registerCrate(PhoenixMaterials.VOID_TOUCHED_TUNGSTEN_STEEL, 160,
-    // "Void Touched Tungsten Steel Crate");
-    // public static MachineDefinition RESONANT_RHODIUM_ALLOY_CRATE =
-    // registerCrate(PhoenixMaterials.RESONANT_RHODIUM_ALLOY_, 200,
-    // "Resonant Rhodium Alloy Crate");
+     public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_CRATE =
+     registerCrate(VOID_TOUCHED_TUNGSTEN_STEEL, 160,
+     "Void Touched Tungsten Steel Crate");
+     public static MachineDefinition RESONANT_RHODIUM_ALLOY_CRATE =
+     registerCrate(RESONANT_RHODIUM_ALLOY, 200,
+     "Resonant Rhodium Alloy Crate");
 
     public static MachineDefinition SHIELD_INTEGRITY_SENSOR_HATCH = REGISTRATE
             .machine("shield_stability_sensor_hatch", ShieldSensorHatchPartMachine::new)
@@ -312,7 +313,7 @@ public class PhoenixMachines {
             .recipeType(PhoenixRecipeTypes.PHOENIXWARE_FUSION_MK1)
             .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_NON_PERFECT,
                     MachineModifiers.FUSION_REACTOR, GTRecipeModifiers.BATCH_MODE)
-            .appearanceBlock(PhoenixBlocks.INSANELY_SUPERCHARGED_TESLA_CASING) // Reference your Java block entry
+            .appearanceBlock(PhoenixBlocks.INSANELY_SUPERCHARGED_TESLA_CASING)
             .pattern(definition -> FactoryBlockPattern.start()
                     .aisle("########BBCCCBB########", "########DDEEEDD########", "########DDEEEDD########",
                             "########DDEEEDD########", "########BBCCCBB########")
@@ -977,7 +978,7 @@ public class PhoenixMachines {
                                             .or(autoAbilities(true, false, true)))
                             .where('C',
                                     blocks(ChemicalHelper.getBlock(TagPrefix.frameGt,
-                                            PhoenixMaterials.PHOENIX_ENRICHED_TRITANIUM)))
+                                            PHOENIX_ENRICHED_TRITANIUM)))
                             .where('D', blocks(ADVANCED_COMPUTER_CASING.get()))
                             .where('E', blocks(ChemicalHelper.getBlock(TagPrefix.frameGt, GTMaterials.Neutronium)))
                             .where('F', blocks(COMPUTER_CASING.get()))
@@ -987,7 +988,7 @@ public class PhoenixMachines {
                             .where('J', blocks(PhoenixBlocks.RELIABLE_NAQUADAH_ALLOY_MACHINE_CASING.get()))
                             .where('K',
                                     blocks(ChemicalHelper.getBlock(TagPrefix.frameGt,
-                                            PhoenixMaterials.PHOENIX_ENRICHED_NAQUADAH)))
+                                            PHOENIX_ENRICHED_NAQUADAH)))
                             .where('L', blocks(PhoenixBlocks.SUPER_STABLE_FUSION_CASING.get())
                                     .or(blocks(ForgeRegistries.BLOCKS
                                             .getValue(ResourceLocation.fromNamespaceAndPath("kubejs",

@@ -22,6 +22,8 @@ import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import static net.phoenix.core.common.data.materials.PhoenixProgressionMaterials.PHOENIX_ENRICHED_TRITANIUM;
+
 @ParametersAreNonnullByDefault
 public class PhoenixCoilBlock extends ActiveBlock {
 
@@ -56,7 +58,7 @@ public class PhoenixCoilBlock extends ActiveBlock {
 
     public enum CoilType implements StringRepresentable, ICoilType {
 
-        COIL_TRUE_HEAT_STABLE("true_heat_stable", 1, 1, 1, 1, PhoenixMaterials.PHOENIX_ENRICHED_TRITANIUM,
+        COIL_TRUE_HEAT_STABLE("true_heat_stable", 1, 1, 1, 1, PHOENIX_ENRICHED_TRITANIUM,
                 PhoenixCore.id("block/true_heat_stable_coil_block"));
 
         @NotNull

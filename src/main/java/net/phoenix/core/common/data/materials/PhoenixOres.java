@@ -15,12 +15,20 @@ public class PhoenixOres {
     public static Material POLARITY_FLIPPED_BISMUTHITE;
     public static Material VOIDGLASS_SHARD;
     public static Material CRYSTALLIZED_FLUXSTONE;
+    public static Material PERMAFROST;
 
     public static void register() {
         NEVVONIAN_IRON = new Material.Builder(PhoenixCore.id("nevvonian_iron"))
                 .ingot()
                 .ore()
                 .color(0x7A687F)
+                .iconSet(MaterialIconSet.DIAMOND)
+                .buildAndRegister();
+
+        PERMAFROST = new Material.Builder(PhoenixCore.id("permafrost"))
+                .dust()
+                .ore()
+                .color(0xA7D1EB)
                 .iconSet(MaterialIconSet.DIAMOND)
                 .buildAndRegister();
 

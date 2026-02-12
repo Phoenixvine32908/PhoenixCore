@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 import static com.gregtechceu.gtceu.common.data.GTRecipeTypes.*;
 import static net.phoenix.core.common.data.PhoenixRecipeTypes.*;
 import static net.phoenix.core.common.data.bees.BeeRecipeData.MOD_ID;
+import static net.phoenix.core.common.data.materials.PhoenixBeeMaterials.WAX_MELTING_CATALYST;
 import static net.phoenix.core.common.data.materials.PhoenixMaterialFlags.crystal_rose;
 
 @SuppressWarnings("All")
@@ -175,7 +176,7 @@ public class PhoenixBeeRecipeGenerator {
                     .EUt(config.waxEut())
                     .duration(400)
                     .inputItems(new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(waxDustId))))
-                    .inputFluids(PhoenixMaterials.WAX_MELTING_CATALYST.getFluid(100))
+                    .inputFluids(WAX_MELTING_CATALYST.getFluid(100))
                     .outputFluids(getFluidStack(honeyedFluidId + " 1000"))
                     .save(provider);
 

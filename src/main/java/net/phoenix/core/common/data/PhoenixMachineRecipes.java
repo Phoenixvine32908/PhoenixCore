@@ -26,8 +26,11 @@ import static com.gregtechceu.gtceu.common.data.machines.GTResearchMachines.*;
 import static com.gregtechceu.gtceu.data.recipe.GTCraftingComponents.*;
 import static com.hollingsworth.arsnouveau.setup.registry.BlockRegistry.SOURCE_GEM_BLOCK;
 import static com.hollingsworth.arsnouveau.setup.registry.ItemsRegistry.SOURCE_GEM;
+import static net.phoenix.core.common.data.materials.PhoenixBeeMaterials.SOURCE_OF_MAGIC;
 import static net.phoenix.core.common.data.materials.PhoenixMaterials.*;
-import static net.phoenix.core.common.data.materials.PhoenixMaterials.SOURCE_OF_MAGIC;
+import static net.phoenix.core.common.data.materials.PhoenixProgressionMaterials.EightyFivePercentPureNevonianSteel;
+import static net.phoenix.core.common.data.materials.PhoenixProgressionMaterials.SOURCE_IMBUED_TITANIUM;
+
 
 public class PhoenixMachineRecipes {
 
@@ -283,7 +286,7 @@ public class PhoenixMachineRecipes {
 
         PhoenixRecipeTypes.SOURCE_IMBUEMENT_RECIPES.recipeBuilder("source_imbued_titanium")
                 .inputItems(ingot, Titanium, 1)
-                .inputFluids(SOURCE_OF_MAGIC.getFluid(1000000))
+                .inputFluids(SOURCE_OF_MAGIC.getFluid(1000))
                 .duration(160)
                 .EUt(GTValues.VA[GTValues.HV] / 3)
                 .outputItems(ingot, SOURCE_IMBUED_TITANIUM, 1)
