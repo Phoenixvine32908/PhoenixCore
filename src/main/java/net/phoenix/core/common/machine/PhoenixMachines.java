@@ -51,7 +51,6 @@ import net.phoenix.core.api.pattern.PhoenixPredicates;
 import net.phoenix.core.client.renderer.machine.multiblock.PhoenixDynamicRenderHelpers;
 import net.phoenix.core.common.block.PhoenixBlocks;
 import net.phoenix.core.common.data.PhoenixRecipeTypes;
-import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.machine.multiblock.BlazingCleanroom;
 import net.phoenix.core.common.machine.multiblock.electric.research.PhoenixHPCAMachine;
 import net.phoenix.core.common.machine.multiblock.part.ShieldRenderProperty;
@@ -136,12 +135,15 @@ public class PhoenixMachines {
                         .tooltipBuilder((item, tooltip) -> {
                             if (io == IO.IN) {
                                 tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.capacity",
-                                        SourceHatchPartMachine.getMaxCapacity(tier)).withStyle(style -> style.withColor(TextColor.fromRgb(0x8F00FF))));
+                                        SourceHatchPartMachine.getMaxCapacity(tier))
+                                        .withStyle(style -> style.withColor(TextColor.fromRgb(0x8F00FF))));
                                 tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.consumption",
-                                        SourceHatchPartMachine.getMaxConsumption(tier)).withStyle(style -> style.withColor(TextColor.fromRgb(0x008080))));
+                                        SourceHatchPartMachine.getMaxConsumption(tier))
+                                        .withStyle(style -> style.withColor(TextColor.fromRgb(0x008080))));
                             } else
                                 tooltip.add(Component.translatable("tooltip.phoenixcore.source_hatch.capacity",
-                                        SourceHatchPartMachine.getMaxCapacity(tier)).withStyle(style -> style.withColor(TextColor.fromRgb(0x8F00FF))));
+                                        SourceHatchPartMachine.getMaxCapacity(tier))
+                                        .withStyle(style -> style.withColor(TextColor.fromRgb(0x8F00FF))));
                         }).register(),
                 tiers);
     }
@@ -267,32 +269,30 @@ public class PhoenixMachines {
     public static MachineDefinition ALUMINFROST_DRUM = registerDrum(ALUMINFROST,
             (160 * FluidType.BUCKET_VOLUME),
             "Aluminfrost Drum");
-     public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_DRUM = registerDrum(FROST_REINFORCED_STAINED_STEEL,
-     (350 * FluidType.BUCKET_VOLUME),
-     "Frost Reinforced Stained Steel Drum");
+    public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_DRUM = registerDrum(FROST_REINFORCED_STAINED_STEEL,
+            (350 * FluidType.BUCKET_VOLUME),
+            "Frost Reinforced Stained Steel Drum");
     public static MachineDefinition SOURCE_IMBUED_TITANIUM_DRUM = registerDrum(SOURCE_IMBUED_TITANIUM,
             (750 * FluidType.BUCKET_VOLUME),
             "Source Imbued Titanium Drum");
     public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_DRUM = registerDrum(VOID_TOUCHED_TUNGSTEN_STEEL,
-     (1300 * FluidType.BUCKET_VOLUME),
-     "Void Touched Tungsten Steel Drum");
-     public static MachineDefinition RESONANT_RHODIUM_ALLOY_DRUM = registerDrum(RESONANT_RHODIUM_ALLOY,
-     (2300 * FluidType.BUCKET_VOLUME),
-     "Resonant Rhodium Alloy Drum");
+            (1300 * FluidType.BUCKET_VOLUME),
+            "Void Touched Tungsten Steel Drum");
+    public static MachineDefinition RESONANT_RHODIUM_ALLOY_DRUM = registerDrum(RESONANT_RHODIUM_ALLOY,
+            (2300 * FluidType.BUCKET_VOLUME),
+            "Resonant Rhodium Alloy Drum");
     public static MachineDefinition ALUMINFROST_CRATE = registerCrate(ALUMINFROST, 100,
             "Aluminfrost Crate");
-     public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_CRATE =
-     registerCrate(FROST_REINFORCED_STAINED_STEEL, 116,
-     "Frost Reinforced Stained Steel Crate");
+    public static MachineDefinition FROST_REINFORCED_STAINED_STEEL_CRATE = registerCrate(FROST_REINFORCED_STAINED_STEEL,
+            116,
+            "Frost Reinforced Stained Steel Crate");
     public static MachineDefinition SOURCE_IMBUED_TITANIUM_CRATE = registerCrate(
             SOURCE_IMBUED_TITANIUM, 140,
             "Source Imbued Titanium Crate");
-     public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_CRATE =
-     registerCrate(VOID_TOUCHED_TUNGSTEN_STEEL, 160,
-     "Void Touched Tungsten Steel Crate");
-     public static MachineDefinition RESONANT_RHODIUM_ALLOY_CRATE =
-     registerCrate(RESONANT_RHODIUM_ALLOY, 200,
-     "Resonant Rhodium Alloy Crate");
+    public static MachineDefinition VOID_TOUCHED_TUNGSTEN_STEEL_CRATE = registerCrate(VOID_TOUCHED_TUNGSTEN_STEEL, 160,
+            "Void Touched Tungsten Steel Crate");
+    public static MachineDefinition RESONANT_RHODIUM_ALLOY_CRATE = registerCrate(RESONANT_RHODIUM_ALLOY, 200,
+            "Resonant Rhodium Alloy Crate");
 
     public static MachineDefinition SHIELD_INTEGRITY_SENSOR_HATCH = REGISTRATE
             .machine("shield_stability_sensor_hatch", ShieldSensorHatchPartMachine::new)

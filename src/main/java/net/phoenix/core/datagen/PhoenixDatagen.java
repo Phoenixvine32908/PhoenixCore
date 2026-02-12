@@ -1,10 +1,10 @@
 package net.phoenix.core.datagen;
 
 import net.phoenix.core.datagen.lang.PhoenixLangHandler;
-
-import com.tterrag.registrate.providers.ProviderType;
 import net.phoenix.core.datagen.lang.PhoenixMachineLangHandler;
 import net.phoenix.core.datagen.lang.PhoenixMaterialLangHandler;
+
+import com.tterrag.registrate.providers.ProviderType;
 
 import static net.phoenix.core.common.registry.PhoenixRegistration.REGISTRATE;
 

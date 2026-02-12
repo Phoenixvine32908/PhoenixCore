@@ -4,18 +4,21 @@ import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredIOPartMachine;
-import com.hollingsworth.arsnouveau.api.source.ISourceTile;
+
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
-import lombok.Getter;
+
 import net.minecraft.world.entity.player.Player;
 import net.phoenix.core.api.capability.ISourceProviderCapability;
 import net.phoenix.core.api.machine.trait.NotifiableSourceContainer;
 import net.phoenix.core.client.renderer.gui.SourceHatchFancyUIWidget;
+
+import com.hollingsworth.arsnouveau.api.source.ISourceTile;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -23,8 +26,7 @@ public class SourceHatchPartMachine extends TieredIOPartMachine implements ISour
 
     public static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             SourceHatchPartMachine.class,
-            TieredIOPartMachine.MANAGED_FIELD_HOLDER
-    );
+            TieredIOPartMachine.MANAGED_FIELD_HOLDER);
 
     private final IO io;
 
@@ -36,8 +38,7 @@ public class SourceHatchPartMachine extends TieredIOPartMachine implements ISour
         super(holder, tier, io);
         this.io = io;
         this.sourceContainer = new NotifiableSourceContainer(
-                this, io, getMaxCapacity(tier), getMaxConsumption(tier)
-        );
+                this, io, getMaxCapacity(tier), getMaxConsumption(tier));
     }
 
     @Override

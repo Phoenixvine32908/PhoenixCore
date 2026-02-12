@@ -12,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.phoenix.core.PhoenixCore;
-import net.phoenix.core.common.data.materials.PhoenixMaterials;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;

@@ -11,8 +11,8 @@ import com.gregtechceu.gtceu.api.fluids.FluidBuilder;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKey;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
-
 import com.gregtechceu.gtceu.common.data.GTMaterials;
+
 import net.phoenix.core.api.item.tool.PhoenixToolType;
 import net.phoenix.core.common.data.recipe.generated.BeePrefixHelper;
 import net.phoenix.core.common.data.recipe.generated.CrystalRoseHelper;
@@ -26,30 +26,27 @@ import static net.phoenix.core.common.data.materials.PhoenixMaterialHelpers.*;
 public class PhoenixMaterials {
 
     public static void register() {
-
-
         GTMaterials.Francium.setProperty(PropertyKey.INGOT, new IngotProperty());
-        GTMaterials.Technetium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Radium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Actinium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Polonium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Protactinium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Neptunium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Curium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Berkelium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Californium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Einsteinium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Fermium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Mendelevium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Nobelium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Lawrencium.setProperty( PropertyKey.INGOT, new  IngotProperty());
-        GTMaterials.Strontium.setProperty( PropertyKey.INGOT, new  IngotProperty());
+        GTMaterials.Technetium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Radium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Actinium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Polonium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Protactinium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Neptunium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Curium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Berkelium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Californium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Einsteinium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Fermium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Mendelevium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Nobelium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Lawrencium.setProperty(PropertyKey.INGOT, new IngotProperty());
+        GTMaterials.Strontium.setProperty(PropertyKey.INGOT, new IngotProperty());
 
         addFluid(GTMaterials.Iodine, FluidStorageKeys.GAS);
         addFluid(GTMaterials.Oganesson, FluidStorageKeys.GAS);
-
-
     }
+
     public static void addFluid(Material m, FluidStorageKey key) {
         FluidProperty prop = new FluidProperty();
 

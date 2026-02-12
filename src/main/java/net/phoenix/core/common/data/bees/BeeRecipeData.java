@@ -3,7 +3,6 @@ package net.phoenix.core.common.data.bees;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 
-import net.phoenix.core.common.data.materials.PhoenixMaterials;
 import net.phoenix.core.common.data.recipe.records.ApisProgenitorConfig;
 import net.phoenix.core.common.data.recipe.records.FullBeeConfig;
 

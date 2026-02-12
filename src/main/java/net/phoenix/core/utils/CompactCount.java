@@ -11,7 +11,6 @@ public final class CompactCount {
 
     private CompactCount() {}
 
-
     public static Component createCompactComponentWithTooltip(String original) {
         String compacted = compactIfNumeric(original);
 
@@ -31,8 +30,7 @@ public final class CompactCount {
 
         String finalHoverText = hoverText;
         component.withStyle(style -> style.withHoverEvent(
-                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(finalHoverText))
-        ));
+                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(finalHoverText))));
 
         return component;
     }

@@ -5,7 +5,6 @@ import com.tterrag.registrate.providers.RegistrateLangProvider;
 public class PhoenixLangHandler {
 
     public static void init(RegistrateLangProvider provider) {
-
         // Tool Renaming & General Items
         provider.add("item.gtceu.tool.ev_screwdriver", "%s Electric Screwdriver (EV)");
         provider.add("item.gtceu.tool.mv_screwdriver", "%s Electric Screwdriver (MV)");

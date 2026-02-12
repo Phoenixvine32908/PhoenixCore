@@ -9,7 +9,6 @@ import com.gregtechceu.gtceu.utils.GTUtil;
 
 import net.minecraft.Util;
 import net.minecraft.data.recipes.FinishedRecipe;
-import net.phoenix.core.common.data.materials.PhoenixMaterials;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;

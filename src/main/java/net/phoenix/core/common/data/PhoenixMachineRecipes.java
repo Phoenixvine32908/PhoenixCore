@@ -31,7 +31,6 @@ import static net.phoenix.core.common.data.materials.PhoenixMaterials.*;
 import static net.phoenix.core.common.data.materials.PhoenixProgressionMaterials.EightyFivePercentPureNevonianSteel;
 import static net.phoenix.core.common.data.materials.PhoenixProgressionMaterials.SOURCE_IMBUED_TITANIUM;
 
-
 public class PhoenixMachineRecipes {
 
     public static void init(Consumer<FinishedRecipe> provider) {

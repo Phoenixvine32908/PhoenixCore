@@ -2,6 +2,7 @@ package net.phoenix.core.client.renderer.gui;
 
 import com.gregtechceu.gtceu.api.gui.fancy.FancyMachineUIWidget;
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyUIProvider;
+
 import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
 import com.lowdragmc.lowdraglib.gui.texture.ColorRectTexture;
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
@@ -9,12 +10,14 @@ import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib.gui.util.DrawerHelper;
 import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
-import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.phoenix.core.common.machine.multiblock.part.special.SourceHatchPartMachine;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import javax.annotation.Nonnull;
 
@@ -57,8 +60,7 @@ public class SourceHatchFancyUIWidget extends FancyMachineUIWidget {
 
         IGuiTexture bg = new GuiTextureGroup(
                 new ColorRectTexture(BUTTON_BG),
-                new ColorBorderTexture(1, PURPLE_ACCENT)
-        );
+                new ColorBorderTexture(1, PURPLE_ACCENT));
 
         addWidget(new ButtonWidget(bx, by, bw, bh, bg, cd -> closeUIClientSide()));
 
@@ -119,8 +121,7 @@ public class SourceHatchFancyUIWidget extends FancyMachineUIWidget {
                 pageX - expand,
                 pageY - expand,
                 pageX + pageW + expand,
-                pageY + pageH + expand
-        );
+                pageY + pageH + expand);
 
         int padX = 8;
         int padY = 6;
@@ -128,8 +129,6 @@ public class SourceHatchFancyUIWidget extends FancyMachineUIWidget {
 
         graphics.disableScissor();
     }
-
-
 
     @OnlyIn(Dist.CLIENT)
     private void drawOverlayHUD(GuiGraphics graphics, int x, int y, int usableWidth) {

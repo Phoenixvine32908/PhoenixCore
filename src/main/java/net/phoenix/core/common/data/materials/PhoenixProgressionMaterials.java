@@ -4,7 +4,6 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty;
-import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import net.phoenix.core.PhoenixCore;
@@ -17,7 +16,7 @@ public class PhoenixProgressionMaterials {
     // Basic Alloys & Progression
     public static Material ALUMINFROST, SOURCE_IMBUED_TITANIUM, RESONANT_RHODIUM_ALLOY, FROST;
     public static Material EightyFivePercentPureNevonianSteel, NIOBIUM_MODIFIED_SILICON_CARBIDE, AURUM_STEEL,
-            FIERY_BRONZE, VOID_TOUCHED_TUNGSTEN_STEEL,FROST_REINFORCED_STAINED_STEEL;
+            FIERY_BRONZE, VOID_TOUCHED_TUNGSTEN_STEEL, FROST_REINFORCED_STAINED_STEEL;
 
     // Superconductors
     public static Material MAGMATIC_MANGANESE_LEAD, CRYOGENIC_ALUMINUM_STRAND, ICY_STEEL_MATRIX,
@@ -58,7 +57,8 @@ public class PhoenixProgressionMaterials {
                 .buildAndRegister();
         RESONANT_RHODIUM_ALLOY = new Material.Builder(PhoenixCore.id("resonant_rhodium_alloy")).ingot().fluid()
                 .color(0xE245F8).secondaryColor(0xA345B0).iconSet(MaterialIconSet.METALLIC)
-                .components(GTMaterials.Rhodium, 3,GTMaterials.Palladium, 4, PhoenixOres.POLARITY_FLIPPED_BISMUTHITE, 1,GTMaterials.Cerium, 4)
+                .components(GTMaterials.Rhodium, 3, GTMaterials.Palladium, 4, PhoenixOres.POLARITY_FLIPPED_BISMUTHITE,
+                        1, GTMaterials.Cerium, 4)
                 .blastTemp(3600, HIGH, 480, 400).fluidPipeProperties(2800, 200, true, true, false, false)
                 .flags(GENERATE_PLATE, GENERATE_RING, PHOSPHORESCENT, GENERATE_ROD, GENERATE_LONG_ROD, GENERATE_GEAR,
                         GENERATE_SMALL_GEAR, GENERATE_BOLT_SCREW, GENERATE_FRAME, GENERATE_DENSE, GENERATE_ROTOR)
@@ -68,7 +68,8 @@ public class PhoenixProgressionMaterials {
                 .fluid()
                 .color(0xB0E0E6).secondaryColor(0x708090)
                 .iconSet(MaterialIconSet.SHINY)
-                .components(GTMaterials.StainlessSteel, 4, PhoenixProgressionMaterials.FROST, 1, GTMaterials.Aluminium, 2)
+                .components(GTMaterials.StainlessSteel, 4, PhoenixProgressionMaterials.FROST, 1, GTMaterials.Aluminium,
+                        2)
                 .blastTemp(4500, BlastProperty.GasTier.HIGH, GTValues.VA[GTValues.EV], 1200)
                 .flags(
                         GENERATE_PLATE,
@@ -78,8 +79,7 @@ public class PhoenixProgressionMaterials {
                         GENERATE_FRAME,
                         GENERATE_BOLT_SCREW,
                         GENERATE_RING,
-                        GENERATE_DENSE
-                )
+                        GENERATE_DENSE)
                 .buildAndRegister();
         EightyFivePercentPureNevonianSteel = new Material.Builder(
                 PhoenixCore.id("eighty_five_percent_pure_nevonian_steel")).ingot().color(0xFFFFE0)
@@ -107,8 +107,7 @@ public class PhoenixProgressionMaterials {
                         GENERATE_GEAR,
                         GENERATE_SMALL_GEAR,
                         GENERATE_DENSE,
-                        GENERATE_ROTOR
-                )
+                        GENERATE_ROTOR)
                 .buildAndRegister();
         NIOBIUM_MODIFIED_SILICON_CARBIDE = new Material.Builder(PhoenixCore.id("niobium_modified_silicon_carbide"))
                 .ingot().color(0x4A4B6B).secondaryColor(0x101021).formula("Nb(SiC)x").iconSet(MaterialIconSet.METALLIC)
